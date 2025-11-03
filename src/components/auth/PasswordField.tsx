@@ -1,5 +1,3 @@
-"use client"
-
 import { useState } from "react"
 import { View, Text, TextInput, TouchableOpacity } from "react-native"
 import { Controller } from "react-hook-form"
@@ -18,13 +16,13 @@ export function PasswordField({ name, control, placeholder, label, error }: Pass
 
   return (
     <View>
-      <Text className="mb-2 text-sm font-semibold text-gray-700">{label}</Text>
+      <Text className="mb-2 text-sm font-semibold text-gray-900">{label}</Text>
       <Controller
         control={control}
         name={name}
         render={({ field: { onChange, onBlur, value } }) => (
           <View
-            className={`flex-row items-center rounded-lg border-2 bg-white ${
+            className={`flex-row items-center rounded-2xl border bg-white inset-shadow-sm ${
               error ? "border-red-500" : "border-gray-200"
             }`}
           >

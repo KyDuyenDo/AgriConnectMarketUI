@@ -8,7 +8,7 @@ interface SignInButtonProps {
 export function SignInButton({ isLoading, onPress }: SignInButtonProps) {
   return (
     <TouchableOpacity
-      className="active:scale-95 rounded-full bg-green-600 py-4 shadow-lg"
+      className="active:scale-95 rounded-3xl bg-green-600 py-4 shadow-lg"
       onPress={onPress}
       disabled={isLoading}
       activeOpacity={0.8}

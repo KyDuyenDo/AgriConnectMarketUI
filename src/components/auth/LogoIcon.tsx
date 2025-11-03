@@ -3,7 +3,7 @@ import { Leaf } from "lucide-react-native"
 
 export function LogoIcon() {
   return (
-    <View className="h-20 w-20 items-center justify-center rounded-full bg-gray-100">
+    <View className="h-20 w-20 items-center justify-center rounded-full bg-gray-100 shadow-lg">
       <Leaf size={40} color="#4CAF50" />
     </View>
   )
