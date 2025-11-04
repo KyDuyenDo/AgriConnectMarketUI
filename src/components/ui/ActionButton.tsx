@@ -33,6 +33,8 @@ export function ActionButton({ action }: ActionButtonProps) {
       style={{
         backgroundColor: "#ffffff",
         borderRadius: 12,
+        borderWidth: 2,
+        borderColor: "#e5e7eb",
         padding: 12,
         flexDirection: "row",
         alignItems: "center",

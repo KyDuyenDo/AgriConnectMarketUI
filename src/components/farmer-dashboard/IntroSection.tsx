@@ -1,25 +1,27 @@
 import { View, Text, Image } from "react-native"
+import { EarningsCard } from "./EarningsCard"
 
-export function IntroSection() {
+interface IntroSectionProps {
+  userName: string;
+  userImageUrl: string;
+  earningsAmount?: string;
+  earningsPeriod?: string;
+}
+
+export function IntroSection({ userName, userImageUrl, earningsAmount, earningsPeriod }: IntroSectionProps) {
   return (
-    <View
-      style={{
-        backgroundColor: "#f0fdf4",
-        borderRadius: 12,
-        padding: 16,
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-      }}
-    >
-      <View style={{ flex: 1 }}>
-        <Text style={{ fontSize: 18, fontWeight: "700", color: "#1f2937" }}>Good Morning, John!</Text>
-        <Text style={{ fontSize: 14, color: "#6b7280", marginTop: 4 }}>Ready to harvest success today?</Text>
+    <View className="flex gap-4 bg-white p-6 rounded-2xl shadow shadow-gray-200">
+      <View className="flex flex-row justify-between items-center">
+        <View style={{ flex: 1 }}>
+          <Text style={{ fontSize: 20, fontWeight: "700", color: "#1f2937" }}>Good Morning, {userName}!</Text>
+          <Text style={{ fontSize: 14, color: "#6b7280", marginTop: 4 }}>Ready to harvest success today?</Text>
+        </View>
+        <Image
+          source={{ uri: userImageUrl }}
+          style={{ width: 60, height: 60, borderRadius: 100 }}
+        />
       </View>
-      <Image
-        source={{ uri: "https://th.bing.com/th/id/R.4c88ee94e2daaf515a79883e8c23446c?rik=27Y2S7x1lebIrg&pid=ImgRaw&r=0" }}
-        style={{ width: 56, height: 56, borderRadius: 28 }}
-      />
+      <EarningsCard earningsAmount={earningsAmount} earningsPeriod={earningsPeriod} />
     </View>
   )
 }

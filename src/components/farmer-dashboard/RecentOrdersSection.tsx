@@ -44,7 +44,7 @@ export function RecentOrdersSection() {
         <Text style={{ fontSize: 18, fontWeight: "600", color: "#1f2937" }}>Recent Orders</Text>
         <Text style={{ fontSize: 14, fontWeight: "500", color: "#16a34a" }}>View All</Text>
       </View>
-      <View style={{ gap: 12 }}>
+      <View className="bg-white p-6 rounded-2xl shadow shadow-gray-200" style={{ gap: 12 }}>
         {orders.map((order) => (
           <OrderCard key={order.id} order={order} />
         ))}
