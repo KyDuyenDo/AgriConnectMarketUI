@@ -1,5 +1,6 @@
 import { View } from "react-native"
-import { StatCard } from "./StatCard"
+import { AnalysticCard } from "../ui/AnalysticCard"
+import { ShoppingBasket, Clock, DollarSign, TrendingUp } from "lucide-react-native"
 
 const STAT_CARDS = [
   {
@@ -7,48 +8,54 @@ const STAT_CARDS = [
     label: "Orders Today",
     value: "12",
     change: "+5%",
-    bgColor: "bg-green-100",
+    bgColor: "#C8E6C9",
     textColor: "text-green-700",
+    icon: <ShoppingBasket size={20} color="#4CAF50" strokeWidth={2} />,
   },
   {
     id: "2",
     label: "Pending Orders",
     value: "7",
     badge: "3",
-    bgColor: "bg-orange-100",
+    bgColor: "#FFE0B2",
     textColor: "text-orange-700",
+    icon: <Clock size={20} color="#FFA726" strokeWidth={2} />,
   },
   {
     id: "3",
     label: "Weekly Revenue",
     value: "$892",
     change: "+18%",
-    bgColor: "bg-orange-100",
+    bgColor: "#FFE0B2",
     textColor: "text-orange-700",
+    icon: <TrendingUp size={20} color="#FFA726" strokeWidth={2} />,
   },
   {
     id: "4",
     label: "Avg Order Value",
     value: "$38",
-    bgColor: "bg-blue-100",
+    bgColor: "#BBDEFB",
     textColor: "text-blue-700",
+    icon: <DollarSign size={20} color="#2C7BE5" strokeWidth={2} />,
   },
 ]
 
 export function StatsSection() {
   return (
     <View className="p-2 mt-2">
-      <View className="flex-row flex-wrap">
+      <View className="flex-row flex-wrap justify-between">
         {STAT_CARDS.map((stat) => (
-          <StatCard
-            key={stat.id}
-            label={stat.label}
-            value={stat.value}
-            change={stat.change}
-            badge={stat.badge}
-            bgColor={stat.bgColor}
-            textColor={stat.textColor}
-          />
+          <View key={stat.id} className="w-1/2 p-2">
+            <AnalysticCard
+              key={stat.id}
+              title={stat.label}
+              value={stat.value}
+              trend={stat.change || ""}
+              iConBackgroundColor={stat.bgColor.replace("bg-", "#").replace("-", "")}
+              iConColor={stat.textColor.replace("text-", "#").replace("-", "")}
+              icon={stat.icon}
+            />
+          </View>
         ))}
       </View>
     </View>

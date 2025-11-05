@@ -1,6 +1,6 @@
 import type React from "react"
 import { View, ScrollView } from "react-native"
-import { ProductCard } from "./ProductCard"
+import { FarmerProductCard } from "./ProductCard"
 
 interface ProductGridProps {
   searchQuery: string
@@ -16,7 +16,7 @@ const MOCK_PRODUCTS = [
     sold: "12 units",
     soldAmount: "$102.00",
     stock: "In Stock",
-    image: "https://images.unsplash.com/photo-1592841494900-05b8d113ae5b?w=300&h=300&fit=crop",
+    image: "https://facts.net/wp-content/uploads/2024/06/20-great-interesting-facts-about-vegetables-1717310986.jpg",
   },
   {
     id: "2",
@@ -27,16 +27,40 @@ const MOCK_PRODUCTS = [
     sold: "8 units",
     soldAmount: "$48.00",
     stock: "Low Stock",
-    image: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=300&h=300&fit=crop",
+    image: "https://facts.net/wp-content/uploads/2024/06/20-great-interesting-facts-about-vegetables-1717310986.jpg",
+  },
+  {
+    id: "2",
+    name: "Fresh Lettuce",
+    category: "Vegetables",
+    price: "$6.00/kg",
+    units: "8 units",
+    sold: "8 units",
+    soldAmount: "$48.00",
+    stock: "Low Stock",
+    image: "https://facts.net/wp-content/uploads/2024/06/20-great-interesting-facts-about-vegetables-1717310986.jpg",
+  },
+  {
+    id: "2",
+    name: "Fresh Lettuce",
+    category: "Vegetables",
+    price: "$6.00/kg",
+    units: "8 units",
+    sold: "8 units",
+    soldAmount: "$48.00",
+    stock: "Low Stock",
+    image: "https://facts.net/wp-content/uploads/2024/06/20-great-interesting-facts-about-vegetables-1717310986.jpg",
   },
 ]
 
 export const ProductGrid: React.FC<ProductGridProps> = ({ searchQuery }) => {
   return (
-    <ScrollView className="px-4 pb-6">
-      <View className="flex-row flex-wrap gap-4 justify-between">
+     <ScrollView className="flex-1">
+      <View className="flex-row flex-wrap justify-between">
         {MOCK_PRODUCTS.map((product) => (
-          <ProductCard key={product.id} product={product} />
+          <View key={product.id} className="w-[48%] mb-4">
+            <FarmerProductCard product={product} />
+          </View>
         ))}
       </View>
     </ScrollView>

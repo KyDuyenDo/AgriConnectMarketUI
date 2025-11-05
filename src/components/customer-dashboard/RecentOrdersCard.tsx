@@ -5,20 +5,20 @@ import { View, Text, TouchableOpacity } from "react-native"
 
 export const RecentOrdersCard: React.FC = () => {
   const getStatusColor = (status: string) => {
-    return status === "Delivered" ? "bg-green-100" : "bg-orange-100"
+    return status === "Delivered" ? "bg-[#C8E6C9]" : "bg-[#FFE0B2]"
   }
 
   const getStatusTextColor = (status: string) => {
-    return status === "Delivered" ? "text-green-700" : "text-orange-700"
+    return status === "Delivered" ? "text-[#2E7D32]" : "text-[#F57C00]"
   }
 
   return (
-    <View className="px-4">
+    <View>
       {/* Header */}
       <View className="flex-row items-center justify-between mb-4">
         <Text className="text-lg font-semibold text-gray-900">Recent Orders</Text>
         <TouchableOpacity>
-          <Text className="text-green-600 font-medium">View All</Text>
+          <Text className="text-[#4CAF50] font-medium">View All</Text>
         </TouchableOpacity>
       </View>
 

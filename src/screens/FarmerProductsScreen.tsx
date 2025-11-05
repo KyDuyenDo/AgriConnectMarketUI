@@ -15,17 +15,14 @@ export const FarmerProductsScreen: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("")
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#ffffff" }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#F9FAF9" }}>
       <ScrollView
         style={{ flex: 1 }}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16, gap: 24 }}
       >
         <Header />
-        <View className="px-4 py-4">
-          <ActionButtons />
-        </View>
-        <View className="px-4 pb-4">
+        <View className="pt-4">
           <FilterSection
             onCategoryChange={setSelectedCategory}
             onPriceChange={setSelectedPrice}
@@ -33,7 +30,10 @@ export const FarmerProductsScreen: React.FC = () => {
             onSearchChange={setSearchQuery}
           />
         </View>
-        <ProductGrid searchQuery={searchQuery} /> 
+        <View>
+          <ActionButtons />
+        </View>
+        <ProductGrid searchQuery={searchQuery} />
       </ScrollView>
     </SafeAreaView>
   )

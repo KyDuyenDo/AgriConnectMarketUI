@@ -1,5 +1,5 @@
 import { View, Text } from "react-native"
-import { ProductCard } from "@/components/ui/ProductCard"
+import { TopProductCard } from "@/components/ui/TopProductCard"
 
 const products = [
   {
@@ -34,7 +34,7 @@ export function TopProductsSection() {
       <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 12, justifyContent: "space-between" }}>
         {products.map((product) => (
           <View key={product.id} style={{ width: "48%" }}>
-            <ProductCard product={product} />
+            <TopProductCard product={product} />
           </View>
         ))}
       </View>
