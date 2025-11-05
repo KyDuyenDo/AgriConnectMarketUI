@@ -27,6 +27,18 @@ const RatingInfo = ({ rating, numRatings }: { rating?: number; numRatings?: numb
     )
 }
 
+const ProductMetadata = ({ batch, quantity, unit }: { batch: string; quantity: number; unit: string }) => {
+    return (
+        <View className="flex flex-row gap-3 mb-1">
+            <View className="flex flex-row items-center">
+                <Weight size={14} color="#9DA3A8" className="mr-1" />
+                <Text className="text-xs text-[#9DA3A8]">
+                    {quantity} {unit}
+                </Text>
+            </View>
+        </View>
+    )
+}
 
 const FavoriteButton = ({
     isFavorite,
@@ -45,17 +57,12 @@ const FavoriteButton = ({
     )
 }
 
-const PriceSection = ({ price, quantity, unit }: { price: string; quantity: number; unit: string }) => {
+const PriceSection = ({ price, unit }: { price: string; unit: string }) => {
     return (
         <View className="flex-row items-center justify-between">
-            <View className="flex flex-row gap-3 items-center">
-                <Text className="text-[#4CAF50] text-[14px] font-bold">
-                    {price}/<Text className="text-[14px] font-bold">{unit}</Text>
-                </Text>
-                <Text className="text-xs text-[#9DA3A8]">
-                    {quantity} {unit}
-                </Text>
-            </View>
+            <Text className="text-[#4CAF50] text-[14px] font-bold">
+                {price}/<Text className="text-[14px] font-bold">{unit}</Text>
+            </Text>
             <TouchableOpacity className="bg-[#4CAF50] rounded-full p-2 w-8 h-8 flex items-center justify-center">
                 <Text className="text-white font-bold">+</Text>
             </TouchableOpacity>
@@ -83,17 +90,19 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, toggleFavorit
                             <Text className="text-xs text-[#9DA3A8]">{product.batch} Lot</Text>
                         </View>
                     </View>
-                    <Text className="text-xs text-[#6B737A] mb-1" numberOfLines={1}>
+                    <Text className="text-xs text-[#6B737A] mb-2" numberOfLines={1}>
                         {product.farm}
                     </Text>
 
                     <View className="flex flex-row gap-2 mb-2 flex-wrap">
                         <RatingInfo rating={product.rating} numRatings={product.numRatings} />
                     </View>
+
+                    <ProductMetadata batch={product.batch} quantity={product.quantity} unit={product.unit} />
                 </View>
 
                 {/* Price and Add Button */}
-                <PriceSection quantity={product.quantity} price={product.price} unit={product.unit} />
+                <PriceSection price={product.price} unit={product.unit} />
             </View>
         </View>
     )
