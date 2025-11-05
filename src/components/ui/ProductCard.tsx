@@ -27,19 +27,6 @@ const RatingInfo = ({ rating, numRatings }: { rating?: number; numRatings?: numb
     )
 }
 
-const ProductMetadata = ({ batch, quantity, unit }: { batch: string; quantity: number; unit: string }) => {
-    return (
-        <View className="flex flex-row gap-3 mb-1">
-            <View className="flex flex-row items-center">
-                <Weight size={14} color="#9DA3A8" className="mr-1" />
-                <Text className="text-xs text-[#9DA3A8]">
-                    {quantity} {unit}
-                </Text>
-            </View>
-        </View>
-    )
-}
-
 const FavoriteButton = ({
     isFavorite,
     onPress,
@@ -96,9 +83,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, toggleFavorit
 
                     <View className="flex flex-row gap-2 mb-2 flex-wrap">
                         <RatingInfo rating={product.rating} numRatings={product.numRatings} />
+                        <View className="flex flex-row items-center">
+                            <Weight size={14} color="#9DA3A8" className="mr-1" />
+                            <Text className="text-xs text-[#9DA3A8]">
+                                {product.quantity} {product.unit}
+                            </Text>
+                        </View>
                     </View>
 
-                    <ProductMetadata batch={product.batch} quantity={product.quantity} unit={product.unit} />
                 </View>
 
                 {/* Price and Add Button */}
