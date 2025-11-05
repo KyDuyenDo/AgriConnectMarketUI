@@ -1,5 +1,6 @@
 import { View, TouchableOpacity, Text } from "react-native"
 import { User, Check } from "lucide-react-native"
+import { Badge } from "./Badge"
 
 interface AccountTypeSelectorProps {
   accountType: "farmer" | "customer" | "partner"
@@ -7,8 +8,18 @@ interface AccountTypeSelectorProps {
 }
 
 export function AccountTypeSelector({ accountType, onSelect }: AccountTypeSelectorProps) {
+
+  const checked = accountType === "farmer"
+  const onToggle = (value: boolean) => {
+    if (value) {
+      onSelect("farmer")
+    } else {
+      onSelect("customer")
+    }
+  }
+
   return (
-    <View className="gap-4 rounded-2xl bg-gray-50 p-4">
+    <View className="gap-4 rounded-2xl bg-[#F5F7F5] p-4">
       {/* Header with Icon */}
       <View className="flex-row items-center gap-2">
         <User size={20} color="#4CAF50" />
@@ -18,13 +29,13 @@ export function AccountTypeSelector({ accountType, onSelect }: AccountTypeSelect
       {/* Farmer Option */}
       <View className="gap-3">
         <View className="flex-row items-start gap-3">
-          <TouchableOpacity
-            className={`h-6 w-6 rounded border-2 items-center justify-center mt-0.5 ${
-              accountType === "farmer" ? "border-green-500 bg-green-50" : "border-gray-300 bg-white"
-            }`}
-            onPress={() => onSelect("farmer")}
-          >
-            {accountType === "farmer" && <Check size={16} color="#4CAF50" />}
+          <TouchableOpacity className="flex-row items-center gap-2" onPress={() => onToggle(!checked)}>
+            <View
+              className={`mt-1 h-5 w-5 items-center justify-center rounded border ${checked ? "border-[#4CAF50] bg-[#4CAF50]" : "border-gray-300 bg-white"
+                }`}
+            >
+              {checked && <Check size={16} color="white" />}
+            </View>
           </TouchableOpacity>
 
           <View className="flex-1 gap-1">
@@ -35,27 +46,8 @@ export function AccountTypeSelector({ accountType, onSelect }: AccountTypeSelect
 
         {/* Account Type Tag Buttons */}
         <View className="ml-9 flex-row gap-2">
-          <TouchableOpacity
-            className={`rounded-full px-3 py-1.5 ${
-              accountType === "customer" ? "bg-green-500" : "bg-white border border-gray-200"
-            }`}
-            onPress={() => onSelect("customer")}
-          >
-            <Text className={`text-xs font-semibold ${accountType === "customer" ? "text-white" : "text-gray-700"}`}>
-              Customer
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            className={`rounded-full px-3 py-1.5 ${
-              accountType === "partner" ? "bg-orange-400" : "bg-white border border-gray-200"
-            }`}
-            onPress={() => onSelect("partner")}
-          >
-            <Text className={`text-xs font-semibold ${accountType === "partner" ? "text-white" : "text-gray-700"}`}>
-              Farm Partner
-            </Text>
-          </TouchableOpacity>
+          <Badge text="Farmer" textColor={accountType === "farmer" ? "text-[#2E7D32]" : "text-[#F57C00]"} backgroundColor={accountType === "farmer" ? "bg-[#C8E6C9]" : "bg-[#FFE0B2]"} />
+          <Badge text="Customer" textColor={accountType === "customer" ? "text-[#2E7D32]" : "text-[#F57C00]"} backgroundColor={accountType === "customer" ? "bg-[#C8E6C9]" : "bg-[#FFE0B2]"} />
         </View>
       </View>
     </View>

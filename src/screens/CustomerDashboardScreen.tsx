@@ -11,7 +11,7 @@ import { SafeAreaView } from "react-native-safe-area-context"
 
 export const CustomerDashboardScreen: React.FC = () => {
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-[#F9FAF9]">
       <ScrollView
         style={{ flex: 1 }}
         showsVerticalScrollIndicator={false}

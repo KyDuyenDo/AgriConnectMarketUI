@@ -34,7 +34,7 @@ export default function LoginScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
+    <SafeAreaView className="flex-1 bg-[#F9FAF9]">
       <ScrollView contentContainerClassName="flex-grow" className="flex-1">
         <View className="flex-1 px-4 pb-8 pt-8">
           {/* Logo */}
@@ -78,7 +78,7 @@ export default function LoginScreen() {
               <View className="mb-6 flex-row items-center justify-between">
                 <RememberMeCheckbox checked={rememberMe} onToggle={setRememberMe} />
                 <TouchableOpacity>
-                  <Text className="text-sm font-semibold text-green-600">Forgot Password?</Text>
+                  <Text className="text-sm font-semibold text-[#4CAF50]">Forgot Password?</Text>
                 </TouchableOpacity>
               </View>
 

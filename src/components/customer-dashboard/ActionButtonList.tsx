@@ -1,33 +1,34 @@
 import type React from "react"
 import { View, TouchableOpacity, Text } from "react-native"
+import { ShoppingBasket, Heart, Clock, Locate } from "lucide-react-native"
 
 interface ActionButton {
   id: string
   label: string
-  icon: string
+  icon: React.ReactNode,
+  backgroundColor?: string,
+  borderStyle?: string,
 }
 
 const actions: ActionButton[] = [
-  { id: "1", label: "Shop", icon: "🛒" },
-  { id: "2", label: "Favorites", icon: "❤️" },
-  { id: "3", label: "Orders", icon: "⏱️" },
-  { id: "4", label: "Nearby", icon: "📍" },
+  { id: "1", label: "Shop", icon: <ShoppingBasket color="white" />, backgroundColor: "bg-[#4CAF50]" },
+  { id: "2", label: "Favorites", icon: <Heart color="white" />, backgroundColor: "bg-[#4CAF50]" },
+  { id: "3", label: "Orders", icon: <Clock color="#4CAF50" />, backgroundColor: "bg-white", borderStyle: "border border-gray-200" },
+  { id: "4", label: "Nearby", icon: <Locate color="#4CAF50" />, backgroundColor: "bg-white", borderStyle: "border border-gray-200" },
 ]
 
 export const ActionButtonList: React.FC = () => {
   return (
-    <View className="bg-white px-4 py-6 border-t border-gray-200">
-      <View className="flex-row justify-around items-center">
+    <View className="px-4">
+      <View className="flex-row justify-between items-center">
         {actions.map((action) => (
           <TouchableOpacity key={action.id} className="flex-col items-center">
             <View
-              className={`w-16 h-16 rounded-3xl flex items-center justify-center mb-2 ${
-                action.icon === "🛒" || action.icon === "❤️" ? "bg-green-500" : "bg-gray-100"
-              }`}
+              className={`w-16 h-16 rounded-3xl flex items-center justify-center mb-2 ${action.borderStyle || ""} ${action.backgroundColor || "bg-gray-100"}`}
             >
-              <Text className="text-2xl">{action.icon}</Text>
+              {action.icon}
             </View>
-            <Text className="text-xs font-medium text-gray-700">{action.label}</Text>
+            <Text className="text-xs font-medium text-[#2D2D2D]">{action.label}</Text>
           </TouchableOpacity>
         ))}
       </View>

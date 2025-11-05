@@ -7,7 +7,7 @@ export const favoriteProducts: Product[] = [
     farm: "Green Valley Farm",
     price: "$3.25",
     unit: "/lb",
-    image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-ozNUZNzwR8389Fh431tU3S7wsXqwlB.png",
+    image: "https://plus.unsplash.com/premium_photo-1664527305901-a3c8bec62850?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8dmVnZXRhYmxlfGVufDB8fDB8fHww&fm=jpg&q=60&w=3000",
     isFavorite: true,
   },
   {
@@ -16,7 +16,7 @@ export const favoriteProducts: Product[] = [
     farm: "Sunny Acres Farm",
     price: "$2.75",
     unit: "/bunch",
-    image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-ozNUZNzwR8389Fh431tU3S7wsXqwlB.png",
+    image: "https://plus.unsplash.com/premium_photo-1664527305901-a3c8bec62850?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8dmVnZXRhYmxlfGVufDB8fDB8fHww&fm=jpg&q=60&w=3000",
     isFavorite: true,
   },
 ]
@@ -27,14 +27,14 @@ export const cartItems: CartItem[] = [
     name: "Organic Tomatoes",
     quantity: "2 lbs",
     price: "$8.50",
-    image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-UHL60E5FZV9CN3JXmhZvJEBuJZ82wa.png",
+    image: "https://plus.unsplash.com/premium_photo-1664527305901-a3c8bec62850?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8dmVnZXRhYmxlfGVufDB8fDB8fHww&fm=jpg&q=60&w=3000",
   },
   {
     id: "2",
     name: "Baby Spinach",
     quantity: "1 bunch",
     price: "$4.25",
-    image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-UHL60E5FZV9CN3JXmhZvJEBuJZ82wa.png",
+    image: "https://plus.unsplash.com/premium_photo-1664527305901-a3c8bec62850?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8dmVnZXRhYmxlfGVufDB8fDB8fHww&fm=jpg&q=60&w=3000",
   },
 ]
 
