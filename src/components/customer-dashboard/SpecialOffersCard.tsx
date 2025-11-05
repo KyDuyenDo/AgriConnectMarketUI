@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity } from "react-native"
 
 export const SpecialOffersCard: React.FC = () => {
   return (
-    <View className="bg-white mx-4 my-4 mb-8">
+    <View className="mx-4 my-4 mb-8">
       {/* Header */}
       <Text className="text-lg font-semibold text-gray-900 mb-4">Special Offers</Text>
 
