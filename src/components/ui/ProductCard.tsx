@@ -1,7 +1,7 @@
 import type React from "react"
 import type { Product } from "@/types"
 import { View, Image, Text, TouchableOpacity } from "react-native"
-import { Heart, Star, Package, Weight } from "lucide-react-native"
+import { Heart, Star, Plus, Weight } from "lucide-react-native"
 
 interface ProductCardProps {
     product: Product
@@ -11,7 +11,7 @@ interface ProductCardProps {
 const RatingInfo = ({ rating, numRatings }: { rating?: number; numRatings?: number }) => {
 
     return (
-        <View className="flex-row items-center">
+        <View className="flex-row items-center gap-1">
             <Star size={14} color="#FFB380" className="mr-1" />
             {
                 rating ? (
@@ -20,7 +20,7 @@ const RatingInfo = ({ rating, numRatings }: { rating?: number; numRatings?: numb
                         <Text className="text-xs text-[#9DA3A8]">({numRatings})</Text>
                     </>
                 ) : (
-                    <Text className="text-xs text-[#9DA3A8]">No ratings yet</Text>
+                    <Text className="text-xs text-[#9DA3A8]">No ratings</Text>
                 )
             }
         </View>
@@ -51,7 +51,7 @@ const PriceSection = ({ price, unit }: { price: string; unit: string }) => {
                 {price}/<Text className="text-[14px] font-bold">{unit}</Text>
             </Text>
             <TouchableOpacity className="bg-[#4CAF50] rounded-full p-2 w-8 h-8 flex items-center justify-center">
-                <Text className="text-white font-bold">+</Text>
+                <Plus size={16} color="white" />
             </TouchableOpacity>
         </View>
     )
@@ -83,7 +83,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, toggleFavorit
 
                     <View className="flex flex-row gap-2 mb-2 flex-wrap">
                         <RatingInfo rating={product.rating} numRatings={product.numRatings} />
-                        <View className="flex flex-row items-center">
+                        <View className="flex flex-row items-center gap-1">
                             <Weight size={14} color="#9DA3A8" className="mr-1" />
                             <Text className="text-xs text-[#9DA3A8]">
                                 {product.quantity} {product.unit}

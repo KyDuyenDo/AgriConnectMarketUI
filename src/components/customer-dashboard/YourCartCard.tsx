@@ -37,13 +37,13 @@ export const YourCartCard: React.FC = () => {
       </View>
 
       {/* Total */}
-      <View className="flex-row items-center justify-between mb-4 py-4 border-t border-gray-200">
+      <View className="flex-row items-center justify-between py-4 pb-3 border-t border-gray-200">
         <Text className="text-base font-medium text-gray-900">Total</Text>
         <Text className="text-lg font-bold text-gray-900">{total}</Text>
       </View>
 
       {/* Checkout Button */}
-      <TouchableOpacity className="w-full bg-[#4CAF50] rounded-lg py-3">
+      <TouchableOpacity className="w-full bg-[#4CAF50] rounded-2xl py-3">
         <Text className="text-white font-semibold text-center">Checkout</Text>
       </TouchableOpacity>
     </View>
