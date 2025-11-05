@@ -13,7 +13,7 @@ export const YourFavoriteCard: React.FC = () => {
   }
 
   return (
-    <View className="my-4">
+    <View>
       {/* Header */}
       <View className="flex-row items-center justify-between mb-4">
         <Text className="text-lg font-semibold text-gray-900">Your Favorites</Text>
