@@ -41,10 +41,12 @@ export function QuickActionsSection() {
   return (
     <View style={{ gap: 12 }}>
       <Text style={{ fontSize: 18, fontWeight: "600", color: "#1f2937" }}>Quick Actions</Text>
-      <View style={{ gap: 8 }}>
-        {actions.map((action) => (
-          <ActionButton key={action.id} action={action} />
-        ))}
+      <View className="bg-white rounded-2xl p-6 shadow shadow-gray-200">
+        <View style={{ gap: 8 }}>
+          {actions.map((action) => (
+            <ActionButton key={action.id} action={action} />
+          ))}
+        </View>
       </View>
     </View>
   )

@@ -7,7 +7,7 @@ export const YourCartCard: React.FC = () => {
   const total = "$24.75"
 
   return (
-    <View className="bg-white mx-4 my-4 rounded-3xl p-4 border border-gray-100">
+    <View className="bg-white rounded-3xl p-4 border border-gray-100">
       {/* Header */}
       <View className="flex-row items-center justify-between mb-4">
         <Text className="text-lg font-semibold text-gray-900">Your Cart</Text>
@@ -21,7 +21,7 @@ export const YourCartCard: React.FC = () => {
         {cartItems.map((item, index) => (
           <View
             key={item.id}
-            className={`flex-row items-center ${index !== cartItems.length - 1 ? "pb-4 border-b border-gray-100" : ""}`}
+            className={`flex-row items-center ${index !== cartItems.length - 1 ? "pb-4" : ""}`}
           >
             <Image
               source={{ uri: item.image || "https://via.placeholder.com/48" }}

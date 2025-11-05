@@ -13,7 +13,7 @@ export const RecentOrdersCard: React.FC = () => {
   }
 
   return (
-    <View className="bg-white mx-4 my-4">
+    <View className="px-4">
       {/* Header */}
       <View className="flex-row items-center justify-between mb-4">
         <Text className="text-lg font-semibold text-gray-900">Recent Orders</Text>
@@ -25,7 +25,7 @@ export const RecentOrdersCard: React.FC = () => {
       {/* Orders List */}
       <View className="gap-3">
         {recentOrders.map((order) => (
-          <View key={order.id} className="bg-white border border-gray-100 rounded-3xl p-4">
+          <View key={order.id} className="bg-white border border-gray-100 rounded-3xl p-4 shadow shadow-gray-200">
             {/* Status and Date */}
             <View className="flex-row items-center justify-between mb-3">
               <View className={`${getStatusColor(order.status)} rounded-full px-3 py-1`}>
@@ -34,18 +34,19 @@ export const RecentOrdersCard: React.FC = () => {
               <Text className="text-xs text-gray-500">{order.date}</Text>
             </View>
 
-            {/* Farm and Items */}
-            <View className="mb-3">
-              <Text className="font-semibold text-gray-900">{order.farm}</Text>
-              <Text className="text-xs text-gray-500">
-                {order.itemsCount} items • {order.price}
-              </Text>
+            <View className="flex flex-row justify-between items-center">
+              {/* Farm and Items */}
+              <View className="mb-3">
+                <Text className="font-semibold text-gray-900">{order.farm}</Text>
+                <Text className="text-xs text-gray-500">
+                  {order.itemsCount} items • {order.price}
+                </Text>
+              </View>
+              {/* Action Button */}
+              <TouchableOpacity className="px-6 py-2 bg-[#F5F7F5]  rounded-lg">
+                <Text className="text-[#4CAF50] font-medium text-sm text-center">{order.action}</Text>
+              </TouchableOpacity>
             </View>
-
-            {/* Action Button */}
-            <TouchableOpacity className="w-full border border-green-600 rounded-lg py-2">
-              <Text className="text-green-600 font-medium text-sm text-center">{order.action}</Text>
-            </TouchableOpacity>
           </View>
         ))}
       </View>

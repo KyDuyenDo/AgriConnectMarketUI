@@ -11,7 +11,7 @@ export function RememberMeCheckbox({ checked, onToggle }: RememberMeCheckboxProp
     <TouchableOpacity className="flex-row items-center gap-2" onPress={() => onToggle(!checked)}>
       <View
         className={`h-5 w-5 items-center justify-center rounded border ${
-          checked ? "border-green-600 bg-green-600" : "border-gray-300 bg-white"
+          checked ? "border-[#4CAF50] bg-[#4CAF50]" : "border-gray-300 bg-white"
         }`}
       >
         {checked && <Check size={16} color="white" />}

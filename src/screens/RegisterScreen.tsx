@@ -120,7 +120,7 @@ export default function RegisterScreen() {
 
           <View className="items-center gap-1 pt-6">
             <Text className="text-sm text-gray-700">Already have an account?</Text>
-            <Text className="text-sm font-semibold text-green-600">Sign in here</Text>
+            <Text className="text-sm font-semibold text-[#4CAF50]">Sign in here</Text>
           </View>
         </View>
       </ScrollView>

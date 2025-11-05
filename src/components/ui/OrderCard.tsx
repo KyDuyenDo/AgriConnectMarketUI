@@ -20,7 +20,7 @@ export function OrderCard({ order }: OrderCardProps) {
   return (
     <TouchableOpacity
       style={{
-        backgroundColor: "#ffffff",
+        backgroundColor: "#FFF8F0",
         borderRadius: 12,
         padding: 12,
         flexDirection: "row",
@@ -30,7 +30,7 @@ export function OrderCard({ order }: OrderCardProps) {
     >
       <Image source={{ uri: order.image }} style={{ width: 48, height: 48, borderRadius: 8 }} />
       <View style={{ flex: 1 }}>
-        <Text style={{ fontWeight: "500", color: "#1f2937", fontSize: 14 }}>{order.name}</Text>
+        <Text style={{ fontWeight: "600", color: "#1f2937", fontSize: 14 }}>{order.name}</Text>
         <Text style={{ fontSize: 12, color: "#6b7280", marginTop: 2 }}>
           Order #{order.orderNumber} • {order.quantity}
         </Text>

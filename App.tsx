@@ -14,6 +14,7 @@ import AuthNavigator from "@/navigation/AuthNavigator"
 import FarmNavigator from "@/navigation/FarmNavigator"
 import { enableScreens } from 'react-native-screens';
 import CustomerTab from "@/navigation/CustomerTab"
+import { SafeAreaProvider } from "react-native-safe-area-context"
 
 enableScreens();
 
@@ -21,17 +22,19 @@ export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(true)
   const [isFarmer, setIsFarmer] = useState(false) 
   return (
-    <NavigationContainer>
-      {isAuthenticated ? (
-        isFarmer ? (
-          <FarmNavigator />
-        ) : (
-          <CustomerTab />
-        )
-      ) : (
-        <AuthNavigator />
-      )}
-      <StatusBar style="dark" />
-    </NavigationContainer>
+        <SafeAreaProvider>
+          <NavigationContainer>
+            {isAuthenticated ? (
+              isFarmer ? (
+                <FarmNavigator />
+              ) : (
+                <CustomerTab />
+              )
+            ) : (
+              <AuthNavigator />
+            )}
+            <StatusBar style="dark" />
+          </NavigationContainer>
+        </SafeAreaProvider>
   )
 }
