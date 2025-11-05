@@ -3,7 +3,7 @@ import type React from "react"
 import { useState } from "react"
 import { View, Text, TouchableOpacity, ScrollView } from "react-native"
 import { favoriteProducts } from "@/data/mockData"
-import { FavoriteCard } from "./FavoriteCard"
+import { ProductCard } from "../ui/ProductCard"
 
 export const YourFavoriteCard: React.FC = () => {
   const [favorites, setFavorites] = useState<Product[]>(favoriteProducts)
@@ -27,7 +27,7 @@ export const YourFavoriteCard: React.FC = () => {
         <View className="flex-row flex-wrap justify-between">
           {favorites.map((product) => (
             <View key={product.id} className="w-[48%] mb-4">
-              <FavoriteCard product={product} toggleFavorite={toggleFavorite} />
+              <ProductCard product={product} toggleFavorite={toggleFavorite} />
             </View>
           ))}
         </View>
