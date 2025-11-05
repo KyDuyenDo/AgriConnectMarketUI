@@ -34,23 +34,25 @@ export function OrderCard({ order }: OrderCardProps) {
   const leftBorder = order.status === "urgent" ? "border-l-4 border-red-500" : ""
 
   return (
-    <View className={`bg-white border border-gray-200 rounded-lg p-4 mb-4 ${leftBorder}`}>
+    <View className={`bg-white rounded-2xl p-4 mb-4 ${leftBorder}`}>
       {/* Header */}
-      <View className="flex-row justify-between items-start mb-3">
+      <View className="flex-row justify-between items-center mb-3">
         <View className="flex-1">
           <View className="flex-row items-center gap-2 mb-1">
             <StatusBadge status={order.status} />
             {order.status === "urgent" && <StatusBadge status="pending" />}
           </View>
-          <Text className="text-gray-500 text-xs">{order.timestamp}</Text>
         </View>
-        <Text className="text-lg font-bold text-gray-900">{order.price}</Text>
+        <Text className="text-gray-500 text-xs">{order.timestamp}</Text>
       </View>
 
       {/* Order Info */}
-      <View className="mb-3">
-        <Text className="text-gray-900 font-semibold">{order.number}</Text>
-        <Text className="text-gray-600 text-sm">{order.customer}</Text>
+      <View className="flex-row justify-between items-center mb-3">
+        <View>
+          <Text className="text-[#2D2D2D] font-semibold">{order.number}</Text>
+          <Text className="text-[#5C5C5C] text-sm">{order.customer}</Text>
+        </View>
+        <Text className="text-lg font-bold text-[#2D2D2D]">{order.price}</Text>
       </View>
 
       <OrderProducts products={order.products} additionalProducts={order.additionalProducts} />

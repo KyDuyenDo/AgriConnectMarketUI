@@ -6,6 +6,12 @@ export interface Product {
   unit: string
   image: string
   isFavorite?: boolean
+  addedFavoriteDate?: string
+  rating?: number
+  numRatings?: number
+  status?: "In Stock" | "Out of Stock"
+  batch: string,
+  quantity: number
 }
 
 export interface CartItem {

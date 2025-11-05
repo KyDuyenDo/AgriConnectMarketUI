@@ -3,15 +3,15 @@ import { View, Text } from "react-native"
 const getStatusColor = (status: string) => {
   switch (status) {
     case "delivered":
-      return "bg-green-100"
+      return "bg-[#C8E6C9]"
     case "shipped":
-      return "bg-blue-100"
+      return "bg-[#BBDEFB]"
     case "processing":
-      return "bg-orange-100"
+      return "bg-[#FFE0B2]"
     case "pending":
-      return "bg-yellow-100"
+      return "bg-[#FFE0B2]"
     case "urgent":
-      return "bg-red-100"
+      return "bg-[#FFCDD2]"
     default:
       return "bg-gray-100"
   }
@@ -20,15 +20,15 @@ const getStatusColor = (status: string) => {
 const getStatusTextColor = (status: string) => {
   switch (status) {
     case "delivered":
-      return "text-green-700"
+      return "text-[#4CAF50]"
     case "shipped":
-      return "text-blue-700"
+      return "text-[#2C7BE5]"
     case "processing":
-      return "text-orange-700"
+      return "text-[#F57C00]"
     case "pending":
-      return "text-yellow-700"
+      return "text-[#F57C00]"
     case "urgent":
-      return "text-red-700"
+      return "text-[#D32F2F]"
     default:
       return "text-gray-700"
   }
