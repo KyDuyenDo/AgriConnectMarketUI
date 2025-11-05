@@ -18,8 +18,8 @@ export const CustomerDashboardScreen: React.FC = () => {
         contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16, gap: 24 }}
       >
         <Header
-          userName="Sarah Chen"
-          profileImage="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-msw7JyVIp6AtLvkoc2fNOCMi4ARvMh.png"
+          userName="Yung Chen"
+          profileImage="https://th.bing.com/th/id/R.c791922bcc10b38abfee71c89c3fff82?rik=qNyYcWrvzrww7A&pid=ImgRaw&r=0"
           notificationCount={3}
         />
         <ActionButtonList />
