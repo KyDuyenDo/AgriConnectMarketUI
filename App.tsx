@@ -8,12 +8,13 @@ import { FarmerProductsScreen } from "@/screens/FarmerProductsScreen"
 import { FarmerOrders } from "@/screens/FarmerOrdersScreen"
 import { SafeAreaProvider } from "react-native-safe-area-context"
 import { CustomerBatchDetailScreen } from "@/screens/CustomerBatchDetailScreen"
+import { CustomerCartScreen } from "@/screens/CustomerCartScreen"
 
 
 export default function App() {
   return (
     <SafeAreaProvider>
-      <CustomerBatchDetailScreen />
+      <CustomerCartScreen />
       <StatusBar style="dark" />
     </SafeAreaProvider>
   )
