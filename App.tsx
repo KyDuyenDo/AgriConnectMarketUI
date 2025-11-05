@@ -12,7 +12,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context"
 export default function App() {
   return (
     <SafeAreaProvider>
-      <FarmerProductsScreen />
+      <FarmerOrders />
       <StatusBar style="dark" />
     </SafeAreaProvider>
   )
