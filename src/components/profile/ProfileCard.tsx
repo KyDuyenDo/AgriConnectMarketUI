@@ -1,6 +1,6 @@
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity, Image } from "react-native";
 
-import { Camera, Edit3, User , Image, Star} from "lucide-react-native";
+import { Camera, Edit3, User , Star} from "lucide-react-native";
 
 interface UserData {
     name: string;
