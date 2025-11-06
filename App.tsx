@@ -20,12 +20,23 @@ import { CustomerCartScreen } from "@/screens/CustomerCartScreen"
 
 enableScreens();
 
+
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(true)
   const [isFarmer, setIsFarmer] = useState(false) 
   return (
     <SafeAreaProvider>
-      <CustomerCartScreen />
+      <NavigationContainer>
+        {isAuthenticated ? (
+          isFarmer ? (
+            <FarmNavigator />
+          ) : (
+            <CustomerTab />
+          )
+        ) : (
+          <AuthNavigator />
+        )}
+      </NavigationContainer>
       <StatusBar style="dark" />
     </SafeAreaProvider>
   )

@@ -1,6 +1,7 @@
 
 import { useEffect } from "react"
-import { View, Text, SafeAreaView, StyleSheet, Dimensions } from "react-native"
+import { View, Text, StyleSheet, Dimensions } from "react-native"
+import { SafeAreaView } from "react-native-safe-area-context"
 import { LinearGradient } from "expo-linear-gradient"
 import Animated, {
   useSharedValue,
