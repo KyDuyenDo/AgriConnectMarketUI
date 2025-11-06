@@ -11,7 +11,8 @@ export interface Product {
   numRatings?: number
   status?: "In Stock" | "Out of Stock"
   batch: string,
-  quantity: number
+  quantity: number,
+  category?: string
 }
 
 export interface CartItem {
