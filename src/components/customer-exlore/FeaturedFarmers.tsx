@@ -2,6 +2,7 @@ import { ScrollView } from "react-native"
 import FarmFeatureCard from "./FarmFeatureCard";
 
 interface Farmers {
+    id: number;
     image: string;
     name: string;
     location: string;
@@ -20,7 +21,7 @@ export const FeaturedFarmers = ({ Farmers }: FeaturedFarmersProps) => {
         <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
             {Farmers.map((farmer) => (
                 <FarmFeatureCard
-                    key={farmer.name}
+                    key={farmer.id}
                     image={farmer.image}
                     name={farmer.name}
                     location={farmer.location}
