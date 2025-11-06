@@ -25,7 +25,7 @@ export default function App() {
   const [isFarmer, setIsFarmer] = useState(false) 
   return (
     <SafeAreaProvider>
-      <CustomerCartScreen />
+      <CustomerBatchDetailScreen />
       <StatusBar style="dark" />
     </SafeAreaProvider>
   )

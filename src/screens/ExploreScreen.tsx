@@ -1,6 +1,5 @@
 import React from "react"
 import {
-    SafeAreaView,
     ScrollView,
     View,
     Text,
@@ -11,6 +10,7 @@ import {
 import { Header } from "@/components/customer-exlore/Header"
 import { SearchBar } from "@/components/customer-exlore/SearchBar"
 import { CardHeader } from "@/components/customer-exlore/CardHeader"
+import { SafeAreaView } from "react-native-safe-area-context"
 
 export function ExploreScreen() {
     return (

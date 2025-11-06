@@ -1,16 +1,16 @@
-import React from "react";
-import { View, Text, Image, StyleSheet } from "react-native";
-import { CheckCircle } from "lucide-react-native";
+import React from "react"
+import { View, Text, Image } from "react-native"
+import { CheckCircle } from "lucide-react-native"
 
 interface FarmInformationCardProps {
-  id: string;
-  verified?: boolean;
-  name: string;
-  variety: string;
-  farmName: string;
-  farmLogo?: any; 
-  harvestDate: string;
-  totalYield: string;
+  id: string
+  verified?: boolean
+  name: string
+  variety: string
+  farmName: string
+  farmLogo?: any
+  harvestDate: string
+  totalYield: string
 }
 
 const FarmInformationCard: React.FC<FarmInformationCardProps> = ({
@@ -24,122 +24,55 @@ const FarmInformationCard: React.FC<FarmInformationCardProps> = ({
   totalYield,
 }) => {
   return (
-    <View style={styles.card}>
+    <View className="bg-white rounded-2xl p-4 shadow-sm shadow-black/5 elevation-3 my-2">
       {/* Header */}
-      <View style={styles.headerRow}>
-        <Text style={styles.idText}>#{id}</Text>
+      <View className="flex-row justify-between items-center mb-1">
+        <Text className="text-[#8A8A8A] text-[12px]">#{id}</Text>
         {verified && (
-          <View style={styles.verifiedRow}>
-            <CheckCircle size={14} color="#22C55E" style={{ marginRight: 4 }} />
-            <Text style={styles.verifiedText}>Verified</Text>
+          <View className="flex-row items-center">
+            <CheckCircle size={14} color="#22C55E" className="mr-1" />
+            <Text className="text-emerald-500 font-medium">Verified</Text>
           </View>
         )}
       </View>
 
       {/* Title */}
-      <Text style={styles.name}>{name}</Text>
-      <Text style={styles.variety}>{variety}</Text>
+      <Text className="text-lg font-bold text-gray-900">{name}</Text>
+      <Text className="text-sm text-gray-500 mb-2">{variety}</Text>
 
       {/* Farm Info */}
-      <View style={styles.farmRow}>
+      <View className="flex-row items-center mb-3">
         {farmLogo && (
           <Image
             source={farmLogo}
-            style={{ width: 20, height: 20, borderRadius: 10 }}
+            className="w-5 h-5 rounded-full"
+            resizeMode="cover"
           />
         )}
-        <Text style={styles.farmName}>{farmName}</Text>
-        <CheckCircle size={14} color="#22C55E" style={{ marginLeft: 4 }} />
+        <Text className="ml-1.5 font-semibold text-gray-900">{farmName}</Text>
+        <CheckCircle size={14} color="#22C55E" className="ml-1" />
       </View>
 
       {/* Divider */}
-      <View style={styles.divider} />
+      <View className="h-px bg-gray-200 mb-3" />
 
       {/* Footer */}
-      <View style={styles.footerRow}>
+      <View className="flex-row justify-between">
         <View>
-          <Text style={styles.footerLabel}>Harvest Date</Text>
-          <Text style={styles.footerValue}>{harvestDate}</Text>
+          <Text className="text-xs text-gray-500 mb-0.5">Harvest Date</Text>
+          <Text className="text-sm font-semibold text-gray-900">
+            {harvestDate}
+          </Text>
         </View>
-
         <View>
-          <Text style={styles.footerLabel}>Total Yield</Text>
-          <Text style={styles.footerValue}>{totalYield}</Text>
+          <Text className="text-xs text-gray-500 mb-0.5">Total Yield</Text>
+          <Text className="text-sm font-semibold text-gray-900">
+            {totalYield}
+          </Text>
         </View>
       </View>
     </View>
-  );
-};
+  )
+}
 
-export default FarmInformationCard;
-
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    padding: 16,
-    shadowColor: "#000",
-    shadowOpacity: 0.05,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 3,
-    marginVertical: 8,
-  },
-  headerRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 4,
-  },
-  idText: {
-    color: "#6B7280",
-    fontWeight: "500",
-  },
-  verifiedRow: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  verifiedText: {
-    color: "#22C55E",
-    fontWeight: "500",
-  },
-  name: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: "#111827",
-  },
-  variety: {
-    color: "#6B7280",
-    fontSize: 14,
-    marginBottom: 8,
-  },
-  farmRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 12,
-  },
-  farmName: {
-    fontWeight: "600",
-    color: "#111827",
-    marginLeft: 6,
-  },
-  divider: {
-    height: 1,
-    backgroundColor: "#E5E7EB",
-    marginBottom: 12,
-  },
-  footerRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  footerLabel: {
-    fontSize: 12,
-    color: "#6B7280",
-    marginBottom: 2,
-  },
-  footerValue: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#111827",
-  },
-});
+export default FarmInformationCard
