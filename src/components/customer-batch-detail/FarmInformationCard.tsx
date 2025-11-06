@@ -1,5 +1,5 @@
 import React from "react"
-import { View, Text, Image } from "react-native"
+import { View, Text, Image, ImageSourcePropType } from "react-native"
 import { CheckCircle } from "lucide-react-native"
 
 interface FarmInformationCardProps {
@@ -8,7 +8,7 @@ interface FarmInformationCardProps {
   name: string
   variety: string
   farmName: string
-  farmLogo?: any
+  farmLogo: string | ImageSourcePropType
   harvestDate: string
   totalYield: string
 }
@@ -24,33 +24,24 @@ const FarmInformationCard: React.FC<FarmInformationCardProps> = ({
   totalYield,
 }) => {
   return (
-    <View className="bg-white rounded-2xl p-4 shadow-sm shadow-black/5 elevation-3 my-2">
+    <View className="bg-white rounded-2xl p-4 shadow shadow-gray-200 my-2">
       {/* Header */}
       <View className="flex-row justify-between items-center mb-1">
         <Text className="text-[#8A8A8A] text-[12px]">#{id}</Text>
-        {verified && (
-          <View className="flex-row items-center">
-            <CheckCircle size={14} color="#22C55E" className="mr-1" />
-            <Text className="text-emerald-500 font-medium">Verified</Text>
-          </View>
-        )}
       </View>
 
       {/* Title */}
-      <Text className="text-lg font-bold text-gray-900">{name}</Text>
-      <Text className="text-sm text-gray-500 mb-2">{variety}</Text>
+      <Text className="text-xl font-semibold text-[#2D2D2D]">{name}</Text>
+      <Text className="text-sm text-[#8A8A8A] mb-2">{variety}</Text>
 
       {/* Farm Info */}
-      <View className="flex-row items-center mb-3">
-        {farmLogo && (
-          <Image
-            source={farmLogo}
-            className="w-5 h-5 rounded-full"
-            resizeMode="cover"
-          />
-        )}
-        <Text className="ml-1.5 font-semibold text-gray-900">{farmName}</Text>
-        <CheckCircle size={14} color="#22C55E" className="ml-1" />
+      <View className="flex-row items-center gap-1 mb-3">
+        <Image
+          source={typeof farmLogo === "string" ? { uri: farmLogo } : (farmLogo as ImageSourcePropType)}
+          className="w-9 h-9 rounded-full"
+          resizeMode="cover"
+        />
+        <Text className="ml-1.5 font-semibold text-[#2D2D2D]">{farmName}</Text>
       </View>
 
       {/* Divider */}
@@ -59,14 +50,14 @@ const FarmInformationCard: React.FC<FarmInformationCardProps> = ({
       {/* Footer */}
       <View className="flex-row justify-between">
         <View>
-          <Text className="text-xs text-gray-500 mb-0.5">Harvest Date</Text>
-          <Text className="text-sm font-semibold text-gray-900">
+          <Text className="text-xs text-[#8A8A8A] mb-0.5">Harvest Date</Text>
+          <Text className="text-sm font-semibold text-[#2D2D2D]">
             {harvestDate}
           </Text>
         </View>
         <View>
-          <Text className="text-xs text-gray-500 mb-0.5">Total Yield</Text>
-          <Text className="text-sm font-semibold text-gray-900">
+          <Text className="text-xs text-[#8A8A8A] mb-0.5">Total Yield</Text>
+          <Text className="text-sm font-semibold text-[#2D2D2D]">
             {totalYield}
           </Text>
         </View>

@@ -28,37 +28,37 @@ const ProductStockCard: React.FC<ProductStockCardProps> = ({
   };
 
   return (
-    <View className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 my-2">
+    <View className="bg-white rounded-2xl p-4 shadow shadow-gray-200">
       {/* Header */}
       <View className="flex-row justify-between items-start mb-2">
-        <View>
-          <Text className="text-2xl font-bold text-gray-900">
+        <View className="flex-row items-end gap-1">
+          <Text className="text-2xl font-bold text-[#2D2D2D]">
             ${pricePerLb.toFixed(2)}
           </Text>
-          <Text className="text-gray-500 text-sm">/lb</Text>
+          <Text className="text-[#8A8A8A] text-sm">/lb</Text>
         </View>
 
         <View className="items-end">
-          <Text className="text-gray-900 font-semibold">{available}</Text>
-          <Text className="text-gray-400 text-sm">{weightType}</Text>
+          <Text className="text-[#2D2D2D] font-semibold">{available}</Text>
+          <Text className="text-[#8A8A8A] text-sm">{weightType}</Text>
         </View>
       </View>
 
       {/* Stock Level */}
-      <View className="flex-row justify-between mb-1">
+      {/* <View className="flex-row justify-between mb-1">
         <Text className="text-gray-500 text-sm">Stock Level</Text>
         <Text className="text-gray-500 text-sm">High</Text>
-      </View>
+      </View> */}
 
-      <View className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+      {/* <View className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
         <View
           className="h-2 bg-green-500 rounded-full"
           style={{ width: `${stockLevel * 100}%` }}
         />
-      </View>
+      </View> */}
 
       {/* Quantity Section */}
-      <View className="flex-row justify-between items-center mt-4">
+      {/* <View className="flex-row justify-between items-center mt-4">
         <Text className="font-semibold text-gray-900 text-base">Quantity</Text>
 
         <View className="flex-row items-center space-x-3">
@@ -80,7 +80,7 @@ const ProductStockCard: React.FC<ProductStockCardProps> = ({
             <Plus size={18} color="#fff" />
           </TouchableOpacity>
         </View>
-      </View>
+      </View> */}
     </View>
   );
 };

@@ -5,29 +5,16 @@ import TimelineList from "./TimelineList";
 
 const VerifiedProcessCard = () => {
   return (
-    <View className="bg-white rounded-3xl p-4 shadow-sm border border-gray-100 mt-3">
-      {/* Header */}
-      <View className="flex-row items-center justify-between mb-3">
-        <Text className="text-gray-900 text-lg font-semibold">
-          Verified Growing Process
-        </Text>
-        <View className="flex-row items-center">
-          <ShieldCheck size={16} color="#F97316" />
-          <Text className="text-orange-500 ml-1 font-medium text-sm">
-            Blockchain Verified
-          </Text>
-        </View>
-      </View>
-
+    <View className="bg-white rounded-3xl p-4 shadow shadow-gray-200 mt-3">
       {/* Timeline */}
       <TimelineList />
 
       {/* Footer link */}
-      <TouchableOpacity className="flex-row items-center mt-2">
-        <Text className="text-orange-500 font-semibold">
+      <TouchableOpacity className="flex-row items-center gap-2 mt-2">
+        <Text className="text-[#4CAF50] font-semibold">
           View Full Care Log
         </Text>
-        <ExternalLink size={16} color="#F97316" className="ml-1" />
+        <ExternalLink size={16} color="#4CAF50" className="ml-1" />
       </TouchableOpacity>
     </View>
   );
