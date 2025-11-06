@@ -17,6 +17,7 @@ import { ArrowUpDown } from "lucide-react-native"
 import FromThisFarmSection from "@/components/customer-batch-detail/FromThisFarmSection"
 import FarmTransparencyCard from "@/components/customer-batch-detail/FarmTransparencyCard"
 import { FeaturedFarmers } from "@/components/customer-exlore/FeaturedFarmers"
+import { SafeAreaView } from "react-native-safe-area-context"
 
 
 const farms = [
