@@ -7,6 +7,7 @@ import {
     Pressable,
     Platform,
     TouchableOpacity,
+    SafeAreaView,
 } from "react-native"
 import { Header } from "@/components/customer-exlore/Header"
 import { SearchBar } from "@/components/customer-exlore/SearchBar"
@@ -22,6 +23,7 @@ import { SafeAreaView } from "react-native-safe-area-context"
 
 const farms = [
   {
+    id: 1,
     image: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=300&q=80",
     name: "Sunrise Valley Farm",
     location: "Sonoma County, CA",
@@ -32,6 +34,7 @@ const farms = [
     onPress: () => console.log("View Sunrise Valley Farm"),
   },
   {
+    id: 2,      
     image: "https://images.unsplash.com/photo-1590080875831-f32e7b5a1d59?auto=format&fit=crop&w=300&q=80",
     name: "Greenleaf Organics",
     location: "Napa Valley, CA",
@@ -42,6 +45,7 @@ const farms = [
     onPress: () => console.log("View Greenleaf Organics"),
   },
   {
+    id: 3,      
     image: "https://images.unsplash.com/photo-1511690743698-d9d85f2fbf38?auto=format&fit=crop&w=300&q=80",
     name: "Harvest Hill Farm",
     location: "Petaluma, CA",
@@ -52,6 +56,7 @@ const farms = [
     onPress: () => console.log("View Harvest Hill Farm"),
   },
   {
+    id: 4,      
     image: "https://images.unsplash.com/photo-1556228578-2fba5d29b9e0?auto=format&fit=crop&w=300&q=80",
     name: "Golden Fields Ranch",
     location: "Healdsburg, CA",
@@ -86,12 +91,12 @@ export function ExploreScreen() {
                 </View>
 
                 <View className="flex-row items-center space-x-4 mb-4">
-                    {["All", "Organic", "In Stock", "Nearby", "4.5+"].map((f, idx) => (
+                    {["All", "Organic", "In Stock", "Nearby", "4.5+"].map((f) => (
                         <Pressable
                             key={f}
-                            className={`px-3 py-2 mx-2 rounded-full ${idx === 0 ? "bg-green-500" : "bg-gray-100"}`}
+                            className={`px-3 py-2 mx-2 rounded-full ${f === "All" ? "bg-green-500" : "bg-gray-100"}`}
                         >
-                            <Text className={`${idx === 0 ? "text-white" : "text-gray-700"} text-sm font-medium`}>{f}</Text>
+                            <Text className={`${f === "All" ? "text-white" : "text-gray-700"} text-sm font-medium`}>{f}</Text>
                         </Pressable>
                     ))}
                 </View>
