@@ -103,7 +103,7 @@ export function CustomerFavoritesScreen() {
 
                 <ActionButtonRow />
                 
-                <AllFavorites searchQuery={searchQuery} />
+                <AllFavorites searchQuery={searchQuery} products={mockProducts} />
 
                 <PriceInsightsGrid products={mockProducts} />
 
