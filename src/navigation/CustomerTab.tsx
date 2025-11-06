@@ -4,6 +4,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Home, Search, ShoppingCart, Heart, User } from "lucide-react-native";
 import { CustomerDashboardScreen } from "@/screens/CustomerDashboardScreen";
 import  { ExploreScreen }  from "@/screens/ExploreScreen";
+import { CustomerCartScreen } from "@/screens/CustomerCartScreen";
 
 
 function CartScreen() { return <View style={styles.screen}><Text>Cart</Text></View> }
@@ -69,7 +70,7 @@ export default function CustomerTab() {
         >
             <Tab.Screen name="Home" component={CustomerDashboardScreen} options={{ title: "Home" }} />
             <Tab.Screen name="Explore" component={ExploreScreen} options={{ title: "Explore" }} />
-            <Tab.Screen name="Cart" component={CartScreen} options={{ title: "Cart" }} />
+            <Tab.Screen name="Cart" component={CustomerCartScreen} options={{ title: "Cart" }} />
             <Tab.Screen name="Favorites" component={FavoritesScreen} options={{ title: "Favorites" }} />
             <Tab.Screen name="Profile" component={ProfileScreen} options={{ title: "Profile" }} />
         </Tab.Navigator>
