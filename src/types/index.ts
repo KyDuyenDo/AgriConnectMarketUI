@@ -32,3 +32,12 @@ export interface Order {
   status: "Delivered" | "In Transit"
   action: string
 }
+
+
+export type HistoryItem = {
+  id: string;
+  step: number;
+  title: string;
+  description: string;
+  color: string;
+};

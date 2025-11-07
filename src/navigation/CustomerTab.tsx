@@ -8,6 +8,8 @@ import { ExploreScreen } from "@/screens/ExploreScreen"
 import { CustomerCartScreen } from "@/screens/CustomerCartScreen"
 import { CustomerFavoritesScreen } from "@/screens/CustomerFavoritesScreen"
 import ProfileScreen from "@/screens/ProfileScreen"
+import CustomerOrdersScreen from "@/screens/CustomerOrdersScreen";
+import FarmDetailScreen from "@/screens/FarmDetailScreen";
 
 const Tab = createBottomTabNavigator()
 
@@ -110,7 +112,7 @@ export default function TabNavigator() {
         >
             <Tab.Screen name="Home" component={CustomerDashboardScreen} options={{ title: "Home" }} />
             <Tab.Screen name="Explore" component={ExploreScreen} options={{ title: "Explore" }} />
-            <Tab.Screen name="Cart" component={CustomerCartScreen} options={{ title: "Cart" }} />
+            <Tab.Screen name="Cart" component={FarmDetailScreen} options={{ title: "Cart" }} />
             {/* <Tab.Screen name="Cart" component={CartScreen} options={{ title: "Cart" }} /> */}
             <Tab.Screen name="Favorites" component={CustomerFavoritesScreen} options={{ title: "Favorites" }} />
             <Tab.Screen name="Profile" component={ProfileScreen} options={{ title: "Profile" }} />
