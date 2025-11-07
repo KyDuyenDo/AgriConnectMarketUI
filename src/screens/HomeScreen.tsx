@@ -1,9 +1,10 @@
-import { Text, View } from 'react-native'; 
+import { Text, View } from "react-native"
 
 export default function HomeScreen() {
-    return (
-        <View>
-            <Text>Home</Text>
-        </View>
-    )
+  return (
+    <View className="flex-1 items-center justify-center bg-white">
+      <Text className="text-xl font-bold text-gray-900">Home</Text>
+      <Text className="mt-2 text-sm text-gray-600">Redirect to dashboard based on auth state</Text>
+    </View>
+  )
 }

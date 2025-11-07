@@ -10,9 +10,10 @@ interface MenuItem {
 
 interface ActionProps {
     menuItems: MenuItem[]
+    onItemPress?: (title: string) => void
 }
 
-export function Action({ menuItems }: ActionProps) {
+export function Action({ menuItems, onItemPress }: ActionProps) {
     return (
         <View className="rounded-2xl bg-white shadow-md">
             {menuItems.map((item, index) => {

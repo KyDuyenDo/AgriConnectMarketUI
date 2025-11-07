@@ -1,5 +1,3 @@
-"use client"
-
 import { ActionButtons } from "@/components/farmer-products/ActionButtons"
 import { FilterSection } from "@/components/farmer-products/FilterSection"
 import { Header } from "@/components/farmer-products/Header"
@@ -30,9 +28,13 @@ export const FarmerProductsScreen: React.FC = () => {
         <Header />
         <View className="pt-4">
           <FilterSection
+            selectedCategory={selectedCategory}
             onCategoryChange={setSelectedCategory}
+            selectedPrice={selectedPrice}
             onPriceChange={setSelectedPrice}
+            selectedStock={selectedStock}
             onStockChange={setSelectedStock}
+            searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
           />
         </View>

@@ -4,11 +4,22 @@ import { RecentOrdersCard } from "@/components/customer-dashboard/RecentOrdersCa
 import { SpecialOffersCard } from "@/components/customer-dashboard/SpecialOffersCard"
 import { YourCartCard } from "@/components/customer-dashboard/YourCartCard"
 import { YourFavoriteCard } from "@/components/customer-dashboard/YourFavoriteCard"
+import { cartItems, recentOrders, favoriteProducts } from "@/data/mockData"
 import type React from "react"
+import { useState } from "react"
 import { ScrollView, Platform } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 
 export const CustomerDashboardScreen: React.FC = () => {
+  const [favorites, setFavorites] = useState(favoriteProducts)
+
+  const handleToggleFavorite = (id: string) => {
+    setFavorites(favorites.map((fav) => (fav.id === id ? { ...fav, isFavorite: !fav.isFavorite } : fav)))
+  }
+
+  const cartItemsCount = cartItems.length
+  const cartTotal = "$24.75"
+
   return (
     <SafeAreaView className="flex-1 bg-[#F9FAF9]">
       <ScrollView
@@ -27,9 +38,9 @@ export const CustomerDashboardScreen: React.FC = () => {
           notificationCount={3}
         />
         <ActionButtonList />
-        <YourCartCard />
-        <RecentOrdersCard />
-        <YourFavoriteCard />
+        <YourCartCard items={cartItems} total={cartTotal} itemsCount={cartItemsCount} />
+        <RecentOrdersCard orders={recentOrders} />
+        <YourFavoriteCard favorites={favorites} onToggleFavorite={handleToggleFavorite} />
         <SpecialOffersCard />
       </ScrollView>
     </SafeAreaView>
