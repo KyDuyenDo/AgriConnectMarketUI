@@ -66,7 +66,7 @@ export default function ProfileScreen() {
 
     return (
         <SafeAreaView className="flex-1 bg-gray-50">
-            <ScrollView showsVerticalScrollIndicator={false}>
+            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 50 }}>
                 {/* Header */}
                 <View className="bg-[#4CAF50] px-6 pb-8 pt-6">
                     <Text className="text-center text-2xl font-bold text-white">Profile</Text>

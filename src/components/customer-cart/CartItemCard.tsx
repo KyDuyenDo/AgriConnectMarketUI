@@ -1,22 +1,21 @@
-import React from "react";
-import { View, Text, Image, TouchableOpacity } from "react-native";
-import { Trash2, Minus, Plus } from "lucide-react-native";
+import { View, Text, Image, TouchableOpacity } from "react-native"
+import { Trash2 } from "lucide-react-native"
 
 type CartItemProps = {
-  image: string;
-  name: string;
-  farm: string;
-  status: string;
-  harvested: string;
-  unit: string;
-  price: string;
-  total: string;
-  quantity: number;
-  tagColor?: string;
-  onIncrease?: () => void;
-  onDecrease?: () => void;
-  onRemove?: () => void;
-};
+  image: string
+  name: string
+  farm: string
+  status: string
+  harvested: string
+  unit: string
+  price: string
+  total: string
+  quantity: number
+  tagColor?: string
+  onIncrease?: () => void
+  onDecrease?: () => void
+  onRemove?: () => void
+}
 
 export default function CartItemCard({
   image,
@@ -46,9 +45,7 @@ export default function CartItemCard({
         </View>
 
         <View className="flex-row items-center gap-3 mt-2">
-          <Text className="text-green-700 font-semibold text-right">
-            {total}
-          </Text>
+          <Text className="text-green-700 font-semibold text-right">{total}</Text>
           <Text className="text-gray-500 text-sm text-right">{price}</Text>
         </View>
       </View>
@@ -59,5 +56,5 @@ export default function CartItemCard({
         </View>
       </TouchableOpacity>
     </View>
-  );
+  )
 }

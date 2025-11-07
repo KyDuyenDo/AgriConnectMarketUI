@@ -5,9 +5,8 @@ import { SpecialOffersCard } from "@/components/customer-dashboard/SpecialOffers
 import { YourCartCard } from "@/components/customer-dashboard/YourCartCard"
 import { YourFavoriteCard } from "@/components/customer-dashboard/YourFavoriteCard"
 import type React from "react"
-import { ScrollView, View } from "react-native"
+import { ScrollView, Platform } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
-
 
 export const CustomerDashboardScreen: React.FC = () => {
   return (
@@ -15,7 +14,12 @@ export const CustomerDashboardScreen: React.FC = () => {
       <ScrollView
         style={{ flex: 1 }}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16, gap: 24 }}
+        contentContainerStyle={{
+          paddingHorizontal: 16,
+          paddingVertical: 16,
+          gap: 24,
+          paddingBottom: Platform.OS === "ios" ? 140 : 50,
+        }}
       >
         <Header
           userName="Yung Chen"

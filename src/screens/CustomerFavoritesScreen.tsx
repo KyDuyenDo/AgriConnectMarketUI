@@ -94,7 +94,7 @@ export function CustomerFavoritesScreen() {
         <SafeAreaView className="flex-1 bg-white">
             <ScrollView
                 className="p-4"
-                contentContainerStyle={{ paddingBottom: Platform.OS === "ios" ? 140 : 110 }}
+                contentContainerStyle={{ paddingBottom: Platform.OS === "ios" ? 140 : 50 }}
                 showsVerticalScrollIndicator={false}
             >
                 <Header />

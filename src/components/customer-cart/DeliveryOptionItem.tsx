@@ -1,24 +1,17 @@
-import React from "react";
-import { View, Text, TouchableOpacity } from "react-native";
-import { MapPin, Clock, Zap } from "lucide-react-native";
+import { View, Text, TouchableOpacity } from "react-native"
+import { MapPin, Clock, Zap } from "lucide-react-native"
 
 type Props = {
-  icon: "map" | "clock" | "zap";
-  title: string;
-  subtitle: string;
-  selected?: boolean;
-  onPress?: () => void;
-};
+  icon: "map" | "clock" | "zap"
+  title: string
+  subtitle: string
+  selected?: boolean
+  onPress?: () => void
+}
 
-export default function DeliveryOptionItem({
-  icon,
-  title,
-  subtitle,
-  selected = false,
-  onPress,
-}: Props) {
-  const iconColor = icon === "zap" ? "#f59e0b" : "#16a34a";
-  const IconComponent = icon === "map" ? MapPin : icon === "clock" ? Clock : Zap;
+export default function DeliveryOptionItem({ icon, title, subtitle, selected = false, onPress }: Props) {
+  const iconColor = icon === "zap" ? "#f59e0b" : "#16a34a"
+  const IconComponent = icon === "map" ? MapPin : icon === "clock" ? Clock : Zap
 
   return (
     <TouchableOpacity
@@ -44,5 +37,5 @@ export default function DeliveryOptionItem({
         {selected && <View className="w-2.5 h-2.5 rounded-full bg-white" />}
       </View>
     </TouchableOpacity>
-  );
+  )
 }

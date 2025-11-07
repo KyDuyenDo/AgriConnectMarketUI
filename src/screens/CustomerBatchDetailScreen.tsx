@@ -1,5 +1,5 @@
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context"
-import { View, ScrollView, Text } from "react-native"
+import { View, ScrollView, Text, Platform } from "react-native"
 import { ShieldCheck } from "lucide-react-native"
 import Carousel from "@/components/ui/Carousel"
 import FarmInformationCard from "@/components/customer-batch-detail/FarmInformationCard"
@@ -54,7 +54,7 @@ export const CustomerBatchDetailScreen: React.FC = () => {
             {/* Scroll nội dung */}
             <ScrollView
                 showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ paddingVertical: 16, gap: 16, paddingBottom: 100 }}
+                contentContainerStyle={{ paddingVertical: 16, gap: 16, paddingBottom: Platform.OS === "ios" ? 140 : 50 }}
                 className="flex-1"
             >
                 <Carousel
