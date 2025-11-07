@@ -2,6 +2,9 @@ import type { Product } from "@/types"
 import type React from "react"
 import { View, Text, TouchableOpacity, ScrollView } from "react-native"
 import { ProductCard } from "../ui/ProductCard"
+import { CustomerStackParamList } from "@/navigation/CustomerNavigator"
+import { useNavigation } from "@react-navigation/native"
+import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 
 interface YourFavoriteCardProps {
   favorites: Product[]
@@ -9,7 +12,10 @@ interface YourFavoriteCardProps {
   onViewAll?: () => void
 }
 
+type Nav = NativeStackNavigationProp<CustomerStackParamList>
+
 export const YourFavoriteCard: React.FC<YourFavoriteCardProps> = ({ favorites, onToggleFavorite, onViewAll }) => {
+  const navigation = useNavigation<Nav>();
   return (
     <View>
       {/* Header */}
@@ -25,7 +31,7 @@ export const YourFavoriteCard: React.FC<YourFavoriteCardProps> = ({ favorites, o
         <View className="flex-row flex-wrap justify-between">
           {favorites.map((product) => (
             <View key={product.id} className="w-[48%] mb-4">
-              <ProductCard product={product} toggleFavorite={onToggleFavorite} />
+              <ProductCard product={product} toggleFavorite={onToggleFavorite} onPress={() => navigation.navigate("BatchDetails", { productId: product.id })} />
             </View>
           ))}
         </View>

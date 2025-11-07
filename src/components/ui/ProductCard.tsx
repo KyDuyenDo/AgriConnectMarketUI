@@ -1,11 +1,12 @@
 import type React from "react"
 import type { Product } from "@/types"
-import { View, Image, Text, TouchableOpacity } from "react-native"
+import { View, Image, Text, TouchableOpacity, Pressable } from "react-native"
 import { Heart, Star, Plus, Weight } from "lucide-react-native"
 
 interface ProductCardProps {
     product: Product
     toggleFavorite: (id: string) => void
+    onPress?: () => void
 }
 
 const RatingInfo = ({ rating, numRatings }: { rating?: number; numRatings?: number }) => {
@@ -57,9 +58,9 @@ const PriceSection = ({ price, unit }: { price: string; unit: string }) => {
     )
 }
 
-export const ProductCard: React.FC<ProductCardProps> = ({ product, toggleFavorite }) => {
+export const ProductCard: React.FC<ProductCardProps> = ({ product, toggleFavorite, onPress }) => {
     return (
-        <View className="bg-white rounded-3xl border border-gray-100 overflow-hidden shadow shadow-gray-200">
+        <Pressable onPress={onPress} className="bg-white rounded-3xl border border-gray-100 overflow-hidden shadow shadow-gray-200">
             {/* Product Image */}
             <View className="relative h-32 bg-gray-200">
                 <Image source={{ uri: product.image || "https://via.placeholder.com/192" }} className="w-full h-full" />
@@ -96,6 +97,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, toggleFavorit
                 {/* Price and Add Button */}
                 <PriceSection price={product.price} unit={product.unit} />
             </View>
-        </View>
+        </Pressable>
     )
 }

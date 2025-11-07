@@ -7,6 +7,9 @@ import {
   MessageCircle,
   Star,
 } from 'lucide-react-native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { CustomerStackParamList } from '@/navigation/CustomerNavigator';
+import { useNavigation } from '@react-navigation/native';
 
 export type OrderStatus = 'in_transit' | 'delivered' | 'pending' | 'cancelled';
 
@@ -24,7 +27,10 @@ export type Order = {
   rating?: string;
 };
 
+type Nav = NativeStackNavigationProp<CustomerStackParamList>
+
 const OrderCard: React.FC<{ order: Order }> = ({ order }) => {
+   const navigation = useNavigation<Nav>()
   const isInTransit = order.status === 'in_transit';
   const isDelivered = order.status === 'delivered';
   const isPending = order.status === 'pending';
@@ -180,6 +186,7 @@ const OrderCard: React.FC<{ order: Order }> = ({ order }) => {
 
           <View className="mt-4 flex-row items-center">
             <Pressable
+              onPress={() => navigation.navigate('CustomerOrderDetail', { orderId: order.id })}
               className="flex-1 items-center justify-center rounded-full py-3"
               style={{ backgroundColor: '#32C373' }}>
               <Text className="text-[14px] font-bold text-white">

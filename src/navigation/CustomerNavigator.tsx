@@ -1,12 +1,59 @@
+import React from "react"
 import { createNativeStackNavigator } from "@react-navigation/native-stack"
-import TabNavigator from "./TabNavigation"
+import CustomerTab from "./CustomerTab"
 
-const Stack = createNativeStackNavigator()
+import CustomerOrdersScreen from "@/screens/CustomerOrdersScreen"
+import CustomerOrderDetailScreen from "@/screens/CustomerOrderDetailScreen"
+import FarmDetailScreen from "@/screens/FarmDetailScreen"
+import { CustomerBatchDetailScreen } from "@/screens/CustomerBatchDetailScreen"
 
-export function CustomerNavigator() {
+export type CustomerStackParamList = {
+  MainTabs: undefined
+  CustomerOrders: undefined
+  CustomerOrderDetail: { orderId: string }
+  FarmDetail: { farmId: string }
+  BatchDetails: { productId: string }
+}
+
+const Stack = createNativeStackNavigator<CustomerStackParamList>()
+
+const CustomerNavigator = () => {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="MainTabs" component={TabNavigator} />
+    <Stack.Navigator
+      screenOptions={{
+        animation: "slide_from_right",
+        gestureEnabled: true,
+        fullScreenGestureEnabled: true,
+      }}
+    >
+    
+      <Stack.Screen
+        name="MainTabs"
+        component={CustomerTab}
+        options={{ headerShown: false }}
+      />
+
+      <Stack.Screen
+        name="CustomerOrders"
+        component={CustomerOrdersScreen}
+        options={{ title: "My Orders" }}
+      />
+      <Stack.Screen
+        name="CustomerOrderDetail"
+        component={CustomerOrderDetailScreen}
+        options={{ title: "Order Detail" }}
+      />
+      <Stack.Screen
+        name="FarmDetail"
+        component={FarmDetailScreen}
+        options={{ title: "Farm Detail" }}
+      />
+
+      <Stack.Screen
+        name="BatchDetails"
+        component={CustomerBatchDetailScreen}
+        options={{ title: "Batch Details" }}
+      />
     </Stack.Navigator>
   )
 }
