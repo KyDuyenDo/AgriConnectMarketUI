@@ -52,8 +52,6 @@ export const CustomerCartScreen: React.FC = () => {
       total: selectedTotal + deliveryFee + tax,
       deliveryAddress: "123 Main Street, Apartment 4B, San Francisco, CA",
     }
-
-    console.log("[v0] Order Info:", orderInfo)
   }
 
   const selectedTotal = calculateCartTotal(customerCartItems, selectedItems)
@@ -70,7 +68,6 @@ export const CustomerCartScreen: React.FC = () => {
           paddingHorizontal: 16,
           paddingVertical: 16,
           gap: 16,
-          paddingBottom: Platform.OS === "ios" ? 140 : 50,
         }}
       >
         <CartItemsSection

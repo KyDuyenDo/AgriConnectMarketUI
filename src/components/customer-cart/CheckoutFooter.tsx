@@ -8,7 +8,7 @@ type Props = {
 
 export default function CheckoutFooter({ total, onProceed }: Props) {
   return (
-    <SafeAreaView edges={["bottom"]} className="bg-white border-t border-gray-200 shadow-lg">
+    <SafeAreaView edges={["bottom"]} className="bg-white border-t border-gray-200 shadow-lg p-3 mb-[50px]">
       <View className="px-4 py-3 flex-row items-center justify-between gap-3">
         {/* Total Amount */}
         <View>

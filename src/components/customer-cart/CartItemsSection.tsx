@@ -30,15 +30,17 @@ export default function CartItemsSection({ items, selectedItems, onSelectItem }:
 
   return (
     <View className="flex gap-4">
-      {Object.entries(groupedByFarm).map(([farmName, farmItems]) => (
-        <FarmCartGroupCard
-          key={farmName}
-          farmName={farmName}
-          items={farmItems}
-          selectedItems={selectedItems}
-          onSelectItem={onSelectItem}
-        />
-      ))}
+      {Object.entries(groupedByFarm).map(([farmName, farmItems]) => {
+        return (
+          <FarmCartGroupCard
+            key={farmName}
+            farmName={farmName}
+            items={farmItems}
+            selectedItems={selectedItems}
+            onSelectItem={onSelectItem}
+          />
+        )
+      })}
     </View>
   )
 }
