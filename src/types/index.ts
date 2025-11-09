@@ -41,3 +41,15 @@ export type HistoryItem = {
   description: string;
   color: string;
 };
+
+
+export type UserData = {
+  name: string;
+  email: string;
+  phone: string;
+  location: string;
+  avatar: string;
+  joinDate: string;
+  rating: number;
+  totalOrders: number;
+};
