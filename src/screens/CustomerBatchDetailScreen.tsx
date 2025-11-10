@@ -16,11 +16,10 @@ export const CustomerBatchDetailScreen: React.FC = () => {
   const insets = useSafeAreaInsets()
 
   return (
-    <SafeAreaView className="flex-1 bg-[#F9FAF9] relative">
+    <SafeAreaView className="flex-1 bg-[#F9FAF9]" edges={["left", "right"]}>
       {/* Scroll nội dung */}
       <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingVertical: 16, gap: 16, paddingBottom: Platform.OS === "ios" ? 140 : 50 }}
+        contentContainerStyle={{ gap: 16 }}
         className="flex-1"
       >
         <Carousel
@@ -83,25 +82,13 @@ export const CustomerBatchDetailScreen: React.FC = () => {
         </View>
       </ScrollView>
 
-      <View
-        style={{
-          position: "absolute",
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: "#FFFFFF",
-          paddingBottom: insets.bottom,
-        }}
-        className="pb-3 border-t-[0.5px] border-gray-200"
-      >
-        <PurchaseCard
-          total="$9.00"
-          weight="2 lbs"
-          pricePerLb="$4.50/lb"
-          onAddToCart={() => console.log("Added to cart")}
-          onBuyNow={() => console.log("Buy now")}
-        />
-      </View>
+      <PurchaseCard
+        total="$9.00"
+        weight="2 lbs"
+        pricePerLb="$4.50/lb"
+        onAddToCart={() => console.log("Added to cart")}
+        onBuyNow={() => console.log("Buy now")}
+      />
     </SafeAreaView>
   )
 }

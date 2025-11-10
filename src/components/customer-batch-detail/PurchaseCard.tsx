@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { ShoppingCart, Store, QrCode } from "lucide-react-native";
 
 type PurchaseCardProps = {
@@ -22,7 +22,7 @@ export default function PurchaseCard({
   const insets = useSafeAreaInsets()
 
   return (
-    <View className="bg-white w-full p-4">
+    <SafeAreaView edges={["bottom"]} className="bg-white w-full p-4">
       {/* Buttons */}
       <View className="flex-row gap-2">
         <TouchableOpacity
@@ -68,6 +68,6 @@ export default function PurchaseCard({
           </View>
         </TouchableOpacity>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
