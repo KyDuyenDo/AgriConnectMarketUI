@@ -19,7 +19,7 @@ export const CustomerBatchDetailScreen: React.FC = () => {
     <SafeAreaView className="flex-1 bg-[#F9FAF9]" edges={["left", "right"]}>
       {/* Scroll nội dung */}
       <ScrollView
-        contentContainerStyle={{ gap: 16 }}
+        contentContainerStyle={{ gap: 16, paddingBottom: 16 }}
         className="flex-1"
       >
         <Carousel
