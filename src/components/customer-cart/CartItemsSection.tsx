@@ -1,44 +1,46 @@
-import React from "react";
-import { View, Text, ScrollView } from "react-native";
-import CartItemCard from "./CartItemCard";
+import { View } from "react-native"
+import { FarmCartGroupCard } from "./FarmCartGroupCard"
 
 type Item = {
-  id: string;
-  image: string;
-  name: string;
-  farm: string;
-  status: string;
-  harvested: string;
-  unit: string;
-  price: string;
-  total: string;
-  quantity: number;
-  tagColor?: string;
-};
+  id: string
+  image: string
+  name: string
+  farm: string
+  status: string
+  harvested: string
+  unit: string
+  price: string
+  total: string
+  quantity: number
+  tagColor?: string
+}
 
 type Props = {
-  items: Item[];
-};
+  items: Item[]
+  selectedItems: string[]
+  onSelectItem: (id: string) => void
+}
 
-export default function CartItemsSection({ items }: Props) {
+export default function CartItemsSection({ items, selectedItems, onSelectItem }: Props) {
+  const groupedByFarm = items.reduce((groups: Record<string, Item[]>, item) => {
+    if (!groups[item.farm]) groups[item.farm] = []
+    groups[item.farm].push(item)
+    return groups
+  }, {})
+
   return (
-    <View className="bg-white rounded-2xl border border-gray-200 p-4 shadow-sm">
-      {/* Header */}
-      <View className="flex-row justify-between items-center mb-3">
-        <Text className="text-lg font-semibold text-gray-800">Cart Items</Text>
-        <View className="bg-green-100 px-3 py-[2px] rounded-full">
-          <Text className="text-green-700 text-sm font-medium">
-            {items.length} items
-          </Text>
-        </View>
-      </View>
-
-      {/* Items */}
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {items.map((item) => (
-          <CartItemCard key={item.id} {...item} />
-        ))}
-      </ScrollView>
+    <View className="flex gap-4">
+      {Object.entries(groupedByFarm).map(([farmName, farmItems]) => {
+        return (
+          <FarmCartGroupCard
+            key={farmName}
+            farmName={farmName}
+            items={farmItems}
+            selectedItems={selectedItems}
+            onSelectItem={onSelectItem}
+          />
+        )
+      })}
     </View>
-  );
+  )
 }

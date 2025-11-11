@@ -24,31 +24,31 @@ const FarmTransparencyCard: React.FC<FarmTransparencyCardProps> = ({
   onPress,
 }) => {
   return (
-    <View className="bg-white rounded-3xl p-4 shadow-sm border border-gray-100 mt-3">
+    <View className="bg-white rounded-3xl p-4 shadow shadow-gray-200 mt-3">
       {/* Header */}
       <View className="flex-row">
         <Image
           source={{ uri: image }}
-          className="w-16 h-16 rounded-2xl mr-4"
+          className="w-20 h-20 rounded-2xl mr-4"
         />
 
         <View className="flex-1">
-          <Text className="text-lg font-semibold text-gray-900">
+          <Text className="text-lg font-semibold text-[#2D2D2D]">
             {name}
           </Text>
 
           <View className="flex-row items-center mt-1">
-            <MapPin size={14} color="#6B7280" />
-            <Text className="text-gray-500 text-sm ml-1">
+            <MapPin size={14} color="#8A8A8A" />
+            <Text className="text-[#8A8A8A] text-sm ml-1">
               {location} • {distance}
             </Text>
           </View>
 
           <View className="flex-row items-center mt-1">
-            <Star size={14} color="#F59E0B" fill="#F59E0B" />
-            <Text className="text-gray-700 text-sm ml-1">
+            <Star size={14} color="#FFB380" />
+            <Text className="text-[#2D2D2D] text-sm ml-1">
               {rating.toFixed(1)}{" "}
-              <Text className="text-gray-400">
+              <Text className="text-[#8A8A8A]">
                 ({reviews} reviews)
               </Text>
             </Text>
@@ -57,25 +57,25 @@ const FarmTransparencyCard: React.FC<FarmTransparencyCardProps> = ({
       </View>
 
       {/* Tags */}
-      <View className="flex-row flex-wrap mt-3 space-x-2">
+      <View className="flex-row flex-wrap mt-3 gap-2">
         {tags.map((tag, index) => (
           <View
             key={index}
-            className={`px-3 py-1 rounded-full border ${
+            className={`px-3 py-1 rounded-full ${
               tag === "Organic Certified"
-                ? "bg-green-100 border-green-200"
+                ? "bg-[#C8E6C9]"
                 : tag === "Sustainable"
-                ? "bg-yellow-100 border-yellow-200"
-                : "bg-blue-100 border-blue-200"
+                ? "bg-[#FEF5E7]"
+                : "bg-[#EBF5FB]"
             }`}
           >
             <Text
               className={`text-sm font-medium ${
                 tag === "Organic Certified"
-                  ? "text-green-700"
+                  ? "text-[#2E7D32]"
                   : tag === "Sustainable"
-                  ? "text-yellow-700"
-                  : "text-blue-700"
+                  ? "text-[#F39C12]"
+                  : "text-[#3498DB]"
               }`}
             >
               {tag}
@@ -89,10 +89,10 @@ const FarmTransparencyCard: React.FC<FarmTransparencyCardProps> = ({
         onPress={onPress}
         className="flex-row items-center mt-4"
       >
-        <Text className="text-orange-500 font-semibold text-base">
+        <Text className="text-[#4CAF50] font-semibold text-base">
           View Full Farm Profile
         </Text>
-        <ChevronRight size={18} color="#F97316" />
+        <ChevronRight size={18} color="#4CAF50" />
       </TouchableOpacity>
     </View>
   );

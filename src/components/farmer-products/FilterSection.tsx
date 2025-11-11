@@ -7,9 +7,14 @@ interface FilterSectionProps {
   onPriceChange: (price: string) => void
   onStockChange: (stock: string) => void
   onSearchChange: (query: string) => void
+  selectedCategory?: string
+  selectedPrice?: string
+  selectedStock?: string
+  searchQuery?: string
 }
 
 export const FilterSection: React.FC<FilterSectionProps> = ({
+  selectedCategory,
   onCategoryChange,
   onPriceChange,
   onStockChange,

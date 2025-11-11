@@ -1,16 +1,14 @@
-import React, { useState } from "react";
-import { View, Text } from "react-native";
-import DeliveryOptionItem from "./DeliveryOptionItem";
+import { useState } from "react"
+import { View, Text } from "react-native"
+import DeliveryOptionItem from "./DeliveryOptionItem"
 
 export default function DeliveryOptionsCard() {
-  const [selected, setSelected] = useState("address");
+  const [selected, setSelected] = useState("address")
 
   return (
     <View className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4">
       {/* Header */}
-      <Text className="text-lg font-semibold text-gray-800 mb-3">
-        Delivery Options
-      </Text>
+      <Text className="text-lg font-semibold text-gray-800 mb-3">Delivery Options</Text>
 
       {/* Address */}
       <DeliveryOptionItem
@@ -39,5 +37,5 @@ export default function DeliveryOptionsCard() {
         onPress={() => setSelected("express")}
       />
     </View>
-  );
+  )
 }

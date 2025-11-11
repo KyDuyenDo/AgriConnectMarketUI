@@ -1,30 +1,27 @@
-import { recentOrders } from "@/data/mockData"
+import type { Order } from "@/types"
 import type React from "react"
 import { View, Text, TouchableOpacity } from "react-native"
+import { getStatusColor, getStatusTextColor } from "@/lib/orderHelpers"
 
+interface RecentOrdersCardProps {
+  orders: Order[]
+  onViewAll?: () => void
+}
 
-export const RecentOrdersCard: React.FC = () => {
-  const getStatusColor = (status: string) => {
-    return status === "Delivered" ? "bg-[#C8E6C9]" : "bg-[#FFE0B2]"
-  }
-
-  const getStatusTextColor = (status: string) => {
-    return status === "Delivered" ? "text-[#2E7D32]" : "text-[#F57C00]"
-  }
-
+export const RecentOrdersCard: React.FC<RecentOrdersCardProps> = ({ orders, onViewAll }) => {
   return (
     <View>
       {/* Header */}
       <View className="flex-row items-center justify-between mb-4">
         <Text className="text-lg font-semibold text-gray-900">Recent Orders</Text>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={onViewAll}>
           <Text className="text-[#4CAF50] font-medium">View All</Text>
         </TouchableOpacity>
       </View>
 
       {/* Orders List */}
       <View className="gap-3">
-        {recentOrders.map((order) => (
+        {orders.map((order) => (
           <View key={order.id} className="bg-white border border-gray-100 rounded-3xl p-4 shadow shadow-gray-200">
             {/* Status and Date */}
             <View className="flex-row items-center justify-between mb-3">
@@ -43,7 +40,7 @@ export const RecentOrdersCard: React.FC = () => {
                 </Text>
               </View>
               {/* Action Button */}
-              <TouchableOpacity className="px-6 py-2 bg-[#F5F7F5]  rounded-lg">
+              <TouchableOpacity className="px-6 py-2 bg-[#F5F7F5] rounded-lg">
                 <Text className="text-[#4CAF50] font-medium text-sm text-center">{order.action}</Text>
               </TouchableOpacity>
             </View>

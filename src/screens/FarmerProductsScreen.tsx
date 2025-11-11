@@ -4,9 +4,8 @@ import { Header } from "@/components/farmer-products/Header"
 import { ProductGrid } from "@/components/farmer-products/ProductGrid"
 import type React from "react"
 import { useState } from "react"
-import { View, ScrollView } from "react-native"
+import { View, ScrollView, Platform } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
-
 
 export const FarmerProductsScreen: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState("")
@@ -19,14 +18,23 @@ export const FarmerProductsScreen: React.FC = () => {
       <ScrollView
         style={{ flex: 1 }}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16, gap: 24 }}
+        contentContainerStyle={{
+          paddingHorizontal: 16,
+          paddingVertical: 16,
+          gap: 24,
+          paddingBottom: Platform.OS === "ios" ? 140 : 50,
+        }}
       >
         <Header />
         <View className="pt-4">
           <FilterSection
+            selectedCategory={selectedCategory}
             onCategoryChange={setSelectedCategory}
+            selectedPrice={selectedPrice}
             onPriceChange={setSelectedPrice}
+            selectedStock={selectedStock}
             onStockChange={setSelectedStock}
+            searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
           />
         </View>

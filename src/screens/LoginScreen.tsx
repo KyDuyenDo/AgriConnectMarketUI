@@ -23,8 +23,6 @@ export default function LoginScreen() {
   const onSubmit = async (data: any) => {
     setIsLoading(true)
     try {
-      // Simulate API call
-      console.log("Login attempt:", { ...data, rememberMe })
       Alert.alert("Success", "Logged in successfully!")
     } catch (error) {
       Alert.alert("Error", "Login failed. Please try again.")

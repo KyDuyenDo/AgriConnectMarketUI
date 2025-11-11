@@ -11,11 +11,8 @@ import {
 import { Header } from "@/components/customer-exlore/Header"
 import { SearchBar } from "@/components/customer-exlore/SearchBar"
 import { CardHeader } from "@/components/customer-exlore/CardHeader"
-import { ProductGrid } from "@/components/farmer-products/ProductGrid"
 import { ProductCustomerGrid } from "@/components/customer-exlore/ProductCustomerGird"
 import { ArrowUpDown } from "lucide-react-native"
-import FromThisFarmSection from "@/components/customer-batch-detail/FromThisFarmSection"
-import FarmTransparencyCard from "@/components/customer-batch-detail/FarmTransparencyCard"
 import { FeaturedFarmers } from "@/components/customer-exlore/FeaturedFarmers"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { Product } from "@/types"
@@ -145,13 +142,32 @@ export const mockProducts: Product[] = [
 
 
 export function ExploreScreen() {
-    const [searchQuery, setSearchQuery] = useState("")
-    return (
-        <SafeAreaView className="flex-1 bg-white">
-            <ScrollView
-                className="p-4"
-                contentContainerStyle={{ paddingBottom: Platform.OS === "ios" ? 140 : 110 }}
-                showsVerticalScrollIndicator={false}
+  const [searchQuery, setSearchQuery] = useState("")
+
+  return (
+    <SafeAreaView className="flex-1 bg-white">
+      <ScrollView
+        className="p-4"
+        contentContainerStyle={{ paddingBottom: Platform.OS === "ios" ? 140 : 50 }}
+        showsVerticalScrollIndicator={false}
+      >
+        <Header />
+        <SearchBar />
+        <CardHeader />
+
+        {/* Categories header */}
+        <View className="flex-row justify-between items-center mb-3">
+          <Text className="text-base font-semibold text-gray-800">Categories</Text>
+          <Pressable>
+            <Text className="text-sm text-green-500 font-medium">View All</Text>
+          </Pressable>
+        </View>
+
+        <View className="flex-row items-center space-x-4 mb-4">
+          {["All", "Organic", "In Stock", "Nearby", "4.5+"].map((f) => (
+            <Pressable
+              key={f}
+              className={`px-3 py-2 mx-2 rounded-full ${f === "All" ? "bg-green-500" : "bg-gray-100"}`}
             >
                 <Header />
                 <SearchBar />

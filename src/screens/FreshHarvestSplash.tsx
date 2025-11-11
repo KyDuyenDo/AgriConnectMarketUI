@@ -1,4 +1,3 @@
-
 import { useEffect } from "react"
 import { View, Text, StyleSheet, Dimensions } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"

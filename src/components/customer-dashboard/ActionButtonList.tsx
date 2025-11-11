@@ -1,28 +1,34 @@
+import { CustomerStackParamList } from "@/navigation/CustomerNavigator"
+import { useNavigation } from "@react-navigation/native"
+import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import type React from "react"
 import { View, TouchableOpacity, Text } from "react-native"
-import { ShoppingBasket, Heart, Clock, Locate } from "lucide-react-native"
 
-interface ActionButton {
+export interface ActionButton {
   id: string
   label: string
   icon: React.ReactNode,
   backgroundColor?: string,
   borderStyle?: string,
+  link?: string,
 }
 
-const actions: ActionButton[] = [
-  { id: "1", label: "Shop", icon: <ShoppingBasket color="white" />, backgroundColor: "bg-[#4CAF50]" },
-  { id: "2", label: "Favorites", icon: <Heart color="white" />, backgroundColor: "bg-[#4CAF50]" },
-  { id: "3", label: "Orders", icon: <Clock color="#4CAF50" />, backgroundColor: "bg-white", borderStyle: "border border-gray-200" },
-  { id: "4", label: "Nearby", icon: <Locate color="#4CAF50" />, backgroundColor: "bg-white", borderStyle: "border border-gray-200" },
-]
+type Nav = NativeStackNavigationProp<CustomerStackParamList>
 
-export const ActionButtonList: React.FC = () => {
+export const ActionButtonList: React.FC<{ actions: ActionButton[] }> = ({ actions }) => {
+
+  const navigation = useNavigation<Nav>()
+
   return (
     <View className="px-4">
       <View className="flex-row justify-between items-center">
         {actions.map((action) => (
-          <TouchableOpacity key={action.id} className="flex-col items-center">
+          <TouchableOpacity onPress={() => {
+            if (action.link) {
+              navigation.navigate(action.link as any)
+            }
+          }}
+            key={action.id} className="flex-col items-center">
             <View
               className={`w-16 h-16 rounded-3xl flex items-center justify-center mb-2 ${action.borderStyle || ""} ${action.backgroundColor || "bg-gray-100"}`}
             >

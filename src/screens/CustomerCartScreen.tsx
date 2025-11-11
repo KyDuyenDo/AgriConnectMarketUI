@@ -1,94 +1,98 @@
+import type React from "react"
+import { useState } from "react"
 import CartItemsSection from "@/components/customer-cart/CartItemsSection"
-import DeliveryOptionsCard from "@/components/customer-cart/DeliveryOptionsCard";
-import { OrderSummary } from "@/components/customer-cart/OrderSummary";
-import ProceedButton from "@/components/customer-cart/ProceedButton";
-import { ScrollView, View } from "react-native"
+import DeliveryInfoCard from "@/components/customer-cart/DeliveryInfoCard"
+import { OrderSummary } from "@/components/customer-cart/OrderSummary"
+import CheckoutFooter from "@/components/customer-cart/CheckoutFooter"
+import { ScrollView, Platform } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
+import { customerCartItems } from "@/data/mockData"
+import { calculateCartTotal, calculateTax } from "@/lib/helpers"
 
-const cartItems = [
-    {
-        id: "1",
-        name: "Organic Tomatoes",
-        farm: "Green Valley Farm",
-        status: "Fresh",
-        harvested: "2 days ago",
-        image:
-            "https://upload.wikimedia.org/wikipedia/commons/8/89/Tomato_je.jpg",
-        unit: "lbs",
-        price: "$4.25/lb",
-        total: "$8.50",
-        quantity: 2,
-    },
-    {
-        id: "2",
-        name: "Baby Spinach",
-        farm: "Sunny Acres Farm",
-        status: "Fresh",
-        harvested: "today",
-        image:
-            "https://upload.wikimedia.org/wikipedia/commons/2/26/Spinach_leaves.jpg",
-        unit: "bunch",
-        price: "$4.25/bunch",
-        total: "$4.25",
-        quantity: 1,
-    },
-    {
-        id: "3",
-        name: "Organic Carrots",
-        farm: "Sunny Acres Farm",
-        status: "Limited Stock",
-        harvested: "1 day ago",
-        tagColor: "bg-yellow-100 text-yellow-700",
-        image:
-            "https://upload.wikimedia.org/wikipedia/commons/3/3e/Carrots_of_many_colors.jpg",
-        unit: "lbs",
-        price: "$3.25/lb",
-        total: "$9.75",
-        quantity: 3,
-    },
-    {
-        id: "4",
-        name: "Fresh Kale",
-        farm: "Sunny Acres Farm",
-        status: "Fresh",
-        harvested: "today",
-        image:
-            "https://upload.wikimedia.org/wikipedia/commons/8/8c/Kale-Bundle.jpg",
-        unit: "bunch",
-        price: "$2.75/bunch",
-        total: "$2.75",
-        quantity: 1,
-    },
-];
-
-const orderData = {
-    subtotal: 25.25,
-    itemCount: 4,
-    deliveryFee: 3.99,
-    discountLabel: "FRESH20",
-    discountAmount: 5.05,
-    tax: 2.12,
-    total: 26.31,
-    savedMessage: "You saved $5.05 with promo code!",
-};
+type OrderInfo = {
+  selectedItems: Array<{
+    id: string
+    name: string
+    farm: string
+    quantity: number
+    total: number
+  }>
+  subtotal: number
+  deliveryFee: number
+  tax: number
+  total: number
+  deliveryAddress: string
+}
 
 export const CustomerCartScreen: React.FC = () => {
-    return (
-        <SafeAreaView className="flex-1 bg-[#F9FAF9]">
-            <ScrollView
-                style={{ flex: 1 }}
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16, gap: 24 }}
-            >
-                <CartItemsSection items={cartItems} />
-                <View className="flex-1 bg-gray-50">
-                    <DeliveryOptionsCard />
-                </View>
+  const [selectedItems, setSelectedItems] = useState<string[]>([])
 
-                <OrderSummary {...orderData} />
-                <ProceedButton onPress={() => console.log("Proceed to Checkout pressed")} />
-            </ScrollView>
+  const handleEditAddress = () => {
+    console.log("Edit address pressed")
+  }
 
-        </SafeAreaView>
-    )
+  const handleProceed = () => {
+    const selectedItemsData = customerCartItems.filter((item) => selectedItems.includes(item.id))
+
+    const selectedTotal = calculateCartTotal(customerCartItems, selectedItems)
+    const deliveryFee = 3.99
+    const tax = calculateTax(selectedTotal)
+
+    const orderInfo: OrderInfo = {
+      selectedItems: selectedItemsData.map((item) => ({
+        id: item.id,
+        name: item.name,
+        farm: item.farm,
+        quantity: item.quantity,
+        total: Number.parseFloat(item.total.replace("$", "")),
+      })),
+      subtotal: selectedTotal,
+      deliveryFee,
+      tax,
+      total: selectedTotal + deliveryFee + tax,
+      deliveryAddress: "123 Main Street, Apartment 4B, San Francisco, CA",
+    }
+  }
+
+  const selectedTotal = calculateCartTotal(customerCartItems, selectedItems)
+  const deliveryFee = 3.99
+  const tax = calculateTax(selectedTotal)
+  const finalTotal = selectedTotal + deliveryFee + tax
+
+  return (
+    <SafeAreaView className="flex-1 bg-[#F9FAF9]" edges={["top"]}>
+      <ScrollView
+        style={{ flex: 1 }}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{
+          paddingHorizontal: 16,
+          paddingVertical: 16,
+          gap: 16,
+        }}
+      >
+        <CartItemsSection
+          items={customerCartItems}
+          selectedItems={selectedItems}
+          onSelectItem={(id) =>
+            setSelectedItems((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]))
+          }
+        />
+
+        <DeliveryInfoCard address="123 Main Street, Apartment 4B, San Francisco, CA" onEdit={handleEditAddress} />
+
+        <OrderSummary
+          subtotal={selectedTotal}
+          itemCount={selectedItems.length}
+          deliveryFee={deliveryFee}
+          discountLabel="FRESH20"
+          discountAmount={5.05}
+          tax={tax}
+          total={finalTotal}
+          savedMessage="You saved $5.05 with promo code!"
+        />
+      </ScrollView>
+
+      <CheckoutFooter total={finalTotal} onProceed={handleProceed} />
+    </SafeAreaView>
+  )
 }

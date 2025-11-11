@@ -1,16 +1,16 @@
-import React from "react";
-import { View, Text } from "react-native";
-import { SummaryRow } from "./SummaryRow";
+import type React from "react"
+import { View, Text } from "react-native"
+import { SummaryRow } from "./SummaryRow"
 
 interface OrderSummaryProps {
-  subtotal: number;
-  itemCount: number;
-  deliveryFee: number;
-  discountLabel: string;
-  discountAmount: number;
-  tax: number;
-  total: number;
-  savedMessage: string;
+  subtotal: number
+  itemCount: number
+  deliveryFee: number
+  discountLabel: string
+  discountAmount: number
+  tax: number
+  total: number
+  savedMessage: string
 }
 
 export const OrderSummary: React.FC<OrderSummaryProps> = ({
@@ -29,11 +29,7 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
 
       <SummaryRow label={`Subtotal (${itemCount} items)`} value={`$${subtotal.toFixed(2)}`} />
       <SummaryRow label="Delivery Fee" value={`$${deliveryFee.toFixed(2)}`} />
-      <SummaryRow
-        label={`Discount (${discountLabel})`}
-        value={`-$${discountAmount.toFixed(2)}`}
-        isDiscount
-      />
+      <SummaryRow label={`Discount (${discountLabel})`} value={`-$${discountAmount.toFixed(2)}`} isDiscount />
       <SummaryRow label="Tax" value={`$${tax.toFixed(2)}`} />
 
       <View className="border-b border-gray-200 my-2" />
@@ -42,5 +38,5 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
 
       <Text className="text-xs text-green-600 mt-1">{savedMessage}</Text>
     </View>
-  );
-};
+  )
+}

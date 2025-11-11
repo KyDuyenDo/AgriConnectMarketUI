@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, Image, TouchableOpacity } from "react-native";
-import { CheckCircle, ThumbsUp } from "lucide-react-native";
+import { Star, ThumbsUp } from "lucide-react-native";
 
 interface ReviewItemProps {
   name: string;
@@ -32,38 +32,26 @@ const ReviewItem: React.FC<ReviewItemProps> = ({
       {/* Content */}
       <View className="ml-3 flex-1">
         <View className="flex-row items-center justify-between">
-          <Text className="font-semibold text-gray-900">{name}</Text>
-          {verified && (
-            <View className="flex-row items-center bg-green-100 px-2 py-0.5 rounded-full">
-              <CheckCircle size={12} color="#16A34A" />
-              <Text className="text-green-700 text-xs ml-1">Verified Purchase</Text>
-            </View>
-          )}
+          <Text className="font-semibold text-[#2D2D2D]">{name}</Text>
         </View>
-
-        {/* Stars */}
-        <View className="flex-row mt-1">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <View
-              key={i}
-              className={`w-3 h-3 rounded-full ${
-                i < rating ? "bg-yellow-400" : "bg-gray-200"
-              }`}
-            />
-          ))}
+        
+        <View className="flex-row gap-3 items-end">
+          {/* Stars */}
+          <View className="flex-row gap-1 mt-1">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Star
+                size={14}
+                color={i < rating ? "#FFA726" : "#D1D5DB"}
+                fill={i < rating ? "#FFA726" : "none"}
+                key={i}
+              />
+            ))}
+          </View>
+           <Text className="text-gray-500 text-xs">{date}</Text>
         </View>
 
         {/* Comment */}
-        <Text className="text-gray-700 mt-2">{comment}</Text>
-
-        {/* Footer */}
-        <View className="flex-row items-center mt-2 space-x-3">
-          <Text className="text-gray-500 text-xs">{date}</Text>
-          <TouchableOpacity className="flex-row items-center">
-            <ThumbsUp size={12} color="#6B7280" />
-            <Text className="text-gray-500 text-xs ml-1">Helpful ({helpful})</Text>
-          </TouchableOpacity>
-        </View>
+        <Text className="text-[#5C5C5C] mt-2">{comment}</Text>
       </View>
     </View>
   );

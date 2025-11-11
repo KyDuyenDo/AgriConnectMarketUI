@@ -5,11 +5,7 @@ import ReviewList from "./ReviewList";
 
 const CustomerReviewsCard = () => {
   return (
-    <View className="bg-white rounded-3xl p-4 shadow-sm border border-gray-100 mt-3">
-      <Text className="text-gray-900 text-lg font-semibold mb-3">
-        Customer Reviews
-      </Text>
-
+    <View className="bg-white rounded-3xl p-4 shadow shadow-gray-200 mt-3">
       <RatingSummary
         rating={4.9}
         totalReviews={28}

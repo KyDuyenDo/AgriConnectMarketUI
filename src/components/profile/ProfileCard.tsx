@@ -13,15 +13,20 @@ interface UserData {
     totalOrders: number;
 }
 
-export function ProfileCard(userData: UserData) {
+interface ProfileCardProps {
+    userData: UserData;
+    onEditProfile?: () => void;
+}
+
+export function ProfileCard({ userData, onEditProfile }: ProfileCardProps) {
     return (
         <View className="mx-6 -mt-6 mb-6">
-            <View className="rounded-3xl bg-white p-6 shadow-lg">
+            <View className="rounded-3xl bg-white p-6 shadow-lg space-x-4">
                 {/* Avatar Section */}
-                <View className="items-center">
+                <View className="items-center mx-2">
                     <View className="relative">
                         <Image
-                            source={{ uri: userData.avatar || "" }}
+                            source={{ uri: userData?.avatar || "" }}
                             className="h-24 w-24 rounded-full border-4 border-white shadow-lg"
                         />
                         <TouchableOpacity className="absolute bottom-0 right-0 rounded-full bg-[#4CAF50] p-2 shadow-md">
@@ -29,33 +34,33 @@ export function ProfileCard(userData: UserData) {
                         </TouchableOpacity>
                     </View>
 
-                    <Text className="mt-4 text-2xl font-bold text-gray-900">{userData.name}</Text>
-                    <Text className="text-gray-600">{userData.email}</Text>
+                    <Text className="mt-4 text-2xl font-bold text-gray-900">{userData?.name}</Text>
+                    <Text className="text-gray-600">{userData?.email}</Text>
 
                     {/* Stats */}
                     <View className="mt-4 flex-row items-center space-x-6">
-                        <View className="items-center">
+                        <View className="items-center mx-2">
                             <View className="flex-row items-center">
                                 <Star size={16} color="#F59E0B" />
-                                <Text className="ml-1 text-lg font-semibold text-gray-900">{userData.rating}</Text>
+                                <Text className="ml-1 text-lg font-semibold text-gray-900">{userData?.rating}</Text>
                             </View>
                             <Text className="text-sm text-gray-600">Rating</Text>
                         </View>
                         <View className="h-8 w-px bg-gray-200" />
-                        <View className="items-center">
-                            <Text className="text-lg font-semibold text-gray-900">{userData.totalOrders}</Text>
+                        <View className="items-center mx-2">
+                            <Text className="text-lg font-semibold text-gray-900">{userData?.totalOrders}</Text>
                             <Text className="text-sm text-gray-600">Orders</Text>
                         </View>
                         <View className="h-8 w-px bg-gray-200" />
-                        <View className="items-center">
-                            <Text className="text-lg font-semibold text-gray-900">{userData.joinDate}</Text>
+                        <View className="items-center mx-2">
+                            <Text className="text-lg font-semibold text-gray-900">{userData?.joinDate}</Text>
                             <Text className="text-sm text-gray-600">Joined</Text>
                         </View>
                     </View>
                 </View>
 
                 {/* Edit Profile Button */}
-                <TouchableOpacity className="mt-6 flex-row items-center justify-center rounded-xl bg-[#4CAF50] py-3">
+                <TouchableOpacity className="mt-6 flex-row items-center justify-center rounded-xl bg-[#4CAF50] py-3" onPress={onEditProfile}>
                     <Edit3 size={18} color="white" />
                     <Text className="ml-2 font-semibold text-white">Edit Profile</Text>
                 </TouchableOpacity>
@@ -63,4 +68,3 @@ export function ProfileCard(userData: UserData) {
         </View>
     )
 }
-

@@ -48,7 +48,6 @@ export default function RegisterScreen() {
 
     setIsLoading(true)
     try {
-      console.log("Register:", { ...data, accountType })
       await new Promise((resolve) => setTimeout(resolve, 2000))
     } finally {
       setIsLoading(false)
