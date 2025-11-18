@@ -53,3 +53,20 @@ export type UserData = {
   rating: number;
   totalOrders: number;
 };
+
+
+// auth types
+export type LoginRequest = {
+    Username: string;
+    Password: string;
+}
+
+export type RegisterRequest = {
+    Username: string;
+    Password: string;
+    Email: string;
+    FullName: string;
+    Phone: string;
+    IsFarmer: boolean;
+    Avatar: File;
+}

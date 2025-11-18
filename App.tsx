@@ -17,11 +17,12 @@ import { CustomerCartScreen } from "@/screens/CustomerCartScreen"
 import CustomerNavigator from "@/navigation/CustomerNavigator"
 import { useState } from "react"
 import { QueryProvider } from "@/providers/QueryProvider"
+import { useAuthStore } from "@/stores/auth"
 
 enableScreens()
 
 export default function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(true)
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
   const [isFarmer, setIsFarmer] = useState(false)
 
   return (
