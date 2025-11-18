@@ -12,7 +12,8 @@ export interface Product {
   status?: "In Stock" | "Out of Stock"
   batch: string,
   quantity: number,
-  category?: string
+  category?: string,
+  season?: string,
 }
 
 export interface CartItem {
@@ -53,3 +54,11 @@ export type UserData = {
   rating: number;
   totalOrders: number;
 };
+
+export type Season = {
+  seasonName: string;
+  seasonDesc: string;
+  startDate: string;
+  endDate: string;
+  farmId: string;
+}
