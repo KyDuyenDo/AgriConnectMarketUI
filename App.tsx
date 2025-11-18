@@ -14,12 +14,9 @@ import { SafeAreaProvider } from "react-native-safe-area-context"
 import { CustomerBatchDetailScreen } from "@/screens/CustomerBatchDetailScreen"
 import { CustomerCartScreen } from "@/screens/CustomerCartScreen"
 
-// 🔴 BỎ import CustomerTab
-// import CustomerTab from "@/navigation/CustomerTab"
-
-// ✅ THÊM CustomerNavigator
 import CustomerNavigator from "@/navigation/CustomerNavigator"
 import { useState } from "react"
+import { QueryProvider } from "@/providers/QueryProvider"
 
 enableScreens()
 
@@ -29,18 +26,20 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-      <NavigationContainer>
-        {isAuthenticated ? (
-          isFarmer ? (
-            <FarmNavigator />
+      <QueryProvider>
+        <NavigationContainer>
+          {isAuthenticated ? (
+            isFarmer ? (
+              <FarmNavigator />
+            ) : (
+              <CustomerNavigator />
+            )
           ) : (
-            <CustomerNavigator />
-          )
-        ) : (
-          <AuthNavigator />
-        )}
-      </NavigationContainer>
-      <StatusBar style="dark" />
+            <AuthNavigator />
+          )}
+        </NavigationContainer>
+        <StatusBar style="dark" />
+      </QueryProvider>
     </SafeAreaProvider>
   )
 }
