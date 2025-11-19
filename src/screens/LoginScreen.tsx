@@ -31,7 +31,7 @@ export default function LoginScreen() {
     },
       {
         onSuccess: (user) => {
-          loginStore(user.token, user.accountId, user.userId)
+          loginStore(user.token, user.accountId, user.userId, user.role )
         },
         onError: (error) => {
           console.log("Error", error.message || "Login failed. Please try again.")

@@ -6,10 +6,10 @@ interface AuthState {
   token: string | null;
   accountId: string | null;
   userId: string | null;
-  user: any | null;
+  role: string | null;
   isAuthenticated: boolean;
   handleApiError: (error: any) => void;
-  login: (token: string, accountId: string, userId: string) => void;
+  login: (token: string, accountId: string, userId: string, role: string) => void;
   logout: () => void;
 }
 
@@ -19,14 +19,15 @@ export const useAuthStore = create<AuthState>(
       token: null,
       accountId: null,
       userId: null,
-      user: null,
+      role: null,
       isAuthenticated: false,
 
-      login: (token, accountId, userId) => {
+      login: (token, accountId, userId, role) => {
         set({
           token,
           accountId,
           userId,
+          role,
           isAuthenticated: true,
         })
       },
@@ -34,7 +35,9 @@ export const useAuthStore = create<AuthState>(
       logout: () => {
         set({
           token: null,
-          user: null,
+          accountId: null,
+          userId: null,
+          role: null,
           isAuthenticated: false,
         })
       },
