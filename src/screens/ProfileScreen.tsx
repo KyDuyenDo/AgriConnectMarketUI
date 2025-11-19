@@ -7,12 +7,14 @@ import { ProfileCard } from "@/components/profile/ProfileCard"
 import { profileUserData, profileMenuItems } from "@/data/mockData"
 import { ContactInformation } from "@/components/profile/ContactInformation"
 import { EditProfileModal } from "@/components/profile/EditProfile"
+import { useAuthStore } from "@/stores/auth"
 
 export default function ProfileScreen() {
   const [notifications, setNotifications] = useState(true)
   const [privacy, setPrivacy] = useState(false)
   const [isEditProfileVisible, setIsEditProfileVisible] = useState(false)
-  
+  const logout = useAuthStore((state) => state.logout)
+
   const onOpenEditProfile = () => {
     setIsEditProfileVisible(true)
   }
@@ -24,7 +26,11 @@ export default function ProfileScreen() {
   const handleLogout = () => {
     Alert.alert("Đăng xuất", "Bạn có chắc chắn muốn đăng xuất?", [
       { text: "Hủy", style: "cancel" },
-      { text: "Đăng xuất", onPress: () => console.log("User logged out") },
+      {
+        text: "Đăng xuất", onPress: () => {
+          logout()
+        }
+      },
     ])
   }
 
