@@ -31,11 +31,10 @@ export default function LoginScreen() {
     },
       {
         onSuccess: (user) => {
-          Alert.alert("Success", "Login successful!")
           loginStore(user.token, user.accountId, user.userId)
         },
         onError: (error) => {
-          Alert.alert("Error", error.message)
+          console.log("Error", error.message || "Login failed. Please try again.")
         }
       }
     )
