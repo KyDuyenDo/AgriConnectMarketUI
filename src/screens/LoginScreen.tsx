@@ -30,8 +30,9 @@ export default function LoginScreen() {
       Password: data.password,
     },
       {
-        onSuccess: (user) => {
-          loginStore(user.token, user.accountId, user.userId, user.role )
+        onSuccess: (response) => {
+          const user = response.data
+          loginStore(user.token, user.accountId, user.userId, user.role)
         },
         onError: (error) => {
           console.log("Error", error.message || "Login failed. Please try again.")

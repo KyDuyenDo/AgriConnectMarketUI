@@ -26,7 +26,7 @@ const apiClient = axios.create({
 
 apiClient.interceptors.response.use(
     response => {
-        console.log('Response:', response);
+        // console.log('Response:', response);
         return response;
     },
     error => {

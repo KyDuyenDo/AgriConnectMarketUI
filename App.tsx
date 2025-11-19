@@ -24,6 +24,7 @@ enableScreens()
 export default function App() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
   const isFarmer = useAuthStore((state) => state.role === 'Farmer')
+  console.log(isFarmer)
 
   return (
     <SafeAreaProvider>
