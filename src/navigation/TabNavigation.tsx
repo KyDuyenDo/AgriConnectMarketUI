@@ -8,6 +8,7 @@ import { FarmerProductsScreen } from "@/screens/FarmerProductsScreen";
 import { FarmerOrders } from "@/screens/FarmerOrdersScreen";
 import { FarmDashboard } from "@/screens/FarmDashboard";
 import { CustomerDashboardScreen } from "@/screens/CustomerDashboardScreen";
+import ProfileScreen from "@/screens/ProfileScreen";
 
 const Tab = createBottomTabNavigator();
 
@@ -112,7 +113,7 @@ export default function FarmTab() {
       <Tab.Screen name="Products" component={FarmerProductsScreen} options={{ title: "Products" }} />
       <Tab.Screen name="Orders" component={FarmerOrders} options={{ title: "Orders" }} />
       <Tab.Screen name="FarmMgmt" component={FarmDashboard} options={{ title: "Farm Mgmt" }} />
-      <Tab.Screen name="Profile" component={CustomerDashboardScreen} options={{ title: "Profile" }} />
+      <Tab.Screen name="Profile" component={ProfileScreen} options={{ title: "Profile" }} />
     </Tab.Navigator>
   );
 }
