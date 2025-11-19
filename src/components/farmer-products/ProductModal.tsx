@@ -7,18 +7,9 @@ import {
     ScrollView,
     TouchableOpacity,
 } from 'react-native';
-import { SafeAreaView } from "react-native-safe-area-context"
-// Import các icon cần thiết từ lucide-react-native
-import { ChevronDown, Camera, Plus, ArrowLeft } from 'lucide-react-native';
+import {  ArrowLeft } from 'lucide-react-native';
 import ValueLabelSelect from "../ui/SelectInput";
 import ProductImagePicker from "../ui/ImagePicker";
-
-const BKG_COLOR = 'bg-orange-50';
-// Giả sử màu cam chính
-const ACCENT_COLOR = '#f97316'; // tailwind 'orange-500'
-const ACCENT_BORDER = 'border-orange-500';
-const ACCENT_TEXT = 'text-orange-500';
-const GRAY_ICON_COLOR = '#6b7280'; 
 
 interface ProductModalProps {
     form?: Partial<Product>;
@@ -32,11 +23,16 @@ interface ProductModalProps {
         value: string;
         label: string;
     }[];
-    
+
+    handleSubmit: () => void;
+
+    image: File | undefined;
+    setImage: (file: File | undefined) => void;
+
 }
 
 
-export default function ProductModal({ form, setFormValues, lot, season }: ProductModalProps) {
+export default function ProductModal({ form, setFormValues, lot, season, handleSubmit, image, setImage }: ProductModalProps) {  
     return (
         <ScrollView className="flex-1 mb-16">
             <View className="flex-row items-center p-4 bg-white shadow-sm">
@@ -143,12 +139,39 @@ export default function ProductModal({ form, setFormValues, lot, season }: Produ
                     </View>
                 </View>
 
+
+                <View className="mb-4">
+                    <Text className="text-sm font-semibold text-gray-600 mb-2">
+                        Product Description
+                    </Text>
+                    <TextInput
+                        className="border border-gray-300 rounded-lg p-3 text-base"
+                        placeholder="e.g., 100% organic, fresh from the farm"
+                        placeholderTextColor="#9ca3af"
+                        value={form?.description || ''}
+                        onChangeText={(text) => setFormValues && setFormValues({ ...form, description: text as string })}
+                    />
+                </View>
+
                 {/* --- Phần 3: Product Images --- */}
                 <ProductImagePicker
                     label="Main Photo"
                     initialUrl={form?.image}
                     onChange={(uri) => setFormValues && setFormValues({ ...form, image: uri })}
+                    image={image}
+                    setImage={setImage}
                 />
+
+                {/* button create product */}
+                <View className="mt-6">
+                    <TouchableOpacity
+                        className="bg-orange-500 text-white py-3 rounded-lg shadow-md items-center"
+                        onPress={handleSubmit}
+                    >
+                        <Text className="text-lg font-bold">Save</Text>
+                    </TouchableOpacity>
+                </View>
+
             </ScrollView>
         </ScrollView>
     )

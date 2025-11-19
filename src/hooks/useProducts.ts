@@ -38,7 +38,7 @@ export const useCreateProduct = () => {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: (data: Product) => ProductService.create(data),
+        mutationFn: (data: Partial<Product>) => ProductService.create(data),
 
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: PRODUCT_QUERY_KEYS.all });

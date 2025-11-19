@@ -6,7 +6,9 @@ import { Camera } from "lucide-react-native";
 interface ProductImagePickerProps {
     label?: string;
     initialUrl?: string | undefined;           // 👉 URL từ server khi edit
-    onChange?: (uri: string | undefined) => void;
+    onChange?: (file: string | undefined) => void;
+    image?: File | undefined;
+    setImage: (file: File | undefined) => void;
 }
 
 const ProductImagePicker: React.FC<ProductImagePickerProps> = ({

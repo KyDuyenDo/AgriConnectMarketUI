@@ -1,7 +1,10 @@
 import apiClient from "@/api/config";
-import { Product } from "@/types";
+import { Product, ProductResponse } from "@/types";
+import { mapProductToResponse } from "@/utils/mapProduct";
 
 const BASE_URL = "/products";
+
+
 
 export const ProductService = {
     /**
@@ -33,9 +36,10 @@ export const ProductService = {
     /**
      * Tạo sản phẩm mới (POST /products)
      */
-    create: async (productData: Product): Promise<Product> => {
+    create: async (productData: Partial<Product>): Promise<Product> => {
         try {
-            const res = await apiClient.post<Product>(BASE_URL, productData);
+            const productResponse: ProductResponse = mapProductToResponse(productData);
+            const res = await apiClient.post<Product>(BASE_URL, productResponse);
             return res.data;
         } catch (error) {
             console.error("❌ Lỗi tạo sản phẩm:", error);

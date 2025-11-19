@@ -14,6 +14,14 @@ export interface Product {
   quantity: number,
   category?: string,
   season?: string,
+  description?: string,
+}
+
+export interface ProductResponse {
+    productName: string,
+    productAttribute: string,
+    productDesc: string,
+    categoryId: string,
 }
 
 export interface CartItem {
