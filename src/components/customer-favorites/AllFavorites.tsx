@@ -4,7 +4,6 @@ import { ProductCustomer } from "@/components/customer-exlore/ProductCustomer"
 import { ArrowUpDown, ChevronDown } from "lucide-react-native"
 import { ProductCard } from "../ui/ProductCard"
 import { Product } from "@/types"
-import { mockProducts } from "@/screens/CustomerFavoritesScreen"
 
 interface ProductGridProps {
     searchQuery: string

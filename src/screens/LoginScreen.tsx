@@ -9,6 +9,8 @@ import { RememberMeCheckbox } from "@/components/auth/RememberMeCheckbox"
 import { SignInButton } from "@/components/auth/SignInButton"
 import { SocialLoginButtons } from "@/components/auth/SocialLoginButtons"
 import { SignUpLink } from "@/components/auth/SignUpLink"
+import { useLogin } from "@/hooks/auth/useAuth"
+import { useAuthStore } from "@/stores/auth"
 
 export default function LoginScreen() {
   const {
@@ -19,16 +21,24 @@ export default function LoginScreen() {
   } = useLoginForm()
   const [rememberMe, setRememberMe] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const loginStore = useAuthStore((state) => state.login)
+  const login = useLogin()
 
   const onSubmit = async (data: any) => {
-    setIsLoading(true)
-    try {
-      Alert.alert("Success", "Logged in successfully!")
-    } catch (error) {
-      Alert.alert("Error", "Login failed. Please try again.")
-    } finally {
-      setIsLoading(false)
-    }
+    login.mutateAsync({
+      Username: data.username,
+      Password: data.password,
+    },
+      {
+        onSuccess: (response) => {
+          const user = response.data
+          loginStore(user.token, user.accountId, user.userId, user.role)
+        },
+        onError: (error) => {
+          console.log("Error", error.message || "Login failed. Please try again.")
+        }
+      }
+    )
   }
 
   return (
@@ -52,12 +62,12 @@ export default function LoginScreen() {
               {/* Email Input */}
               <View className="mb-5">
                 <InputField
-                  name="email"
+                  name="username"
                   control={control}
-                  placeholder="your@email.com"
-                  label="Email Address"
-                  keyboardType="email-address"
-                  error={errors.email?.message}
+                  placeholder="Enter your username"
+                  label="Username"
+                  keyboardType="default"
+                  error={errors.username?.message}
                 />
               </View>
 

@@ -62,6 +62,20 @@ export type UserData = {
   rating: number;
   totalOrders: number;
 };
+export type LoginRequest = {
+    Username: string;
+    Password: string;
+}
+
+export type RegisterRequest = {
+    Username: string;
+    Password: string;
+    Email: string;
+    FullName: string;
+    Phone: string;
+    IsFarmer: boolean;
+    Avatar: File;
+}
 
 export type Season = {
   seasonName: string;

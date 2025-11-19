@@ -4,6 +4,7 @@ import { Header } from "./Header"
 import { ActionButtons } from "./ActionButtons"
 import { FilterSection } from "./FilterSection"
 import { ProductGrid } from "./ProductGrid"
+import { View } from "lucide-react-native"
 
 export const ProductsPage: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState("")
@@ -12,20 +13,20 @@ export const ProductsPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("")
 
   return (
-    <div className="flex-1 bg-white min-h-screen">
+    <View className="flex-1 bg-white min-h-screen">
       <Header />
-      <div className="px-4 py-4">
+      <View className="px-4 py-4">
         <ActionButtons />
-      </div>
-      <div className="px-4 pb-4">
+      </View>
+      <View className="px-4 pb-4">
         <FilterSection
           onCategoryChange={setSelectedCategory}
           onPriceChange={setSelectedPrice}
           onStockChange={setSelectedStock}
           onSearchChange={setSearchQuery}
         />
-      </div>
+      </View>
       <ProductGrid searchQuery={searchQuery} />
-    </div>
+    </View>
   )
 }
