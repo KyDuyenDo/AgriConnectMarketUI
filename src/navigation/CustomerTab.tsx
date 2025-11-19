@@ -9,6 +9,7 @@ import { ExploreScreen } from "@/screens/ExploreScreen"
 import { CustomerCartScreen } from "@/screens/CustomerCartScreen"
 import { CustomerFavoritesScreen } from "@/screens/CustomerFavoritesScreen"
 import ProfileScreen from "@/screens/ProfileScreen"
+import { ShoppingCartHeader } from "@/components/header/ShoppingCartHeader"
 
 const Tab = createBottomTabNavigator()
 
@@ -126,7 +127,7 @@ export default function CustomerTab() {
       <Tab.Screen
         name="Cart"
         component={CustomerCartScreen}
-        options={{ title: "Cart" }}
+        options={{header: ({ navigation }) => <ShoppingCartHeader navigation={navigation} />, title: "Cart" }}
       />
       <Tab.Screen
         name="Favorites"
