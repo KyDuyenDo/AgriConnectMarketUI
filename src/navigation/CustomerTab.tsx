@@ -127,7 +127,7 @@ export default function CustomerTab() {
       <Tab.Screen
         name="Cart"
         component={CustomerCartScreen}
-        options={{header: ({ navigation }) => <ShoppingCartHeader navigation={navigation} />, title: "Cart" }}
+        options={{ header: () => <ShoppingCartHeader onClearAll={() => { }} />, headerShown: true, title: "Cart" }}
       />
       <Tab.Screen
         name="Favorites"

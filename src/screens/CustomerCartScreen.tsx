@@ -60,7 +60,7 @@ export const CustomerCartScreen: React.FC = () => {
   const finalTotal = selectedTotal + deliveryFee + tax
 
   return (
-    <SafeAreaView className="flex-1 bg-[#F9FAF9]" edges={["top"]}>
+    <SafeAreaView className="flex-1 bg-[#F9FAF9]" edges={["left", "right"]}>
       <ScrollView
         style={{ flex: 1 }}
         showsVerticalScrollIndicator={false}
