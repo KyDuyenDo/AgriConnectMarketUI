@@ -26,7 +26,7 @@ const mapProductToResponse = (product: Partial<Product>): ProductResponse => {
     productName: product.name || "",
     productAttribute: `${product.price || "0"} ${product.unit || "kg"}`, 
     productDesc: product.description || "", 
-    categoryId: product.category || "",
+    categoryId:  "e488ea46-1ebd-4ad0-35da-08de27404996",
   };
 };
 

@@ -12,29 +12,27 @@ interface ProductGridProps {
 
 export const AllFavorites: React.FC<ProductGridProps> = ({ searchQuery, products }) => {
     return (
-        <ScrollView className="flex-1">
-
-            <View className="flex-row justify-between items-center mb-3 px-4 py-2">
-                <Text className="text-xl font-semibold text-gray-800">
+        <View className="mb-4 px-4">
+            <View className="flex-row justify-between items-center mb-3">
+                <Text className="text-[16px] font-semibold" style={{ color: '#1B1F24' }}>
                     All Favorites
                 </Text>
-                <TouchableOpacity
-                    className="flex-row items-center justify-center p-2"
-
-                >
-                    <Text className="mr-1 text-lg font-semibold text-green-600">
+                <TouchableOpacity className="flex-row items-center">
+                    <Text className="text-xs font-medium mr-1" style={{ color: '#4CAF50' }}>
                         Sort by Date
                     </Text>
-                    <ChevronDown size={18} className="text-green-600" />
+                    <View className="w-4 h-4 items-center justify-center">
+                        <ChevronDown size={14} color="#4CAF50" />
+                    </View>
                 </TouchableOpacity>
             </View>
-            <View className="flex-row flex-wrap justify-between">
+            <View className="grid grid-cols-2 gap-3">
                 {products.map((product) => (
-                    <View key={product.id} className="w-[48%] mb-4">
-                        <ProductCard product={product} toggleFavorite={() => {}} />
+                    <View key={product.id} className="w-[48%]">
+                        <ProductCard product={product} toggleFavorite={() => { }} />
                     </View>
                 ))}
             </View>
-        </ScrollView>
+        </View>
     )
 }

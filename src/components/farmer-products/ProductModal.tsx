@@ -35,7 +35,7 @@ interface ProductModalProps {
 export default function ProductModal({ form, setFormValues, lot, season, handleSubmit, image, setImage }: ProductModalProps) {  
     return (
         <ScrollView className="flex-1 mb-16">
-            <View className="flex-row items-center p-4 bg-white shadow-sm">
+            <View className="flex-row items-center p-4">
                 <TouchableOpacity>
                     <ArrowLeft size={24} color="black" />
                 </TouchableOpacity>

@@ -37,12 +37,12 @@ export const ProductService = {
      * Tạo sản phẩm mới (POST /products)
      */
     create: async (productData: Partial<Product>): Promise<Product> => {
+        const productResponse: ProductResponse = mapProductToResponse(productData);
         try {
-            const productResponse: ProductResponse = mapProductToResponse(productData);
-            const res = await apiClient.post<Product>(BASE_URL, productResponse);
+            const res = await apiClient.post(BASE_URL, productResponse);
             return res.data;
-        } catch (error) {
-            console.error("❌ Lỗi tạo sản phẩm:", error);
+        } catch (error: any) {
+            console.error("❌ Lỗi tạo sản phẩm:", error?.response?.data || error.message);
             throw error;
         }
     },

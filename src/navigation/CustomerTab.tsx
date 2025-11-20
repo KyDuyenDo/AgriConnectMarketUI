@@ -9,6 +9,7 @@ import { ExploreScreen } from "@/screens/ExploreScreen"
 import { CustomerCartScreen } from "@/screens/CustomerCartScreen"
 import { CustomerFavoritesScreen } from "@/screens/CustomerFavoritesScreen"
 import ProfileScreen from "@/screens/ProfileScreen"
+import FarmAddProductScreen from "@/screens/FarmAddProductScreen"
 
 const Tab = createBottomTabNavigator()
 
@@ -120,7 +121,8 @@ export default function CustomerTab() {
       />
       <Tab.Screen
         name="Explore"
-        component={ExploreScreen}
+        //component={ExploreScreen}
+        component={FarmAddProductScreen}
         options={{ title: "Explore" }}
       />
       <Tab.Screen

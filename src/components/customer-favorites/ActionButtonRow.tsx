@@ -1,39 +1,52 @@
 import { View, Text, TouchableOpacity } from 'react-native';
-import { ShoppingCart, Check, Upload } from 'lucide-react-native'; 
+import { ShoppingCart, CheckSquare, Share } from 'lucide-react-native';
 
 export function ActionButtonRow() {
     return (
-    
-        <View className="p-3 bg-white rounded-xl  flex-row items-center justify-between">
-            <View className="flex-row items-center justify-between">
-                
+        <View className="mb-4 px-4">
+            <View className="p-3 bg-white rounded-2xl flex-row items-center justify-between"
+                style={{
+                    shadowColor: '#000',
+                    shadowOffset: { width: 0, height: 2 },
+                    shadowOpacity: 0.08,
+                    shadowRadius: 8,
+                    elevation: 3
+                }}
+            >
+                <View className="flex-row items-center gap-3">
+                    <TouchableOpacity
+                        className="flex-row items-center px-3 py-2 rounded-xl"
+                        style={{ backgroundColor: '#81C784' }}
+                        activeOpacity={0.7}
+                    >
+                        <View className="w-4 h-4 items-center justify-center mr-1">
+                            <CheckSquare size={14} color="#2E7D32" />
+                        </View>
+                        <Text className="text-xs font-medium" style={{ color: '#2E7D32' }}>
+                            Select
+                        </Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        className="flex-row items-center px-3 py-2 rounded-xl"
+                        style={{ backgroundColor: 'rgba(200, 230, 201, 1)' }}
+                        activeOpacity={0.7}
+                    >
+                        <View className="w-4 h-4 items-center justify-center mr-1">
+                            <ShoppingCart size={14} color="#4CAF50" />
+                        </View>
+                        <Text className="text-xs font-medium" style={{ color: '#4CAF50' }}>
+                            Add to Cart
+                        </Text>
+                    </TouchableOpacity>
+                </View>
 
                 <TouchableOpacity
-                    className="flex-row items-center justify-center p-3 rounded-2xl bg-green-500 mr-2 flex-grow-0"
+                    className="w-8 h-8 items-center justify-center rounded-lg"
+                    style={{ backgroundColor: '#81C784' }}
                     activeOpacity={0.7}
                 >
-                    <Check size={18} color="white" className="mr-1" />
-                    <Text className="text-white text-base font-semibold">
-                        Select
-                    </Text>
-                </TouchableOpacity>
-
-      
-                <TouchableOpacity
-                    className="flex-row items-center justify-center p-3 rounded-2xl bg-green-200/80 flex-grow"
-                    activeOpacity={0.7}
-                >
-                    <ShoppingCart size={18} color="#4ade80" className="mr-2" />
-                    <Text className="text-green-600 text-base font-semibold">
-                        Add to Cart
-                    </Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                    className="flex-row items-center justify-center w-12 h-12 rounded-xl bg-green-400 ml-2"
-                    activeOpacity={0.7}
-                >
-                    <Upload size={20} color="white" />
+                    <Share size={14} color="#2E7D32" />
                 </TouchableOpacity>
             </View>
         </View>

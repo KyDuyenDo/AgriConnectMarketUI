@@ -5,7 +5,7 @@ export interface Collection {
     title: string;
     subtitle: string;
     itemCount: number;
-    isFeatured: boolean; 
+    isFeatured: boolean;
 }
 
 interface CollectionCardProps {
@@ -15,40 +15,43 @@ interface CollectionCardProps {
 export const CollectionCard: React.FC<CollectionCardProps> = ({ collection }) => {
     const { title, subtitle, itemCount, isFeatured } = collection;
 
-    const cardClasses = isFeatured 
-        ? 'bg-green-500' 
-        : 'bg-white border border-gray-100';
+    const cardStyle = isFeatured
+        ? { backgroundColor: '#4CAF50' }
+        : {
+            backgroundColor: '#FFFFFF',
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.08,
+            shadowRadius: 8,
+            elevation: 3
+        };
 
-    const titleClasses = isFeatured 
-        ? 'text-white text-xl font-bold' 
-        : 'text-gray-900 text-xl font-bold';
+    const titleColor = isFeatured ? '#FFFFFF' : '#1B1F24';
+    const subtitleColor = isFeatured ? 'rgba(255, 255, 255, 0.8)' : '#6B737A';
+    const badgeStyle = isFeatured
+        ? { backgroundColor: '#FFFFFF' }
+        : { backgroundColor: 'rgba(200, 230, 201, 1)' };
+    const badgeTextColor = '#4CAF50';
 
-    const subtitleClasses = isFeatured 
-        ? 'text-white/80 text-base font-normal' 
-        : 'text-gray-500 text-base font-normal';
-
-    const itemTagClasses = isFeatured 
-        ? 'bg-white text-green-600' 
-        : 'bg-green-100 text-green-600';
-        
     return (
-        <TouchableOpacity 
-            className={`w-40 p-4 rounded-3xl mr-3 ${cardClasses}`}
+        <TouchableOpacity
+            className="min-w-[120px] p-4 rounded-2xl"
+            style={cardStyle}
             activeOpacity={0.8}
         >
-            <View 
-                className={`w-auto p-2 rounded-full mb-4 self-start ${itemTagClasses}`}
+            <View
+                className="px-3 py-1.5 rounded-full mb-2 self-start"
+                style={badgeStyle}
             >
-                <Text className="text-sm font-semibold">
+                <Text className="text-xs font-medium" style={{ color: badgeTextColor }}>
                     {itemCount} items
                 </Text>
             </View>
 
-            {/* Nội dung chính */}
-            <Text className={`mt-auto ${titleClasses}`}>
+            <Text className="text-sm font-semibold mb-1" style={{ color: titleColor }}>
                 {title}
             </Text>
-            <Text className={subtitleClasses}>
+            <Text className="text-xs" style={{ color: subtitleColor }}>
                 {subtitle}
             </Text>
         </TouchableOpacity>

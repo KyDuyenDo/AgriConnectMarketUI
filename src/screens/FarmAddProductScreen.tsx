@@ -30,7 +30,6 @@ const Season = [
 
 export default function FarmAddProductScreen() {
     const createProduct = useCreateProduct();
-    const BKG_COLOR = 'bg-orange-50';
     const [form, setFormValues] = useState<Partial<Product>>({
         id: '',
         name: '',
@@ -62,7 +61,7 @@ export default function FarmAddProductScreen() {
     }
 
     return (
-        <SafeAreaView className={`flex-1 ${BKG_COLOR}`}>
+        <SafeAreaView className={`flex-1`}>
             <ProductModal 
                 form={form} 
                 setFormValues={setFormValues} 
