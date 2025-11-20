@@ -1,5 +1,9 @@
 import { View, Text, TouchableOpacity } from "react-native"
 import { ChevronRight, Sprout, Eye, Plus, BarChart3, PlusCircle } from "lucide-react-native"
+import { NativeStackNavigationProp } from "node_modules/@react-navigation/native-stack/lib/typescript/src/types"
+import { FarmStackParamList } from "@/navigation/FarmNavigator"
+import { useNavigation } from "@react-navigation/native"
+
 
 interface ActionButtonProps {
   action: {
@@ -9,10 +13,16 @@ interface ActionButtonProps {
     icon: string
     iconBg: string
     iconColor: string
+    link?: string
   }
 }
 
+type Nav = NativeStackNavigationProp<FarmStackParamList>
+
 export function ActionButton({ action }: ActionButtonProps) {
+
+  const navigation = useNavigation<Nav>()
+
   const getIcon = () => {
     switch (action.icon) {
       case "PlusCircle":
@@ -32,6 +42,11 @@ export function ActionButton({ action }: ActionButtonProps) {
 
   return (
     <TouchableOpacity
+      onPress={() => {
+        if (action.link) {
+          navigation.navigate(action.link as any)
+        }
+      }}
       style={{
         backgroundColor: "#ffffff",
         borderRadius: 12,

@@ -19,7 +19,17 @@ interface DashboardData {
   newOrdersTrend: string
 }
 
-interface FarmDashboardProps {
+export interface QuickAction {
+  id: number
+  title: string
+  description: string
+  icon: string
+  iconBg: string
+  iconColor: string
+  link?: string
+}
+
+export interface FarmDashboardProps {
   dashboardData?: DashboardData
 }
 
@@ -35,6 +45,43 @@ export function FarmDashboard({ dashboardData }: FarmDashboardProps) {
     newOrdersCount: 23,
     newOrdersTrend: "+8%",
   }
+
+  const actions = [
+    {
+      id: 1,
+      title: "Add Season",
+      description: "Create new growing season",
+      icon: "PlusCircle",
+      iconBg: "#C8E6C9",
+      iconColor: "#4CAF50",
+      link: "AddSeason",
+    },
+    {
+      id: 2,
+      title: "Manage Inventory",
+      description: "Update stock and prices",
+      icon: "Eye",
+      iconBg: "#C8E6C9",
+      iconColor: "#4CAF50",
+    },
+    {
+      id: 3,
+      title: "Add New Product",
+      description: "List fresh produce from your lots",
+      icon: "Plus",
+      iconBg: "#FFE0B2",
+      iconColor: "#FFA726",
+      link: "AddProduct",
+    },
+    {
+      id: 4,
+      title: "View Analytics",
+      description: "Sales reports and insights",
+      icon: "BarChart3",
+      iconBg: "#BBDEFB",
+      iconColor: "#2C7BE5",
+    },
+  ]
 
   const data = dashboardData || defaultData
 
@@ -63,7 +110,7 @@ export function FarmDashboard({ dashboardData }: FarmDashboardProps) {
           newOrders={{ count: data.newOrdersCount, trend: data.newOrdersTrend }}
         />
 
-        <QuickActionsSection />
+        <QuickActionsSection actions={actions} />
         <RecentOrdersSection />
         <TopProductsSection />
         <WeeklySalesSection />
