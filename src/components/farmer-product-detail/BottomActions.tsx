@@ -8,14 +8,7 @@ interface BottomActionsProps {
 export function BottomActions({ onEditProduct, onReplyToReviews }: BottomActionsProps) {
     return (
         <View
-            className="fixed bottom-0 w-full z-10"
-            style={{
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: -2 },
-                shadowOpacity: 0.08,
-                shadowRadius: 8,
-                elevation: 5
-            }}
+            className="fixed bottom-0 w-full z-10 border-t-[1px] border-gray-200"
         >
             <View className="bg-white p-4">
                 <View className="flex-row gap-3">
@@ -54,7 +47,6 @@ export function BottomActions({ onEditProduct, onReplyToReviews }: BottomActions
                     </Pressable>
                 </View>
             </View>
-            <View style={{ height: 0 }} /> {/* Safe area bottom placeholder */}
         </View>
     );
 }

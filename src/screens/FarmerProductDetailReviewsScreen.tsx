@@ -132,7 +132,7 @@ export function FarmerProductDetailReviewsScreen() {
 
             <ScrollView
                 showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ paddingBottom: Platform.OS === 'ios' ? 140 : 100 }}
+                contentContainerStyle={{ paddingBottom: 20 }}
             >
                 <ProductHero
                     image={PRODUCT_DATA.image}
