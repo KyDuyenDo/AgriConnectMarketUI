@@ -4,9 +4,6 @@ import { Sprout, Bell, Filter } from "lucide-react-native"
 export function OrdersHeader() {
   return (
     <View className="bg-[#F9FAF9] fixed top-0 w-full z-10">
-      {/* Safe area spacer */}
-      <View className="h-11" />
-
       <View className="flex-row justify-between items-center h-14 px-6">
         <View className="flex-row items-center">
           <View className="w-8 h-8 items-center justify-center">
