@@ -191,8 +191,14 @@ export function ExploreScreen() {
                 {/* Search Bar */}
                 <View className="px-4 mb-4">
                     <View
-                        className="flex-row items-center py-3 px-4 rounded-xl"
-                        style={{ backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E8EAEB' }}
+                        className="flex-row items-center rounded-xl"
+                        style={{
+                            backgroundColor: '#FFFFFF',
+                            borderWidth: 1,
+                            borderColor: '#E8EAEB',
+                            paddingVertical: 12,
+                            paddingHorizontal: 16
+                        }}
                     >
                         <Search size={20} color="#8A8A8A" />
                         <TextInput
@@ -215,15 +221,15 @@ export function ExploreScreen() {
                 {/* Promotional Banner */}
                 <View className="px-4 mb-4">
                     <View
-                        className="relative p-4 rounded-2xl overflow-hidden"
-                        style={{ backgroundColor: '#4CAF50' }}
+                        className="relative p-4 overflow-hidden"
+                        style={{ backgroundColor: '#4CAF50', borderRadius: 16 }}
                     >
                         <View className="relative z-10">
                             <View
-                                className="px-3 py-1.5 rounded-full w-fit mb-3"
-                                style={{ backgroundColor: '#FFFFFF' }}
+                                className="px-3 py-1.5 rounded-full mb-3"
+                                style={{ backgroundColor: '#FFFFFF', alignSelf: 'flex-start' }}
                             >
-                                <Text className="text-xs font-medium" style={{ color: '#4CAF50' }}>
+                                <Text className="text-[12px] font-medium" style={{ color: '#4CAF50' }}>
                                     Seasonal Special
                                 </Text>
                             </View>
@@ -234,8 +240,8 @@ export function ExploreScreen() {
                                 Premium organic vegetables from local farms
                             </Text>
                             <Pressable
-                                className="py-2 px-4 rounded-xl items-center self-start"
-                                style={{ backgroundColor: '#FFFFFF' }}
+                                className="py-2 px-4 items-center"
+                                style={{ backgroundColor: '#FFFFFF', borderRadius: 12, alignSelf: 'flex-start' }}
                             >
                                 <Text className="text-sm font-semibold" style={{ color: '#4CAF50' }}>
                                     Shop Now
@@ -243,8 +249,8 @@ export function ExploreScreen() {
                             </Pressable>
                         </View>
                         <View
-                            className="absolute -right-4 -bottom-4 w-20 h-20 rounded-full"
-                            style={{ backgroundColor: '#FFFFFF', opacity: 0.1 }}
+                            className="absolute w-20 h-20 rounded-full"
+                            style={{ backgroundColor: '#FFFFFF', opacity: 0.1, right: -16, bottom: -16 }}
                         />
                     </View>
                 </View>
@@ -263,13 +269,14 @@ export function ExploreScreen() {
                         {categories.map((category, index) => {
                             const IconComponent = category.icon
                             return (
-                                <View key={index} className="flex-col items-center min-w-[60px]">
+                                <View key={index} className="flex-col items-center" style={{ minWidth: 60 }}>
                                     <Pressable
-                                        className="w-12 h-12 items-center justify-center rounded-2xl mb-2"
+                                        className="w-12 h-12 items-center justify-center mb-2"
                                         style={{
                                             backgroundColor: index === 0 ? '#4CAF50' : '#FFF5EB',
                                             borderWidth: index === 0 ? 0 : 1,
                                             borderColor: '#E8E8E8',
+                                            borderRadius: 16,
                                             shadowColor: index === 0 ? '#4CAF50' : 'transparent',
                                             shadowOffset: { width: 0, height: 4 },
                                             shadowOpacity: 0.3,
@@ -302,14 +309,14 @@ export function ExploreScreen() {
                                 style={{
                                     backgroundColor: selectedFilter === filter ? '#4CAF50' : '#FFFFFF',
                                     borderWidth: selectedFilter === filter ? 0 : 1,
-                                    borderColor: '#E8EAEB'
+                                    borderColor: '#E8E8E8'
                                 }}
                             >
                                 {filter === "4.5+" && (
                                     <Star size={12} color={selectedFilter === filter ? '#FFFFFF' : '#6B737A'} className="mr-1" />
                                 )}
                                 <Text
-                                    className="text-xs font-medium"
+                                    className="text-[12px] font-medium"
                                     style={{ color: selectedFilter === filter ? '#FFFFFF' : '#6B737A' }}
                                 >
                                     {filter}
@@ -326,10 +333,10 @@ export function ExploreScreen() {
                     </Text>
                     <Pressable
                         className="flex-row items-center gap-1 px-3 py-1.5 rounded-lg"
-                        style={{ backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E8EAEB' }}
+                        style={{ backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E8E8E8' }}
                     >
                         <ArrowUpDown size={16} color="#6B737A" />
-                        <Text className="text-xs font-medium" style={{ color: '#6B737A' }}>Sort</Text>
+                        <Text className="text-[12px] font-medium" style={{ color: '#6B737A' }}>Sort</Text>
                     </Pressable>
                 </View>
 
@@ -350,9 +357,11 @@ export function ExploreScreen() {
                         {farms.map((farm) => (
                             <View
                                 key={farm.id}
-                                className="min-w-[280px] p-4 rounded-2xl"
+                                className="p-4"
                                 style={{
+                                    minWidth: 280,
                                     backgroundColor: '#FFFFFF',
+                                    borderRadius: 16,
                                     shadowColor: '#000',
                                     shadowOffset: { width: 0, height: 2 },
                                     shadowOpacity: 0.08,
@@ -393,10 +402,10 @@ export function ExploreScreen() {
                                         47 products available
                                     </Text>
                                     <Pressable
-                                        className="py-2 px-4 rounded-xl"
-                                        style={{ backgroundColor: '#FFF5EB' }}
+                                        className="py-2 px-4"
+                                        style={{ backgroundColor: '#FFF5EB', borderRadius: 12 }}
                                     >
-                                        <Text className="text-xs font-semibold" style={{ color: '#4CAF50' }}>
+                                        <Text className="text-[12px] font-semibold" style={{ color: '#4CAF50' }}>
                                             View Products
                                         </Text>
                                     </Pressable>

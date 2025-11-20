@@ -55,7 +55,7 @@ export function CustomerFavoritesScreen() {
 
       <ScrollView
         className="pt-4 pb-4"
-        contentContainerStyle={{ paddingBottom: Platform.OS === "ios" ? 140 : 50 }}
+        contentContainerStyle={{ paddingBottom: 80 }}
         showsVerticalScrollIndicator={false}
       >
         <CollectionsScreen collections={MOCK_COLLECTIONS} />

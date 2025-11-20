@@ -36,7 +36,7 @@ export const CustomerDashboardScreen: React.FC = () => {
         contentContainerStyle={{
           paddingVertical: 0,
           gap: 16,
-          paddingBottom: Platform.OS === "ios" ? 140 : 50,
+          paddingBottom: Platform.OS === "ios" ? 140 : 70,
         }}
       >
         <View className="pt-4">

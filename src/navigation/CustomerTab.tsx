@@ -122,8 +122,8 @@ export default function CustomerTab() {
       />
       <Tab.Screen
         name="Explore"
-        //component={ExploreScreen}
-        component={FarmAddProductScreen}
+        component={ExploreScreen}
+        // component={FarmAddProductScreen}
         options={{ title: "Explore" }}
       />
       <Tab.Screen
