@@ -2,13 +2,14 @@ import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Home, Box, ShoppingCart, Settings, User } from "lucide-react-native";
+import { Home, Box, ShoppingCart, Settings, User, Tractor } from "lucide-react-native";
 
 import { FarmerProductsScreen } from "@/screens/FarmerProductsScreen";
 import { FarmerOrders } from "@/screens/FarmerOrdersScreen";
 import { FarmDashboard } from "@/screens/FarmDashboard";
 import { CustomerDashboardScreen } from "@/screens/CustomerDashboardScreen";
 import ProfileScreen from "@/screens/ProfileScreen";
+import FarmerFarmDetailScreen from "@/screens/FarmerFarmDetailScreen";
 
 const Tab = createBottomTabNavigator();
 
@@ -99,7 +100,7 @@ export default function FarmTab() {
             case "Orders":
               return <ShoppingCart color={color} size={iconSize} />;
             case "FarmMgmt":
-              return <Settings color={color} size={iconSize} />;
+              return <Tractor color={color} size={iconSize} />;
             case "Profile":
               return <User color={color} size={iconSize} />;
             default:
@@ -112,7 +113,7 @@ export default function FarmTab() {
       <Tab.Screen name="Dashboard" component={FarmDashboard} options={{ title: "Dashboard" }} />
       <Tab.Screen name="Products" component={FarmerProductsScreen} options={{ title: "Products" }} />
       <Tab.Screen name="Orders" component={FarmerOrders} options={{ title: "Orders" }} />
-      <Tab.Screen name="FarmMgmt" component={FarmDashboard} options={{ title: "Farm Mgmt" }} />
+      <Tab.Screen name="FarmMgmt" component={FarmerFarmDetailScreen} options={{ title: "Farm Mgmt" }} />
       <Tab.Screen name="Profile" component={ProfileScreen} options={{ title: "Profile" }} />
     </Tab.Navigator>
   );

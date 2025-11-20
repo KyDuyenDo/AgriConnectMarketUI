@@ -4,15 +4,17 @@ import {
   Text,
   ScrollView,
   TouchableOpacity,
-  SafeAreaView,
   StatusBar,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { ChevronLeft, Bell } from "lucide-react-native";
+import { ChevronLeft, Bell, Edit } from "lucide-react-native";
 import Carousel from "@/components/ui/Carousel";
 import { FarmStatCard } from "@/components/farm/FarmStatCard";
 import { SeasonCard, CropType } from "@/components/farm/SeasonCard";
 import { FarmInfoCard } from "@/components/farm/FarmInfoCard";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { NativeStackNavigationProp } from "node_modules/@react-navigation/native-stack/lib/typescript/src/types";
+import { FarmStackParamList } from "@/navigation/FarmNavigator";
 
 // Dummy Data
 const CAROUSEL_IMAGES = [
@@ -36,6 +38,7 @@ const FARM_DATA = {
 
 const SEASONS_DATA = [
   {
+    id: "spring-2024",
     seasonName: "Spring 2024",
     crops: ["Leaf", "Carrot", "Wheat"] as CropType[],
     dateRange: "Mar 15 - Jun 30",
@@ -43,6 +46,7 @@ const SEASONS_DATA = [
     status: "Growing" as const,
   },
   {
+    id: "summer-2024",
     seasonName: "Summer 2024",
     crops: ["Apple", "Cherry"] as CropType[],
     dateRange: "Jun 1 - Sep 15",
@@ -50,6 +54,7 @@ const SEASONS_DATA = [
     status: "Planting" as const,
   },
   {
+    id: "fall-2024",
     seasonName: "Fall Harvest 2024",
     crops: ["Grape"] as CropType[],
     dateRange: "Aug 20 - Nov 30",
@@ -58,8 +63,10 @@ const SEASONS_DATA = [
   },
 ];
 
+type Nav = NativeStackNavigationProp<FarmStackParamList>;
+
 export default function FarmDetailScreen() {
-  const navigation = useNavigation();
+  const navigation = useNavigation<Nav>();
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -67,30 +74,37 @@ export default function FarmDetailScreen() {
     });
   }, [navigation]);
 
+  const onAddSeason = () => {
+    console.log("Add New Season");
+  }
+
+  const onPressSeason = (seasonId: string) => {
+    navigation.navigate("SeasonDetail", { seasonId });
+  }
+
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
       <StatusBar barStyle="dark-content" backgroundColor="white" />
 
       {/* Custom Header */}
       <View className="flex-row items-center justify-between px-4 py-3 bg-white border-b border-gray-100 z-10">
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          className="flex-row items-center"
-        >
-          <ChevronLeft size={24} color="#22c55e" />
-          <Text className="text-green-500 font-medium text-base ml-1">Back</Text>
-        </TouchableOpacity>
-
+        <View />
         <Text className="text-lg font-bold text-gray-900">Green Valley Farm</Text>
 
-        <TouchableOpacity>
-          <Bell size={24} color="#374151" />
+        <TouchableOpacity
+          onPress={() => {
+            navigation.navigate("FarmSetupInformation", { farmId: "" })
+          }}
+        >
+          <Edit size={24} color="#374151" />
         </TouchableOpacity>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 30 }}
+      >
         {/* Carousel Header */}
-        <Carousel images={CAROUSEL_IMAGES} height={220} />
+        <Carousel images={CAROUSEL_IMAGES} height={220} autoScroll={false} />
 
         <View className="p-4">
           {/* Farm Info Card */}
@@ -158,7 +172,9 @@ export default function FarmDetailScreen() {
             <Text className="text-lg font-bold text-gray-900">
               Current Seasons
             </Text>
-            <TouchableOpacity className="bg-green-500 px-3 py-2 rounded-lg">
+            <TouchableOpacity
+              onPress={onAddSeason}
+              className="bg-green-500 px-3 py-2 rounded-lg">
               <Text className="text-white font-medium text-sm">
                 Add New Season
               </Text>
@@ -174,7 +190,7 @@ export default function FarmDetailScreen() {
                 dateRange={season.dateRange}
                 acres={season.acres}
                 status={season.status}
-                onPress={() => console.log("View Season", season.seasonName)}
+                onPress={() => onPressSeason(season.id)}
               />
             ))}
           </View>

@@ -11,6 +11,9 @@ import { FarmerOrderDetailScreen } from '@/screens/FarmerOrderDetailScreen';
 import { FarmSetupInformationScreen } from '@/screens/FarmSetupInformationScreen';
 import { FarmerProductDetailReviewsScreen } from '@/screens/FarmerProductDetailReviewsScreen';
 import { FarmerOrders } from '@/screens/FarmerOrdersScreen';
+import SeasonDetailScreen from '@/screens/SeasonDetailScreen';
+import AddCropLogEntryScreen from '@/screens/AddCropLogEntryScreen';
+import AddLotBatchScreen from '@/screens/AddLotBatchScreen';
 
 export type FarmStackParamList = {
     MainTabs: undefined;
@@ -54,7 +57,7 @@ export default function FarmNavigator() {
                 options={{ headerShown: false }}
             />
             <Stack.Screen name="SeasonDetail"
-                component={AddSeasonScreen}
+                component={SeasonDetailScreen}
                 options={{ headerShown: false }}
             />
             <Stack.Screen name="LotDetail"
@@ -62,11 +65,11 @@ export default function FarmNavigator() {
                 options={{ headerShown: false }}
             />
             <Stack.Screen name="AddLot"
-                component={LotDetailScreen}
+                component={AddLotBatchScreen}
                 options={{ headerShown: false }}
             />
             <Stack.Screen name="AddCropLog"
-                component={LotDetailScreen}
+                component={AddCropLogEntryScreen}
                 options={{ headerShown: false }}
             />
             <Stack.Screen name="FarmDetail"

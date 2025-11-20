@@ -1,10 +1,11 @@
 import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity, SafeAreaView } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { ChevronLeft } from 'lucide-react-native';
 import { QuickTemplates } from '../components/add-crop-log-entry/QuickTemplates';
 import { ActivityDetailsForm } from '../components/add-crop-log-entry/ActivityDetailsForm';
 import { WeatherConditionsForm } from '../components/add-crop-log-entry/WeatherConditionsForm';
 import { PhotoUploadGrid } from '../components/add-crop-log-entry/PhotoUploadGrid';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function AddCropLogEntryScreen() {
     return (

@@ -6,8 +6,17 @@ import { LotInfoCard } from '../components/lot-detail/LotInfoCard';
 import { AddLogEntryButton } from '../components/lot-detail/AddLogEntryButton';
 import { ActivityTimeline } from '../components/lot-detail/ActivityTimeline';
 import { LotManagementGrid } from '../components/lot-detail/LotManagementGrid';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { FarmStackParamList } from '@/navigation/FarmNavigator';
+import { useNavigation } from '@react-navigation/native';
+
+type Nav = NativeStackNavigationProp<FarmStackParamList>
 
 export const LotDetailScreen = () => {
+    const navigation = useNavigation<Nav>();
+    const onAddLogEntry = () => {
+        navigation.navigate('AddCropLog');
+    }
     return (
         <SafeAreaView className="flex-1 bg-[#F9FAF9]" edges={['top']}>
             <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
@@ -19,7 +28,7 @@ export const LotDetailScreen = () => {
             >
                 <LotInfoCard />
                 <View className="h-4" />
-                <AddLogEntryButton />
+                <AddLogEntryButton onPress={onAddLogEntry} />
                 <ActivityTimeline />
                 <LotManagementGrid />
             </ScrollView>
