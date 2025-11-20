@@ -8,16 +8,7 @@ interface HeaderProps {
 
 export function Header({ onBack, onMenu }: HeaderProps) {
     return (
-        <View
-            className="bg-white"
-            style={{
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 1 },
-                shadowOpacity: 0.06,
-                shadowRadius: 3,
-                elevation: 2
-            }}
-        >
+        <View>
             <View style={{ height: 0 }} />
 
             <View className="flex-row justify-between items-center h-14 px-4">
@@ -37,12 +28,7 @@ export function Header({ onBack, onMenu }: HeaderProps) {
                     Order Details
                 </Text>
 
-                <Pressable
-                    onPress={onMenu}
-                    className="w-10 h-10 items-center justify-center rounded-full active:bg-[#F5F7F5]"
-                >
-                    <MoreVertical size={20} color="#6B737A" />
-                </Pressable>
+               <View/>
             </View>
         </View>
     );

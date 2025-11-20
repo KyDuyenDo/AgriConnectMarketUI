@@ -1,6 +1,6 @@
 import type React from "react"
 import { View, Image, TouchableOpacity, Text } from "react-native"
-import { Trash2, Star, Edit, MoreVertical, Copy } from "lucide-react-native"
+import { Trash2, Star, Edit, MoreVertical } from "lucide-react-native"
 
 interface ProductCardProps {
   product: {
@@ -15,6 +15,9 @@ interface ProductCardProps {
     stock: "In Stock" | "Low Stock" | "Out of Stock"
     isFavorite?: boolean
   }
+  onEdit?: (productId: string) => void
+  onDelete?: (productId: string) => void
+  onView?: (productId: string) => void
 }
 
 const getStockBadgeStyle = (stock: string) => {
@@ -41,7 +44,7 @@ const getStockUnitColor = (stock: string) => {
   }
 }
 
-export const FarmerProductCard: React.FC<ProductCardProps> = ({ product }) => {
+export const FarmerProductCard: React.FC<ProductCardProps> = ({ product, onEdit, onDelete, onView }) => {
   const stockBadge = getStockBadgeStyle(product.stock)
   const unitColor = getStockUnitColor(product.stock)
 
@@ -94,16 +97,28 @@ export const FarmerProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
         {/* Action Buttons */}
         <View className="flex-row gap-1">
-          <TouchableOpacity className="flex-1 flex items-center justify-center py-2 bg-[#E8F5E8] rounded-lg active:bg-green-100">
+          <TouchableOpacity
+            onPress={() => {
+              if (onEdit) onEdit(product.id)
+            }}
+            className="flex-1 flex items-center justify-center py-2 bg-[#E8F5E8] rounded-lg active:bg-green-100">
             <Edit size={14} color="#4CAF50" strokeWidth={1.5} />
           </TouchableOpacity>
 
-          <TouchableOpacity className="flex-1 flex items-center justify-center py-2 bg-[#FDECEA] rounded-lg active:bg-red-100">
+          <TouchableOpacity
+            onPress={() => {
+              if (onDelete) onDelete(product.id)
+            }}
+            className="flex-1 flex items-center justify-center py-2 bg-[#FDECEA] rounded-lg active:bg-red-100">
             <Trash2 size={14} color="#E74C3C" strokeWidth={1.5} />
           </TouchableOpacity>
 
-          <TouchableOpacity className="flex-1 flex items-center justify-center py-2 bg-[#E3F2FD] rounded-lg active:bg-blue-100">
-            <Copy size={14} color="#2196F3" strokeWidth={1.5} />
+          <TouchableOpacity
+            onPress={() => {
+              if (onView) onView(product.id)
+            }}
+            className="flex-1 flex items-center justify-center py-2 bg-[#E3F2FD] rounded-lg active:bg-blue-100">
+            <Star size={14} color="#2196F3" strokeWidth={1.5} />
           </TouchableOpacity>
         </View>
       </View>

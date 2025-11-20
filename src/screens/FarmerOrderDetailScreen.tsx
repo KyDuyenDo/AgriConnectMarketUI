@@ -83,7 +83,7 @@ export function FarmerOrderDetailScreen() {
             <ScrollView
                 showsVerticalScrollIndicator={false}
                 className="pt-4"
-                contentContainerStyle={{ paddingBottom: Platform.OS === 'ios' ? 200 : 180 }}
+                contentContainerStyle={{ paddingBottom: 30 }}
             >
                 <OrderHeader
                     orderNumber={ORDER_DATA.orderNumber}

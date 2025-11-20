@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, SafeAreaView, ScrollView, TouchableOpacity, StatusBar } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StatusBar } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useForm } from 'react-hook-form';
 import { ChevronLeft } from 'lucide-react-native';
@@ -8,6 +8,7 @@ import SeasonInfoForm from '@/components/add-season/SeasonInfoForm';
 import SeasonImages from '@/components/add-season/SeasonImages';
 import GrowingCycleInfo from '@/components/add-season/GrowingCycleInfo';
 import ActionButtons from '@/components/add-season/ActionButtons';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function AddSeasonScreen() {
     const navigation = useNavigation();
@@ -27,7 +28,7 @@ export default function AddSeasonScreen() {
             <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
 
             {/* Header */}
-            <View className="bg-white px-6 py-4 flex-row items-center justify-between shadow-sm z-10">
+            <View className="px-6 py-4 flex-row items-center justify-between z-10">
                 <TouchableOpacity
                     onPress={() => navigation.goBack()}
                     className="flex-row items-center gap-2"
@@ -39,8 +40,6 @@ export default function AddSeasonScreen() {
                 </TouchableOpacity>
 
                 <Text className="text-[#2d2d2d] text-xl font-semibold">Add New Season</Text>
-
-                <View className="w-10" /> {/* Spacer for centering */}
             </View>
 
             <ScrollView className="flex-1 pt-4" showsVerticalScrollIndicator={false}>
