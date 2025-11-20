@@ -1,3 +1,6 @@
+import { FarmStackParamList } from "@/navigation/FarmNavigator"
+import { useNavigation } from "@react-navigation/native"
+import { NativeStackNavigationProp } from "node_modules/@react-navigation/native-stack/lib/typescript/src/types"
 import { View, Text, Image, TouchableOpacity } from "react-native"
 
 interface Order {
@@ -13,12 +16,15 @@ interface Order {
 }
 
 interface OrderCardProps {
-  order: Order
+  order: Order,
+  onPress?: (orderId: string) => void
 }
 
-export function OrderCard({ order }: OrderCardProps) {
+export function OrderCard({ order, onPress }: OrderCardProps) {
+
   return (
     <TouchableOpacity
+      onPress={() => onPress && onPress(order.id.toString())}
       style={{
         backgroundColor: "#FFF8F0",
         borderRadius: 12,

@@ -10,21 +10,23 @@ import { FarmerEditProductScreen } from '@/screens/FarmerEditProductScreen';
 import { FarmerOrderDetailScreen } from '@/screens/FarmerOrderDetailScreen';
 import { FarmSetupInformationScreen } from '@/screens/FarmSetupInformationScreen';
 import { FarmerProductDetailReviewsScreen } from '@/screens/FarmerProductDetailReviewsScreen';
+import { FarmerOrders } from '@/screens/FarmerOrdersScreen';
 
 export type FarmStackParamList = {
     MainTabs: undefined;
     Dashboard: undefined;
     AddSeason: undefined;
-    SeasonDetail: undefined;
+    SeasonDetail: { seasonId: string };
     AddLot: undefined;
-    LotDetail: undefined;
+    LotDetail: { lotId: string };
     AddCropLog: undefined;
-    FarmDetail: undefined;
+    FarmDetail: { farmId: string };
     AddProduct: undefined;
-    EditProduct: undefined;
-    FarmerOrderDetail: undefined;
-    FarmSetupInformation: undefined;
-    FarmProductDetailReviews: undefined;
+    EditProduct: { productId: string };
+    FarmerOrders: { farmerId: string };
+    FarmerOrderDetail: { orderId: string };
+    FarmSetupInformation: { farmId: string };
+    FarmProductDetailReviews: { productId: string };
 };
 
 const Stack = createNativeStackNavigator<FarmStackParamList>();
@@ -89,6 +91,10 @@ export default function FarmNavigator() {
             />
             <Stack.Screen name="FarmProductDetailReviews"
                 component={FarmerProductDetailReviewsScreen}
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen name="FarmerOrders"
+                component={FarmerOrders}
                 options={{ headerShown: false }}
             />
         </Stack.Navigator>

@@ -15,13 +15,10 @@ interface ActionButtonProps {
     iconColor: string
     link?: string
   }
+  onPress?: (link?: string) => void
 }
 
-type Nav = NativeStackNavigationProp<FarmStackParamList>
-
-export function ActionButton({ action }: ActionButtonProps) {
-
-  const navigation = useNavigation<Nav>()
+export function ActionButton({ action, onPress }: ActionButtonProps) {
 
   const getIcon = () => {
     switch (action.icon) {
@@ -43,8 +40,8 @@ export function ActionButton({ action }: ActionButtonProps) {
   return (
     <TouchableOpacity
       onPress={() => {
-        if (action.link) {
-          navigation.navigate(action.link as any)
+        if (onPress) {
+          onPress(action.link)
         }
       }}
       style={{

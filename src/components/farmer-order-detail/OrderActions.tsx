@@ -18,15 +18,7 @@ export function OrderActions({
 }: OrderActionsProps) {
     return (
         <View
-            className="fixed bottom-0 w-full z-10"
-            style={{
-                backgroundColor: '#FFFFFF',
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: -2 },
-                shadowOpacity: 0.08,
-                shadowRadius: 8,
-                elevation: 5
-            }}
+            className="fixed bottom-0 w-full z-10 bg-white border-t-0.5 border-t border-gray-200"
         >
             <View className="p-4">
                 <View className="flex-row gap-3 mb-3">
