@@ -18,12 +18,12 @@ export const EarningsCard = ({ earningsAmount, earningsPeriod }: EarningsCardPro
                 gap: 12,
             }}
         >
-            <View style={{ backgroundColor: "#4CAF50", padding: 12, borderRadius: 100 }}>
-                <TrendingUp size={24} color="#ffffff" strokeWidth={2} />
+            <View style={{ backgroundColor: "#4CAF50", width: 32, height: 32, borderRadius: 100, justifyContent: "center", alignItems: "center" }}>
+                <TrendingUp size={18} color="#ffffff" strokeWidth={2} />
             </View>
             <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 14, fontWeight: "700", color: "#1f2937", marginTop: 2 }}>{earningsAmount} Earned this week</Text>
-                <Text style={{ fontSize: 12, color: "#16a34a", marginTop: 2 }}>{earningsPeriod} from last week</Text>
+                <Text style={{ fontSize: 14, fontWeight: "600", color: "#2D2D2D" }}>{earningsAmount} earned this week</Text>
+                <Text style={{ fontSize: 12, color: "#5C5C5C", marginTop: 2 }}>{earningsPeriod} from last week</Text>
             </View>
         </View>
     );

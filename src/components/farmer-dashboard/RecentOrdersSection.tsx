@@ -9,9 +9,9 @@ const orders = [
     quantity: "5kg",
     price: "$25.00",
     status: "Delivered",
-    statusColor: "#dcfce7",
-    statusTextColor: "#15803d",
-    image: "https://th.bing.com/th/id/R.4c88ee94e2daaf515a79883e8c23446c?rik=27Y2S7x1lebIrg&pid=ImgRaw&r=0",
+    statusColor: "#C8E6C9",
+    statusTextColor: "#2E7D32",
+    image: "https://static.paraflowcontent.com/public/resource/image/231b2afb-4130-450d-8c75-a1f278d7e43e.jpeg",
   },
   {
     id: 2,
@@ -20,9 +20,9 @@ const orders = [
     quantity: "3kg",
     price: "$18.00",
     status: "Processing",
-    statusColor: "#fef3c7",
-    statusTextColor: "#d97706",
-    image: "https://th.bing.com/th/id/R.4c88ee94e2daaf515a79883e8c23446c?rik=27Y2S7x1lebIrg&pid=ImgRaw&r=0",
+    statusColor: "#FFE0B2",
+    statusTextColor: "#F57C00",
+    image: "https://static.paraflowcontent.com/public/resource/image/da254509-3494-4cc1-a106-99a72b804334.jpeg",
   },
   {
     id: 3,
@@ -31,9 +31,9 @@ const orders = [
     quantity: "2kg",
     price: "$12.00",
     status: "Delivered",
-    statusColor: "#dcfce7",
-    statusTextColor: "#15803d",
-    image: "https://th.bing.com/th/id/R.4c88ee94e2daaf515a79883e8c23446c?rik=27Y2S7x1lebIrg&pid=ImgRaw&r=0",
+    statusColor: "#C8E6C9",
+    statusTextColor: "#2E7D32",
+    image: "https://static.paraflowcontent.com/public/resource/image/8b25a246-a1ec-4af9-b614-3a9a1c646c3a.jpeg",
   },
 ]
 
@@ -41,10 +41,10 @@ export function RecentOrdersSection() {
   return (
     <View style={{ gap: 12 }}>
       <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-        <Text style={{ fontSize: 18, fontWeight: "600", color: "#1f2937" }}>Recent Orders</Text>
-        <Text style={{ fontSize: 14, fontWeight: "500", color: "#16a34a" }}>View All</Text>
+        <Text style={{ fontSize: 16, fontWeight: "600", color: "#2D2D2D" }}>Recent Orders</Text>
+        <Text style={{ fontSize: 12, fontWeight: "500", color: "#4CAF50" }}>View All</Text>
       </View>
-      <View className="bg-white p-6 rounded-2xl shadow shadow-gray-200" style={{ gap: 12 }}>
+      <View style={{ backgroundColor: "#FFFFFF", padding: 16, borderRadius: 16, gap: 12 }}>
         {orders.map((order) => (
           <OrderCard key={order.id} order={order} />
         ))}

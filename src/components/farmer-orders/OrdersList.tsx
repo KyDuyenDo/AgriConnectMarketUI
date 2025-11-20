@@ -27,7 +27,7 @@ interface OrdersListProps {
 
 export function OrdersList({ orders }: OrdersListProps) {
   return (
-    <View className="px-4 py-4">
+    <View className="px-4 mb-4">
       {orders.map((order) => (
         <OrderCard key={order.id} order={order} />
       ))}

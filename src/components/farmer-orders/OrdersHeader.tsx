@@ -1,22 +1,36 @@
-import { View, Text } from "react-native"
-import { Leaf, Bell, Filter } from "lucide-react-native"
+import { View, Text, Pressable } from "react-native"
+import { Sprout, Bell, Filter } from "lucide-react-native"
 
 export function OrdersHeader() {
   return (
-    <View className="bg-white px-4 py-4 flex-row justify-between items-center border-b border-gray-200">
-      <View className="flex-row items-center gap-2">
-        <Leaf size={24} color="#22c55e" />
-        <Text className="text-2xl font-bold text-gray-900">Orders</Text>
-      </View>
-      <View className="flex-row gap-3">
-        {/* Notification Bell */}
-        <View className="relative">
-          <Bell size={24} color="#6b7280" />
-          <View className="absolute -top-1 -right-1 bg-red-500 rounded-full w-5 h-5 flex items-center justify-center">
-            <Text className="text-white text-xs font-bold">1</Text>
+    <View className="bg-[#F9FAF9] fixed top-0 w-full z-10">
+      {/* Safe area spacer */}
+      <View className="h-11" />
+
+      <View className="flex-row justify-between items-center h-14 px-6">
+        <View className="flex-row items-center">
+          <View className="w-8 h-8 items-center justify-center">
+            <Sprout size={20} color="#4CAF50" />
           </View>
+          <Text className="ml-2 text-[#2D2D2D] text-xl font-semibold">Orders</Text>
         </View>
-        <Filter size={24} color="#6b7280" />
+
+        <View className="flex-row items-center gap-2">
+          <Pressable className="relative w-10 h-10 items-center justify-center">
+            <View className="w-6 h-6 items-center justify-center">
+              <Bell size={20} color="#2D2D2D" />
+            </View>
+            <View className="absolute -top-1 -right-1 bg-[#D32F2F] rounded-full w-5 h-5 items-center justify-center">
+              <Text className="text-white text-[8px] font-semibold">3</Text>
+            </View>
+          </Pressable>
+
+          <Pressable className="w-10 h-10 items-center justify-center">
+            <View className="w-6 h-6 items-center justify-center">
+              <Filter size={20} color="#2D2D2D" />
+            </View>
+          </Pressable>
+        </View>
       </View>
     </View>
   )

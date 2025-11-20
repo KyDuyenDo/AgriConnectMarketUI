@@ -1,15 +1,21 @@
 import type React from "react"
-import { View, Text } from "react-native"
-import { Search } from "lucide-react-native"
+import { View, Text, TouchableOpacity } from "react-native"
+import { Package, Search } from "lucide-react-native"
 
 export const Header: React.FC = () => {
   return (
-    <View className="flex-row items-center justify-between px-4 py-3 bg-white border-b border-gray-100">
-      <View className="flex-row items-center gap-2">
-        <View className="w-6 h-6 bg-green-600 rounded-md" />
-        <Text className="text-lg font-semibold text-gray-800">My Products</Text>
+    <View className="flex-row items-center justify-between h-14 px-6">
+      <View className="flex-row items-center">
+        <View className="flex items-center justify-center w-8 h-8">
+          <Package size={20} color="#4CAF50" />
+        </View>
+        <Text className="ml-2 text-[20px] font-semibold text-[#2D2D2D]">My Products</Text>
       </View>
-      <Search size={24} color="#4b5563" />
+      <TouchableOpacity className="flex items-center justify-center w-10 h-10">
+        <View className="flex items-center justify-center w-6 h-6">
+          <Search size={20} color="#2D2D2D" />
+        </View>
+      </TouchableOpacity>
     </View>
   )
 }

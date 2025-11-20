@@ -10,6 +10,7 @@ import { CustomerCartScreen } from "@/screens/CustomerCartScreen"
 import { CustomerFavoritesScreen } from "@/screens/CustomerFavoritesScreen"
 import ProfileScreen from "@/screens/ProfileScreen"
 import FarmAddProductScreen from "@/screens/FarmAddProductScreen"
+import { ShoppingCartHeader } from "@/components/header/ShoppingCartHeader"
 
 const Tab = createBottomTabNavigator()
 
@@ -128,7 +129,7 @@ export default function CustomerTab() {
       <Tab.Screen
         name="Cart"
         component={CustomerCartScreen}
-        options={{ title: "Cart" }}
+        options={{ header: () => <ShoppingCartHeader onClearAll={() => { }} />, headerShown: true, title: "Cart" }}
       />
       <Tab.Screen
         name="Favorites"

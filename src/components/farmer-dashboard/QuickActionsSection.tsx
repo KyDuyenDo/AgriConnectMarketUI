@@ -7,46 +7,44 @@ const actions = [
     id: 1,
     title: "Add Season",
     description: "Create new growing season",
-    icon: "Sprout",
-    iconBg: "#dcfce7",
-    iconColor: "#16a34a",
+    icon: "PlusCircle",
+    iconBg: "#C8E6C9",
+    iconColor: "#4CAF50",
   },
   {
     id: 2,
     title: "Manage Inventory",
     description: "Update stock and prices",
     icon: "Eye",
-    iconBg: "#dcfce7",
-    iconColor: "#16a34a",
+    iconBg: "#C8E6C9",
+    iconColor: "#4CAF50",
   },
   {
     id: 3,
     title: "Add New Product",
     description: "List fresh produce from your lots",
     icon: "Plus",
-    iconBg: "#fef3c7",
-    iconColor: "#d97706",
+    iconBg: "#FFE0B2",
+    iconColor: "#FFA726",
   },
   {
     id: 4,
     title: "View Analytics",
     description: "Sales reports and insights",
     icon: "BarChart3",
-    iconBg: "#dbeafe",
-    iconColor: "#2563eb",
+    iconBg: "#BBDEFB",
+    iconColor: "#2C7BE5",
   },
 ]
 
 export function QuickActionsSection() {
   return (
     <View style={{ gap: 12 }}>
-      <Text style={{ fontSize: 18, fontWeight: "600", color: "#1f2937" }}>Quick Actions</Text>
-      <View className="bg-white rounded-2xl p-6 shadow shadow-gray-200">
-        <View style={{ gap: 8 }}>
-          {actions.map((action) => (
-            <ActionButton key={action.id} action={action} />
-          ))}
-        </View>
+      <Text style={{ fontSize: 16, fontWeight: "600", color: "#2D2D2D" }}>Quick Actions</Text>
+      <View style={{ backgroundColor: "#FFFFFF", borderRadius: 16, padding: 16, gap: 12 }}>
+        {actions.map((action) => (
+          <ActionButton key={action.id} action={action} />
+        ))}
       </View>
     </View>
   )
