@@ -18,13 +18,8 @@ export const FarmerProductsScreen: React.FC = () => {
     <SafeAreaView style={{ flex: 1, backgroundColor: "#F9FAF9" }} edges={['top']}>
       {/* Fixed Header */}
       <View className="bg-[#F9FAF9] fixed top-0 w-full z-10">
-        <View className="h-11" />
         <Header />
       </View>
-
-      {/* Spacer for Fixed Header */}
-      <View className="h-11" />
-      <View className="h-14" />
 
       {/* Main Content */}
       <ScrollView
@@ -58,9 +53,10 @@ export const FarmerProductsScreen: React.FC = () => {
         {/* Product Grid */}
         <ProductGrid searchQuery={searchQuery} />
       </ScrollView>
+      <View className="h-24" />
 
       {/* Floating Action Button */}
-      <View className="absolute bottom-0 right-0 flex-col items-end gap-4 pr-6 pb-6">
+      <View className="absolute bottom-28 right-0 flex-col items-end gap-4 pr-6 pb-6">
         <TouchableOpacity
           className="bg-[#4CAF50] rounded-full w-12 h-12 flex items-center justify-center active:bg-green-600"
           style={{
