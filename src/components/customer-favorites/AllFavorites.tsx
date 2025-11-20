@@ -26,9 +26,9 @@ export const AllFavorites: React.FC<ProductGridProps> = ({ searchQuery, products
                     </View>
                 </TouchableOpacity>
             </View>
-            <View className="grid grid-cols-2 gap-3">
+            <View className="flex-row flex-wrap justify-between">
                 {products.map((product) => (
-                    <View key={product.id} className="w-[48%]">
+                    <View key={product.id} className="w-[48%] mb-3">
                         <ProductCard product={product} toggleFavorite={() => { }} />
                     </View>
                 ))}

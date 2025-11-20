@@ -1,7 +1,10 @@
 // CustomerOrdersScreen.tsx
 import React, { useMemo, useState } from 'react';
-import { View, Text, Pressable, ScrollView } from 'react-native';
-import OrderCard, { Order, OrderStatus } from '../components/customer-orders/OrderCard';
+import { View, Text, Pressable, ScrollView, TouchableOpacity } from 'react-native';
+import OrderCard, { Order } from '../components/customer-orders/OrderCard';
+import { Search, Filter, ChevronLeft } from 'lucide-react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
 
 const FILTERS = ['All Orders', 'Active', 'Delivered', 'Cancelled'] as const;
 type FilterType = (typeof FILTERS)[number];
@@ -54,6 +57,7 @@ const ordersData: Order[] = [
 
 const CustomerOrdersScreen: React.FC = () => {
   const [filter, setFilter] = useState<FilterType>('All Orders');
+  const navigation = useNavigation()
 
   const filteredOrders = useMemo(() => {
     if (filter === 'All Orders') return ordersData;
@@ -69,41 +73,71 @@ const CustomerOrdersScreen: React.FC = () => {
   }, [filter]);
 
   return (
-    <View className="flex-1 bg-[#F4F5F9] pt-4">
-      {/* Filter checklist */}
-      <View className="mx-4 mb-4 flex-row rounded-full bg-white p-1">
-        {FILTERS.map(tab => {
-          const active = tab === filter;
-          return (
-            <Pressable
-              key={tab}
-              onPress={() => setFilter(tab)}
-              className={`flex-1 items-center justify-center rounded-full py-2 ${
-                active ? '' : ''
-              }`}
-              style={{
-                backgroundColor: active ? '#32C373' : 'transparent',
-              }}>
-              <Text
-                className="text-[13px] font-semibold"
-                style={{
-                  color: active ? '#FFFFFF' : '#32C373',
-                }}>
-                {tab}
-              </Text>
+    <SafeAreaView className="flex-1 bg-[#F9FAF9]">
+      {/* Fixed Header */}
+      <View>
+        <View className="flex-row items-center justify-between px-6 h-14">
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            className="flex-row items-center gap-2"
+          >
+            <View className="w-5 h-5 items-center justify-center">
+              <ChevronLeft size={20} color="#4CAF50" />
+            </View>
+            <Text className="text-base font-semibold text-[#4CAF50]">Back</Text>
+          </TouchableOpacity>
+          <Text className="text-[20px] font-semibold text-[#1B1F24]">
+            My Orders
+          </Text>
+          <View className="flex-row gap-2">
+            <Pressable className="h-10 w-10 items-center justify-center rounded-lg border border-[#E8EAEB] bg-[#F5F7F5]">
+              <Search size={20} color="#6B737A" />
             </Pressable>
-          );
-        })}
+            <Pressable className="h-10 w-10 items-center justify-center rounded-lg border border-[#E8EAEB] bg-[#F5F7F5]">
+              <Filter size={20} color="#6B737A" />
+            </Pressable>
+          </View>
+        </View>
+      </View>
+
+      {/* Filter Pills */}
+      <View className="mb-4 px-4 pt-4">
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ gap: 8 }}
+        >
+          {FILTERS.map(tab => {
+            const active = tab === filter;
+            return (
+              <Pressable
+                key={tab}
+                onPress={() => setFilter(tab)}
+                className={`items-center justify-center rounded-xl px-4 py-2 ${active ? 'bg-[#4CAF50]' : 'bg-[#F5F7F5]'
+                  }`}
+              >
+                <Text
+                  className={`text-[14px] font-semibold ${active ? 'text-white' : 'text-[#4CAF50]'
+                    }`}
+                >
+                  {tab}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </ScrollView>
       </View>
 
       <ScrollView
-        className="flex-1"
-        contentContainerStyle={{ paddingBottom: 24 }}>
+        className="flex-1 px-4"
+        contentContainerStyle={{ paddingBottom: 24 }}
+        showsVerticalScrollIndicator={false}
+      >
         {filteredOrders.map(order => (
           <OrderCard key={order.id} order={order} />
         ))}
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 };
 
