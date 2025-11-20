@@ -4,8 +4,6 @@ import { OrderProducts } from "./OrderProducts"
 import { OrderMetadata } from "./OrderMetadata"
 import { OrderActions } from "./OrderActions"
 
-
-
 interface OrderItem {
   id: string
   number: string
@@ -31,28 +29,26 @@ interface OrderCardProps {
 }
 
 export function OrderCard({ order }: OrderCardProps) {
-  const leftBorder = order.status === "urgent" ? "border-l-4 border-red-500" : ""
+  const leftBorder = order.status === "urgent" ? "border-l-4 border-[#D32F2F]" : ""
 
   return (
-    <View className={`bg-white rounded-2xl p-4 mb-4 ${leftBorder}`}>
+    <View className={`bg-white rounded-2xl p-4 mb-3 ${leftBorder}`}>
       {/* Header */}
-      <View className="flex-row justify-between items-center mb-3">
-        <View className="flex-1">
-          <View className="flex-row items-center gap-2 mb-1">
-            <StatusBadge status={order.status} />
-            {order.status === "urgent" && <StatusBadge status="pending" />}
-          </View>
+      <View className="flex-row justify-between items-start mb-3">
+        <View className="flex-row items-center gap-2">
+          {order.status === "urgent" && <StatusBadge status="urgent" />}
+          <StatusBadge status={order.status === "urgent" ? "pending" : order.status} />
         </View>
-        <Text className="text-gray-500 text-xs">{order.timestamp}</Text>
+        <Text className="text-[#8A8A8A] text-xs">{order.timestamp}</Text>
       </View>
 
       {/* Order Info */}
       <View className="flex-row justify-between items-center mb-3">
         <View>
-          <Text className="text-[#2D2D2D] font-semibold">{order.number}</Text>
-          <Text className="text-[#5C5C5C] text-sm">{order.customer}</Text>
+          <Text className="text-[#2D2D2D] font-semibold text-sm">{order.number}</Text>
+          <Text className="text-[#5C5C5C] text-xs">{order.customer}</Text>
         </View>
-        <Text className="text-lg font-bold text-[#2D2D2D]">{order.price}</Text>
+        <Text className="text-base font-bold text-[#2D2D2D]">{order.price}</Text>
       </View>
 
       <OrderProducts products={order.products} additionalProducts={order.additionalProducts} />

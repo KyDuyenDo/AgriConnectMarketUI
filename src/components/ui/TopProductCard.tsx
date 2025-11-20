@@ -24,24 +24,21 @@ export function TopProductCard({ product }: ProductCardProps) {
         overflow: "hidden",
       }}
     >
-      <Image source={{ uri: product.image }} style={{ width: "100%", height: 100 }} />
+      <Image source={{ uri: product.image }} style={{ width: "100%", height: 80 }} resizeMode="cover" />
       <View style={{ padding: 12, gap: 8 }}>
-        <Text style={{ fontWeight: "600", color: "#1f2937", fontSize: 14 }}>{product.name}</Text>
-        <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-          <View>
-            <Text style={{ fontWeight: "600", color: "#1f2937" }}>{product.price}</Text>
-            <Text style={{ fontSize: 12, color: "#6b7280", marginTop: 2 }}>{product.sold}</Text>
-          </View>
-          <View
-            style={{
-              backgroundColor: product.statusColor,
-              paddingHorizontal: 8,
-              paddingVertical: 4,
-              borderRadius: 6,
-            }}
-          >
-            <Text style={{ fontSize: 11, fontWeight: "500", color: product.statusTextColor }}>{product.status}</Text>
-          </View>
+        <Text style={{ fontWeight: "600", color: "#2D2D2D", fontSize: 12 }}>{product.name}</Text>
+        <Text style={{ fontSize: 10, color: "#5C5C5C" }}>{product.price} • {product.sold}</Text>
+        <View
+          style={{
+            backgroundColor: product.statusColor,
+            paddingHorizontal: 8,
+            paddingVertical: 2,
+            borderRadius: 100,
+            alignSelf: "flex-start",
+            marginTop: 4,
+          }}
+        >
+          <Text style={{ fontSize: 10, fontWeight: "500", color: product.statusTextColor }}>{product.status}</Text>
         </View>
       </View>
     </TouchableOpacity>

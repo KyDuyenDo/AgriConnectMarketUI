@@ -4,6 +4,7 @@ import { QuickActionsSection } from "@/components/farmer-dashboard/QuickActionsS
 import { QuickAnalystSection } from "@/components/farmer-dashboard/QuickAnalystSection"
 import { RecentOrdersSection } from "@/components/farmer-dashboard/RecentOrdersSection"
 import { TopProductsSection } from "@/components/farmer-dashboard/TopProductsSection"
+import { WeeklySalesSection } from "@/components/farmer-dashboard/WeeklySalesSection"
 import { Platform, ScrollView } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 
@@ -26,13 +27,13 @@ export function FarmDashboard({ dashboardData }: FarmDashboardProps) {
   const defaultData: DashboardData = {
     userName: "John",
     userImageUrl:
-      "https://static.vecteezy.com/system/resources/thumbnails/072/809/161/small/smiling-elderly-caucasian-farmer-stands-in-lush-green-cornfield-radiating-warmth-and-joy-in-the-golden-sunlight-photo.jpg",
+      "https://static.paraflowcontent.com/public/resource/image/a1247aa6-da9d-4a6d-b59f-704283906abd.jpeg",
     earningsAmount: "$1,250",
     earningsPeriod: "+15%",
     activeProductsCount: 47,
-    activeProductsTrend: "+5%",
-    newOrdersCount: 12,
-    newOrdersTrend: "-2%",
+    activeProductsTrend: "+12%",
+    newOrdersCount: 23,
+    newOrdersTrend: "+8%",
   }
 
   const data = dashboardData || defaultData
@@ -45,7 +46,7 @@ export function FarmDashboard({ dashboardData }: FarmDashboardProps) {
         contentContainerStyle={{
           paddingHorizontal: 16,
           paddingVertical: 16,
-          gap: 24,
+          gap: 16,
           paddingBottom: Platform.OS === "ios" ? 140 : 50,
         }}
       >
@@ -65,6 +66,7 @@ export function FarmDashboard({ dashboardData }: FarmDashboardProps) {
         <QuickActionsSection />
         <RecentOrdersSection />
         <TopProductsSection />
+        <WeeklySalesSection />
       </ScrollView>
     </SafeAreaView>
   )
