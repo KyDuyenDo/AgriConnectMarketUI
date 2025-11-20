@@ -9,20 +9,21 @@ interface CollectionsScreenProps {
 
 export function CollectionsScreen({ collections }: CollectionsScreenProps) {
     return (
-        <View className="flex-1 bg-white p-1">
-            {/* Hàng Tiêu đề và Nút New */}
-            <View className="flex-row items-center justify-between mb-6">
-                <Text className="text-3xl font-bold text-gray-800">
+        <View className="mb-4 px-4">
+            {/* Section Header */}
+            <View className="flex-row items-center justify-between mb-3">
+                <Text className="text-[16px] font-semibold" style={{ color: '#1B1F24' }}>
                     Collections
                 </Text>
                 <AddNewButton />
             </View>
-            
-            {/* Danh sách các Collections (Sử dụng ScrollView cho cuộn ngang) */}
+
+            {/* Collections List - Horizontal Scroll */}
             <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                className="flex-row"
+                className="flex-row pb-2"
+                contentContainerStyle={{ gap: 12 }}
             >
                 {collections?.map((collection) => (
                     <CollectionCard key={collection.id} collection={collection} />

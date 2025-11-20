@@ -1,14 +1,17 @@
 import { View, Text, TouchableOpacity } from 'react-native';
-import { Plus } from 'lucide-react-native'; 
+import { Plus } from 'lucide-react-native';
 
 const AddNewButton: React.FC = () => {
     return (
-        <TouchableOpacity 
-            className="flex-row mx-1 items-center justify-center p-2 rounded-lg bg-green-200/80 border border-green-200"
+        <TouchableOpacity
+            className="flex-row items-center justify-center px-3 py-1.5 rounded-full"
+            style={{ backgroundColor: 'rgba(200, 230, 201, 1)' }}
             activeOpacity={0.7}
         >
-            <Plus size={18} className="text-green-700 mr-1" />
-            <Text className="text-green-700 text-base font-semibold mx-2">
+            <View className="w-4 h-4 items-center justify-center mr-1">
+                <Plus size={14} color="#4CAF50" />
+            </View>
+            <Text className="text-xs font-medium" style={{ color: '#4CAF50' }}>
                 New
             </Text>
         </TouchableOpacity>

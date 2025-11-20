@@ -12,7 +12,16 @@ export interface Product {
   status?: "In Stock" | "Out of Stock"
   batch: string,
   quantity: number,
-  category?: string
+  category?: string,
+  season?: string,
+  description?: string,
+}
+
+export interface ProductResponse {
+    productName: string,
+    productAttribute: string,
+    productDesc: string,
+    categoryId: string,
 }
 
 export interface CartItem {
@@ -53,9 +62,6 @@ export type UserData = {
   rating: number;
   totalOrders: number;
 };
-
-
-// auth types
 export type LoginRequest = {
     Username: string;
     Password: string;
@@ -69,4 +75,12 @@ export type RegisterRequest = {
     Phone: string;
     IsFarmer: boolean;
     Avatar: File;
+}
+
+export type Season = {
+  seasonName: string;
+  seasonDesc: string;
+  startDate: string;
+  endDate: string;
+  farmId: string;
 }
