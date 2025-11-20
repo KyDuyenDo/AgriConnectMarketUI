@@ -5,15 +5,12 @@ import {
     Text,
     Pressable,
     Platform,
-    TouchableOpacity,
+    TextInput,
+    Image,
 } from "react-native"
-import { Header } from "@/components/customer-exlore/Header"
-import { SearchBar } from "@/components/customer-exlore/SearchBar"
-import { CardHeader } from "@/components/customer-exlore/CardHeader"
-import { ProductCustomerGrid } from "@/components/customer-exlore/ProductCustomerGird"
-import { ArrowUpDown } from "lucide-react-native"
-import { FeaturedFarmers } from "@/components/customer-exlore/FeaturedFarmers"
 import { SafeAreaView } from "react-native-safe-area-context"
+import { Search, ShoppingCart, SlidersHorizontal, ArrowUpDown, Star, Apple, Carrot, Wheat, Leaf, Milk, Plus, Heart } from "lucide-react-native"
+import { ProductCustomerGrid } from "@/components/customer-exlore/ProductCustomerGird"
 import { Product } from "@/types"
 
 
@@ -142,63 +139,272 @@ export const mockProducts: Product[] = [
 
 export function ExploreScreen() {
     const [searchQuery, setSearchQuery] = useState("")
+    const [selectedFilter, setSelectedFilter] = useState("All")
+
+    const categories = [
+        { icon: Apple, name: "Fruits", count: 124, color: "#4CAF50" },
+        { icon: Carrot, name: "Vegetables", count: 89, color: "#4CAF50" },
+        { icon: Wheat, name: "Grains", count: 32, color: "#4CAF50" },
+        { icon: Leaf, name: "Herbs", count: 45, color: "#4CAF50" },
+        { icon: Milk, name: "Dairy", count: 18, color: "#4CAF50" },
+    ]
+
+    const filters = ["All", "Organic", "In Stock", "Nearby", "4.5+"]
 
     return (
-        <SafeAreaView className="flex-1 bg-white">
+        <SafeAreaView className="flex-1" style={{ backgroundColor: '#F9FAF9' }}>
+            {/* Fixed Header */}
+            <View
+                className="flex-row justify-between items-center h-14 px-6"
+                style={{ backgroundColor: '#F9FAF9' }}
+            >
+                <Text className="text-[20px] font-semibold" style={{ color: '#1B1F24' }}>
+                    Explore Products
+                </Text>
+                <View className="flex-row items-center gap-2">
+                    <Pressable
+                        className="w-10 h-10 items-center justify-center rounded-lg"
+                        style={{ backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E8EAEB' }}
+                    >
+                        <Search size={24} color="#6B737A" />
+                    </Pressable>
+                    <Pressable
+                        className="w-10 h-10 items-center justify-center rounded-lg relative"
+                        style={{ backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E8EAEB' }}
+                    >
+                        <ShoppingCart size={24} color="#6B737A" />
+                        <View
+                            className="absolute -top-1 -right-1 w-4 h-4 rounded-full items-center justify-center"
+                            style={{ backgroundColor: '#4CAF50' }}
+                        >
+                            <Text className="text-[10px] font-semibold" style={{ color: '#FFFFFF' }}>4</Text>
+                        </View>
+                    </Pressable>
+                </View>
+            </View>
+
             <ScrollView
-                className="p-4"
-                contentContainerStyle={{ paddingBottom: Platform.OS === "ios" ? 140 : 50 }}
+                className="pt-4"
+                contentContainerStyle={{ paddingBottom: Platform.OS === "ios" ? 100 : 80 }}
                 showsVerticalScrollIndicator={false}
             >
-                <Header />
-                <SearchBar />
-                <CardHeader />
+                {/* Search Bar */}
+                <View className="px-4 mb-4">
+                    <View
+                        className="flex-row items-center py-3 px-4 rounded-xl"
+                        style={{ backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E8EAEB' }}
+                    >
+                        <Search size={20} color="#8A8A8A" />
+                        <TextInput
+                            value={searchQuery}
+                            onChangeText={setSearchQuery}
+                            placeholder="Search fresh produce..."
+                            placeholderTextColor="#8A8A8A"
+                            className="flex-1 ml-3 text-sm"
+                            style={{ color: '#1B1F24' }}
+                        />
+                        <Pressable
+                            className="w-8 h-8 items-center justify-center rounded-lg"
+                            style={{ backgroundColor: '#4CAF50' }}
+                        >
+                            <SlidersHorizontal size={16} color="#FFFFFF" />
+                        </Pressable>
+                    </View>
+                </View>
 
+                {/* Promotional Banner */}
+                <View className="px-4 mb-4">
+                    <View
+                        className="relative p-4 rounded-2xl overflow-hidden"
+                        style={{ backgroundColor: '#4CAF50' }}
+                    >
+                        <View className="relative z-10">
+                            <View
+                                className="px-3 py-1.5 rounded-full w-fit mb-3"
+                                style={{ backgroundColor: '#FFFFFF' }}
+                            >
+                                <Text className="text-xs font-medium" style={{ color: '#4CAF50' }}>
+                                    Seasonal Special
+                                </Text>
+                            </View>
+                            <Text className="text-[18px] font-bold mb-2" style={{ color: '#FFFFFF' }}>
+                                Fresh Winter Harvest
+                            </Text>
+                            <Text className="text-[12px] mb-3" style={{ color: '#FFFFFF', opacity: 0.9 }}>
+                                Premium organic vegetables from local farms
+                            </Text>
+                            <Pressable
+                                className="py-2 px-4 rounded-xl items-center self-start"
+                                style={{ backgroundColor: '#FFFFFF' }}
+                            >
+                                <Text className="text-sm font-semibold" style={{ color: '#4CAF50' }}>
+                                    Shop Now
+                                </Text>
+                            </Pressable>
+                        </View>
+                        <View
+                            className="absolute -right-4 -bottom-4 w-20 h-20 rounded-full"
+                            style={{ backgroundColor: '#FFFFFF', opacity: 0.1 }}
+                        />
+                    </View>
+                </View>
 
-                {/* Categories header */}
-                <View className="flex-row justify-between items-center mb-3">
-                    <Text className="text-base font-semibold text-gray-800">Categories</Text>
-                    <Pressable>
-                        <Text className="text-sm text-green-500 font-medium">View All</Text>
+                {/* Categories */}
+                <View className="px-4 mb-4">
+                    <View className="flex-row justify-between items-center mb-3">
+                        <Text className="text-[16px] font-semibold" style={{ color: '#1B1F24' }}>
+                            Categories
+                        </Text>
+                        <Text className="text-[12px] font-medium" style={{ color: '#4CAF50' }}>
+                            View All
+                        </Text>
+                    </View>
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row gap-3 pb-2">
+                        {categories.map((category, index) => {
+                            const IconComponent = category.icon
+                            return (
+                                <View key={index} className="flex-col items-center min-w-[60px]">
+                                    <Pressable
+                                        className="w-12 h-12 items-center justify-center rounded-2xl mb-2"
+                                        style={{
+                                            backgroundColor: index === 0 ? '#4CAF50' : '#FFF5EB',
+                                            borderWidth: index === 0 ? 0 : 1,
+                                            borderColor: '#E8E8E8',
+                                            shadowColor: index === 0 ? '#4CAF50' : 'transparent',
+                                            shadowOffset: { width: 0, height: 4 },
+                                            shadowOpacity: 0.3,
+                                            shadowRadius: 12,
+                                            elevation: index === 0 ? 4 : 0
+                                        }}
+                                    >
+                                        <IconComponent size={24} color={index === 0 ? '#FFFFFF' : '#4CAF50'} />
+                                    </Pressable>
+                                    <Text className="text-[10px] font-medium" style={{ color: '#1B1F24' }}>
+                                        {category.name}
+                                    </Text>
+                                    <Text className="text-[8px]" style={{ color: '#9DA3A8' }}>
+                                        {category.count}
+                                    </Text>
+                                </View>
+                            )
+                        })}
+                    </ScrollView>
+                </View>
+
+                {/* Filters */}
+                <View className="px-4 mb-4">
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row gap-2 pb-2">
+                        {filters.map((filter) => (
+                            <Pressable
+                                key={filter}
+                                onPress={() => setSelectedFilter(filter)}
+                                className="px-3 py-1.5 rounded-full flex-row items-center"
+                                style={{
+                                    backgroundColor: selectedFilter === filter ? '#4CAF50' : '#FFFFFF',
+                                    borderWidth: selectedFilter === filter ? 0 : 1,
+                                    borderColor: '#E8EAEB'
+                                }}
+                            >
+                                {filter === "4.5+" && (
+                                    <Star size={12} color={selectedFilter === filter ? '#FFFFFF' : '#6B737A'} className="mr-1" />
+                                )}
+                                <Text
+                                    className="text-xs font-medium"
+                                    style={{ color: selectedFilter === filter ? '#FFFFFF' : '#6B737A' }}
+                                >
+                                    {filter}
+                                </Text>
+                            </Pressable>
+                        ))}
+                    </ScrollView>
+                </View>
+
+                {/* Products Count & Sort */}
+                <View className="px-4 mb-4 flex-row justify-between items-center">
+                    <Text className="text-[14px] font-medium" style={{ color: '#2F3941' }}>
+                        290 products found
+                    </Text>
+                    <Pressable
+                        className="flex-row items-center gap-1 px-3 py-1.5 rounded-lg"
+                        style={{ backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E8EAEB' }}
+                    >
+                        <ArrowUpDown size={16} color="#6B737A" />
+                        <Text className="text-xs font-medium" style={{ color: '#6B737A' }}>Sort</Text>
                     </Pressable>
                 </View>
 
-                <View className="flex-row items-center space-x-4 mb-4">
-                    {["All", "Organic", "In Stock", "Nearby", "4.5+"].map((f) => (
-                        <Pressable
-                            key={f}
-                            className={`px-3 py-2 mx-2 rounded-full ${f === "All" ? "bg-green-500" : "bg-gray-100"}`}
-                        >
-                            <Text className={`${f === "All" ? "text-white" : "text-gray-700"} text-sm font-medium`}>{f}</Text>
-                        </Pressable>
-                    ))}
-                </View>
-
-                <View className="flex-row justify-between items-center mb-3 px-4 py-2">
-                    <Text className="text-xl font-semibold text-gray-800">
-                        269 products found
-                    </Text>
-                    <TouchableOpacity
-                        className="flex-row items-center justify-center rounded-xl border border-gray-300 bg-white p-2 shadow-sm"
-
-                    >
-                        <ArrowUpDown size={15} className="ml-2" />
-                        <Text className="mx-2 text-lg font-semibold text-gray-700">
-                            Sort
-                        </Text>
-                    </TouchableOpacity>
-                </View>
-
+                {/* Products Grid */}
                 <ProductCustomerGrid searchQuery={searchQuery} products={mockProducts} />
 
-                <View className="flex-row justify-between items-center mb-3 px-4 py-2">
-                    <Text className="text-xl font-semibold text-gray-800">
-                        Featured Farmers
-                    </Text>
+                {/* Featured Farmers */}
+                <View className="px-4 mb-4">
+                    <View className="flex-row justify-between items-center mb-3">
+                        <Text className="text-[16px] font-semibold" style={{ color: '#1B1F24' }}>
+                            Featured Farmers
+                        </Text>
+                        <Text className="text-[12px] font-medium" style={{ color: '#4CAF50' }}>
+                            View All
+                        </Text>
+                    </View>
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row gap-3 pb-2">
+                        {farms.map((farm) => (
+                            <View
+                                key={farm.id}
+                                className="min-w-[280px] p-4 rounded-2xl"
+                                style={{
+                                    backgroundColor: '#FFFFFF',
+                                    shadowColor: '#000',
+                                    shadowOffset: { width: 0, height: 2 },
+                                    shadowOpacity: 0.08,
+                                    shadowRadius: 8,
+                                    elevation: 3
+                                }}
+                            >
+                                <View className="flex-row items-center mb-3">
+                                    <Image
+                                        source={{ uri: farm.image }}
+                                        className="w-12 h-12 rounded-full mr-3"
+                                    />
+                                    <View className="flex-1">
+                                        <Text className="text-[14px] font-semibold" style={{ color: '#1B1F24' }}>
+                                            {farm.name}
+                                        </Text>
+                                        <Text className="text-[12px]" style={{ color: '#6B737A' }}>
+                                            {farm.location} • {farm.distance}
+                                        </Text>
+                                        <View className="flex-row items-center gap-1 mt-1">
+                                            <Star size={12} color="#FFB380" fill="#FFB380" />
+                                            <Text className="text-[10px]" style={{ color: '#9DA3A8' }}>
+                                                {farm.rating} ({farm.reviews} reviews)
+                                            </Text>
+                                        </View>
+                                    </View>
+                                    <View
+                                        className="px-2 py-0.5 rounded-full"
+                                        style={{ backgroundColor: '#C8E6C9' }}
+                                    >
+                                        <Text className="text-[8px] font-medium" style={{ color: '#2E7D32' }}>
+                                            {farm.tags[0]}
+                                        </Text>
+                                    </View>
+                                </View>
+                                <View className="flex-row justify-between items-center">
+                                    <Text className="text-[12px]" style={{ color: '#6B737A' }}>
+                                        47 products available
+                                    </Text>
+                                    <Pressable
+                                        className="py-2 px-4 rounded-xl"
+                                        style={{ backgroundColor: '#FFF5EB' }}
+                                    >
+                                        <Text className="text-xs font-semibold" style={{ color: '#4CAF50' }}>
+                                            View Products
+                                        </Text>
+                                    </Pressable>
+                                </View>
+                            </View>
+                        ))}
+                    </ScrollView>
                 </View>
-
-                <FeaturedFarmers Farmers={farms} />
-
             </ScrollView>
         </SafeAreaView>
     )
