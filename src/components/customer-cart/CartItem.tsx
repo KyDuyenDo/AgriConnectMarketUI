@@ -35,54 +35,53 @@ export function CartItem({
         : { bg: 'rgba(254, 245, 231, 1)', text: '#F39C12' };
 
     return (
-        <View className="flex-row items-start gap-3 pb-4 mb-4" style={{ borderBottomWidth: 1, borderColor: '#F0F0F0' }}>
-            <Image source={{ uri: image }} className="w-20 h-20 rounded-lg" />
+        <View className="flex-row items-start gap-3 pb-4 mb-4 border-b border-[#F0F0F0]">
+            <Image source={{ uri: image }} className="w-20 h-20 rounded-lg" resizeMode="cover" />
 
             <View className="flex-1">
                 <View className="flex-row justify-between items-start mb-2">
                     <View className="flex-1">
-                        <Text className="text-[14px] font-semibold mb-0.5" style={{ color: '#2D2D2D' }}>
+                        <Text className="text-[14px] font-semibold text-[#2D2D2D] mb-0.5">
                             {name}
                         </Text>
-                        <Text className="text-[12px]" style={{ color: '#8A8A8A' }}>{farm}</Text>
+                        <Text className="text-[12px] text-[#8A8A8A]">{farm}</Text>
                         <View className="flex-row items-center gap-2 mt-1">
-                            <View className="px-2 py-0.5 rounded-full" style={{ backgroundColor: badgeStyle.bg }}>
+                            <View className="px-2 py-1 rounded-full" style={{ backgroundColor: badgeStyle.bg }}>
                                 <Text className="text-[10px] font-medium" style={{ color: badgeStyle.text }}>
                                     {badge.label}
                                 </Text>
                             </View>
-                            <Text className="text-[10px]" style={{ color: '#8A8A8A' }}>{harvestInfo}</Text>
+                            <Text className="text-[10px] text-[#8A8A8A]">{harvestInfo}</Text>
                         </View>
                     </View>
 
                     <Pressable
                         onPress={onDelete}
-                        className="w-8 h-8 rounded-lg items-center justify-center"
-                        style={{ backgroundColor: '#FDECE A' }}
+                        className="w-8 h-8 rounded-lg items-center justify-center bg-[#FDECEA]"
                     >
-                        <Trash2 size={16} color="#E74C3C" />
+                        <Trash2 size={14} color="#E74C3C" />
                     </Pressable>
                 </View>
 
                 <View className="flex-row justify-between items-center">
                     <View className="flex-row items-center gap-3">
-                        <View className="flex-row items-center rounded-lg" style={{ backgroundColor: '#E8F5E8' }}>
+                        <View className="flex-row items-center rounded-lg bg-[#E8F5E8]">
                             <Pressable onPress={onDecrement} className="w-8 h-8 items-center justify-center">
-                                <Minus size={16} color="#4CAF50" />
+                                <Minus size={14} color="#4CAF50" />
                             </Pressable>
-                            <Text className="px-2 text-[14px] font-medium" style={{ color: '#2D2D2D' }}>
+                            <Text className="px-2 text-[14px] font-medium text-[#2D2D2D]">
                                 {quantity}
                             </Text>
                             <Pressable onPress={onIncrement} className="w-8 h-8 items-center justify-center">
-                                <Plus size={16} color="#4CAF50" />
+                                <Plus size={14} color="#4CAF50" />
                             </Pressable>
                         </View>
-                        <Text className="text-[12px]" style={{ color: '#8A8A8A' }}>{unit}</Text>
+                        <Text className="text-[12px] text-[#8A8A8A]">{unit}</Text>
                     </View>
 
                     <View className="items-end">
-                        <Text className="text-[12px]" style={{ color: '#8A8A8A' }}>{unitPrice}</Text>
-                        <Text className="text-[14px] font-semibold" style={{ color: '#4CAF50' }}>${total}</Text>
+                        <Text className="text-[12px] text-[#8A8A8A]">{unitPrice}</Text>
+                        <Text className="text-[14px] font-semibold text-[#4CAF50]">${total}</Text>
                     </View>
                 </View>
             </View>

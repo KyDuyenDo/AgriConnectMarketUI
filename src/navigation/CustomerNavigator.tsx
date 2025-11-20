@@ -24,6 +24,7 @@ const CustomerNavigator = () => {
         animation: "slide_from_right",
         gestureEnabled: true,
         fullScreenGestureEnabled: true,
+        headerShown: false,
       }
       }
     >
