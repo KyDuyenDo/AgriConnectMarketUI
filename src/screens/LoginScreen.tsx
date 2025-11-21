@@ -11,8 +11,14 @@ import { SocialLoginButtons } from "@/components/auth/SocialLoginButtons"
 import { SignUpLink } from "@/components/auth/SignUpLink"
 import { useLogin } from "@/hooks/auth/useAuth"
 import { useAuthStore } from "@/stores/auth"
+import { AuthParamList } from "@/navigation/AuthNavigator"
+import { NativeStackNavigationProp } from "@react-navigation/native-stack"
+import { useNavigation } from "@react-navigation/native"
+
+type Nav = NativeStackNavigationProp<AuthParamList>
 
 export default function LoginScreen() {
+  const navigate = useNavigation<Nav>()
   const {
     control,
     handleSubmit,
@@ -39,6 +45,10 @@ export default function LoginScreen() {
         }
       }
     )
+  }
+
+  const onPressRegister = () => {
+    navigate.navigate("Register")
   }
 
   return (
@@ -106,7 +116,7 @@ export default function LoginScreen() {
           <SocialLoginButtons />
 
           {/* Sign Up Link */}
-          <SignUpLink />
+          <SignUpLink onPress={onPressRegister} />
         </View>
       </ScrollView>
     </SafeAreaView>

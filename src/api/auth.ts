@@ -17,3 +17,12 @@ export const registerApi = async (request: FormData) => {
     );
     return response.data;
 }
+
+export const register = async (formData: FormData) => {
+    const response = await apiClient.post("/api/auth/register", formData, {
+        headers: {
+            "Content-Type": "multipart/form-data",
+        },
+    });
+    return response.data;
+};

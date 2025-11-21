@@ -1,119 +1,135 @@
-import { useState } from "react"
-import { View, Text, ScrollView, TouchableOpacity, Switch, Alert } from "react-native"
-import { SafeAreaView } from "react-native-safe-area-context"
-import { Mail, Phone, MapPin, Bell, Shield, LogOut, Contact } from "lucide-react-native"
-import { Action } from "@/components/profile/Action"
-import { ProfileCard } from "@/components/profile/ProfileCard"
-import { profileUserData, profileMenuItems } from "@/data/mockData"
-import { ContactInformation } from "@/components/profile/ContactInformation"
-import { EditProfileModal } from "@/components/profile/EditProfile"
-import { useAuthStore } from "@/stores/auth"
+import React from "react";
+import { View, Text, ScrollView, TouchableOpacity, Alert, ActivityIndicator } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { LogOut, MapPin } from "lucide-react-native";
+import { ProfileCard } from "@/components/profile/ProfileCard";
+import { profileMenuItems } from "@/data/mockData";
+import { useAuthStore } from "@/stores/auth";
+import { useGetProfile } from "@/hooks/useProfile";
+import { useGetAddresses } from "@/hooks/useAddress";
 
 export default function ProfileScreen() {
-  const [notifications, setNotifications] = useState(true)
-  const [privacy, setPrivacy] = useState(false)
-  const [isEditProfileVisible, setIsEditProfileVisible] = useState(false)
-  const logout = useAuthStore((state) => state.logout)
+  const navigation = useNavigation();
+  const logout = useAuthStore((state) => state.logout);
 
-  const onOpenEditProfile = () => {
-    setIsEditProfileVisible(true)
-  }
+  // Profile Data
+  const { data: profile, isLoading: isProfileLoading } = useGetProfile();
 
-  const handleMenuAction = (title: string) => {
-    Alert.alert(title, `${title} pressed`)
-  }
+  // Address Data
+  const { data: addresses, isLoading: isAddressLoading } = useGetAddresses();
 
   const handleLogout = () => {
-    Alert.alert("Đăng xuất", "Bạn có chắc chắn muốn đăng xuất?", [
-      { text: "Hủy", style: "cancel" },
-      {
-        text: "Đăng xuất", onPress: () => {
-          logout()
-        }
-      },
-    ])
+    Alert.alert("Logout", "Are you sure you want to logout?", [
+      { text: "Cancel", style: "cancel" },
+      { text: "Logout", style: "destructive", onPress: logout },
+    ]);
+  };
+
+  const handleMenuAction = (title: string, action: () => void) => {
+    if (title === "Personal Information") {
+      navigation.navigate("PersonalInformation" as never);
+    } else {
+      action();
+    }
+  };
+
+  if (isProfileLoading) {
+    return (
+      <SafeAreaView className="flex-1 bg-gray-50 justify-center items-center">
+        <ActivityIndicator size="large" color="#4CAF50" />
+      </SafeAreaView>
+    );
   }
+
+  const displayUserData = {
+    name: profile?.fullname || "User",
+    email: profile?.email || "",
+    phone: profile?.phone || "",
+    avatar: profile?.avatarUrl || "https://i.pravatar.cc/300",
+    location: addresses?.find(a => a.isDefault)?.province || "Vietnam",
+    joinDate: "2023", // Mock data
+    rating: 5.0, // Mock data
+    totalOrders: 0 // Mock data
+  };
+
+  const defaultAddress = addresses?.find(a => a.isDefault);
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 50 }}>
-        {/* Header */}
-        <View className="bg-[#4CAF50] px-6 pb-8 pt-6">
-          {/* <Text className="text-center text-2xl font-bold text-white">Profile</Text> */}
+      <ScrollView className="relative" showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
+        <View className="absolute w-full h-48 bg-red-300"></View>
+        <View className="h-10"></View>
+        {/* Profile Header */}
+        <View className="mt-6">
+          <ProfileCard userData={displayUserData} />
         </View>
 
-        {/* Profile Card */}
-        <ProfileCard userData={profileUserData} onEditProfile={() => onOpenEditProfile()} />
-
-        {/* Contact Information */}
-
-        <ContactInformation
-          email={profileUserData.email}
-          phone={profileUserData.phone}
-          location={profileUserData.location}
-        />
+        {/* Default Address Section */}
+        <View className="mt-6 px-4">
+          <Text className="mb-4 text-lg font-bold text-gray-900">My Address</Text>
+          {isAddressLoading ? (
+            <ActivityIndicator size="small" color="#4CAF50" />
+          ) : defaultAddress ? (
+            <View className="rounded-xl bg-white p-4 shadow-sm border border-gray-100">
+              <View className="flex-row items-start">
+                <View className="mt-1 mr-3 rounded-full bg-green-50 p-2">
+                  <MapPin size={20} color="#4CAF50" />
+                </View>
+                <View className="flex-1">
+                  <View className="flex-row items-center mb-1">
+                    <Text className="text-base font-semibold text-gray-900 mr-2">Default Address</Text>
+                    <View className="bg-green-100 px-2 py-0.5 rounded">
+                      <Text className="text-xs font-medium text-green-700">Default</Text>
+                    </View>
+                  </View>
+                  <Text className="text-gray-600 leading-5">
+                    {defaultAddress.detail}, {defaultAddress.ward}, {defaultAddress.district}, {defaultAddress.province}
+                  </Text>
+                </View>
+              </View>
+            </View>
+          ) : (
+            <View className="rounded-xl bg-white p-6 shadow-sm border border-gray-100 items-center justify-center">
+              <Text className="text-gray-500">No default address set.</Text>
+            </View>
+          )}
+        </View>
 
         {/* Menu Items */}
-        <View className="mx-6 mb-6">
-          <Text className="mb-4 text-lg font-semibold text-gray-900">Account Settings</Text>
-          <Action menuItems={profileMenuItems} onItemPress={handleMenuAction} />
+        <View className="mt-6 px-4">
+          <Text className="mb-4 text-lg font-bold text-gray-900">Account Settings</Text>
+          <View className="overflow-hidden rounded-2xl bg-white shadow-sm">
+            {profileMenuItems.map((item, index) => (
+              <TouchableOpacity
+                key={index}
+                className={`flex-row items-center justify-between p-4 ${index !== profileMenuItems.length - 1 ? "border-b border-gray-100" : ""
+                  }`}
+                onPress={() => handleMenuAction(item.title, item.action)}
+              >
+                <View className="flex-row items-center">
+                  <View className={`mr-4 rounded-full p-2`} style={{ backgroundColor: `${item.color}15` }}>
+                    <item.icon size={20} color={item.color} />
+                  </View>
+                  <Text className="text-base font-medium text-gray-900">{item.title}</Text>
+                </View>
+                <Text className="text-gray-400">›</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
         </View>
 
-        {/* Preferences */}
-        {/* <View className="mx-6 mb-6">
-          <Text className="mb-4 text-lg font-semibold text-gray-900">Preferences</Text>
-          <View className="rounded-2xl bg-white shadow-md">
-            <View className="flex-row items-center justify-between p-4">
-              <View className="flex-row items-center">
-                <Bell size={20} color="#6B7280" />
-                <Text className="ml-3 text-gray-900">Push Notifications</Text>
-              </View>
-              <Switch
-                value={notifications}
-                onValueChange={setNotifications}
-                trackColor={{ false: "#E5E7EB", true: "#4CAF50" }}
-                thumbColor={notifications ? "white" : "white"}
-              />
-            </View>
-            <View className="h-px bg-gray-100" />
-            <View className="flex-row items-center justify-between p-4">
-              <View className="flex-row items-center">
-                <Shield size={20} color="#6B7280" />
-                <Text className="ml-3 text-gray-900">Privacy Mode</Text>
-              </View>
-              <Switch
-                value={privacy}
-                onValueChange={setPrivacy}
-                trackColor={{ false: "#E5E7EB", true: "#4CAF50" }}
-                thumbColor={privacy ? "white" : "white"}
-              />
-            </View>
-          </View>
-        </View> */}
-
-        {isEditProfileVisible && (
-          <EditProfileModal
-            visible={isEditProfileVisible}
-            onClose={() => setIsEditProfileVisible(false)}
-            onSave={(data) => console.log("Profile updated:", data)}
-            name={profileUserData.name}
-            email={profileUserData.email}
-            phone={profileUserData.phone}
-            location={profileUserData.location}
-          />
-        )}
-
         {/* Logout Button */}
-        <View className="mx-6 mb-8">
+        <View className="mt-8 px-4">
           <TouchableOpacity
-            className="flex-row items-center justify-center rounded-2xl bg-red-500 py-4 shadow-md"
+            className="flex-row items-center justify-center rounded-2xl bg-red-50 p-4"
             onPress={handleLogout}
           >
-            <LogOut size={20} color="white" />
-            <Text className="ml-2 font-semibold text-white">Đăng xuất</Text>
+            <LogOut size={20} color="#EF4444" />
+            <Text className="ml-2 font-semibold text-red-500">Log Out</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
     </SafeAreaView>
-  )
+  );
 }

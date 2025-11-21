@@ -11,7 +11,7 @@ const loginValidationSchema = yup.object().shape({
 export function useLoginForm() {
   return useForm({
     resolver: yupResolver(loginValidationSchema),
-    mode: "onBlur",
+    mode: "onSubmit",
     defaultValues: {
       username: "",
       password: "",

@@ -5,6 +5,7 @@ import CustomerTab from "./CustomerTab"
 import CustomerOrdersScreen from "@/screens/CustomerOrdersScreen"
 import CustomerOrderDetailScreen from "@/screens/CustomerOrderDetailScreen"
 import { CustomerBatchDetailScreen } from "@/screens/CustomerBatchDetailScreen"
+import PersonalInformationScreen from "@/screens/PersonalInformationScreen"
 
 export type CustomerStackParamList = {
   MainTabs: undefined
@@ -12,6 +13,7 @@ export type CustomerStackParamList = {
   CustomerOrderDetail: { orderId: string }
   FarmDetail: { farmId: string }
   BatchDetails: { productId: string }
+  PersonalInformation: undefined
 }
 
 const Stack = createNativeStackNavigator<CustomerStackParamList>()
@@ -24,8 +26,7 @@ const CustomerNavigator = () => {
         gestureEnabled: true,
         fullScreenGestureEnabled: true,
         headerShown: false,
-      }
-      }
+      }}
     >
 
       <Stack.Screen
@@ -54,6 +55,11 @@ const CustomerNavigator = () => {
         name="BatchDetails"
         component={CustomerBatchDetailScreen}
         options={{ title: "Batch Details" }}
+      />
+      <Stack.Screen
+        name="PersonalInformation"
+        component={PersonalInformationScreen}
+        options={{ headerShown: false }}
       />
     </Stack.Navigator>
   )

@@ -9,9 +9,10 @@ interface PasswordFieldProps {
   placeholder: string
   label: string
   error?: string
+  rules?: any
 }
 
-export function PasswordField({ name, control, placeholder, label, error }: PasswordFieldProps) {
+export function PasswordField({ name, control, placeholder, label, error, rules }: PasswordFieldProps) {
   const [showPassword, setShowPassword] = useState(false)
 
   return (
@@ -20,11 +21,11 @@ export function PasswordField({ name, control, placeholder, label, error }: Pass
       <Controller
         control={control}
         name={name}
+        rules={rules}
         render={({ field: { onChange, onBlur, value } }) => (
           <View
-            className={`flex-row items-center rounded-2xl border bg-white inset-shadow-sm ${
-              error ? "border-red-500" : "border-gray-200"
-            }`}
+            className={`flex-row items-center rounded-2xl border bg-white inset-shadow-sm ${error ? "border-red-500" : "border-gray-200"
+              }`}
           >
             <TextInput
               className="flex-1 px-4 py-3 text-base text-gray-900"

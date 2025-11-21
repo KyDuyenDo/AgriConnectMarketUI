@@ -10,14 +10,23 @@ import { TermsCheckbox } from "@/components/auth/TermsCheckbox"
 import { SignUpButton } from "@/components/auth/SignUpButton"
 import { SocialLoginButtons } from "@/components/auth/SocialLoginButtons"
 
+import { useNavigation } from "@react-navigation/native"
+import { Alert } from "react-native"
+import { useRegister } from "@/hooks/auth/useAuth"
+
 interface RegistrationFormData {
+  username: string
   email: string
   password: string
   confirmPassword: string
+  fullname: string
+  phone: string
 }
 
 export default function RegisterScreen() {
-  const [isLoading, setIsLoading] = useState(false)
+  const navigation = useNavigation<any>()
+  const { mutate: register, isPending } = useRegister()
+
   const [accountType, setAccountType] = useState<"farmer" | "customer" | "partner">("customer")
   const [termsAccepted, setTermsAccepted] = useState(false)
   const {
@@ -27,9 +36,12 @@ export default function RegisterScreen() {
     watch,
   } = useForm<RegistrationFormData>({
     defaultValues: {
+      username: "",
       email: "",
       password: "",
       confirmPassword: "",
+      fullname: "",
+      phone: "",
     },
   })
 
@@ -37,21 +49,34 @@ export default function RegisterScreen() {
 
   const onSubmit = async (data: RegistrationFormData) => {
     if (data.password !== data.confirmPassword) {
-      alert("Passwords do not match")
+      Alert.alert("Error", "Passwords do not match")
       return
     }
 
     if (!termsAccepted) {
-      alert("Please accept the Terms of Service and Privacy Policy")
+      Alert.alert("Error", "Please accept the Terms of Service and Privacy Policy")
       return
     }
 
-    setIsLoading(true)
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-    } finally {
-      setIsLoading(false)
-    }
+    const formData = new FormData()
+    formData.append("Username", data.username)
+    formData.append("Email", data.email)
+    formData.append("Password", data.password)
+    formData.append("Fullname", data.fullname)
+    formData.append("Phone", data.phone)
+    formData.append("IsFarmer", (accountType === "farmer").toString())
+
+    register(formData, {
+      onSuccess: () => {
+        Alert.alert("Success", "Account created successfully", [
+          { text: "OK", onPress: () => navigation.navigate("Login") },
+        ])
+      },
+      onError: (error: any) => {
+        console.error(error)
+        Alert.alert("Registration Failed", error.response?.data?.message || "An error occurred")
+      },
+    })
   }
 
   return (
@@ -69,6 +94,26 @@ export default function RegisterScreen() {
 
           <View className="mb-6 rounded-3xl border border-gray-200 bg-white p-4 shadow-md">
             <View className="px-4 py-4 gap-5">
+              {/* Username */}
+              <InputField
+                name="username"
+                control={control}
+                placeholder="johndoe"
+                label="Username"
+                error={errors.username?.message}
+                rules={{ required: "Username is required" }}
+              />
+
+              {/* Fullname */}
+              <InputField
+                name="fullname"
+                control={control}
+                placeholder="John Doe"
+                label="Full Name"
+                error={errors.fullname?.message}
+                rules={{ required: "Full name is required" }}
+              />
+
               {/* Email */}
               <InputField
                 name="email"
@@ -77,6 +122,24 @@ export default function RegisterScreen() {
                 label="Email Address"
                 keyboardType="email-address"
                 error={errors.email?.message}
+                rules={{
+                  required: "Email is required",
+                  pattern: {
+                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                    message: "Invalid email address",
+                  },
+                }}
+              />
+
+              {/* Phone */}
+              <InputField
+                name="phone"
+                control={control}
+                placeholder="+1234567890"
+                label="Phone Number"
+                keyboardType="phone-pad"
+                error={errors.phone?.message}
+                rules={{ required: "Phone number is required" }}
               />
 
               {/* Password */}
@@ -86,6 +149,13 @@ export default function RegisterScreen() {
                 placeholder="Create a strong password"
                 label="Password"
                 error={errors.password?.message}
+                rules={{
+                  required: "Password is required",
+                  minLength: {
+                    value: 6,
+                    message: "Password must be at least 6 characters",
+                  },
+                }}
               />
 
               {/* Confirm Password */}
@@ -95,6 +165,7 @@ export default function RegisterScreen() {
                 placeholder="Confirm your password"
                 label="Confirm Password"
                 error={errors.confirmPassword?.message}
+                rules={{ required: "Please confirm your password" }}
               />
 
               {/* Account Type */}
@@ -104,7 +175,7 @@ export default function RegisterScreen() {
               <TermsCheckbox checked={termsAccepted} onToggle={setTermsAccepted} />
 
               {/* Submit Button */}
-              <SignUpButton isLoading={isLoading} onPress={handleSubmit(onSubmit)} />
+              <SignUpButton isLoading={isPending} onPress={handleSubmit(onSubmit)} />
             </View>
           </View>
 

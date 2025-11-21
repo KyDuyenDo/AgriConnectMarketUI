@@ -14,6 +14,7 @@ import { FarmerOrders } from '@/screens/FarmerOrdersScreen';
 import SeasonDetailScreen from '@/screens/SeasonDetailScreen';
 import AddCropLogEntryScreen from '@/screens/AddCropLogEntryScreen';
 import AddLotBatchScreen from '@/screens/AddLotBatchScreen';
+import PersonalInformationScreen from '@/screens/PersonalInformationScreen';
 
 export type FarmStackParamList = {
     MainTabs: undefined;
@@ -30,6 +31,7 @@ export type FarmStackParamList = {
     FarmerOrderDetail: { orderId: string };
     FarmSetupInformation: { farmId: string };
     FarmProductDetailReviews: { productId: string };
+    PersonalInformation: undefined;
 };
 
 const Stack = createNativeStackNavigator<FarmStackParamList>();
@@ -98,6 +100,12 @@ export default function FarmNavigator() {
             />
             <Stack.Screen name="FarmerOrders"
                 component={FarmerOrders}
+                options={{ headerShown: false }}
+            />
+
+            <Stack.Screen
+                name="PersonalInformation"
+                component={PersonalInformationScreen}
                 options={{ headerShown: false }}
             />
         </Stack.Navigator>

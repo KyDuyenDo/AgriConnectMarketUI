@@ -1,0 +1,78 @@
+1.1. Create a new address
+
+POST /api/addresses
+
+Body:
+
+{
+"province": "string",
+"district": "string",
+"ward": "string",
+"detail": "string",
+"isDefault": true,
+"profileId": "uuid"
+}
+
+Response: 200 OK
+
+1.2. Get user's address list
+
+GET /api/addresses/me
+
+Response: 200 OK
+
+1.3. Update an address
+
+PUT /api/addresses/{addressId}
+
+Path param:
+
+addressId (uuid)
+
+Body:
+
+{
+"province": "string",
+"district": "string",
+"ward": "string",
+"detail": "string",
+"isDefault": true
+}
+
+Response: 200 OK
+
+1.4. Delete an address
+
+DELETE /api/addresses/{addressId}
+
+Path param:
+
+addressId (uuid)
+
+Response: 200 OK
+
+📌 2. Profile APIs
+
+2.1. Get user profile information
+
+GET /api/profiles/me
+
+Response: 200 OK
+
+2.2. Update user profile information
+
+PUT /api/profiles/{profileId}
+
+Path param:
+
+profileId (uuid)
+
+Body:
+
+{
+"fullname": "string",
+"email": "string",
+"phone": "string"
+}
+
+Response: 200 OK

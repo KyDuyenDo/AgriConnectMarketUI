@@ -1,6 +1,6 @@
 import { View, Text, TouchableOpacity, Image } from "react-native";
 
-import { Camera, Edit3, User , Star} from "lucide-react-native";
+import { Camera, Edit3, User, Star } from "lucide-react-native";
 
 interface UserData {
     name: string;
@@ -60,10 +60,12 @@ export function ProfileCard({ userData, onEditProfile }: ProfileCardProps) {
                 </View>
 
                 {/* Edit Profile Button */}
-                <TouchableOpacity className="mt-6 flex-row items-center justify-center rounded-xl bg-[#4CAF50] py-3" onPress={onEditProfile}>
-                    <Edit3 size={18} color="white" />
-                    <Text className="ml-2 font-semibold text-white">Edit Profile</Text>
-                </TouchableOpacity>
+                {onEditProfile && (
+                    <TouchableOpacity className="mt-6 flex-row items-center justify-center rounded-xl bg-[#4CAF50] py-3" onPress={onEditProfile}>
+                        <Edit3 size={18} color="white" />
+                        <Text className="ml-2 font-semibold text-white">Edit Profile</Text>
+                    </TouchableOpacity>
+                )}
             </View>
         </View>
     )
