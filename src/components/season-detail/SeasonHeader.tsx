@@ -3,7 +3,12 @@ import { View, Text, TouchableOpacity } from 'react-native';
 import { ChevronLeft, Cherry, MoreVertical } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 
-export default function SeasonHeader() {
+interface SeasonHeaderProps {
+    seasonName?: string;
+    productName?: string;
+}
+
+export default function SeasonHeader({ seasonName, productName }: SeasonHeaderProps) {
     const navigation = useNavigation();
 
     return (
@@ -23,7 +28,9 @@ export default function SeasonHeader() {
                     <View className="w-6 h-6 items-center justify-center mr-2">
                         <Cherry size={18} color="#E74C3C" />
                     </View>
-                    <Text className="text-[#2d2d2d] text-xl font-bold">Summer 2024 - Tomatoes</Text>
+                    <Text className="text-[#2d2d2d] text-xl font-bold">
+                        {seasonName || "Season"} {productName ? `- ${productName}` : ""}
+                    </Text>
                 </View>
             </View>
 

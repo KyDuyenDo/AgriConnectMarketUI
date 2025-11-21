@@ -1,183 +1,101 @@
-import { ActionButtons } from "@/components/farmer-products/ActionButtons"
-import { FilterSection } from "@/components/farmer-products/FilterSection"
-import { Header } from "@/components/farmer-products/Header"
-import { ProductGrid } from "@/components/farmer-products/ProductGrid"
-import type React from "react"
-import { useState } from "react"
-import { View, ScrollView, Platform, TouchableOpacity } from "react-native"
-import { SafeAreaView } from "react-native-safe-area-context"
-import { Plus } from "lucide-react-native"
-import { NativeStackNavigationProp } from "@react-navigation/native-stack"
-import { FarmStackParamList } from "@/navigation/FarmNavigator"
-import { useNavigation } from "@react-navigation/native"
+import React, { useState } from "react";
+import { View, ScrollView, Platform, TouchableOpacity, Text, ActivityIndicator, Image } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Plus, Search, Filter } from "lucide-react-native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { FarmStackParamList } from "@/navigation/FarmNavigator";
+import { useNavigation } from "@react-navigation/native";
+import { useAllBatches } from "@/hooks/useBatches";
+import { Batch } from "@/types";
 
+type Nav = NativeStackNavigationProp<FarmStackParamList>;
 
-type Nav = NativeStackNavigationProp<FarmStackParamList>
-
-export interface Product {
-  id: string
-  name: string
-  category: string
-  price: string
-  units: string
-  sold: string
-  soldAmount: string
-  stock: "In Stock" | "Low Stock" | "Out of Stock"
-  isFavorite: boolean
-  image: string
-}
+const BatchCard = ({ batch, onPress }: { batch: Batch; onPress: () => void }) => (
+  <TouchableOpacity
+    onPress={onPress}
+    className="bg-white rounded-2xl p-3 mb-3 shadow-sm flex-row items-center"
+  >
+    <View className="w-20 h-20 bg-gray-100 rounded-xl mr-4 overflow-hidden">
+      {/* Placeholder image since Batch doesn't have image directly yet, maybe from season/product? */}
+      <View className="w-full h-full items-center justify-center bg-green-50">
+        <Text className="text-green-600 font-bold text-xs text-center p-1">{batch.batchCode || "Batch"}</Text>
+      </View>
+    </View>
+    <View className="flex-1">
+      <View className="flex-row justify-between items-start">
+        <Text className="text-[#2d2d2d] font-semibold text-base mb-1">{batch.batchCode || "Unnamed Batch"}</Text>
+        <View className={`px-2 py-1 rounded-full ${batch.isActive ? 'bg-green-100' : 'bg-gray-100'}`}>
+          <Text className={`text-xs font-medium ${batch.isActive ? 'text-green-600' : 'text-gray-500'}`}>
+            {batch.isActive ? 'Active' : 'Inactive'}
+          </Text>
+        </View>
+      </View>
+      <Text className="text-[#5c5c5c] text-sm mb-1">Yield: {batch.totalYield} {batch.units}</Text>
+      <Text className="text-[#4CAF50] font-bold text-sm">${batch.price}/{batch.units}</Text>
+    </View>
+  </TouchableOpacity>
+);
 
 export const FarmerProductsScreen: React.FC = () => {
-  const [selectedCategory, setSelectedCategory] = useState("")
-  const [selectedPrice, setSelectedPrice] = useState("")
-  const [selectedStock, setSelectedStock] = useState("")
-  const [searchQuery, setSearchQuery] = useState("")
-  const navigation = useNavigation<Nav>()
+  const navigation = useNavigation<Nav>();
+  const { data: batches, isLoading } = useAllBatches();
+  const [searchQuery, setSearchQuery] = useState("");
 
+  const filteredBatches = batches?.filter(b =>
+    (b.batchCode || "").toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
-  const products: Product[] = [
-    {
-      id: "1",
-      name: "Organic Tomatoes",
-      category: "Vegetables",
-      price: "$8.50/kg",
-      units: "45 units",
-      sold: "12 units",
-      soldAmount: "$102.00",
-      stock: "In Stock" as const,
-      isFavorite: false,
-      image: "https://static.paraflowcontent.com/public/resource/image/9d94c893-ad9b-4a0e-8464-b55d85ca0b66.jpeg",
-    },
-    {
-      id: "2",
-      name: "Fresh Lettuce",
-      category: "Vegetables",
-      price: "$6.00/kg",
-      units: "8 units",
-      sold: "8 units",
-      soldAmount: "$48.00",
-      stock: "Low Stock" as const,
-      isFavorite: true,
-      image: "https://static.paraflowcontent.com/public/resource/image/b920e650-0e60-42b8-b8a0-1ba5e755a665.jpeg",
-    },
-    {
-      id: "3",
-      name: "Fresh Carrots",
-      category: "Vegetables",
-      price: "$4.50/kg",
-      units: "32 units",
-      sold: "15 units",
-      soldAmount: "$67.50",
-      stock: "In Stock" as const,
-      isFavorite: false,
-      image: "https://static.paraflowcontent.com/public/resource/image/83b6d396-0ca0-4cf0-8069-b4f92904ea76.jpeg",
-    },
-    {
-      id: "4",
-      name: "Fresh Strawberries",
-      category: "Fruits",
-      price: "$12.00/kg",
-      units: "0 units",
-      sold: "25 units",
-      soldAmount: "$300.00",
-      stock: "Out of Stock" as const,
-      isFavorite: true,
-      image: "https://static.paraflowcontent.com/public/resource/image/5616216d-9fef-4929-abf2-527191aedca7.jpeg",
-    },
-    {
-      id: "5",
-      name: "Fresh Broccoli",
-      category: "Vegetables",
-      price: "$7.50/kg",
-      units: "28 units",
-      sold: "18 units",
-      soldAmount: "$135.00",
-      stock: "In Stock" as const,
-      isFavorite: false,
-      image: "https://static.paraflowcontent.com/public/resource/image/05a73aba-8be9-4b6c-af37-f29f464a36b4.jpeg",
-    },
-    {
-      id: "6",
-      name: "Sweet Corn",
-      category: "Grains",
-      price: "$3.50/pc",
-      units: "5 units",
-      sold: "22 units",
-      soldAmount: "$77.00",
-      stock: "Low Stock" as const,
-      isFavorite: false,
-      image: "https://static.paraflowcontent.com/public/resource/image/c39b771b-0a3d-4f29-9c13-c86ff29bbe17.jpeg",
-    },
-  ]
-
-  const onEdit = (productId: string) => {
-    navigation.navigate("EditProduct", { productId })
-  }
-
-  const onDelete = (productId: string) => {
-    console.log("Delete product:", productId)
-  }
-
-  const onView = (productId: string) => {
-    navigation.navigate("FarmProductDetailReviews", { productId })
-  }
+  const onAddBatch = () => {
+    // Navigate to AddBatchScreen without seasonId, so user must select season
+    navigation.navigate("AddLot", {});
+  };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#F9FAF9" }} edges={['top']}>
-      {/* Fixed Header */}
-      <View className="bg-[#F9FAF9] fixed top-0 w-full z-10">
-        <Header />
+    <SafeAreaView className="flex-1 bg-[#F9FAF9]" edges={['top']}>
+      <View className="px-6 py-4 bg-white border-b border-gray-100 flex-row justify-between items-center">
+        <Text className="text-[#2d2d2d] text-xl font-bold">My Batches</Text>
+        <TouchableOpacity>
+          <Filter size={20} color="#2d2d2d" />
+        </TouchableOpacity>
       </View>
 
-      {/* Main Content */}
+      <View className="px-6 py-3 bg-white border-b border-gray-100">
+        <View className="flex-row items-center bg-gray-50 rounded-xl px-4 py-2">
+          <Search size={20} color="#9ca3af" />
+          <Text className="ml-2 text-gray-400">Search batches...</Text>
+        </View>
+      </View>
+
       <ScrollView
-        style={{ flex: 1 }}
+        className="flex-1 px-4 pt-4"
+        contentContainerStyle={{ paddingBottom: 100 }}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{
-          paddingHorizontal: 16,
-          paddingVertical: 16,
-          paddingBottom: Platform.OS === "ios" ? 140 : 80,
-        }}
       >
-        {/* Filter Section */}
-        <View className="mb-4">
-          <FilterSection
-            selectedCategory={selectedCategory}
-            onCategoryChange={setSelectedCategory}
-            selectedPrice={selectedPrice}
-            onPriceChange={setSelectedPrice}
-            selectedStock={selectedStock}
-            onStockChange={setSelectedStock}
-            searchQuery={searchQuery}
-            onSearchChange={setSearchQuery}
-          />
-        </View>
-
-        {/* Action Buttons */}
-        <View className="mb-4">
-          <ActionButtons />
-        </View>
-
-        {/* Product Grid */}
-        <ProductGrid products={products} searchQuery={searchQuery} onEdit={onEdit} onDelete={onDelete} onView={onView} />
+        {isLoading ? (
+          <ActivityIndicator size="large" color="#4CAF50" className="mt-10" />
+        ) : (
+          filteredBatches?.map(batch => (
+            <BatchCard
+              key={batch.id}
+              batch={batch}
+              onPress={() => navigation.navigate("LotDetail", { lotId: batch.id })}
+            />
+          ))
+        )}
+        {!isLoading && filteredBatches?.length === 0 && (
+          <Text className="text-center text-gray-500 mt-10">No batches found.</Text>
+        )}
       </ScrollView>
-      <View className="h-24" />
 
-      {/* Floating Action Button */}
-      <View className="absolute bottom-28 right-0 flex-col items-end gap-4 pr-6 pb-6">
+      <View className="absolute bottom-6 right-6">
         <TouchableOpacity
-          className="bg-[#4CAF50] rounded-full w-12 h-12 flex items-center justify-center active:bg-green-600"
-          style={{
-            shadowColor: "#4CAF50",
-            shadowOffset: { width: 0, height: 8 },
-            shadowOpacity: 0.3,
-            shadowRadius: 12,
-            elevation: 8,
-          }}
+          onPress={onAddBatch}
+          className="bg-[#4CAF50] w-14 h-14 rounded-full items-center justify-center shadow-lg"
+          style={{ elevation: 5 }}
         >
-          <Plus size={20} color="#FFFFFF" />
+          <Plus size={24} color="white" />
         </TouchableOpacity>
       </View>
     </SafeAreaView>
-  )
-}
+  );
+};

@@ -1,74 +1,47 @@
 import apiClient from "@/api/config";
 import { Product, ProductResponse } from "@/types";
-import { mapProductToResponse } from "@/utils/mapProduct";
+const ProductService = {
+    getAll: async (filters?: { searchTerm?: string; categoryId?: string; location?: string }): Promise<ProductResponse[]> => {
+        const params = new URLSearchParams();
+        if (filters?.searchTerm) params.append('search', filters.searchTerm);
+        if (filters?.categoryId) params.append('categoryId', filters.categoryId);
+        if (filters?.location) params.append('location', filters.location);
 
-const BASE_URL = "/products";
-
-
-
-export const ProductService = {
-    /**
-     * Lấy tất cả sản phẩm (GET /products)
-     */
-    getAll: async (): Promise<Product[]> => {
-        try {
-            const res = await apiClient.get<Product[]>(BASE_URL);
-            return res.data;
-        } catch (error) {
-            console.error("❌ Lỗi lấy danh sách sản phẩm:", error);
-            throw error;
-        }
+        const response = await apiClient.get(`/api/products?${params.toString()}`);
+        return response.data.data;
     },
 
-    /**
-     * Lấy một sản phẩm theo ID (GET /products/{id})
-     */
-    getById: async (id: string): Promise<Product> => {
-        try {
-            const res = await apiClient.get<Product>(`${BASE_URL}/${id}`);
-            return res.data;
-        } catch (error) {
-            console.error(`❌ Lỗi lấy chi tiết sản phẩm ${id}:`, error);
-            throw error;
-        }
+    getById: async (id: string): Promise<ProductResponse> => {
+        const response = await apiClient.get<ProductResponse>(`/api/products/${id}`);
+        return response.data;
     },
 
-    /**
-     * Tạo sản phẩm mới (POST /products)
-     */
-    create: async (productData: Partial<Product>): Promise<Product> => {
-        const productResponse: ProductResponse = mapProductToResponse(productData);
+    create: async (productData: Partial<ProductResponse>): Promise<ProductResponse> => {
         try {
-            const res = await apiClient.post(BASE_URL, productResponse);
+            const res = await apiClient.post<ProductResponse>('/api/products', productData);
             return res.data;
         } catch (error: any) {
-            console.error("❌ Lỗi tạo sản phẩm:", error?.response?.data || error.message);
+            console.error("❌ Error creating product:", error?.response?.data || error.message);
             throw error;
         }
     },
 
-    /**
-     * Cập nhật sản phẩm (PUT /products/{id})
-     */
-    update: async (id: string, productData: Partial<Product>): Promise<Product> => {
+    update: async (id: string, productData: Partial<ProductResponse>): Promise<ProductResponse> => {
         try {
-            const res = await apiClient.put<Product>(`${BASE_URL}/${id}`, productData);
+            const res = await apiClient.put<ProductResponse>(`/api/products/${id}`, productData);
             return res.data;
         } catch (error) {
-            console.error(`❌ Lỗi cập nhật sản phẩm ${id}:`, error);
+            console.error(`❌ Error updating product ${id}:`, error);
             throw error;
         }
     },
 
-    /**
-     * Xóa sản phẩm (DELETE /products/{id})
-     */
     delete: async (id: string): Promise<boolean> => {
         try {
-            const res = await apiClient.delete(`${BASE_URL}/${id}`);
+            const res = await apiClient.delete(`/api/products/${id}`);
             return res.status === 200 || res.status === 204;
         } catch (error) {
-            console.error(`❌ Lỗi xoá sản phẩm ${id}:`, error);
+            console.error(`❌ Error deleting product ${id}:`, error);
             throw error;
         }
     }

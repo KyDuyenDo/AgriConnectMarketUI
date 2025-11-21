@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import ProductService from "@/services/products.service";
-import { Product } from "@/types";
+import { Product, ProductResponse } from "@/types";
 
 
 
@@ -13,10 +13,13 @@ const PRODUCT_QUERY_KEYS = {
 // ======================================================
 // 1️⃣ GET ALL PRODUCTS
 // ======================================================
-export const useProducts = () => {
-    return useQuery<Product[]>({
-        queryKey: PRODUCT_QUERY_KEYS.all,
-        queryFn: () => ProductService.getAll(),
+// ======================================================
+// 1️⃣ GET ALL PRODUCTS
+// ======================================================
+export const useProducts = (filters?: { searchTerm?: string; categoryId?: string; location?: string }) => {
+    return useQuery<ProductResponse[]>({
+        queryKey: [...PRODUCT_QUERY_KEYS.all, filters],
+        queryFn: () => ProductService.getAll(filters),
     });
 };
 
@@ -24,7 +27,7 @@ export const useProducts = () => {
 // 2️⃣ GET PRODUCT BY ID
 // ======================================================
 export const useProductById = (id: string) => {
-    return useQuery<Product>({
+    return useQuery<ProductResponse>({
         queryKey: PRODUCT_QUERY_KEYS.detail(id),
         queryFn: () => ProductService.getById(id),
         enabled: !!id,
@@ -38,7 +41,7 @@ export const useCreateProduct = () => {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: (data: Partial<Product>) => ProductService.create(data),
+        mutationFn: (data: Partial<ProductResponse>) => ProductService.create(data),
 
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: PRODUCT_QUERY_KEYS.all });
@@ -50,7 +53,7 @@ export const useUpdateProduct = () => {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: ({ id, data }: { id: string; data: Partial<Product> }) =>
+        mutationFn: ({ id, data }: { id: string; data: Partial<ProductResponse> }) =>
             ProductService.update(id, data),
 
         onSuccess: (_data, variables) => {

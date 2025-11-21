@@ -1,28 +1,74 @@
-export interface Product {
-  id: string
-  name: string
-  farm: string
-  price: string
-  unit: string
-  image: string
-  isFavorite?: boolean
-  addedFavoriteDate?: string
-  rating?: number
-  numRatings?: number
-  status?: "In Stock" | "Out of Stock"
-  batch: string,
-  quantity: number,
-  category?: string,
-  season?: string,
-  description?: string,
+export interface Category {
+  id: string;
+  categoryName: string;
+  categoryDesc: string;
+  illustrativeImageUrl: string;
+  isDelete?: boolean;
 }
 
 export interface ProductResponse {
-    productName: string,
-    productAttribute: string,
-    productDesc: string,
-    categoryId: string,
+  id: string;
+  productName: string;
+  productAttribute: string;
+  productDesc: string;
+  categoryId: string;
+  category?: Category; // Optional for when we fetch with include
+  createdAt?: string;
 }
+
+export interface Product {
+  id: string;
+  name: string;
+  farm: string;
+  price: string;
+  unit: string;
+  image: string;
+  isFavorite: boolean;
+  rating: number;
+  numRatings: number;
+  status: string;
+  batch: string;
+  quantity: number;
+  addedFavoriteDate?: string;
+  // Optional fields for compatibility or mapping
+  categoryId?: string;
+  category?: Category | string;
+  season?: any;
+  // Backend fields (optional)
+  productName?: string;
+  productAttribute?: string;
+  productDesc?: string;
+}
+
+export interface Season {
+  id: string;
+  seasonName: string;
+  seasonDesc: string;
+  status: string;
+  startDate: string;
+  endDate: string;
+  farmId: string;
+  productId: string;
+  product?: Product; // Optional
+}
+
+export interface Batch {
+  id: string;
+  batchCode?: string; // Might be generated or optional
+  totalYield: number;
+  availableQuantity: number;
+  units: string;
+  price: number;
+  plantingDate: string;
+  harvestDate?: string;
+  seasonId: string;
+  season?: Season; // Optional
+  soldQuantity?: number;
+  isActive?: boolean;
+}
+
+// Keeping existing types that might be used elsewhere for now, but marking them as potentially legacy if they conflict.
+// Re-adding UserData and others that seemed useful.
 
 export interface CartItem {
   id: string
@@ -42,7 +88,6 @@ export interface Order {
   action: string
 }
 
-
 export type HistoryItem = {
   id: string;
   step: number;
@@ -50,7 +95,6 @@ export type HistoryItem = {
   description: string;
   color: string;
 };
-
 
 export type UserData = {
   name: string;
@@ -62,25 +106,18 @@ export type UserData = {
   rating: number;
   totalOrders: number;
 };
+
 export type LoginRequest = {
-    Username: string;
-    Password: string;
+  Username: string;
+  Password: string;
 }
 
 export type RegisterRequest = {
-    Username: string;
-    Password: string;
-    Email: string;
-    FullName: string;
-    Phone: string;
-    IsFarmer: boolean;
-    Avatar: File;
-}
-
-export type Season = {
-  seasonName: string;
-  seasonDesc: string;
-  startDate: string;
-  endDate: string;
-  farmId: string;
+  Username: string;
+  Password: string;
+  Email: string;
+  FullName: string;
+  Phone: string;
+  IsFarmer: boolean;
+  Avatar: File;
 }

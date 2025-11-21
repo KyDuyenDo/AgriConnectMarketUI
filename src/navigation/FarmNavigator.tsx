@@ -5,7 +5,7 @@ import { FarmDashboard } from '@/screens/FarmDashboard';
 import AddSeasonScreen from '@/screens/AddSeasonScreen';
 import LotDetailScreen from '@/screens/LotDetailScreen';
 import FarmDetailScreen from '@/screens/FarmerFarmDetailScreen';
-import { FarmerAddProductScreen } from '@/screens/FarmerAddProductScreen';
+import AddBatchScreen from '@/screens/AddBatchScreen';
 import { FarmerEditProductScreen } from '@/screens/FarmerEditProductScreen';
 import { FarmerOrderDetailScreen } from '@/screens/FarmerOrderDetailScreen';
 import { FarmSetupInformationScreen } from '@/screens/FarmSetupInformationScreen';
@@ -13,19 +13,22 @@ import { FarmerProductDetailReviewsScreen } from '@/screens/FarmerProductDetailR
 import { FarmerOrders } from '@/screens/FarmerOrdersScreen';
 import SeasonDetailScreen from '@/screens/SeasonDetailScreen';
 import AddCropLogEntryScreen from '@/screens/AddCropLogEntryScreen';
-import AddLotBatchScreen from '@/screens/AddLotBatchScreen';
+import AddLotBatchScreen from '@/screens/AddLotBatchScreen'; // Keeping for now if needed, or replace
 import PersonalInformationScreen from '@/screens/PersonalInformationScreen';
+import AddCategoryScreen from '@/screens/AddCategoryScreen';
+import AddProductScreen from '@/screens/AddProductScreen';
 
 export type FarmStackParamList = {
     MainTabs: undefined;
     Dashboard: undefined;
     AddSeason: undefined;
     SeasonDetail: { seasonId: string };
-    AddLot: undefined;
+    AddLot: { seasonId?: string }; // Updated to accept seasonId
     LotDetail: { lotId: string };
     AddCropLog: undefined;
     FarmDetail: { farmId: string };
     AddProduct: undefined;
+    AddCategory: undefined;
     EditProduct: { productId: string };
     FarmerOrders: { farmerId: string };
     FarmerOrderDetail: { orderId: string };
@@ -67,7 +70,7 @@ export default function FarmNavigator() {
                 options={{ headerShown: false }}
             />
             <Stack.Screen name="AddLot"
-                component={AddLotBatchScreen}
+                component={AddBatchScreen} // Use new AddBatchScreen
                 options={{ headerShown: false }}
             />
             <Stack.Screen name="AddCropLog"
@@ -79,7 +82,11 @@ export default function FarmNavigator() {
                 options={{ headerShown: false }}
             />
             <Stack.Screen name="AddProduct"
-                component={FarmerAddProductScreen}
+                component={AddProductScreen} // Use new AddProductScreen
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen name="AddCategory"
+                component={AddCategoryScreen}
                 options={{ headerShown: false }}
             />
             <Stack.Screen name="EditProduct"

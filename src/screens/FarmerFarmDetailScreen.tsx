@@ -15,6 +15,7 @@ import { FarmInfoCard } from "@/components/farm/FarmInfoCard";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { NativeStackNavigationProp } from "node_modules/@react-navigation/native-stack/lib/typescript/src/types";
 import { FarmStackParamList } from "@/navigation/FarmNavigator";
+import { useSeasons } from "@/hooks/useSeasons";
 
 // Dummy Data
 const CAROUSEL_IMAGES = [
@@ -67,6 +68,7 @@ type Nav = NativeStackNavigationProp<FarmStackParamList>;
 
 export default function FarmDetailScreen() {
   const navigation = useNavigation<Nav>();
+  const { data: seasons } = useSeasons();
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -167,13 +169,29 @@ export default function FarmDetailScreen() {
             </View>
           </View>
 
+          {/* Management Actions */}
+          <View className="flex-row gap-3 mb-6">
+            <TouchableOpacity
+              onPress={() => navigation.navigate("AddCategory")}
+              className="flex-1 bg-blue-50 p-4 rounded-xl items-center border border-blue-100"
+            >
+              <Text className="text-blue-700 font-semibold">Add Category</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => navigation.navigate("AddProduct")}
+              className="flex-1 bg-purple-50 p-4 rounded-xl items-center border border-purple-100"
+            >
+              <Text className="text-purple-700 font-semibold">Add Product</Text>
+            </TouchableOpacity>
+          </View>
+
           {/* Current Seasons */}
           <View className="flex-row justify-between items-center mb-3">
             <Text className="text-lg font-bold text-gray-900">
               Current Seasons
             </Text>
             <TouchableOpacity
-              onPress={onAddSeason}
+              onPress={() => navigation.navigate("AddSeason")}
               className="bg-green-500 px-3 py-2 rounded-lg">
               <Text className="text-white font-medium text-sm">
                 Add New Season
@@ -182,14 +200,14 @@ export default function FarmDetailScreen() {
           </View>
 
           <View className="mb-6">
-            {SEASONS_DATA.map((season, index) => (
+            {seasons?.map((season, index) => (
               <SeasonCard
-                key={index}
+                key={season.id || index}
                 seasonName={season.seasonName}
-                crops={season.crops}
-                dateRange={season.dateRange}
-                acres={season.acres}
-                status={season.status}
+                crops={season.product ? [season.product.name as CropType] : []}
+                dateRange={`${season.startDate} - ${season.endDate}`}
+                acres={0} // TODO: Add acres to Season model
+                status={season.status as any}
                 onPress={() => onPressSeason(season.id)}
               />
             ))}
