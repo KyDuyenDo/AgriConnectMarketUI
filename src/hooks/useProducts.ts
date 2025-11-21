@@ -1,22 +1,22 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import ProductService from "@/services/products.service";
+import ProductService, { ProductQueryParams } from "@/services/products.service";
 import { Product } from "@/types";
 
 
 
 // Query Keys chuẩn
 const PRODUCT_QUERY_KEYS = {
-    all: ["products"] as const,
+    all: (params?: ProductQueryParams) => ["products", params] as const,
     detail: (id: string) => ["products", id] as const,
 };
 
 // ======================================================
 // 1️⃣ GET ALL PRODUCTS
 // ======================================================
-export const useProducts = () => {
-    return useQuery<Product[]>({
-        queryKey: PRODUCT_QUERY_KEYS.all,
-        queryFn: () => ProductService.getAll(),
+export const useProducts = (params?: ProductQueryParams) => {
+    return useQuery<{ data: Product[]; total: number }>({
+        queryKey: PRODUCT_QUERY_KEYS.all(params),
+        queryFn: () => ProductService.getAll(params),
     });
 };
 
@@ -41,7 +41,7 @@ export const useCreateProduct = () => {
         mutationFn: (data: Partial<Product>) => ProductService.create(data),
 
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: PRODUCT_QUERY_KEYS.all });
+            queryClient.invalidateQueries({ queryKey: ["products"] });
         },
     });
 };
@@ -58,7 +58,7 @@ export const useUpdateProduct = () => {
                 queryKey: PRODUCT_QUERY_KEYS.detail(variables.id),
             });
             queryClient.invalidateQueries({
-                queryKey: PRODUCT_QUERY_KEYS.all,
+                queryKey: ["products"],
             });
         },
     });
@@ -74,7 +74,7 @@ export const useDeleteProduct = () => {
         mutationFn: (id: string) => ProductService.delete(id),
 
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: PRODUCT_QUERY_KEYS.all });
+            queryClient.invalidateQueries({ queryKey: ["products"] });
         },
     });
 };

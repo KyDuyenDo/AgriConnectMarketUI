@@ -8,10 +8,10 @@ export const getBackendURL = (): string => {
   }
 
   if (Platform.OS === "ios") {
-    return "http://192.168.30.177:5170";
+    return "http://192.168.30.169:5170";
   }
 
-  return "http://192.168.30.177:5170";
+  return "http://192.168.30.169:5170";
 };
 
 const baseURL = getBackendURL();

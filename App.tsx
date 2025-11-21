@@ -23,7 +23,7 @@ enableScreens()
 
 export default function App() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
-  const isFarmer = useAuthStore((state) => state.role === 'Farmer')
+  const isFarmer = true
   console.log(isFarmer)
 
   return (

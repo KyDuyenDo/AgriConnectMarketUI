@@ -4,15 +4,24 @@ import { mapProductToResponse } from "@/utils/mapProduct";
 
 const BASE_URL = "/products";
 
-
+export interface ProductQueryParams {
+    page?: number;
+    limit?: number;
+    search?: string;
+    category?: string;
+    farmId?: string;
+    status?: "In Stock" | "Out of Stock";
+    sortBy?: "price" | "rating" | "name";
+    order?: "asc" | "desc";
+}
 
 export const ProductService = {
     /**
-     * Lấy tất cả sản phẩm (GET /products)
+     * Lấy tất cả sản phẩm với pagination và filter (GET /products)
      */
-    getAll: async (): Promise<Product[]> => {
+    getAll: async (params?: ProductQueryParams): Promise<{ data: Product[]; total: number }> => {
         try {
-            const res = await apiClient.get<Product[]>(BASE_URL);
+            const res = await apiClient.get<{ data: Product[]; total: number }>(BASE_URL, { params });
             return res.data;
         } catch (error) {
             console.error("❌ Lỗi lấy danh sách sản phẩm:", error);
