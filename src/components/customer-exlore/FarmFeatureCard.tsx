@@ -1,72 +1,77 @@
 import React from "react";
-import { View, Text, Image, TouchableOpacity } from "react-native";
+import { View, Text, Image, TouchableOpacity, Pressable } from "react-native";
 import { MapPin, Star, ChevronRight } from "lucide-react-native";
+import { Farm } from "@/types";
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { CustomerStackParamList } from "@/navigation/CustomerNavigator";
 
 interface FarmTransparencyCardProps {
-    image: string;
-    name: string;
-    location: string;
-    distance: string;
-    rating: number;
-    reviews: number;
-    tags: string[];
+    farm: Farm;
 }
 
+type NavigationProp = NativeStackNavigationProp<CustomerStackParamList>;
+
 const FarmFeatureCard: React.FC<FarmTransparencyCardProps> = ({
-    image,
-    name,
-    location,
-    distance,
-    rating,
-    reviews,
-    tags,
+    farm
 }) => {
+    const navigator = useNavigation<NavigationProp>();
     return (
-        <View className="w-[300px] bg-white rounded-xl shadow-sm p-4 mx-4 my-2">
-            {/* Header */}
-            <View className="flex-row items-start mb-3">
+        <View
+            key={farm.id}
+            className="p-4"
+            style={{
+                minWidth: 280,
+                backgroundColor: '#FFFFFF',
+                borderRadius: 16,
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.08,
+                shadowRadius: 8,
+                elevation: 3
+            }}
+        >
+            <View className="flex-row items-center mb-3">
                 <Image
-                    source={{ uri: image }}
-                    className="w-16 h-16 rounded-full mr-4 border border-gray-100"
+                    source={{ uri: farm.bannerUrl }}
+                    className="w-12 h-12 rounded-full mr-3"
                 />
-
                 <View className="flex-1">
-                    <Text className="text-lg font-semibold text-gray-900">
-                        {name}
+                    <Text className="text-[14px] font-semibold" style={{ color: '#1B1F24' }}>
+                        {farm.farmName}
                     </Text>
-
-                    <View className="flex-row items-center mt-1">
-                        <MapPin size={14} color="#6B7280" />
-                        <Text className="text-gray-500 text-sm ml-1">
-                            {location} • {distance}
-                        </Text>
-                    </View>
-
-                    <View className="flex-row items-center mt-1">
-                        <Star size={14} color="#F59E0B" fill="#F59E0B" />
-                        <Text className="text-gray-700 text-sm ml-1">
-                            {rating.toFixed(1)}{" "}
-                            <Text className="text-gray-400">
-                                ({reviews} reviews)
-                            </Text>
+                    <Text className="text-[12px]" style={{ color: '#6B737A' }}>
+                        {farm.addressId}
+                    </Text>
+                    <View className="flex-row items-center gap-1 mt-1">
+                        <Star size={12} color="#FFB380" fill="#FFB380" />
+                        <Text className="text-[10px]" style={{ color: '#9DA3A8' }}>
+                            {/* {farm.rating} ({farm.reviews} reviews) */}
                         </Text>
                     </View>
                 </View>
-            </View>
-
-            <View className="flex-row justify-between items-center px-4 py-3 rounded-xl">
-
-                <Text className="text-gray-500 text-sm font-medium">
-                    100 products available
-                </Text>
-                <TouchableOpacity
-                    // onPress={onViewProductsPress}
-                    className="bg-orange-100 rounded-lg px-4 py-2 ml-2"
+                <View
+                    className="px-2 py-0.5 rounded-full"
+                    style={{ backgroundColor: '#C8E6C9' }}
                 >
-                    <Text className="text-green-600 font-semibold text-sm">
+                    <Text className="text-[8px] font-medium" style={{ color: '#2E7D32' }}>
+                        {/* {farm.tags[0]} */}
+                    </Text>
+                </View>
+            </View>
+            <View className="flex-row justify-between items-center">
+                <Text className="text-[12px]" style={{ color: '#6B737A' }}>
+                    47 products available
+                </Text>
+                <Pressable
+                    className="py-2 px-4"
+                    style={{ backgroundColor: '#FFF5EB', borderRadius: 12 }}
+                    onPress={() => navigator.navigate('FarmDetail', { farmId: String(farm.id) })}
+                >
+                    <Text className="text-[12px] font-semibold" style={{ color: '#4CAF50' }}>
                         View Products
                     </Text>
-                </TouchableOpacity>
+                </Pressable>
             </View>
         </View>
     );
