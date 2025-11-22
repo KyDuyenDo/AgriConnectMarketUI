@@ -14,6 +14,7 @@ import { ProductCustomerGrid } from "@/components/customer-exlore/ProductCustome
 import { Product } from "@/types"
 import { useAllFarm } from "@/hooks/useFarm"
 import { FeaturedFarmers } from "@/components/customer-exlore/FeaturedFarmers"
+import { useCategories } from "@/hooks/useCategories"
 
 
 const farms = [
@@ -142,6 +143,8 @@ export const mockProducts: Product[] = [
 export function ExploreScreen() {
     const [searchQuery, setSearchQuery] = useState("")
     const [selectedFilter, setSelectedFilter] = useState("All")
+
+    const { data: categoriesResponse } = useCategories()
 
     const { data: farmsResponse } = useAllFarm({
         IsMallFarm: false,
@@ -282,8 +285,7 @@ export function ExploreScreen() {
                         </Text>
                     </View>
                     <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row gap-3 pb-2">
-                        {categories.map((category, index) => {
-                            const IconComponent = category.icon
+                        {categoriesResponse?.map((category, index) => {
                             return (
                                 <View key={index} className="flex-col items-center" style={{ minWidth: 60 }}>
                                     <Pressable
@@ -300,13 +302,13 @@ export function ExploreScreen() {
                                             elevation: index === 0 ? 4 : 0
                                         }}
                                     >
-                                        <IconComponent size={24} color={index === 0 ? '#FFFFFF' : '#4CAF50'} />
+                                        {/* <IconComponent size={24} color={index === 0 ? '#FFFFFF' : '#4CAF50'} /> */}
                                     </Pressable>
                                     <Text className="text-[10px] font-medium" style={{ color: '#1B1F24' }}>
-                                        {category.name}
+                                        {category.categoryName}
                                     </Text>
                                     <Text className="text-[8px]" style={{ color: '#9DA3A8' }}>
-                                        {category.count}
+                                        {}count
                                     </Text>
                                 </View>
                             )

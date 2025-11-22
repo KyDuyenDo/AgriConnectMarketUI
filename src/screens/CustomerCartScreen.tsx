@@ -16,7 +16,7 @@ import { customerCartItems } from "@/data/mockData"
 import { calculateCartTotal, calculateTax } from "@/lib/helpers"
 import { useCart, useClearCart } from "@/hooks/useCart"
 import { mapBatchToProductCart } from "@/utils/mapProduct"
-import { useHandleAddToCart } from "@/hooks/custome-hook/cart-hook"
+import { useHandleAddToCart } from "@/hooks/custom/cart-hook"
 import { Alert } from "react-native"
 
 export const CustomerCartScreen: React.FC = () => {

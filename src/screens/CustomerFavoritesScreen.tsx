@@ -13,7 +13,7 @@ import { SafeAreaView } from "react-native-safe-area-context"
 import { Product } from "@/types"
 import { mockProducts } from "./ExploreScreen"
 import { Collection } from "@/components/customer-favorites/CollectionCard"
-import { useHandleAddToCart } from "@/hooks/custome-hook/cart-hook"
+import { useHandleAddToCart } from "@/hooks/custom/cart-hook"
 
 
 const MOCK_COLLECTIONS: Collection[] = [
