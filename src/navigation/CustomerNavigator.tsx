@@ -6,6 +6,7 @@ import CustomerOrdersScreen from "@/screens/CustomerOrdersScreen"
 import CustomerOrderDetailScreen from "@/screens/CustomerOrderDetailScreen"
 import { CustomerBatchDetailScreen } from "@/screens/CustomerBatchDetailScreen"
 import PersonalInformationScreen from "@/screens/PersonalInformationScreen"
+import { CustomerFarmDetailScreen } from "@/screens/CustomerFarmDetailScreen"
 
 export type CustomerStackParamList = {
   MainTabs: undefined
@@ -60,6 +61,11 @@ const CustomerNavigator = () => {
         name="PersonalInformation"
         component={PersonalInformationScreen}
         options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="FarmDetail"
+        component={CustomerFarmDetailScreen}
+        options={{ title: "Farm Detail" }}
       />
     </Stack.Navigator>
   )

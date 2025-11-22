@@ -46,13 +46,13 @@ export function FarmProfile({
                         {farmName}
                     </Text>
                     <Text className="text-sm mb-1" style={{ color: '#6B737A' }}>
-                        {ownerName} • Farmer since {sinceYear}
+                        {`${ownerName} • Farmer since ${sinceYear}`}
                     </Text>
 
                     <View className="flex-row items-center gap-2 mb-2">
                         <Star size={16} color="#FFA726" fill="#FFA726" />
                         <Text className="text-sm" style={{ color: '#6B737A' }}>
-                            {rating} ({reviewCount} reviews)
+                            {`${rating} (${reviewCount} reviews)`}
                         </Text>
                         <View className="w-1 h-1 rounded-full" style={{ backgroundColor: '#E8EAEB' }} />
                         <Text className="text-sm" style={{ color: '#6B737A' }}>

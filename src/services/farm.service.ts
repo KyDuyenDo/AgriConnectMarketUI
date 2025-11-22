@@ -1,5 +1,6 @@
 import apiClient from "@/api/config";
 import { Farm } from "@/types";
+import { FarmQuery, FarmResponse } from "@/types/farm";
 
 const FarmService = {
     getFarmByMe: async (): Promise<Farm> => {
@@ -43,6 +44,16 @@ const FarmService = {
 
     deleteCertificate: async (farmId: string): Promise<void> => {
         await apiClient.delete(`/api/farms/${farmId}/certificate`);
+    },
+
+    getAllFarm: async (query: FarmQuery): Promise<FarmResponse> => {
+        const response = await apiClient.get<FarmResponse>("/api/farms", { params: query });
+        return response.data;
+    },
+
+    getFarmById: async (farmId: string): Promise<Farm> => {
+        const response = await apiClient.get<{ success: boolean; message: string; data: Farm }>(`/api/farms/${farmId}`);
+        return response.data.data;
     },
 };
 

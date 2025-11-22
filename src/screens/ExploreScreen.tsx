@@ -12,6 +12,8 @@ import { SafeAreaView } from "react-native-safe-area-context"
 import { Search, ShoppingCart, SlidersHorizontal, ArrowUpDown, Star, Apple, Carrot, Wheat, Leaf, Milk, Plus, Heart } from "lucide-react-native"
 import { ProductCustomerGrid } from "@/components/customer-exlore/ProductCustomerGird"
 import { Product } from "@/types"
+import { useAllFarm } from "@/hooks/useFarm"
+import { FeaturedFarmers } from "@/components/customer-exlore/FeaturedFarmers"
 
 
 const farms = [
@@ -140,6 +142,20 @@ export const mockProducts: Product[] = [
 export function ExploreScreen() {
     const [searchQuery, setSearchQuery] = useState("")
     const [selectedFilter, setSelectedFilter] = useState("All")
+
+    const { data: farmsResponse } = useAllFarm({
+        IsMallFarm: false,
+        searchTerm: searchQuery,
+    })
+
+    // const farmsList = farmsResponse?.data?.map((farm: any) => ({
+    //     id: farm.id,
+    //     image: farm.bannerUrl || "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee",
+    //     name: farm.farmName,
+    //     location: farm.addressId || "Unknown Location",
+    //     tags: [farm.isValidForSelling ? "Verified" : "Pending"],
+    //     phone: farm.phone,
+    // })) || []
 
     const categories = [
         { icon: Apple, name: "Fruits", count: 124, color: "#4CAF50" },
@@ -344,76 +360,7 @@ export function ExploreScreen() {
                 <ProductCustomerGrid searchQuery={searchQuery} products={mockProducts} />
 
                 {/* Featured Farmers */}
-                <View className="px-4 mb-4">
-                    <View className="flex-row justify-between items-center mb-3">
-                        <Text className="text-[16px] font-semibold" style={{ color: '#1B1F24' }}>
-                            Featured Farmers
-                        </Text>
-                        <Text className="text-[12px] font-medium" style={{ color: '#4CAF50' }}>
-                            View All
-                        </Text>
-                    </View>
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row gap-3 pb-2">
-                        {farms.map((farm) => (
-                            <View
-                                key={farm.id}
-                                className="p-4"
-                                style={{
-                                    minWidth: 280,
-                                    backgroundColor: '#FFFFFF',
-                                    borderRadius: 16,
-                                    shadowColor: '#000',
-                                    shadowOffset: { width: 0, height: 2 },
-                                    shadowOpacity: 0.08,
-                                    shadowRadius: 8,
-                                    elevation: 3
-                                }}
-                            >
-                                <View className="flex-row items-center mb-3">
-                                    <Image
-                                        source={{ uri: farm.image }}
-                                        className="w-12 h-12 rounded-full mr-3"
-                                    />
-                                    <View className="flex-1">
-                                        <Text className="text-[14px] font-semibold" style={{ color: '#1B1F24' }}>
-                                            {farm.name}
-                                        </Text>
-                                        <Text className="text-[12px]" style={{ color: '#6B737A' }}>
-                                            {farm.location} • {farm.distance}
-                                        </Text>
-                                        <View className="flex-row items-center gap-1 mt-1">
-                                            <Star size={12} color="#FFB380" fill="#FFB380" />
-                                            <Text className="text-[10px]" style={{ color: '#9DA3A8' }}>
-                                                {farm.rating} ({farm.reviews} reviews)
-                                            </Text>
-                                        </View>
-                                    </View>
-                                    <View
-                                        className="px-2 py-0.5 rounded-full"
-                                        style={{ backgroundColor: '#C8E6C9' }}
-                                    >
-                                        <Text className="text-[8px] font-medium" style={{ color: '#2E7D32' }}>
-                                            {farm.tags[0]}
-                                        </Text>
-                                    </View>
-                                </View>
-                                <View className="flex-row justify-between items-center">
-                                    <Text className="text-[12px]" style={{ color: '#6B737A' }}>
-                                        47 products available
-                                    </Text>
-                                    <Pressable
-                                        className="py-2 px-4"
-                                        style={{ backgroundColor: '#FFF5EB', borderRadius: 12 }}
-                                    >
-                                        <Text className="text-[12px] font-semibold" style={{ color: '#4CAF50' }}>
-                                            View Products
-                                        </Text>
-                                    </Pressable>
-                                </View>
-                            </View>
-                        ))}
-                    </ScrollView>
-                </View>
+                <FeaturedFarmers Farmers={farmsResponse?.data || []} />
             </ScrollView>
         </SafeAreaView>
     )
