@@ -7,6 +7,8 @@ import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { ArrowLeft, MoreVertical, Share2 } from 'lucide-react-native';
 import { useSeason } from '@/hooks/useSeason';
 import { useProductBatches } from '@/hooks/useProductBatches';
+import { useComputedSeasonProgress } from '@/hooks/useComputedSeasonProgress';
+import { SeasonProgressStepper } from '@/components/farm-seasons/SeasonProgressStepper';
 import { SeasonHeaderCard } from '@/components/farm-seasons/SeasonHeaderCard';
 import { SeasonStats } from '@/components/farm-seasons/SeasonStats';
 import { BatchList } from '@/components/farm-seasons/BatchList';
@@ -28,6 +30,12 @@ export default function SeasonDetailScreen() {
         totalValue,
         refetch: refetchBatches
     } = useProductBatches(seasonId);
+
+    const { percent } = useComputedSeasonProgress({
+        status: season?.status || '',
+        startDate: season?.startDate,
+        endDate: season?.endDate,
+    });
 
     const onRefresh = () => {
         refetchSeason();
@@ -103,14 +111,21 @@ export default function SeasonDetailScreen() {
                     <RefreshControl refreshing={isLoadingBatches} onRefresh={onRefresh} colors={['#16a34a']} />
                 }
             >
+                {/* Season Progress Stepper */}
+                <SeasonProgressStepper status={season.status} />
+
+                {/* Season Header Card */}
                 <SeasonHeaderCard season={season} />
 
+                {/* Season Stats */}
                 <SeasonStats
                     batchCount={batchCount}
                     totalYield={totalQuantity}
                     totalValue={totalValue}
+                    progressPercent={percent}
                 />
 
+                {/* Batch List */}
                 <View className="mt-2">
                     <BatchList
                         batches={batches || []}
@@ -121,3 +136,4 @@ export default function SeasonDetailScreen() {
         </SafeAreaView>
     );
 }
+

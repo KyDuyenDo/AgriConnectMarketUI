@@ -92,7 +92,7 @@ export default function FarmSeasonsScreen() {
                     <RefreshControl refreshing={isLoading} onRefresh={refetch} colors={['#16a34a']} />
                 }
             >
-                {isLoading && !seasons ? (
+                {!seasons ? (
                     <View className="mt-8 items-center">
                         <ActivityIndicator size="large" color="#16a34a" />
                         <Text className="text-gray-500 mt-4">Loading seasons...</Text>
