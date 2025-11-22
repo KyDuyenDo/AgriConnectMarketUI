@@ -1,7 +1,7 @@
 import { View, Text, TouchableOpacity } from "react-native"
 import { ChevronRight, Sprout, Eye, Plus, BarChart3, PlusCircle } from "lucide-react-native"
 import { NativeStackNavigationProp } from "node_modules/@react-navigation/native-stack/lib/typescript/src/types"
-import { FarmStackParamList } from "@/navigation/FarmNavigator"
+import { FarmStackParamList } from "@/navigation/types"
 import { useNavigation } from "@react-navigation/native"
 
 

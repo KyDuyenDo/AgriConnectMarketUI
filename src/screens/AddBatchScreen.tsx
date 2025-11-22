@@ -18,7 +18,7 @@ import * as yup from "yup";
 import { Picker } from "@react-native-picker/picker";
 import { useSeasons } from "@/hooks/useSeasons";
 import { useCreateBatch } from "@/hooks/useBatches";
-import { FarmStackParamList } from "@/navigation/FarmNavigator";
+import { FarmStackParamList } from "@/navigation/types";
 
 const schema = yup.object({
     seasonId: yup.string().required("Season is required"),

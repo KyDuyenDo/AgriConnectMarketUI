@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity, Image } from "react-native";
 import { Leaf, Apple, Cherry, Grape, Sprout, Wheat, Carrot } from "lucide-react-native";
 
 export type CropType = "Leaf" | "Carrot" | "Wheat" | "Apple" | "Cherry" | "Grape" | "Sprout";
@@ -10,7 +10,30 @@ interface SeasonCardProps {
     acres: number;
     status: "Growing" | "Planting" | "Harvesting";
     onPress?: () => void;
+    categoryName?: string;
+    productName?: string;
+    categoryImageUrl?: string;
 }
+
+// Helper function to format ISO date to DD-MM-YYYY
+const formatDate = (dateString: string): string => {
+    try {
+        const date = new Date(dateString);
+        const day = String(date.getDate()).padStart(2, "0");
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const year = date.getFullYear();
+        return `${day}-${month}-${year}`;
+    } catch {
+        return dateString; // Return original if parsing fails
+    }
+};
+
+// Helper function to format date range
+const formatDateRange = (startDate: string, endDate: string): string => {
+    const formattedStart = formatDate(startDate);
+    const formattedEnd = formatDate(endDate);
+    return `${formattedStart} - ${formattedEnd}`;
+};
 
 export function SeasonCard({
     seasonName,
@@ -19,6 +42,9 @@ export function SeasonCard({
     acres,
     status,
     onPress,
+    categoryName,
+    productName,
+    categoryImageUrl,
 }: SeasonCardProps) {
     const getStatusColor = () => {
         switch (status) {
@@ -55,7 +81,15 @@ export function SeasonCard({
     return (
         <View className="bg-white rounded-xl p-4 mb-3 shadow-sm border border-gray-100">
             <View className="flex-row justify-between items-start mb-2">
-                <Text className="text-lg font-semibold text-gray-900">{seasonName}</Text>
+                <View className="flex-1">
+                    <Text className="text-lg font-semibold text-gray-900">{seasonName}</Text>
+                    {productName && (
+                        <Text className="text-sm text-gray-600 mt-1">{productName}</Text>
+                    )}
+                    {categoryName && (
+                        <Text className="text-xs text-gray-500 mt-0.5">{categoryName}</Text>
+                    )}
+                </View>
                 <View style={{ backgroundColor: bg }} className="px-3 py-1 rounded-full">
                     <Text style={{ color: text }} className="text-xs font-medium">
                         {status}
@@ -63,8 +97,17 @@ export function SeasonCard({
                 </View>
             </View>
 
-            <View className="flex-row mb-3">
-                {crops.map((crop, index) => getCropIcon(crop, index))}
+            <View className="flex-row items-center mb-3">
+                {categoryImageUrl ? (
+                    <Image
+                        source={{ uri: categoryImageUrl }}
+                        className="w-12 h-12 rounded-lg mr-3"
+                        resizeMode="cover"
+                    />
+                ) : null}
+                <View className="flex-row flex-wrap flex-1">
+                    {crops.map((crop, index) => getCropIcon(crop, index))}
+                </View>
             </View>
 
             <View className="flex-row justify-between items-center mt-2">
@@ -78,3 +121,7 @@ export function SeasonCard({
         </View>
     );
 }
+
+// Export the format functions for use in other components
+export { formatDate, formatDateRange };
+

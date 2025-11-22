@@ -17,29 +17,17 @@ import AddLotBatchScreen from '@/screens/AddLotBatchScreen'; // Keeping for now 
 import PersonalInformationScreen from '@/screens/PersonalInformationScreen';
 import AddCategoryScreen from '@/screens/AddCategoryScreen';
 import AddProductScreen from '@/screens/AddProductScreen';
+import FarmStatisticsScreen from '@/screens/FarmStatisticsScreen';
+import FarmCertificatesScreen from '@/screens/FarmCertificatesScreen';
+import FarmSeasonsScreen from '@/screens/FarmSeasonsScreen';
+import FarmProductsManagementScreen from '@/screens/FarmProductsManagementScreen';
 
-export type FarmStackParamList = {
-    MainTabs: undefined;
-    Dashboard: undefined;
-    AddSeason: undefined;
-    SeasonDetail: { seasonId: string };
-    AddLot: { seasonId?: string }; // Updated to accept seasonId
-    LotDetail: { lotId: string };
-    AddCropLog: undefined;
-    FarmDetail: { farmId: string };
-    AddProduct: undefined;
-    AddCategory: undefined;
-    EditProduct: { productId: string };
-    FarmerOrders: { farmerId: string };
-    FarmerOrderDetail: { orderId: string };
-    FarmSetupInformation: { farmId: string };
-    FarmProductDetailReviews: { productId: string };
-    PersonalInformation: undefined;
-};
+import { FarmStackParamList } from './types';
 
 const Stack = createNativeStackNavigator<FarmStackParamList>();
 
 export default function FarmNavigator() {
+    console.log("Rendering FarmNavigator");
     return (
         <Stack.Navigator
             screenOptions={{
@@ -113,6 +101,27 @@ export default function FarmNavigator() {
             <Stack.Screen
                 name="PersonalInformation"
                 component={PersonalInformationScreen}
+                options={{ headerShown: false }}
+            />
+
+            <Stack.Screen
+                name="FarmStatistics"
+                component={FarmStatisticsScreen}
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name="FarmCertificates"
+                component={FarmCertificatesScreen}
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name="FarmSeasons"
+                component={FarmSeasonsScreen}
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name="FarmProductsManagement"
+                component={FarmProductsManagementScreen}
                 options={{ headerShown: false }}
             />
         </Stack.Navigator>

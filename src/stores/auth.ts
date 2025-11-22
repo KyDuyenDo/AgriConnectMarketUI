@@ -20,7 +20,7 @@ export const useAuthStore = create<AuthState>(
       accountId: null,
       userId: null,
       role: null,
-      isAuthenticated:true,
+      isAuthenticated: true,
 
       login: (token, accountId, userId, role) => {
         set({
@@ -46,7 +46,6 @@ export const useAuthStore = create<AuthState>(
         const status = error?.response?.status
 
         if (status === 401 || status === 403) {
-          console.log("Token hết hạn → Auto logout")
           get().logout()
         }
       },

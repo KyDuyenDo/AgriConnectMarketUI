@@ -1,75 +1,109 @@
+✅ 1. API: GET /api/seasons/{seasonId}
+📌 Purpose
 
----
-1. Farm APIs
-Method | Endpoint | Parameters | Request Body | Response
-POST | /api/farms | None | multipart/form-data: 
-- FarmName: string
-- FarmDesc: string
-- Phone: string
-- Area: string
-- FarmerId: string($uuid)
-- Province, District, Ward, Detail: string
-- FarmBanner: string($binary) | 200 OK
-GET | /api/farms/me | None | None | 200 OK / 400 if user not authenticated
-POST | /api/farms/{farmId}/certificate | farmId (path) | multipart/form-data:
-- FarmId: string($uuid)
-- Certificate: string($binary) | 200 OK
-DELETE | /api/farms/{farmId}/certificate | farmId (path) | None | 200 OK
-PUT | /api/farms/{farmId}/certificates | farmId (path) | multipart/form-data:
-- FarmId: string($uuid)
-- Certificate: string($binary) | 200 OK
+Fetch detailed information for one specific Season.
 
-2. Season APIs
-Method | Endpoint | Parameters | Request Body | Response
-GET | /api/seasons | searchTerm (query, optional) | None | 200 OK
-POST | /api/seasons | None | application/json:
-- seasonName: string
-- seasonDesc: string
-- startDate, endDate: datetime
-- farmId, productId: string($uuid) | 200 OK
-GET | /api/seasons/{seasonId} | seasonId (path) | None | 200 OK
-PUT | /api/seasons/{seasonId} | seasonId (path) | application/json:
-- seasonName, seasonDesc, status: string
-- startDate, endDate: datetime | 200 OK
-DELETE | /api/seasons/{seasonId} | seasonId (path) | None | 200 OK
-PATCH | /api/seasons/{seasonId} | seasonId (path) | None | 200 OK
+📥 Input (Path Parameter)
+Name	Type	Required	Description
+seasonId	UUID	Yes	The ID of the season to retrieve
+📤 Response (200 OK)
 
-3. Product Batch APIs
-Method | Endpoint | Parameters | Request Body | Response
-GET | /api/product-batches/${seasonId} | seasonId (path) | None | 200 OK
-POST | /api/product-batches | None | application/json:
-- seasonId: string($uuid)
-- totalYield, availableQuantity: number
-- units: string
-- plantingDate: datetime
-- isActive: boolean
-- price: number | 200 OK
-PATCH | /api/product-batches/${batchId} | batchId (path) | application/json:
-- soldQuantity: number | 200 OK
----
-4. Category APIs
-GET /api/categories
-- Get all categories
-POST /api/categories
-- Create category (multipart/form-data):
-  - CategoryName: string
-  - CategoryDesc: string
-  - IllustractiveImage: file
-DELETE /api/categories/{categoryId}
-- Delete category by ID
+Returns a single Season object with fields such as:
 
-5. Product APIs
-GET /api/products?searchTerm&categoryId&location
-- Get product list with filters
-POST /api/products
-- Create product (application/json):
-  - productName: string
-  - productAttribute: string
-  - productDesc: string
-  - categoryId: uuid
-GET /api/products/{productId}
-- Get product details
-PUT /api/products/{productId}
-- Update product
-DELETE /api/products/{productId}
-- Delete product
+Field	Description
+Id	Season ID
+SeasonName	Name of the season
+SeasonDesc	Description
+Status	Status (Pending, Active, Done…)
+StartDate	Start date
+EndDate	End date
+CreatedAt	Creation timestamp
+CreatedBy	Creator
+UpdatedAt	Latest update timestamp
+UpdatedBy	Updater
+FarmId	Farm linked to this season
+ProductId	Product grown in this season
+📝 Usage
+
+Season detail page
+
+Pre-fill update form
+
+Display farmer’s season timeline
+
+✅ 2. API: GET /api/product-batches/{seasonId}
+📌 Purpose
+
+Retrieve all product batches belonging to a specific Season.
+
+📥 Input (Path Parameter)
+Name	Type	Required	Description
+seasonId	UUID	Yes	ID of the season whose batches should be returned
+📤 Response (200 OK)
+
+Returns a list of ProductBatch objects, each containing:
+
+Field	Description
+Id	Batch ID
+SeasonName	Name of the season
+SeasonDesc	Description
+Status	Batch status
+StartDate	Start date
+EndDate	End date
+CreatedAt	Timestamp created
+FarmId	Farm related to batch
+ProductId	Product related to batch
+📝 Usage
+
+Display all batches inside a Season
+
+Batch management UI
+
+Show production progress
+
+✅ 3. API: GET /api/products/{productId}
+📌 Purpose
+
+Fetch detailed information for one specific Product.
+
+📥 Input (Path Parameter)
+Name	Type	Required	Description
+productId	UUID	Yes	The ID of the product to retrieve
+📤 Response (200 OK)
+
+Returns:
+
+{
+  "success": true,
+  "message": "Retrieving data successfully!",
+  "data": {
+    "productName": "Bánh",
+    "productAttribute": "hdjdh",
+    "productDesc": "Ưbxnnd",
+    "categoryId": "a8ba5142-474d-46e7-32ff-08de2965ff1e",
+    "createdAt": "2025-11-22T01:25:42.898515",
+    "id": "9436a591-3bc0-46d0-d2ab-08de29660dd6"
+  }
+}
+
+Product fields meaning:
+Field	Description
+productName	Name of the product
+productAttribute	Additional attributes (e.g., size, variety, type)
+productDesc	Product description
+categoryId	Category this product belongs to
+createdAt	Timestamp when product was created
+id	Product ID
+📝 Usage
+
+Display product information inside Season Details
+
+When creating a Season or Batch, fetch the selected Product info
+
+Product detail screen
+
+🎯 How the three APIs relate
+API	Returns	Purpose
+GET /api/seasons/{seasonId}	1 Season	Season details
+GET /api/product-batches/{seasonId}	List<Batch>	All batches in the season
+GET /api/products/{productId}	1 Product	Product information used in the Season

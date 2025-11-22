@@ -27,11 +27,10 @@ const apiClient = axios.create({
 
 apiClient.interceptors.response.use(
     response => {
-        // console.log('Response:', response);
         return response;
     },
     error => {
-        if (error.response && error.response.status === 401) {
+        if (error.response && error.response.status === 400) {
             useAuthStore.getState().logout();
         }
         return Promise.reject(error);
