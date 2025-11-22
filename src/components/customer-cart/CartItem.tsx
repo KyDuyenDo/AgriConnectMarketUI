@@ -1,7 +1,8 @@
 import { View, Text, Image, Pressable } from 'react-native';
-import { Minus, Plus, Trash2 } from 'lucide-react-native';
+import { Minus, Plus, Trash2, Check } from 'lucide-react-native';
 
 interface CartItemProps {
+    id: string;
     image: string;
     name: string;
     farm: string;
@@ -11,12 +12,15 @@ interface CartItemProps {
     unitPrice: string;
     total: string;
     unit: string;
+    isSelected?: boolean;
+    onSelect?: (id: string) => void;
     onIncrement?: () => void;
     onDecrement?: () => void;
-    onDelete?: () => void;
+    onDelete: (id: string) => void;
 }
 
 export function CartItem({
+    id,
     image,
     name,
     farm,
@@ -26,6 +30,8 @@ export function CartItem({
     unitPrice,
     total,
     unit,
+    isSelected = false,
+    onSelect,
     onIncrement,
     onDecrement,
     onDelete
@@ -36,6 +42,19 @@ export function CartItem({
 
     return (
         <View className="flex-row items-start gap-3 pb-4 mb-4 border-b border-[#F0F0F0]">
+            {/* Checkbox */}
+            <Pressable
+                onPress={() => onSelect?.(id)}
+                className="w-5 h-5 rounded items-center justify-center mt-1"
+                style={{
+                    backgroundColor: isSelected ? '#4CAF50' : '#ffffff',
+                    borderWidth: 2,
+                    borderColor: isSelected ? '#4CAF50' : '#D0D0D0'
+                }}
+            >
+                {isSelected && <Check size={14} color="#ffffff" strokeWidth={3} />}
+            </Pressable>
+
             <Image source={{ uri: image }} className="w-20 h-20 rounded-lg" resizeMode="cover" />
 
             <View className="flex-1">
@@ -56,7 +75,7 @@ export function CartItem({
                     </View>
 
                     <Pressable
-                        onPress={onDelete}
+                        onPress={() => onDelete(id)}
                         className="w-8 h-8 rounded-lg items-center justify-center bg-[#FDECEA]"
                     >
                         <Trash2 size={14} color="#E74C3C" />

@@ -13,6 +13,7 @@ import { SafeAreaView } from "react-native-safe-area-context"
 import { Product } from "@/types"
 import { mockProducts } from "./ExploreScreen"
 import { Collection } from "@/components/customer-favorites/CollectionCard"
+import { useHandleAddToCart } from "@/hooks/custome-hook/cart-hook"
 
 
 const MOCK_COLLECTIONS: Collection[] = [
@@ -48,6 +49,7 @@ const MOCK_COLLECTIONS: Collection[] = [
 
 export function CustomerFavoritesScreen() {
   const [searchQuery, setSearchQuery] = useState("")
+  const { handleAddToCart, isPending } = useHandleAddToCart()
 
   return (
     <SafeAreaView className="flex-1" style={{ backgroundColor: '#F9FAF9' }}>
@@ -62,7 +64,7 @@ export function CustomerFavoritesScreen() {
 
         <ActionButtonRow />
 
-        <AllFavorites searchQuery={searchQuery} products={mockProducts} />
+        <AllFavorites searchQuery={searchQuery} products={mockProducts} onAddToCart={handleAddToCart} />
 
         <PriceInsightsGrid products={mockProducts} />
 

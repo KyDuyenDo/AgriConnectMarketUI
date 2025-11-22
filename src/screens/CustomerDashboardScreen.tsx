@@ -5,6 +5,7 @@ import { SpecialOffersCard } from "@/components/customer-dashboard/SpecialOffers
 import { YourCartCard } from "@/components/customer-dashboard/YourCartCard"
 import { YourFavoriteCard } from "@/components/customer-dashboard/YourFavoriteCard"
 import { cartItems, recentOrders, favoriteProducts } from "@/data/mockData"
+import { useCart } from "@/hooks/useCart"
 import { Clock, Heart, Locate, ShoppingBasket } from "lucide-react-native"
 import type React from "react"
 import { useState } from "react"
@@ -13,7 +14,9 @@ import { SafeAreaView } from "react-native-safe-area-context"
 
 export const CustomerDashboardScreen: React.FC = () => {
   const [favorites, setFavorites] = useState(favoriteProducts)
-
+  const {data: Cart } = useCart()
+  console.log(Cart?.value?.id)
+  
   const handleToggleFavorite = (id: string) => {
     setFavorites(favorites.map((fav) => (fav.id === id ? { ...fav, isFavorite: !fav.isFavorite } : fav)))
   }

@@ -7,6 +7,7 @@ interface ProductCardProps {
     product: Product
     toggleFavorite: (id: string) => void
     onPress?: () => void
+    onAddToCart?: () => void
 }
 
 const RatingInfo = ({ rating, numRatings }: { rating?: number; numRatings?: number }) => {
@@ -42,7 +43,7 @@ const FavoriteButton = ({
     )
 }
 
-const PriceSection = ({ price, unit }: { price: string; unit: string }) => {
+const PriceSection = ({ price, unit, onPress }: { price: string; unit: string; onPress?: () => void }) => {
     return (
         <View className="flex-row items-center justify-between">
             <Text className="text-[14px] font-bold" style={{ color: '#4CAF50' }}>
@@ -51,6 +52,7 @@ const PriceSection = ({ price, unit }: { price: string; unit: string }) => {
             <TouchableOpacity
                 className="w-6 h-6 rounded-full items-center justify-center"
                 style={{ backgroundColor: '#4CAF50' }}
+                onPress={onPress}
             >
                 <Plus size={12} color="white" />
             </TouchableOpacity>
@@ -58,7 +60,7 @@ const PriceSection = ({ price, unit }: { price: string; unit: string }) => {
     )
 }
 
-export const ProductCard: React.FC<ProductCardProps> = ({ product, toggleFavorite, onPress }) => {
+export const ProductCard: React.FC<ProductCardProps> = ({ product, toggleFavorite, onPress, onAddToCart }) => {
     // Determine badge info based on product status
     const getBadgeInfo = () => {
         if (product.status === "Out of Stock") {
@@ -123,7 +125,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, toggleFavorit
                 </View>
 
                 {/* Price and Add Button */}
-                <PriceSection price={product.price} unit={product.unit} />
+                <PriceSection price={product.price} unit={product.unit} onPress={onAddToCart} />
             </View>
         </Pressable>
     )

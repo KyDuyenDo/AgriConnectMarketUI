@@ -121,3 +121,9 @@ export type RegisterRequest = {
   IsFarmer: boolean;
   Avatar: File;
 }
+
+export interface CartRequest {
+  cartId: string,
+  batchId: string,
+  quantity: 1
+}
