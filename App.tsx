@@ -13,6 +13,7 @@ import { enableScreens } from "react-native-screens"
 import { SafeAreaProvider } from "react-native-safe-area-context"
 import { CustomerBatchDetailScreen } from "@/screens/CustomerBatchDetailScreen"
 import { CustomerCartScreen } from "@/screens/CustomerCartScreen"
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import CustomerNavigator from "@/navigation/CustomerNavigator"
 import { useState } from "react"
@@ -27,21 +28,23 @@ export default function App() {
   console.log("App: isAuthenticated:", isAuthenticated, "isFarmer:", isFarmer)
 
   return (
-    <SafeAreaProvider>
-      <QueryProvider>
-        <NavigationContainer>
-          {isAuthenticated ? (
-            isFarmer ? (
-              <FarmNavigator />
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <QueryProvider>
+          <NavigationContainer>
+            {isAuthenticated ? (
+              isFarmer ? (
+                <FarmNavigator />
+              ) : (
+                <CustomerNavigator />
+              )
             ) : (
-              <CustomerNavigator />
-            )
-          ) : (
-            <AuthNavigator />
-          )}
-        </NavigationContainer>
-        <StatusBar style="dark" />
-      </QueryProvider>
-    </SafeAreaProvider>
+              <AuthNavigator />
+            )}
+          </NavigationContainer>
+          <StatusBar style="dark" />
+        </QueryProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   )
 }

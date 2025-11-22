@@ -1,4 +1,4 @@
-import { FarmStackParamList } from "@/navigation/FarmNavigator"
+import { FarmStackParamList } from "@/navigation/types"
 import { useNavigation } from "@react-navigation/native"
 import { NativeStackNavigationProp } from "node_modules/@react-navigation/native-stack/lib/typescript/src/types"
 import { View, Text, Image, TouchableOpacity } from "react-native"

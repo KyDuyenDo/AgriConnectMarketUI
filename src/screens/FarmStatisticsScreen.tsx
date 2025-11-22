@@ -11,7 +11,7 @@ import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeft } from 'lucide-react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { FarmStackParamList } from '@/navigation/FarmNavigator';
+import { FarmStackParamList } from '@/navigation/types';
 import { useFarmStatistics } from '@/hooks/custom/useFarmStatistics';
 import { FarmStatCard } from '@/components/farm/FarmStatCard';
 

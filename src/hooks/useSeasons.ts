@@ -1,58 +1,86 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import SeasonService from "@/services/seasons.service";
-import { Season } from "@/types";
+import { useQuery } from '@tanstack/react-query';
+import { getSeasonsByFarm } from '@/api/services/seasonService';
+import { Season } from '@/types/season';
+import { useMemo } from 'react';
 
-const SEASON_QUERY_KEYS = {
-    all: ["seasons"] as const,
-    detail: (id: string) => ["seasons", id] as const,
-};
+interface UseSeasonsOptions {
+    search?: string;
+    sortBy?: 'date' | 'status' | 'category' | 'product';
+    sortOrder?: 'asc' | 'desc';
+}
 
-export const useSeasons = (searchTerm?: string) => {
-    return useQuery<Season[]>({
-        queryKey: [...SEASON_QUERY_KEYS.all, searchTerm],
-        queryFn: () => SeasonService.getAll(searchTerm),
+export function useSeasons(farmId?: string, options: UseSeasonsOptions = {}) {
+    const { search, sortBy, sortOrder = 'desc' } = options;
+
+    const query = useQuery({
+        queryKey: ['seasons', farmId],
+        queryFn: () => (farmId ? getSeasonsByFarm(farmId) : Promise.resolve([])),
+        enabled: !!farmId,
     });
-};
 
-export const useSeasonById = (id: string) => {
-    return useQuery<Season>({
-        queryKey: SEASON_QUERY_KEYS.detail(id),
-        queryFn: () => SeasonService.getById(id),
-        enabled: !!id,
-    });
-};
+    const seasons = useMemo(() => {
+        if (!query.data) return [];
+        let result = [...query.data];
 
-export const useCreateSeason = () => {
+        // Filter
+        if (search) {
+            const lowerSearch = search.toLowerCase();
+            result = result.filter(s =>
+                s.seasonName?.toLowerCase().includes(lowerSearch) ||
+                s.product?.productName?.toLowerCase().includes(lowerSearch) ||
+                s.product?.category?.categoryName?.toLowerCase().includes(lowerSearch)
+            );
+        }
+
+        // Sort
+        if (sortBy) {
+            result.sort((a, b) => {
+                let valA: any = '';
+                let valB: any = '';
+
+                switch (sortBy) {
+                    case 'date':
+                        valA = new Date(a.startDate || 0).getTime();
+                        valB = new Date(b.startDate || 0).getTime();
+                        break;
+                    case 'status':
+                        valA = a.status || '';
+                        valB = b.status || '';
+                        break;
+                    case 'category':
+                        valA = a.product?.category?.categoryName || '';
+                        valB = b.product?.category?.categoryName || '';
+                        break;
+                    case 'product':
+                        valA = a.product?.productName || '';
+                        valB = b.product?.productName || '';
+                        break;
+                    default:
+                        return 0;
+                }
+
+                if (valA < valB) return sortOrder === 'asc' ? -1 : 1;
+                if (valA > valB) return sortOrder === 'asc' ? 1 : -1;
+                return 0;
+            });
+        }
+
+        return result;
+    }, [query.data, search, sortBy, sortOrder]);
+
+    return { ...query, seasons };
+}
+
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { createSeason } from '@/api/services/seasonService';
+
+export function useCreateSeason() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: (data: Partial<Season>) => SeasonService.create(data),
+        mutationFn: createSeason,
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: SEASON_QUERY_KEYS.all });
+            queryClient.invalidateQueries({ queryKey: ['seasons'] });
         },
     });
-};
-
-export const useUpdateSeason = () => {
-    const queryClient = useQueryClient();
-
-    return useMutation({
-        mutationFn: ({ id, data }: { id: string; data: Partial<Season> }) =>
-            SeasonService.update(id, data),
-        onSuccess: (_data, variables) => {
-            queryClient.invalidateQueries({ queryKey: SEASON_QUERY_KEYS.detail(variables.id) });
-            queryClient.invalidateQueries({ queryKey: SEASON_QUERY_KEYS.all });
-        },
-    });
-};
-
-export const useDeleteSeason = () => {
-    const queryClient = useQueryClient();
-
-    return useMutation({
-        mutationFn: (id: string) => SeasonService.delete(id),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: SEASON_QUERY_KEYS.all });
-        },
-    });
-};
+}

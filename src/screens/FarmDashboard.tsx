@@ -5,7 +5,7 @@ import { QuickAnalystSection } from "@/components/farmer-dashboard/QuickAnalystS
 import { RecentOrdersSection } from "@/components/farmer-dashboard/RecentOrdersSection"
 import { TopProductsSection } from "@/components/farmer-dashboard/TopProductsSection"
 import { WeeklySalesSection } from "@/components/farmer-dashboard/WeeklySalesSection"
-import { FarmStackParamList } from "@/navigation/FarmNavigator"
+import { FarmStackParamList } from "@/navigation/types"
 import { useNavigation } from "@react-navigation/native"
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { Platform, ScrollView } from "react-native"

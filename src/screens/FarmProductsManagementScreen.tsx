@@ -10,7 +10,7 @@ import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeft, Tag, Package } from 'lucide-react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { FarmStackParamList } from '@/navigation/FarmNavigator';
+import { FarmStackParamList } from '@/navigation/types';
 
 type Nav = NativeStackNavigationProp<FarmStackParamList>;
 

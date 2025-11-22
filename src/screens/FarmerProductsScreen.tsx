@@ -3,7 +3,7 @@ import { View, ScrollView, Platform, TouchableOpacity, Text, ActivityIndicator, 
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Plus, Search, Filter } from "lucide-react-native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { FarmStackParamList } from "@/navigation/FarmNavigator";
+import { FarmStackParamList } from "@/navigation/types";
 import { useNavigation } from "@react-navigation/native";
 import { useAllBatches } from "@/hooks/useBatches";
 import { Batch } from "@/types";

@@ -30,7 +30,7 @@ apiClient.interceptors.response.use(
         return response;
     },
     error => {
-        if (error.response && error.response.status === 400 || error.response.status === 405) {
+        if (error.response && error.response.status === 400) {
             useAuthStore.getState().logout();
         }
         return Promise.reject(error);

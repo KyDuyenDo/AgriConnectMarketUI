@@ -22,32 +22,12 @@ import FarmCertificatesScreen from '@/screens/FarmCertificatesScreen';
 import FarmSeasonsScreen from '@/screens/FarmSeasonsScreen';
 import FarmProductsManagementScreen from '@/screens/FarmProductsManagementScreen';
 
-export type FarmStackParamList = {
-    MainTabs: undefined;
-    Dashboard: undefined;
-    AddSeason: { farmId: string };
-    SeasonDetail: { seasonId: string };
-    AddLot: { seasonId?: string }; // Updated to accept seasonId
-    LotDetail: { lotId: string };
-    AddCropLog: undefined;
-    FarmDetail: { farmId: string };
-    AddProduct: undefined;
-    AddCategory: undefined;
-    EditProduct: { productId: string };
-    FarmerOrders: { farmerId: string };
-    FarmerOrderDetail: { orderId: string };
-    FarmSetupInformation: { farmId: string };
-    FarmProductDetailReviews: { productId: string };
-    PersonalInformation: undefined;
-    FarmStatistics: undefined;
-    FarmCertificates: { farmId: string };
-    FarmSeasons: { farmId: string };
-    FarmProductsManagement: undefined;
-};
+import { FarmStackParamList } from './types';
 
 const Stack = createNativeStackNavigator<FarmStackParamList>();
 
 export default function FarmNavigator() {
+    console.log("Rendering FarmNavigator");
     return (
         <Stack.Navigator
             screenOptions={{

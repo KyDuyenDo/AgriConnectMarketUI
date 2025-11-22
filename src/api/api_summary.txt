@@ -1,184 +1,109 @@
-1. POST /api/farms – Create a Farm
+✅ 1. API: GET /api/seasons/{seasonId}
+📌 Purpose
 
-Description:
-Creates a new farm with basic information and an uploaded banner image.
+Fetch detailed information for one specific Season.
 
-Request Type: multipart/form-data
+📥 Input (Path Parameter)
+Name	Type	Required	Description
+seasonId	UUID	Yes	The ID of the season to retrieve
+📤 Response (200 OK)
 
-Body fields:
+Returns a single Season object with fields such as:
 
-FarmName (string) – required
+Field	Description
+Id	Season ID
+SeasonName	Name of the season
+SeasonDesc	Description
+Status	Status (Pending, Active, Done…)
+StartDate	Start date
+EndDate	End date
+CreatedAt	Creation timestamp
+CreatedBy	Creator
+UpdatedAt	Latest update timestamp
+UpdatedBy	Updater
+FarmId	Farm linked to this season
+ProductId	Product grown in this season
+📝 Usage
 
-FarmDesc (string)
+Season detail page
 
-Phone (string)
+Pre-fill update form
 
-Area (string)
+Display farmer’s season timeline
 
-FarmerId (uuid) – required
+✅ 2. API: GET /api/product-batches/{seasonId}
+📌 Purpose
 
-Province (string)
+Retrieve all product batches belonging to a specific Season.
 
-District (string)
+📥 Input (Path Parameter)
+Name	Type	Required	Description
+seasonId	UUID	Yes	ID of the season whose batches should be returned
+📤 Response (200 OK)
 
-Ward (string)
+Returns a list of ProductBatch objects, each containing:
 
-Detail (string)
+Field	Description
+Id	Batch ID
+SeasonName	Name of the season
+SeasonDesc	Description
+Status	Batch status
+StartDate	Start date
+EndDate	End date
+CreatedAt	Timestamp created
+FarmId	Farm related to batch
+ProductId	Product related to batch
+📝 Usage
 
-FarmBanner (file, binary) – required (farm banner image)
+Display all batches inside a Season
 
-Response (200):
+Batch management UI
 
-success (boolean)
+Show production progress
 
-message (string)
+✅ 3. API: GET /api/products/{productId}
+📌 Purpose
 
-data containing:
+Fetch detailed information for one specific Product.
 
-farmId (uuid)
+📥 Input (Path Parameter)
+Name	Type	Required	Description
+productId	UUID	Yes	The ID of the product to retrieve
+📤 Response (200 OK)
 
-farmName (string)
-
-bannerUrl (string)
-
-phone (string)
-
-area (string)
-
-2. GET /api/farms/me – Get Farm Owned by Current User
-
-Description:
-Returns the farm associated with the authenticated user.
-
-Request Type:
-
-No parameters
-
-No request body
-
-Response (200):
-
-Farm data belonging to the logged-in farmer.
-
-3. POST /api/farms/{farmId}/certificate – Upload a Farm Certificate
-
-Description:
-Uploads a single certificate file for a specific farm.
-
-Path parameter:
-
-farmId (uuid) – required
-
-Request Type: multipart/form-data
-
-Body fields:
-
-FarmId (uuid) – must match the path
-
-Certificate (file, binary) – required
-
-Response (200):
-
-Upload successful confirmation
-
-4. DELETE /api/farms/{farmId}/certificate – Delete Farm Certificate
-
-Description:
-Deletes the certificate associated with the given farm.
-
-Path parameter:
-
-farmId (uuid) – required
-
-Response (200):
-
-Certificate deletion success
-
-5. PUT /api/farms/{farmId}/certificates – Update/Replace Farm Certificate
-
-Description:
-Replaces the certificate of the given farm with a new file.
-
-Path parameter:
-
-farmId (uuid) – required
-
-Request Type: multipart/form-data
-
-Body fields:
-
-FarmId (uuid)
-
-Certificate (file, binary) – new certificate file
-
-Response (200):
-
-Certificate update success
---
-1. GET /api/categories
-
-Retrieve all available product categories.
-
-Request
-
-Method: GET
-
-URL: /api/categories
-
-Parameters: None
-
-Successful Response (200 OK)
-
-Returns a list of categories with their details.
-
-{
-  "success": true,
-  "message": "Success",
-  "data": [
-    {
-      "id": "uuid",
-      "categoryName": "string",
-      "categoryDesc": "string",
-      "illustrativeImageUrl": "string (URL)",
-      "isDelete": true
-    }
-  ]
-}
-
-2. GET /api/products
-
-Retrieve products with optional filtering by keyword, category, or location.
-
-Request
-
-Method: GET
-
-URL: /api/products
-
-Query Parameters (Optional):
-
-Parameter	Type	Description
-searchTerm	string	Keyword to search by product name
-categoryId	UUID	Filter products by category
-location	string	Filter products by farmer or product region
-Example Request
-GET /api/products?categoryId=525f4919-a03f-4ce7-3301-08de2965ff1e
-
-Successful Response (200 OK)
-
-Returns a list of products matching the filters.
+Returns:
 
 {
   "success": true,
   "message": "Retrieving data successfully!",
-  "data": [
-    {
-      "id": "uuid",
-      "productName": "string",
-      "productAttribute": "string",
-      "productDesc": "string",
-      "categoryId": "uuid",
-      "createdAt": "2025-11-22T01:41:54.7469695"
-    }
-  ]
+  "data": {
+    "productName": "Bánh",
+    "productAttribute": "hdjdh",
+    "productDesc": "Ưbxnnd",
+    "categoryId": "a8ba5142-474d-46e7-32ff-08de2965ff1e",
+    "createdAt": "2025-11-22T01:25:42.898515",
+    "id": "9436a591-3bc0-46d0-d2ab-08de29660dd6"
+  }
 }
+
+Product fields meaning:
+Field	Description
+productName	Name of the product
+productAttribute	Additional attributes (e.g., size, variety, type)
+productDesc	Product description
+categoryId	Category this product belongs to
+createdAt	Timestamp when product was created
+id	Product ID
+📝 Usage
+
+Display product information inside Season Details
+
+When creating a Season or Batch, fetch the selected Product info
+
+Product detail screen
+
+🎯 How the three APIs relate
+API	Returns	Purpose
+GET /api/seasons/{seasonId}	1 Season	Season details
+GET /api/product-batches/{seasonId}	List<Batch>	All batches in the season
+GET /api/products/{productId}	1 Product	Product information used in the Season

@@ -14,7 +14,7 @@ import { FarmInfoCard } from "@/components/farm/FarmInfoCard";
 import { FarmManagementButton } from "@/components/farm/FarmManagementButton";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { NativeStackNavigationProp } from "node_modules/@react-navigation/native-stack/lib/typescript/src/types";
-import { FarmStackParamList } from "@/navigation/FarmNavigator";
+import { FarmStackParamList } from "@/navigation/types";
 import { useSeasons } from "@/hooks/useSeasons";
 import { useFarmByMe } from "@/hooks/useFarm";
 import { useFarmStatistics } from "@/hooks/custom/useFarmStatistics";
@@ -26,12 +26,6 @@ export default function FarmDetailScreen() {
   const { data: farm, isLoading: farmLoading, error: farmError } = useFarmByMe();
   const { data: seasons, isLoading: seasonsLoading } = useSeasons();
   const { statistics, isLoading: statsLoading } = useFarmStatistics();
-
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerShown: false,
-    });
-  }, [navigation]);
 
   // Loading state
   if (farmLoading) {

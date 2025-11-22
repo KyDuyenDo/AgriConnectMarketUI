@@ -11,7 +11,7 @@ import { ImagePreview } from '@/components/farm-setup/ImagePreview';
 import { ActionButtons } from '@/components/farm-setup/ActionButtons';
 import { useFarmForm } from '@/hooks/custom/useFarmForm';
 import { useFarmByMe } from '@/hooks/useFarm';
-import { FarmStackParamList } from '@/navigation/FarmNavigator';
+import { FarmStackParamList } from '@/navigation/types';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 type Nav = NativeStackNavigationProp<FarmStackParamList>;

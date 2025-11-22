@@ -10,7 +10,7 @@ import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeft } from 'lucide-react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { FarmStackParamList } from '@/navigation/FarmNavigator';
+import { FarmStackParamList } from '@/navigation/types';
 import { CertificateManager } from '@/components/farm/CertificateManager';
 import { useFarmByMe } from '@/hooks/useFarm';
 

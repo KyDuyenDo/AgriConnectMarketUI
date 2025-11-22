@@ -7,7 +7,7 @@ import { AddLogEntryButton } from '../components/lot-detail/AddLogEntryButton';
 import { ActivityTimeline } from '../components/lot-detail/ActivityTimeline';
 import { LotManagementGrid } from '../components/lot-detail/LotManagementGrid';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { FarmStackParamList } from '@/navigation/FarmNavigator';
+import { FarmStackParamList } from '@/navigation/types';
 import { useNavigation } from '@react-navigation/native';
 
 type Nav = NativeStackNavigationProp<FarmStackParamList>
