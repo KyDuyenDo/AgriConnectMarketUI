@@ -1,75 +1,184 @@
+1. POST /api/farms – Create a Farm
 
----
-1. Farm APIs
-Method | Endpoint | Parameters | Request Body | Response
-POST | /api/farms | None | multipart/form-data: 
-- FarmName: string
-- FarmDesc: string
-- Phone: string
-- Area: string
-- FarmerId: string($uuid)
-- Province, District, Ward, Detail: string
-- FarmBanner: string($binary) | 200 OK
-GET | /api/farms/me | None | None | 200 OK / 400 if user not authenticated
-POST | /api/farms/{farmId}/certificate | farmId (path) | multipart/form-data:
-- FarmId: string($uuid)
-- Certificate: string($binary) | 200 OK
-DELETE | /api/farms/{farmId}/certificate | farmId (path) | None | 200 OK
-PUT | /api/farms/{farmId}/certificates | farmId (path) | multipart/form-data:
-- FarmId: string($uuid)
-- Certificate: string($binary) | 200 OK
+Description:
+Creates a new farm with basic information and an uploaded banner image.
 
-2. Season APIs
-Method | Endpoint | Parameters | Request Body | Response
-GET | /api/seasons | searchTerm (query, optional) | None | 200 OK
-POST | /api/seasons | None | application/json:
-- seasonName: string
-- seasonDesc: string
-- startDate, endDate: datetime
-- farmId, productId: string($uuid) | 200 OK
-GET | /api/seasons/{seasonId} | seasonId (path) | None | 200 OK
-PUT | /api/seasons/{seasonId} | seasonId (path) | application/json:
-- seasonName, seasonDesc, status: string
-- startDate, endDate: datetime | 200 OK
-DELETE | /api/seasons/{seasonId} | seasonId (path) | None | 200 OK
-PATCH | /api/seasons/{seasonId} | seasonId (path) | None | 200 OK
+Request Type: multipart/form-data
 
-3. Product Batch APIs
-Method | Endpoint | Parameters | Request Body | Response
-GET | /api/product-batches/${seasonId} | seasonId (path) | None | 200 OK
-POST | /api/product-batches | None | application/json:
-- seasonId: string($uuid)
-- totalYield, availableQuantity: number
-- units: string
-- plantingDate: datetime
-- isActive: boolean
-- price: number | 200 OK
-PATCH | /api/product-batches/${batchId} | batchId (path) | application/json:
-- soldQuantity: number | 200 OK
----
-4. Category APIs
-GET /api/categories
-- Get all categories
-POST /api/categories
-- Create category (multipart/form-data):
-  - CategoryName: string
-  - CategoryDesc: string
-  - IllustractiveImage: file
-DELETE /api/categories/{categoryId}
-- Delete category by ID
+Body fields:
 
-5. Product APIs
-GET /api/products?searchTerm&categoryId&location
-- Get product list with filters
-POST /api/products
-- Create product (application/json):
-  - productName: string
-  - productAttribute: string
-  - productDesc: string
-  - categoryId: uuid
-GET /api/products/{productId}
-- Get product details
-PUT /api/products/{productId}
-- Update product
-DELETE /api/products/{productId}
-- Delete product
+FarmName (string) – required
+
+FarmDesc (string)
+
+Phone (string)
+
+Area (string)
+
+FarmerId (uuid) – required
+
+Province (string)
+
+District (string)
+
+Ward (string)
+
+Detail (string)
+
+FarmBanner (file, binary) – required (farm banner image)
+
+Response (200):
+
+success (boolean)
+
+message (string)
+
+data containing:
+
+farmId (uuid)
+
+farmName (string)
+
+bannerUrl (string)
+
+phone (string)
+
+area (string)
+
+2. GET /api/farms/me – Get Farm Owned by Current User
+
+Description:
+Returns the farm associated with the authenticated user.
+
+Request Type:
+
+No parameters
+
+No request body
+
+Response (200):
+
+Farm data belonging to the logged-in farmer.
+
+3. POST /api/farms/{farmId}/certificate – Upload a Farm Certificate
+
+Description:
+Uploads a single certificate file for a specific farm.
+
+Path parameter:
+
+farmId (uuid) – required
+
+Request Type: multipart/form-data
+
+Body fields:
+
+FarmId (uuid) – must match the path
+
+Certificate (file, binary) – required
+
+Response (200):
+
+Upload successful confirmation
+
+4. DELETE /api/farms/{farmId}/certificate – Delete Farm Certificate
+
+Description:
+Deletes the certificate associated with the given farm.
+
+Path parameter:
+
+farmId (uuid) – required
+
+Response (200):
+
+Certificate deletion success
+
+5. PUT /api/farms/{farmId}/certificates – Update/Replace Farm Certificate
+
+Description:
+Replaces the certificate of the given farm with a new file.
+
+Path parameter:
+
+farmId (uuid) – required
+
+Request Type: multipart/form-data
+
+Body fields:
+
+FarmId (uuid)
+
+Certificate (file, binary) – new certificate file
+
+Response (200):
+
+Certificate update success
+--
+1. GET /api/categories
+
+Retrieve all available product categories.
+
+Request
+
+Method: GET
+
+URL: /api/categories
+
+Parameters: None
+
+Successful Response (200 OK)
+
+Returns a list of categories with their details.
+
+{
+  "success": true,
+  "message": "Success",
+  "data": [
+    {
+      "id": "uuid",
+      "categoryName": "string",
+      "categoryDesc": "string",
+      "illustrativeImageUrl": "string (URL)",
+      "isDelete": true
+    }
+  ]
+}
+
+2. GET /api/products
+
+Retrieve products with optional filtering by keyword, category, or location.
+
+Request
+
+Method: GET
+
+URL: /api/products
+
+Query Parameters (Optional):
+
+Parameter	Type	Description
+searchTerm	string	Keyword to search by product name
+categoryId	UUID	Filter products by category
+location	string	Filter products by farmer or product region
+Example Request
+GET /api/products?categoryId=525f4919-a03f-4ce7-3301-08de2965ff1e
+
+Successful Response (200 OK)
+
+Returns a list of products matching the filters.
+
+{
+  "success": true,
+  "message": "Retrieving data successfully!",
+  "data": [
+    {
+      "id": "uuid",
+      "productName": "string",
+      "productAttribute": "string",
+      "productDesc": "string",
+      "categoryId": "uuid",
+      "createdAt": "2025-11-22T01:41:54.7469695"
+    }
+  ]
+}

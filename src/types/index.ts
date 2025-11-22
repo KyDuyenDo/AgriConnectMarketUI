@@ -32,7 +32,7 @@ export interface Product {
   addedFavoriteDate?: string;
   // Optional fields for compatibility or mapping
   categoryId?: string;
-  category?: Category | string;
+  category?: Category;
   season?: any;
   // Backend fields (optional)
   productName?: string;
@@ -49,8 +49,9 @@ export interface Season {
   endDate: string;
   farmId: string;
   productId: string;
-  product?: Product; // Optional
+  product?: ProductResponse & { category?: Category }; // Ensure category is Category type
 }
+
 
 export interface Batch {
   id: string;
@@ -120,4 +121,54 @@ export type RegisterRequest = {
   Phone: string;
   IsFarmer: boolean;
   Avatar: File;
+}
+
+export interface Address {
+  id: string;
+  province: string;
+  district: string;
+  ward: string;
+  detail?: string;
+}
+
+export interface Farm {
+  id: string;
+  farmName: string;
+  farmDesc?: string;
+  batchCodePrefix?: string;
+  bannerUrl?: string;
+  certificateUrl?: string;
+  phone?: string;
+  area?: string;
+  isDelete?: boolean;
+  isBanned?: boolean;
+  isValidForSelling?: boolean;
+  isConfirmAsMall?: boolean;
+  createdAt?: string;
+  createdBy?: string;
+  updatedAt?: string;
+  updatedBy?: string;
+  farmerId: string;
+  addressId?: string;
+  address?: Address;
+}
+
+export interface CreateFarmRequest {
+  FarmName: string;
+  FarmDesc?: string;
+  Phone?: string;
+  Area?: string;
+  FarmerId: string;
+  Province?: string;
+  District?: string;
+  Ward?: string;
+  Detail?: string;
+  FarmBanner: File | Blob;
+}
+
+export interface FarmStatistics {
+  totalBatches: number;
+  totalSeasons: number;
+  totalAvailableQuantity: number;
+  activeBatches: number;
 }

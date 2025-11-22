@@ -21,7 +21,7 @@ import AddProductScreen from '@/screens/AddProductScreen';
 export type FarmStackParamList = {
     MainTabs: undefined;
     Dashboard: undefined;
-    AddSeason: undefined;
+    AddSeason: { farmId: string };
     SeasonDetail: { seasonId: string };
     AddLot: { seasonId?: string }; // Updated to accept seasonId
     LotDetail: { lotId: string };

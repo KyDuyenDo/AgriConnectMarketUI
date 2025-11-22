@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StatusBar, TextInput, Alert, ActivityIndicator } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { useForm, Controller } from 'react-hook-form';
 import { ChevronLeft } from 'lucide-react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -31,6 +31,8 @@ interface FormData {
 
 export default function AddSeasonScreen() {
     const navigation = useNavigation();
+    const route = useRoute();
+    const { farmId } = route.params as { farmId: string };
     const { data: categories, isLoading: isLoadingCategories } = useCategories();
     const [selectedCategory, setSelectedCategory] = useState<string>("");
 
@@ -64,7 +66,7 @@ export default function AddSeasonScreen() {
             startDate: data.startDate,
             endDate: data.endDate,
             productId: data.productId,
-            farmId: "current-farm-id", // TODO: Get from auth/store
+            farmId: farmId,
             status: "Planning"
         }, {
             onSuccess: () => {
