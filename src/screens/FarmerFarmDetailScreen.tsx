@@ -8,12 +8,10 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { Edit } from "lucide-react-native";
+import { Edit, BarChart3, Award, Calendar, Package, Settings } from "lucide-react-native";
 import Carousel from "@/components/ui/Carousel";
-import { FarmStatCard } from "@/components/farm/FarmStatCard";
-import { SeasonCard, CropType, formatDateRange } from "@/components/farm/SeasonCard";
 import { FarmInfoCard } from "@/components/farm/FarmInfoCard";
-import { CertificateManager } from "@/components/farm/CertificateManager";
+import { FarmManagementButton } from "@/components/farm/FarmManagementButton";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { NativeStackNavigationProp } from "node_modules/@react-navigation/native-stack/lib/typescript/src/types";
 import { FarmStackParamList } from "@/navigation/FarmNavigator";
@@ -34,10 +32,6 @@ export default function FarmDetailScreen() {
       headerShown: false,
     });
   }, [navigation]);
-
-  const onPressSeason = (seasonId: string) => {
-    navigation.navigate("SeasonDetail", { seasonId });
-  };
 
   // Loading state
   if (farmLoading) {
@@ -110,7 +104,7 @@ export default function FarmDetailScreen() {
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 30 }}
+        contentContainerStyle={{ paddingBottom: 50 }}
       >
         {/* Carousel Header */}
         {carouselImages.length > 0 && (
@@ -129,126 +123,89 @@ export default function FarmDetailScreen() {
             activeSeasonsStatus={seasons && seasons.length > 0 ? "Active" : "No seasons"}
           />
 
-          {/* Certificate Management */}
-          <CertificateManager
-            farmId={farm.id}
-            certificateUrl={farm.certificateUrl}
-          />
-
-          {/* Farm Statistics */}
-          <Text className="text-lg font-bold text-gray-900 mb-3">
-            Farm Statistics
-          </Text>
-
-          {statsLoading ? (
-            <View className="bg-white rounded-xl p-6 mb-6">
-              <ActivityIndicator size="small" color="#16a34a" />
-            </View>
-          ) : statistics ? (
-            <View className="flex-row flex-wrap gap-3 mb-6">
-              <View className="w-[48%]">
-                <FarmStatCard
-                  label="Total Batches"
-                  value={statistics.totalBatches.toString()}
-                  change=""
-                  icon="Grid"
-                  iconBg="#dcfce7" // green-100
-                  iconColor="#16a34a" // green-600
-                />
-              </View>
-              <View className="w-[48%]">
-                <FarmStatCard
-                  label="Total Seasons"
-                  value={statistics.totalSeasons.toString()}
-                  change=""
-                  icon="Calendar"
-                  iconBg="#dcfce7"
-                  iconColor="#16a34a"
-                />
-              </View>
-              <View className="w-[48%]">
-                <FarmStatCard
-                  label="Available Quantity"
-                  value={statistics.totalAvailableQuantity.toString()}
-                  change=""
-                  icon="Package"
-                  iconBg="#ffedd5" // orange-100
-                  iconColor="#ea580c" // orange-600
-                />
-              </View>
-              <View className="w-[48%]">
-                <FarmStatCard
-                  label="Active Batches"
-                  value={statistics.activeBatches.toString()}
-                  change=""
-                  icon="TrendingUp"
-                  iconBg="#e0f2fe" // sky-100
-                  iconColor="#0284c7" // sky-600
-                />
-              </View>
-            </View>
-          ) : (
-            <View className="bg-white rounded-xl p-6 mb-6">
-              <Text className="text-gray-500 text-center">No statistics available</Text>
-            </View>
-          )}
-
-          {/* Management Actions */}
-          <View className="flex-row gap-3 mb-6">
-            <TouchableOpacity
-              onPress={() => navigation.navigate("AddCategory")}
-              className="flex-1 bg-blue-50 p-4 rounded-xl items-center border border-blue-100"
-            >
-              <Text className="text-blue-700 font-semibold">Add Category</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => navigation.navigate("AddProduct")}
-              className="flex-1 bg-purple-50 p-4 rounded-xl items-center border border-purple-100"
-            >
-              <Text className="text-purple-700 font-semibold">Add Product</Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Current Seasons */}
-          <View className="flex-row justify-between items-center mb-3">
-            <Text className="text-lg font-bold text-gray-900">
-              Current Seasons
+          {/* Quick Statistics Overview */}
+          <View className="bg-white rounded-xl p-4 mb-6 border border-gray-100">
+            <Text className="text-base font-bold text-gray-900 mb-3">
+              Quick Overview
             </Text>
-            <TouchableOpacity
-              onPress={() => navigation.navigate("AddSeason", { farmId: farm.id })}
-              className="bg-green-500 px-3 py-2 rounded-lg">
-              <Text className="text-white font-medium text-sm">
-                Add New Season
-              </Text>
-            </TouchableOpacity>
-          </View>
-
-          <View className="mb-6">
-            {seasonsLoading ? (
-              <View className="bg-white rounded-xl p-6">
-                <ActivityIndicator size="small" color="#16a34a" />
+            {statsLoading ? (
+              <ActivityIndicator size="small" color="#16a34a" />
+            ) : statistics ? (
+              <View className="flex-row flex-wrap">
+                <View className="w-1/2 pr-2 mb-3">
+                  <Text className="text-gray-500 text-xs mb-1">Total Batches</Text>
+                  <Text className="text-gray-900 text-lg font-bold">
+                    {statistics.totalBatches}
+                  </Text>
+                </View>
+                <View className="w-1/2 pl-2 mb-3">
+                  <Text className="text-gray-500 text-xs mb-1">Active Seasons</Text>
+                  <Text className="text-gray-900 text-lg font-bold">
+                    {statistics.totalSeasons}
+                  </Text>
+                </View>
+                <View className="w-1/2 pr-2">
+                  <Text className="text-gray-500 text-xs mb-1">Available</Text>
+                  <Text className="text-gray-900 text-lg font-bold">
+                    {statistics.totalAvailableQuantity}
+                  </Text>
+                </View>
+                <View className="w-1/2 pl-2">
+                  <Text className="text-gray-500 text-xs mb-1">Active Batches</Text>
+                  <Text className="text-gray-900 text-lg font-bold">
+                    {statistics.activeBatches}
+                  </Text>
+                </View>
               </View>
-            ) : seasons && seasons.length > 0 ? (
-              seasons.map((season, index) => (
-                <SeasonCard
-                  key={season.id || index}
-                  seasonName={season.seasonName}
-                  crops={season.product ? [season.product.productName as CropType] : []}
-                  dateRange={formatDateRange(season.startDate, season.endDate)}
-                  acres={0} // TODO: Add acres to Season model
-                  status={season.status as any}
-                  onPress={() => onPressSeason(season.id)}
-                  categoryName={season.product?.category?.categoryName}
-                  productName={season.product?.productName}
-                  categoryImageUrl={season.product?.category?.illustrativeImageUrl}
-                />
-              ))
             ) : (
-              <View className="bg-white rounded-xl p-6">
-                <Text className="text-gray-500 text-center">No seasons found</Text>
-              </View>
+              <Text className="text-gray-400 text-sm">No statistics available</Text>
             )}
           </View>
+
+          {/* Farm Management Section */}
+          <Text className="text-lg font-bold text-gray-900 mb-4">
+            Farm Management
+          </Text>
+
+          <FarmManagementButton
+            icon={BarChart3}
+            title="Statistics"
+            onPress={() => navigation.navigate("FarmStatistics")}
+            iconColor="#16a34a"
+            iconBgColor="#dcfce7"
+          />
+
+          <FarmManagementButton
+            icon={Award}
+            title="Certificates"
+            onPress={() => navigation.navigate("FarmCertificates", { farmId: farm.id })}
+            iconColor="#ea580c"
+            iconBgColor="#ffedd5"
+          />
+
+          <FarmManagementButton
+            icon={Calendar}
+            title="Seasons"
+            onPress={() => navigation.navigate("FarmSeasons", { farmId: farm.id })}
+            iconColor="#0284c7"
+            iconBgColor="#e0f2fe"
+          />
+
+          <FarmManagementButton
+            icon={Package}
+            title="Products & Categories"
+            onPress={() => navigation.navigate("FarmProductsManagement")}
+            iconColor="#9333ea"
+            iconBgColor="#f3e8ff"
+          />
+
+          <FarmManagementButton
+            icon={Settings}
+            title="Farm Settings"
+            onPress={() => navigation.navigate("FarmSetupInformation", { farmId: farm.id })}
+            iconColor="#6b7280"
+            iconBgColor="#f3f4f6"
+          />
         </View>
       </ScrollView>
     </SafeAreaView>

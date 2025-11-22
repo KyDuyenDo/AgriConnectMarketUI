@@ -17,6 +17,10 @@ import AddLotBatchScreen from '@/screens/AddLotBatchScreen'; // Keeping for now 
 import PersonalInformationScreen from '@/screens/PersonalInformationScreen';
 import AddCategoryScreen from '@/screens/AddCategoryScreen';
 import AddProductScreen from '@/screens/AddProductScreen';
+import FarmStatisticsScreen from '@/screens/FarmStatisticsScreen';
+import FarmCertificatesScreen from '@/screens/FarmCertificatesScreen';
+import FarmSeasonsScreen from '@/screens/FarmSeasonsScreen';
+import FarmProductsManagementScreen from '@/screens/FarmProductsManagementScreen';
 
 export type FarmStackParamList = {
     MainTabs: undefined;
@@ -35,6 +39,10 @@ export type FarmStackParamList = {
     FarmSetupInformation: { farmId: string };
     FarmProductDetailReviews: { productId: string };
     PersonalInformation: undefined;
+    FarmStatistics: undefined;
+    FarmCertificates: { farmId: string };
+    FarmSeasons: { farmId: string };
+    FarmProductsManagement: undefined;
 };
 
 const Stack = createNativeStackNavigator<FarmStackParamList>();
@@ -113,6 +121,27 @@ export default function FarmNavigator() {
             <Stack.Screen
                 name="PersonalInformation"
                 component={PersonalInformationScreen}
+                options={{ headerShown: false }}
+            />
+
+            <Stack.Screen
+                name="FarmStatistics"
+                component={FarmStatisticsScreen}
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name="FarmCertificates"
+                component={FarmCertificatesScreen}
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name="FarmSeasons"
+                component={FarmSeasonsScreen}
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name="FarmProductsManagement"
+                component={FarmProductsManagementScreen}
                 options={{ headerShown: false }}
             />
         </Stack.Navigator>
