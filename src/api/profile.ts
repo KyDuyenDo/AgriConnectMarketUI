@@ -18,6 +18,7 @@ export interface UpdateProfileData {
 
 export const getProfile = async (): Promise<Profile> => {
     const response = await apiClient.get("/api/profiles/me");
+    console.log(response.data);
     return response.data.data;
 };
 

@@ -4,6 +4,7 @@ import { Farm } from "@/types";
 const FarmService = {
     getFarmByMe: async (): Promise<Farm> => {
         const response = await apiClient.get<{ success: boolean; message: string; data: Farm }>("/api/farms/me");
+        console.log("Response:" + new Date().toISOString(), response.data.data);
         return response.data.data;
     },
 

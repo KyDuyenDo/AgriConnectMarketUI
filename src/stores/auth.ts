@@ -46,7 +46,6 @@ export const useAuthStore = create<AuthState>(
         const status = error?.response?.status
 
         if (status === 401 || status === 403) {
-          console.log("Token hết hạn → Auto logout")
           get().logout()
         }
       },
