@@ -45,7 +45,7 @@ export function CartItem({
             {/* Checkbox */}
             <Pressable
                 onPress={() => onSelect?.(id)}
-                className="w-5 h-5 rounded items-center justify-center mt-1"
+                className="w-5 h-5 rounded items-center justify-center mt-1 mt-10"
                 style={{
                     backgroundColor: isSelected ? '#4CAF50' : '#ffffff',
                     borderWidth: 2,
