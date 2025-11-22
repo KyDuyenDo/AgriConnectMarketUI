@@ -8,11 +8,13 @@ const CategoryService = {
     },
 
     create: async (data: FormData): Promise<Category> => {
+        console.log(data);
         const response = await apiClient.post("/api/categories", data, {
             headers: {
                 "Content-Type": "multipart/form-data",
             },
         });
+        console.log(response.data);
         return response.data;
     },
 

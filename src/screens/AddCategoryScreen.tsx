@@ -19,7 +19,7 @@ import * as yup from "yup";
 import { useCreateCategory } from "@/hooks/useCategories";
 
 const schema = yup.object({
-    categoryName: yup.string().required("Category name is required"),
+    CategortName: yup.string().required("Category name is required"),
     categoryDesc: yup.string().required("Description is required"),
 });
 
@@ -51,35 +51,42 @@ export default function AddCategoryScreen() {
         }
     };
 
-    const onSubmit = (data: FormData) => {
+    const onSubmit = async (data: FormData) => {
         if (!image) {
             Alert.alert("Error", "Please select an image for the category");
             return;
         }
 
         const formData = new FormData();
-        formData.append("CategoryName", data.categoryName);
+        formData.append("CategortName", data.CategortName);
         formData.append("CategoryDesc", data.categoryDesc);
 
-        // Append image
-        const filename = image.split("/").pop();
-        const match = /\.(\w+)$/.exec(filename || "");
-        const type = match ? `image/${match[1]}` : `image`;
+        // Append image - properly format for React Native
+        const filename = image.split("/").pop() || "image.jpg";
+        const match = /\.(\w+)$/.exec(filename);
+        const type = match ? `image/${match[1]}` : `image/jpeg`;
 
+        // @ts-ignore - FormData in React Native accepts this format
+        // Note: Backend expects "IllustractiveImage" (misspelled)
         formData.append("IllustractiveImage", {
             uri: image,
             name: filename,
-            type,
-        } as any);
+            type: type,
+        });
+
+        console.log("Submitting category with image:", filename, type);
 
         createCategory(formData, {
             onSuccess: () => {
                 Alert.alert("Success", "Category created successfully");
                 navigation.goBack();
             },
-            onError: (error) => {
-                console.error(error);
-                Alert.alert("Error", "Failed to create category");
+            onError: (error: any) => {
+                console.error("Full error:", JSON.stringify(error, null, 2));
+                console.error("Error response:", error?.response?.data);
+                console.error("Error status:", error?.response?.status);
+                const errorMessage = error?.response?.data?.message || error?.message || "Failed to create category";
+                Alert.alert("Error", errorMessage);
             },
         });
     };
@@ -128,7 +135,7 @@ export default function AddCategoryScreen() {
                     </Text>
                     <Controller
                         control={control}
-                        name="categoryName"
+                        name="CategortName"
                         render={({ field: { onChange, onBlur, value } }) => (
                             <TextInput
                                 className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-gray-900"
@@ -139,9 +146,9 @@ export default function AddCategoryScreen() {
                             />
                         )}
                     />
-                    {errors.categoryName && (
+                    {errors.CategortName && (
                         <Text className="text-red-500 text-xs mt-1">
-                            {errors.categoryName.message}
+                            {errors.CategortName.message}
                         </Text>
                     )}
                 </View>
