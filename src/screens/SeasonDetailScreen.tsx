@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { FarmStackParamList } from '@/navigation/types';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
-import { ArrowLeft, MoreVertical, Share2 } from 'lucide-react-native';
+import { ArrowLeft, MoreVertical, Plus, Share2 } from 'lucide-react-native';
 import { useSeason } from '@/hooks/useSeason';
 import { useProductBatches } from '@/hooks/useProductBatches';
 import { useComputedSeasonProgress } from '@/hooks/useComputedSeasonProgress';
@@ -106,7 +106,7 @@ export default function SeasonDetailScreen() {
             <ScrollView
                 className="flex-1"
                 showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ paddingBottom: 40 }}
+                contentContainerStyle={{ paddingBottom: 40, paddingHorizontal: 16, paddingTop: 16 }}
                 refreshControl={
                     <RefreshControl refreshing={isLoadingBatches} onRefresh={onRefresh} colors={['#16a34a']} />
                 }
@@ -126,7 +126,17 @@ export default function SeasonDetailScreen() {
                 />
 
                 {/* Batch List */}
-                <View className="mt-2">
+                <View>
+                    <View className='flex flex-row justify-between items-center my-4'>
+                        <Text className='text-lg font-bold text-gray-900'>Batch List</Text>
+                        {/* Add lot */}
+                        <TouchableOpacity
+                            onPress={() => navigation.navigate('AddLot', { seasonId })}
+                            className="bg-green-500 w-8 h-8 rounded-full items-center justify-center"
+                        >
+                            <Plus size={20} color="white" />
+                        </TouchableOpacity>
+                    </View>
                     <BatchList
                         batches={batches || []}
                         onBatchPress={onBatchPress}

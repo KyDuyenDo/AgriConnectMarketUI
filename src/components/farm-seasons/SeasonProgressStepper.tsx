@@ -59,7 +59,7 @@ export const SeasonProgressStepper: React.FC<SeasonProgressStepperProps> = ({ st
     };
 
     return (
-        <View className="bg-white px-4 py-5 mb-4">
+        <View className="bg-white px-4 py-5 mb-4 rounded-2xl shadow-sm shadow-grey-200">
             <Text className="text-sm font-semibold text-gray-900 mb-4">Season Progress</Text>
             <View className="flex-row items-center justify-between">
                 {steps.map((step, index) => {

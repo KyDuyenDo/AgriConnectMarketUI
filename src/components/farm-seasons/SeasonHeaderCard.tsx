@@ -16,7 +16,7 @@ export const SeasonHeaderCard: React.FC<SeasonHeaderCardProps> = ({ season }) =>
     };
 
     return (
-        <View className="bg-white p-5 mb-4 border-b border-gray-200">
+        <View className="bg-white p-5 mb-4 rounded-2xl border border-gray-100 shadow-md shadow-gray-200">
             {/* Header with Product and Status */}
             <View className="flex-row items-start justify-between mb-4">
                 <View className="flex-row items-start flex-1">

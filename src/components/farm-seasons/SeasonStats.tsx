@@ -11,7 +11,7 @@ interface SeasonStatsProps {
 
 export const SeasonStats: React.FC<SeasonStatsProps> = ({ batchCount, totalYield, totalValue, progressPercent = 0 }) => {
     return (
-        <View className="flex-row px-4 mb-6 gap-3">
+        <View className="flex-row mb-6 gap-3">
             {/* Total Lots */}
             <View className="flex-1 bg-white p-4 rounded-xl shadow-sm border border-gray-100 items-center">
                 <View className="w-10 h-10 bg-green-50 rounded-full items-center justify-center mb-2">

@@ -11,7 +11,7 @@ interface BatchListProps {
 export const BatchList: React.FC<BatchListProps> = ({ batches, onBatchPress }) => {
     if (!batches || batches.length === 0) {
         return (
-            <View className="p-8 items-center justify-center bg-white rounded-xl border border-dashed border-gray-300 mx-4">
+            <View className="py-8 items-center justify-center bg-white rounded-xl border border-dashed border-gray-300">
                 <Text className="text-gray-400 text-center">No batches found for this season.</Text>
             </View>
         );
@@ -19,7 +19,7 @@ export const BatchList: React.FC<BatchListProps> = ({ batches, onBatchPress }) =
 
     return (
         <View className="bg-white border-t border-b border-gray-200">
-            <View className="px-4 py-3 bg-gray-50 border-b border-gray-200">
+            <View className="py-3 bg-gray-50 border-b border-gray-200">
                 <Text className="text-sm font-bold text-gray-500 uppercase tracking-wider">
                     Batches ({batches.length})
                 </Text>
