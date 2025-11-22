@@ -176,3 +176,4 @@ export interface FarmStatistics {
   totalSeasons: number;
   totalAvailableQuantity: number;
   activeBatches: number;
+}

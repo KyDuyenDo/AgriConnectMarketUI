@@ -10,6 +10,10 @@ import { FarmHistory } from '@/components/customer-farm-detail/FarmHistory';
 import { MeetFarmer } from '@/components/customer-farm-detail/MeetFarmer';
 import { VisitFarmCard } from '@/components/customer-farm-detail/VisitFarmCard';
 import { BottomActions } from '@/components/customer-farm-detail/BottomActions';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { CustomerStackParamList } from '@/navigation/CustomerNavigator';
+import { useFarmById } from '@/hooks/useFarm';
+import { useSeasons } from '@/hooks/useSeasons';
 
 const FARM_DATA = {
     heroImage: 'https://static.paraflowcontent.com/public/resource/image/a4e7e129-956c-46ab-a792-a428a344a9da.jpeg',
@@ -65,13 +69,62 @@ const PRODUCTS = [
     }
 ];
 
-export function CustomerFarmDetailScreen() {
+type Props = NativeStackScreenProps<CustomerStackParamList, 'FarmDetail'>;
+
+export function CustomerFarmDetailScreen({ route, navigation }: Props) {
+    const { farmId } = route.params;
     const [isFavorited, setIsFavorited] = useState(false);
+    const { data: farm, isLoading, error } = useFarmById(farmId);
+    const { data: seasons } = useSeasons(farmId);
+
+    console.log(seasons);
+    // Show loading state
+    if (isLoading) {
+        return (
+            <SafeAreaView className="flex-1 items-center justify-center" style={{ backgroundColor: '#F9FAF9' }}>
+                <Text className="text-base" style={{ color: '#6B737A' }}>Loading farm details...</Text>
+            </SafeAreaView>
+        );
+    }
+
+    // Show error state
+    if (error || !farm) {
+        return (
+            <SafeAreaView className="flex-1 items-center justify-center" style={{ backgroundColor: '#F9FAF9' }}>
+                <Text className="text-base" style={{ color: '#6B737A' }}>Failed to load farm details</Text>
+            </SafeAreaView>
+        );
+    }
+
+    // Map API data to UI format with fallbacks
+    const farmData = {
+        heroImage: farm.bannerUrl || 'https://via.placeholder.com/400x200',
+        badge: farm.isConfirmAsMall ? 'Certified Mall' : 'Local Farm',
+        ownerPhoto: farm.bannerUrl || 'https://via.placeholder.com/60',
+        farmName: farm.farmName || 'Unknown Farm',
+        ownerName: 'Farm Owner', // We might need to fetch this from farmer data
+        sinceYear: farm.createdAt ? new Date(farm.createdAt).getFullYear().toString() : '2024',
+        rating: 4.5, // TODO: Get from reviews
+        reviewCount: 0, // TODO: Get from reviews
+        distance: '2.3 km', // TODO: Calculate from address
+        address: farm.addressId || 'Address not available',
+        description: farm.farmDesc || 'A local farm providing fresh produce.',
+        stats: {
+            products: 0, // TODO: Get from products count
+            years: farm.createdAt ? `${new Date().getFullYear() - new Date(farm.createdAt).getFullYear()}+` : '1+',
+            certification: farm.isConfirmAsMall ? 'Mall' : 'Farm'
+        },
+        contact: {
+            hours: 'Mon-Sat: 8:00 AM - 6:00 PM',
+            phone: farm.phone || 'Not available',
+            email: 'contact@farm.com'
+        }
+    };
 
     return (
         <SafeAreaView className="flex-1" style={{ backgroundColor: '#F9FAF9' }}>
             <Header
-                onBack={() => console.log('Back')}
+                onBack={() => navigation.goBack()}
                 onShare={() => console.log('Share')}
                 onFavorite={() => setIsFavorited(!isFavorited)}
                 isFavorited={isFavorited}
@@ -82,21 +135,21 @@ export function CustomerFarmDetailScreen() {
                 className="pt-4"
                 contentContainerStyle={{ paddingBottom: Platform.OS === 'ios' ? 140 : 100 }}
             >
-                <FarmHero image={FARM_DATA.heroImage} badge={FARM_DATA.badge} />
+                <FarmHero image={farmData.heroImage} badge={farmData.badge} />
 
                 <FarmProfile
-                    ownerPhoto={FARM_DATA.ownerPhoto}
-                    farmName={FARM_DATA.farmName}
-                    ownerName={FARM_DATA.ownerName}
-                    sinceYear={FARM_DATA.sinceYear}
-                    rating={FARM_DATA.rating}
-                    reviewCount={FARM_DATA.reviewCount}
-                    distance={FARM_DATA.distance}
-                    address={FARM_DATA.address}
-                    description={FARM_DATA.description}
+                    ownerPhoto={farmData.ownerPhoto}
+                    farmName={farmData.farmName}
+                    ownerName={farmData.ownerName}
+                    sinceYear={farmData.sinceYear}
+                    rating={farmData.rating}
+                    reviewCount={farmData.reviewCount}
+                    distance={farmData.distance}
+                    address={farmData.address}
+                    description={farmData.description}
                 />
 
-                <StatsGrid stats={FARM_DATA.stats} />
+                <StatsGrid stats={farmData.stats} />
 
                 <View className="px-4 mb-4">
                     <View className="flex-row justify-between items-center mb-4">
@@ -134,7 +187,7 @@ export function CustomerFarmDetailScreen() {
                 </View>
 
                 <VisitFarmCard
-                    {...FARM_DATA.contact}
+                    {...farmData.contact}
                     onGetDirections={() => console.log('Get Directions')}
                     onCall={() => console.log('Call')}
                 />

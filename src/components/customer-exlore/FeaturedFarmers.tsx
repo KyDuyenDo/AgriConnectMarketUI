@@ -1,36 +1,31 @@
-import { ScrollView } from "react-native"
+import { ScrollView, View, Text } from "react-native"
 import FarmFeatureCard from "./FarmFeatureCard";
+import { Farm } from "@/types";
 
-interface Farmers {
-    id: number;
-    image: string;
-    name: string;
-    location: string;
-    distance: string;
-    rating: number;
-    reviews: number;
-    tags: string[];
-}
 interface FeaturedFarmersProps {
-    Farmers: Farmers[];
+    Farmers: Farm[];
 }
 
 
 export const FeaturedFarmers = ({ Farmers }: FeaturedFarmersProps) => {
     return (
-        <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
-            {Farmers.map((farmer) => (
-                <FarmFeatureCard
-                    key={farmer.id}
-                    image={farmer.image}
-                    name={farmer.name}
-                    location={farmer.location}
-                    distance={farmer.distance}
-                    rating={farmer.rating}
-                    reviews={farmer.reviews}
-                    tags={farmer.tags}
-                />
-            ))}
-        </ScrollView>
+        <View className="px-4 mb-4">
+            <View className="flex-row justify-between items-center mb-3">
+                <Text className="text-[16px] font-semibold" style={{ color: '#1B1F24' }}>
+                    Featured Farmers
+                </Text>
+                <Text className="text-[12px] font-medium" style={{ color: '#4CAF50' }}>
+                    View All
+                </Text>
+            </View>
+            <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} className="">
+                {Farmers.map((farm) => (
+                    <FarmFeatureCard
+                        key={farm.id}
+                        farm={farm}
+                    />
+                ))}
+            </ScrollView>
+        </View>
     )
 }
