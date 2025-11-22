@@ -123,6 +123,11 @@ export type RegisterRequest = {
   Avatar: File;
 }
 
+export interface CartRequest {
+  cartId: string,
+  batchId: string,
+  quantity: 1
+}
 export interface Address {
   id: string;
   province: string;
@@ -171,4 +176,3 @@ export interface FarmStatistics {
   totalSeasons: number;
   totalAvailableQuantity: number;
   activeBatches: number;
-}

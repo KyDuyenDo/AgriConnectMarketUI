@@ -1,27 +1,15 @@
 import { View, Text } from "react-native"
 import { CartItem } from "./CartItem"
-
-type Item = {
-  id: string
-  image: string
-  name: string
-  farm: string
-  status: string
-  harvested: string
-  unit: string
-  price: string
-  total: string
-  quantity: number
-  tagColor?: string
-}
+import { Product } from "@/types"
 
 type Props = {
-  items: Item[]
+  items: Product[]
   selectedItems: string[]
   onSelectItem: (id: string) => void
+  onDelete: (id: string) => void
 }
 
-export default function CartItemsSection({ items, selectedItems, onSelectItem }: Props) {
+export default function CartItemsSection({ items, selectedItems, onSelectItem, onDelete }: Props) {
   return (
     <View className="px-4 mb-4">
       <View className="bg-white p-4 rounded-2xl shadow-sm">
@@ -34,20 +22,23 @@ export default function CartItemsSection({ items, selectedItems, onSelectItem }:
 
         {items.map((item) => (
           <CartItem
+            id={item.id}
             key={item.id}
             image={item.image}
             name={item.name}
             farm={item.farm}
             badge={{
               label: item.status,
-              color: item.tagColor === "green" ? "green" : "orange",
+              color: "green",
             }}
-            harvestInfo={item.harvested}
+            harvestInfo={''}
             quantity={item.quantity}
             unitPrice={item.price}
-            total={item.total.replace("$", "")}
+            total={(parseFloat(item.price) * item.quantity).toFixed(2)}
             unit={item.unit}
-            onDelete={() => { }}
+            isSelected={selectedItems.includes(item.id)}
+            onSelect={onSelectItem}
+            onDelete={onDelete}
             onIncrement={() => { }}
             onDecrement={() => { }}
           />

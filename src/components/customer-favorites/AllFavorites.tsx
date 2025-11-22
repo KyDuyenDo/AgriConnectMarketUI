@@ -8,9 +8,10 @@ import { Product } from "@/types"
 interface ProductGridProps {
     searchQuery: string
     products: Product[]
+    onAddToCart: (batchId: string) => void
 }
 
-export const AllFavorites: React.FC<ProductGridProps> = ({ searchQuery, products }) => {
+export const AllFavorites: React.FC<ProductGridProps> = ({ searchQuery, products, onAddToCart }) => {
     return (
         <View className="mb-4 px-4">
             <View className="flex-row justify-between items-center mb-3">
@@ -29,7 +30,12 @@ export const AllFavorites: React.FC<ProductGridProps> = ({ searchQuery, products
             <View className="flex-row flex-wrap justify-between">
                 {products.map((product) => (
                     <View key={product.id} className="w-[48%] mb-3">
-                        <ProductCard product={product} toggleFavorite={() => { }} />
+                        <ProductCard
+                            product={product}
+                            toggleFavorite={() => { }}
+                            onPress={() => { }}
+                            onAddToCart={() => onAddToCart(product.batch)}
+                        />
                     </View>
                 ))}
             </View>
