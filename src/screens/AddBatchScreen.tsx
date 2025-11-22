@@ -36,8 +36,9 @@ type AddBatchScreenRouteProp = RouteProp<FarmStackParamList, "AddLot">;
 export default function AddBatchScreen() {
     const navigation = useNavigation();
     const route = useRoute<AddBatchScreenRouteProp>();
-    // If seasonId is passed via route (e.g. from SeasonDetail), pre-select it
-    const preSelectedSeasonId = (route.params as any)?.seasonId;
+    // If seasonId and seasonName are passed via route (e.g. from SeasonDetail), pre-select it
+    const preSelectedSeasonId = route.params?.seasonId;
+    const preSelectedSeasonName = route.params?.seasonName;
 
     const { data: seasons, isLoading: isLoadingSeasons } = useSeasons();
     const { mutate: createBatch, isPending } = useCreateBatch();
@@ -92,32 +93,49 @@ export default function AddBatchScreen() {
                     <Text className="text-sm font-medium text-gray-700 mb-1">
                         Season
                     </Text>
-                    <View className="bg-gray-50 border border-gray-200 rounded-lg">
-                        <Controller
-                            control={control}
-                            name="seasonId"
-                            render={({ field: { onChange, value } }) => (
-                                <Picker
-                                    selectedValue={value}
-                                    onValueChange={onChange}
-                                    enabled={!preSelectedSeasonId && !isLoadingSeasons}
-                                >
-                                    <Picker.Item label="Select a season" value="" />
-                                    {seasons?.map((season) => (
-                                        <Picker.Item
-                                            key={season.id}
-                                            label={season.seasonName}
-                                            value={season.id}
-                                        />
-                                    ))}
-                                </Picker>
+                    {preSelectedSeasonId && preSelectedSeasonName ? (
+                        // Show read-only text field when season is pre-selected
+                        <View>
+                            <TextInput
+                                className="w-full bg-gray-100 border border-gray-200 rounded-lg px-4 py-3 text-gray-900"
+                                value={preSelectedSeasonName}
+                                editable={false}
+                            />
+                            <Text className="text-xs text-gray-500 mt-1">
+                                Pre-selected from season detail
+                            </Text>
+                        </View>
+                    ) : (
+                        // Show picker when no pre-selection
+                        <View>
+                            <View className="bg-gray-50 border border-gray-200 rounded-lg">
+                                <Controller
+                                    control={control}
+                                    name="seasonId"
+                                    render={({ field: { onChange, value } }) => (
+                                        <Picker
+                                            selectedValue={value}
+                                            onValueChange={onChange}
+                                            enabled={!isLoadingSeasons}
+                                        >
+                                            <Picker.Item label="Select a season" value="" />
+                                            {seasons?.map((season) => (
+                                                <Picker.Item
+                                                    key={season.id}
+                                                    label={season.seasonName}
+                                                    value={season.id}
+                                                />
+                                            ))}
+                                        </Picker>
+                                    )}
+                                />
+                            </View>
+                            {errors.seasonId && (
+                                <Text className="text-red-500 text-xs mt-1">
+                                    {errors.seasonId.message}
+                                </Text>
                             )}
-                        />
-                    </View>
-                    {errors.seasonId && (
-                        <Text className="text-red-500 text-xs mt-1">
-                            {errors.seasonId.message}
-                        </Text>
+                        </View>
                     )}
                 </View>
 

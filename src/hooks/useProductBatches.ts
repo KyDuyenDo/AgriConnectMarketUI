@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { getProductBatchesBySeason } from '@/api/services/productBatchService';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 
 export function useProductBatches(seasonId: string) {
     const query = useQuery({
@@ -9,8 +9,15 @@ export function useProductBatches(seasonId: string) {
         enabled: !!seasonId,
     });
 
+    useEffect(() => {
+        if (query.data) {
+            console.log("Product batches:", query.data);
+        }
+    }, [query.data]);
+
     const stats = useMemo(() => {
         if (!query.data) return { totalQuantity: 0, totalValue: 0, batchCount: 0 };
+        console.log("Product batches:", query.data);
 
         const batches = query.data;
         const batchCount = batches.length;

@@ -3,7 +3,7 @@ export type FarmStackParamList = {
     Dashboard: undefined;
     AddSeason: { farmId: string };
     SeasonDetail: { seasonId: string };
-    AddLot: { seasonId?: string };
+    AddLot: { seasonId?: string; seasonName?: string };
     LotDetail: { lotId: string };
     AddCropLog: undefined;
     FarmDetail: { farmId: string };

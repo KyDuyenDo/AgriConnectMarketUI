@@ -131,7 +131,10 @@ export default function SeasonDetailScreen() {
                         <Text className='text-lg font-bold text-gray-900'>Batch List</Text>
                         {/* Add lot */}
                         <TouchableOpacity
-                            onPress={() => navigation.navigate('AddLot', { seasonId })}
+                            onPress={() => navigation.navigate('AddLot', {
+                                seasonId,
+                                seasonName: season.seasonName
+                            })}
                             className="bg-green-500 w-8 h-8 rounded-full items-center justify-center"
                         >
                             <Plus size={20} color="white" />
