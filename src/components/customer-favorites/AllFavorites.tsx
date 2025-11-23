@@ -34,7 +34,7 @@ export const AllFavorites: React.FC<ProductGridProps> = ({ searchQuery, products
                             product={product}
                             toggleFavorite={() => { }}
                             onPress={() => { }}
-                            onAddToCart={() => onAddToCart(product.batch)}
+                            onAddToCart={() => onAddToCart(product.id)}
                         />
                     </View>
                 ))}

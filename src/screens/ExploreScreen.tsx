@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import {
     ScrollView,
     View,
@@ -14,6 +14,8 @@ import { ProductCustomerGrid } from "@/components/customer-exlore/ProductCustome
 import { Product } from "@/types"
 import { useAllFarm } from "@/hooks/useFarm"
 import { FeaturedFarmers } from "@/components/customer-exlore/FeaturedFarmers"
+import { useAllBatches } from "@/hooks/useBatches"
+import { useCategories } from "@/hooks/useCategories"
 
 
 const farms = [
@@ -148,22 +150,31 @@ export function ExploreScreen() {
         searchTerm: searchQuery,
     })
 
-    // const farmsList = farmsResponse?.data?.map((farm: any) => ({
-    //     id: farm.id,
-    //     image: farm.bannerUrl || "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee",
-    //     name: farm.farmName,
-    //     location: farm.addressId || "Unknown Location",
-    //     tags: [farm.isValidForSelling ? "Verified" : "Pending"],
-    //     phone: farm.phone,
-    // })) || []
+    const { data: batches, isLoading: isLoadingBatches } = useAllBatches()
 
-    const categories = [
-        { icon: Apple, name: "Fruits", count: 124, color: "#4CAF50" },
-        { icon: Carrot, name: "Vegetables", count: 89, color: "#4CAF50" },
-        { icon: Wheat, name: "Grains", count: 32, color: "#4CAF50" },
-        { icon: Leaf, name: "Herbs", count: 45, color: "#4CAF50" },
-        { icon: Milk, name: "Dairy", count: 18, color: "#4CAF50" },
-    ]
+    const { data: categoriesData, isLoading: isLoadingCategories } = useCategories()
+
+    const products = batches?.map((batch: any) => ({
+        id: batch.id,
+        name: batch.season?.product?.productName || "Product",
+        farm: "Farm", // Placeholder
+        price: batch.price?.toString() || "0",
+        unit: batch.unit || "unit",
+        image: batch.imagesUrl?.[0] || "https://via.placeholder.com/150",
+        isFavorite: false,
+        rating: 4.5,
+        numRatings: 10,
+        status: (batch.availableQuantity || 0) > 0 ? "In Stock" : "Out of Stock",
+        batch: batch.batchCode?.value || "Batch",
+        quantity: batch.availableQuantity || 0,
+    })) || []
+
+    const categories = categoriesData?.map((cat: any) => ({
+        icon: Leaf, // Default icon
+        name: cat.categoryName,
+        count: 0, // Placeholder
+        color: "#4CAF50"
+    })) || []
 
     const filters = ["All", "Organic", "In Stock", "Nearby", "4.5+"]
 
@@ -357,7 +368,7 @@ export function ExploreScreen() {
                 </View>
 
                 {/* Products Grid */}
-                <ProductCustomerGrid searchQuery={searchQuery} products={mockProducts} />
+                <ProductCustomerGrid searchQuery={searchQuery} products={products} />
 
                 {/* Featured Farmers */}
                 <FeaturedFarmers Farmers={farmsResponse?.data || []} />

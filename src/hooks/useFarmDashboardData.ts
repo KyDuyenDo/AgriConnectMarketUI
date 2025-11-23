@@ -51,24 +51,30 @@ export function useFarmDashboardData() {
 
         return {
             userName: farm?.farmName || "Farmer",
-            userImageUrl: "https://via.placeholder.com/150",
+            userImageUrl: farm?.bannerUrl || "https://via.placeholder.com/150",
             earningsAmount: `$${totalEarnings.toLocaleString()}`,
             earningsPeriod: "Total", // Placeholder as we don't have historical data for trend
             activeProductsCount: activeBatches.length,
             activeProductsTrend: "0%", // Placeholder
             newOrdersCount: newOrders.length,
             newOrdersTrend: "0%", // Placeholder
-            recentOrders: orders.slice(0, 5).map((order: any) => ({
-                id: order.id.toString(), // Ensure ID is string
-                name: order.orderCode || "Order", // Using Order Code as name for now
-                orderNumber: order.orderCode || "",
-                quantity: `${order.orderItems?.length || 0} items`,
-                price: `$${order.totalPrice}`,
-                status: order.orderStatus,
-                statusColor: getStatusColor(order.orderStatus),
-                statusTextColor: getStatusTextColor(order.orderStatus),
-                image: "https://via.placeholder.com/50", // Placeholder or first item image
-            })),
+            recentOrders: orders.slice(0, 5).map((order: any) => {
+                const firstItem = order.orderItems?.[0];
+                const productName = firstItem?.batch?.season?.product?.productName || order.orderCode || "Order";
+                const imageUrl = firstItem?.batch?.imagesUrl?.[0] || "https://via.placeholder.com/50";
+
+                return {
+                    id: order.id.toString(),
+                    name: productName,
+                    orderNumber: order.orderCode || "",
+                    quantity: `${order.orderItems?.length || 0} items`,
+                    price: `$${order.totalPrice}`,
+                    status: order.orderStatus,
+                    statusColor: getStatusColor(order.orderStatus),
+                    statusTextColor: getStatusTextColor(order.orderStatus),
+                    image: imageUrl,
+                };
+            }),
         };
     }, [farm, orders, batches]);
 

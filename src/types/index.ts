@@ -51,6 +51,7 @@ export interface Season {
   farmId: string;
   productId: string;
   product?: ProductResponse & { category?: Category }; // Ensure category is Category type
+  farm?: Farm;
 }
 
 

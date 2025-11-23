@@ -1,63 +1,43 @@
 // CustomerOrdersScreen.tsx
 import React, { useMemo, useState } from 'react';
-import { View, Text, Pressable, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, Pressable, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import OrderCard, { Order } from '../components/customer-orders/OrderCard';
 import { Search, Filter, ChevronLeft } from 'lucide-react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
+import { useMyOrders } from '@/hooks/useMyOrders';
+import { formatDate } from '@/utils/date';
 
 const FILTERS = ['All Orders', 'Active', 'Delivered', 'Cancelled'] as const;
 type FilterType = (typeof FILTERS)[number];
 
-const ordersData: Order[] = [
-  {
-    id: '1',
-    code: 'ORD-2024-1118',
-    date: 'Nov 18, 2024',
-    farmName: 'Sunny Acres Farm',
-    subtitle: 'Organic vegetables & herbs',
-    status: 'in_transit',
-    itemsCount: 5,
-    estDelivery: 'Nov 20',
-    total: '$32.50',
-  },
-  {
-    id: '2',
-    code: 'ORD-2024-1115',
-    date: 'Nov 15, 2024',
-    farmName: 'Green Valley Farm',
-    subtitle: 'Certified organic produce',
-    status: 'delivered',
-    itemsCount: 3,
-    deliveredDate: 'Nov 16',
-    total: '$18.75',
-    rating: '4.8',
-  },
-  {
-    id: '3',
-    code: 'ORD-2024-1119',
-    date: 'Nov 19, 2024',
-    farmName: 'Fresh Fields Farm',
-    subtitle: 'Seasonal fruits & vegetables',
-    status: 'pending',
-    itemsCount: 2,
-    total: '$12.25',
-  },
-  {
-    id: '4',
-    code: 'ORD-2024-1110',
-    date: 'Nov 10, 2024',
-    farmName: 'Mountain View Farm',
-    subtitle: 'Premium organic produce',
-    status: 'cancelled',
-    itemsCount: 4,
-    total: '$28.50',
-  },
-];
+const mapStatus = (status: string): Order['status'] => {
+  const s = status.toLowerCase();
+  if (s.includes('transit') || s.includes('shipping')) return 'in_transit';
+  if (s.includes('deliver') || s.includes('complete')) return 'delivered';
+  if (s.includes('cancel')) return 'cancelled';
+  return 'pending';
+};
 
 const CustomerOrdersScreen: React.FC = () => {
   const [filter, setFilter] = useState<FilterType>('All Orders');
   const navigation = useNavigation()
+  const { data: orders, isLoading } = useMyOrders();
+
+  const ordersData = useMemo(() => {
+    if (!orders) return [];
+    return orders.map((order: any) => ({
+      id: order.id,
+      code: order.orderCode,
+      date: formatDate(order.orderDate),
+      farmName: 'Farm', // Placeholder
+      subtitle: `${order.orderItems?.length || 0} items`,
+      status: mapStatus(order.orderStatus),
+      itemsCount: order.orderItems?.length || 0,
+      total: `$${order.totalPrice}`,
+      estDelivery: 'TBD',
+    } as Order));
+  }, [orders]);
 
   const filteredOrders = useMemo(() => {
     if (filter === 'All Orders') return ordersData;
@@ -133,9 +113,16 @@ const CustomerOrdersScreen: React.FC = () => {
         contentContainerStyle={{ paddingBottom: 24 }}
         showsVerticalScrollIndicator={false}
       >
-        {filteredOrders.map(order => (
-          <OrderCard key={order.id} order={order} />
-        ))}
+        {isLoading ? (
+          <ActivityIndicator size="large" color="#4CAF50" className="mt-10" />
+        ) : (
+          filteredOrders.map(order => (
+            <OrderCard key={order.id} order={order} />
+          ))
+        )}
+        {!isLoading && filteredOrders.length === 0 && (
+          <Text className="text-center text-gray-500 mt-10">No orders found.</Text>
+        )}
       </ScrollView>
     </SafeAreaView>
   );

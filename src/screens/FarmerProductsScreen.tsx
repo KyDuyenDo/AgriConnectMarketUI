@@ -145,7 +145,7 @@ const BatchCard = ({ batch, onPress, onEdit, onDelete }: {
 export const FarmerProductsScreen: React.FC = () => {
   const navigation = useNavigation<Nav>();
   const { accountId } = useAuthStore();
-  const { data: batches, isLoading } = useAllBatches(accountId || undefined);
+  const { data: batches, isLoading } = useAllBatches(accountId || undefined, { enabled: !!accountId });
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredBatches = batches?.filter(b => {

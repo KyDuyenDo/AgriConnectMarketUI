@@ -10,7 +10,8 @@ const BatchService = {
         const url = accountId
             ? `/api/product-batches/farmer/${accountId}`
             : `/api/product-batches`;
-        const response = await apiClient.get<{ data: ProductBatch[] }>(url);
+        console.log("url", url)
+        const response = await apiClient.get<{ success: boolean, message: string, data: ProductBatch[] }>(url);
         return response.data.data;
     },
     getBatchesByFarmer: async (accountId: string): Promise<ProductBatch[]> => {

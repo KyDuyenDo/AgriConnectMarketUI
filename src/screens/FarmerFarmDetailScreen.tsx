@@ -24,8 +24,8 @@ type Nav = NativeStackNavigationProp<FarmStackParamList>;
 export default function FarmDetailScreen() {
   const navigation = useNavigation<Nav>();
   const { data: farm, isLoading: farmLoading, error: farmError } = useFarmByMe();
-  const { data: seasons, isLoading: seasonsLoading } = useSeasons();
-  const { statistics, isLoading: statsLoading } = useFarmStatistics();
+  const { seasons, isLoading: seasonsLoading } = useSeasons(farm?.id);
+  const { statistics, isLoading: statsLoading } = useFarmStatistics(farm?.id, farm?.farmerId);
 
   // Loading state
   if (farmLoading) {

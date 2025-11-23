@@ -15,11 +15,11 @@ export const useBatchesBySeason = (seasonId: string) => {
     });
 };
 
-export const useAllBatches = (accountId?: string) => {
+export const useAllBatches = (accountId?: string, options?: { enabled?: boolean }) => {
     return useQuery<Batch[]>({
         queryKey: accountId ? [...BATCH_QUERY_KEYS.all, accountId] : BATCH_QUERY_KEYS.all,
         queryFn: () => BatchService.getAll(accountId),
-        enabled: !!accountId, // Only run if accountId is provided, or remove if you want it to run always (but service needs to handle undefined)
+        enabled: options?.enabled ?? true,
     });
 };
 

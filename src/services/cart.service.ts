@@ -1,115 +1,105 @@
 import apiClient from "@/api/config";
-import { CartItem, CartRequest } from "@/types";
+import { ProductBatch } from "@/types";
 
-const BASE_URL = "api/carts";
+export interface CartItemResponse {
+    id: string;
+    cartId: string;
+    batchId: string;
+    quantity: number;
+    itemPrice: number;
+    batch?: ProductBatch;
+}
+
+export interface CartResponse {
+    id: string;
+    customerId: string;
+    totalPrice: number;
+    cartItems: CartItemResponse[];
+}
+
+export interface AddToCartRequest {
+    cartId: string;
+    batchId: string;
+    quantity: number;
+}
+
+export interface UpdateCartItemRequest {
+    batchId: string;
+    quantity: number;
+}
+
+const BASE_URL = "/api/carts";
 
 export const CartService = {
     /**
-     * Lấy giỏ hàng hiện tại (GET /carts)
+     * Get current user's cart (GET /api/carts/me)
      */
-    getCart: async () => {
+    getCart: async (): Promise<CartResponse | null> => {
         try {
-            const res = await apiClient.get(BASE_URL + "/me");
-            return res.data?.data;
-        } catch (error: any) {
-            console.error("❌ Lỗi lấy giỏ hàng:", error);
-
-            // ⬇️ Handle backend response
-            if (error.response) {
-                const { status, data } = error.response;
-                console.log("❌ Lỗi lấy giỏ hàng: status", status);
-                console.log("❌ Lỗi lấy giỏ hàng: data", data?.message);
-
-                // Token hết hạn hoặc chưa đăng nhập
-                if (status === 401 || data?.message === "User not authenticated!") {
-                    console.log("❌ Lỗi lấy giỏ hàng: Token hết hạn hoặc chưa đăng nhập");
-                    throw new Error("NOT_AUTHENTICATED");
-                }
-
-                // Endpoint không tồn tại
-                if (status === 404) {
-                    console.log("❌ Lỗi lấy giỏ hàng: Endpoint không tồn tại");
-                    // Return empty cart instead of throwing error
-                    return [];
-                }
+            const res = await apiClient.get<any>(`${BASE_URL}/me`);
+            // Backend returns: { success: true, data: { isSuccess: true, value: { ... } } }
+            if (res.data?.success && res.data?.data?.isSuccess) {
+                return res.data.data.value;
             }
-
-            throw error;
-        }
-    },
-
-
-    /**
-     * Thêm sản phẩm vào giỏ hàng (POST /carts/items)
-     */
-    addItem: async (item: Partial<CartRequest>) => {
-        try {
-            console.log("📦 Đang thêm sản phẩm vào giỏ hàng:", item);
-            const res = await apiClient.post(`${BASE_URL}`, item);
-            console.log("✅ Thêm sản phẩm thành công:", res.data);
-            return res.data;
+            return null;
         } catch (error: any) {
-            // ⬇️ Handle backend response
-            if (error.response) {
-                const { status, data } = error.response;
-                console.log("❌ Lỗi lấy giỏ hàng: status", status);
-                console.log("❌ Lỗi lấy giỏ hàng: data", data?.message);
-
-                // Token hết hạn hoặc chưa đăng nhập
-                if (status === 401 || data?.message === "User not authenticated!") {
-                    console.log("❌ Lỗi lấy giỏ hàng: Token hết hạn hoặc chưa đăng nhập");
-                    throw new Error("NOT_AUTHENTICATED");
-                }
-
-                // Endpoint không tồn tại
-                if (status === 404) {
-                    console.log("❌ Lỗi lấy giỏ hàng: Endpoint không tồn tại");
-                    // Return empty cart instead of throwing error
-                    throw new Error("NOT_FOUND");
-                }
+            console.error("❌ Error fetching cart:", error);
+            if (error.response?.status === 404) {
+                return null;
             }
-
             throw error;
         }
     },
 
     /**
-     * Cập nhật sản phẩm trong giỏ hàng (PUT /cart/{id})
+     * Add item to cart (POST /api/carts)
      */
-    updateItem: async (id: string, updates: Partial<CartItem>): Promise<CartItem> => {
+    addItem: async (item: AddToCartRequest): Promise<CartItemResponse> => {
         try {
-            const res = await apiClient.put<CartItem>(`${BASE_URL}/${id}`, updates);
-            return res.data;
+            console.log("📦 Adding item to cart:", item);
+            const res = await apiClient.post<{ data: CartItemResponse }>(`${BASE_URL}`, item);
+            console.log("✅ Item added successfully:", res.data);
+            return res.data.data;
         } catch (error) {
-            console.error(`❌ Lỗi cập nhật sản phẩm ${id} trong giỏ hàng:`, error);
+            console.error("❌ Error adding item to cart:", error);
             throw error;
         }
     },
 
     /**
-     * Xóa sản phẩm khỏi giỏ hàng (DELETE /cart/{id})
+     * Update cart item (PATCH /api/carts/{cartId})
      */
-    removeItem: async (id: string): Promise<boolean> => {
+    updateItem: async (cartId: string, data: UpdateCartItemRequest): Promise<CartItemResponse> => {
         try {
-            const res = await apiClient.delete(`${BASE_URL}/cart-items/${id}`);
+            const res = await apiClient.patch<{ data: CartItemResponse }>(`${BASE_URL}/${cartId}`, data);
+            return res.data.data;
+        } catch (error) {
+            console.error(`❌ Error updating cart item:`, error);
+            throw error;
+        }
+    },
+
+    /**
+     * Remove item from cart (DELETE /api/carts/cart-items/{itemId})
+     */
+    removeItem: async (itemId: string): Promise<boolean> => {
+        try {
+            const res = await apiClient.delete(`${BASE_URL}/cart-items/${itemId}`);
             return res.status === 200 || res.status === 204;
         } catch (error) {
-            console.error(`❌ Lỗi xóa sản phẩm ${id} khỏi giỏ hàng:`, error);
+            console.error(`❌ Error removing item ${itemId}:`, error);
             throw error;
         }
     },
 
     /**
-     * Xóa toàn bộ giỏ hàng (DELETE /cart)
+     * Clear cart (Not implemented in backend yet based on analysis, but keeping placeholder)
      */
     clearCart: async (): Promise<boolean> => {
-        try {
-            const res = await apiClient.delete(BASE_URL);
-            return res.status === 200 || res.status === 204;
-        } catch (error) {
-            console.error("❌ Lỗi xóa giỏ hàng:", error);
-            throw error;
-        }
+        // Backend doesn't seem to have a clear cart endpoint based on my analysis of CartController.cs
+        // But I'll leave this here if it was intended.
+        console.warn("clearCart not implemented in backend");
+        return false;
     },
 };
 

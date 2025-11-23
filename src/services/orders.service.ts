@@ -3,7 +3,7 @@ import { Order } from "@/types";
 
 export const ordersService = {
     getFarmOrders: async (farmId: string) => {
-        const response = await apiClient.get<{ data: Order[] }>(`/orders/farm/${farmId}`);
+        const response = await apiClient.get<{ data: Order[] }>(`/api/orders/farm/${farmId}`);
         return response.data.data;
     },
 
@@ -17,6 +17,11 @@ export const ordersService = {
             `/orders/${orderId}/order-status`,
             { orderStatus: status }
         );
+        return response.data.data;
+    },
+
+    getMyOrders: async () => {
+        const response = await apiClient.get<{ data: Order[] }>("/api/orders/me");
         return response.data.data;
     },
 };

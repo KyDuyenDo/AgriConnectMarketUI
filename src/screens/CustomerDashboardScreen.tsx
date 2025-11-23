@@ -11,18 +11,24 @@ import type React from "react"
 import { useState } from "react"
 import { ScrollView, Platform, View } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
+import { useGetProfile } from "@/hooks/useProfile"
+import { useMyOrders } from "@/hooks/useMyOrders"
+import { formatDate } from "@/utils/date"
 
 export const CustomerDashboardScreen: React.FC = () => {
+  const { data: profile } = useGetProfile()
+  const { data: cart } = useCart()
+  const { data: orders } = useMyOrders()
+
   const [favorites, setFavorites] = useState(favoriteProducts)
-  const {data: Cart } = useCart()
-  console.log(Cart?.value?.id)
-  
+
   const handleToggleFavorite = (id: string) => {
     setFavorites(favorites.map((fav) => (fav.id === id ? { ...fav, isFavorite: !fav.isFavorite } : fav)))
   }
 
-  const cartItemsCount = cartItems.length
-  const cartTotal = "$24.75"
+  const cartItemsCount = cart?.cartItems?.length || 0
+  const cartTotalValue = cart?.cartItems?.reduce((sum: number, item: any) => sum + (item.subTotal || 0), 0) || 0
+  const cartTotal = `$${cartTotalValue.toFixed(2)}`
 
   const actions: ActionButton[] = [
     { id: "1", label: "Shop", icon: <ShoppingBasket color="white" size={20} />, backgroundColor: "bg-[#4CAF50]", link: "Explore" },
@@ -44,16 +50,16 @@ export const CustomerDashboardScreen: React.FC = () => {
       >
         <View className="pt-4">
           <Header
-            userName="Sarah Chen"
-            profileImage="https://static.paraflowcontent.com/public/resource/image/e0231cf3-615a-4e36-bb35-bebc6aaae5a8.jpeg"
+            userName={profile?.fullname || "Guest"}
+            profileImage={profile?.avatarUrl || "https://static.paraflowcontent.com/public/resource/image/e0231cf3-615a-4e36-bb35-bebc6aaae5a8.jpeg"}
             notificationCount={3}
           />
         </View>
         <ActionButtonList actions={actions} />
         <View className="px-4">
-          <YourCartCard items={cartItems} total={cartTotal} itemsCount={cartItemsCount} />
+          <YourCartCard items={cart?.cartItems || []} total={cartTotal} itemsCount={cartItemsCount} />
         </View>
-        <RecentOrdersCard orders={recentOrders} />
+        <RecentOrdersCard orders={orders || []} />
         <YourFavoriteCard favorites={favorites} onToggleFavorite={handleToggleFavorite} />
         <SpecialOffersCard />
       </ScrollView>

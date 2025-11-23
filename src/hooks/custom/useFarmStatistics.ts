@@ -3,13 +3,13 @@ import { useAllBatches } from "@/hooks/useBatches";
 import { useSeasons } from "@/hooks/useSeasons";
 import { FarmStatistics } from "@/types";
 
-export const useFarmStatistics = (): {
+export const useFarmStatistics = (farmId?: string, accountId?: string): {
     statistics: FarmStatistics | null;
     isLoading: boolean;
     error: any;
 } => {
-    const { data: batches, isLoading: batchesLoading, error: batchesError } = useAllBatches();
-    const { data: seasons, isLoading: seasonsLoading, error: seasonsError } = useSeasons();
+    const { data: batches, isLoading: batchesLoading, error: batchesError } = useAllBatches(accountId, { enabled: !!accountId });
+    const { seasons, isLoading: seasonsLoading, error: seasonsError } = useSeasons(farmId);
 
     const statistics = useMemo<FarmStatistics | null>(() => {
         if (!batches || !seasons) {

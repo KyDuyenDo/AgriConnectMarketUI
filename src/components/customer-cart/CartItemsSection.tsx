@@ -7,9 +7,10 @@ type Props = {
   selectedItems: string[]
   onSelectItem: (id: string) => void
   onDelete: (id: string) => void
+  hideQuantityControls?: boolean
 }
 
-export default function CartItemsSection({ items, selectedItems, onSelectItem, onDelete }: Props) {
+export default function CartItemsSection({ items, selectedItems, onSelectItem, onDelete, hideQuantityControls }: Props) {
   return (
     <View className="px-4 mb-4">
       <View className="bg-white p-4 rounded-2xl shadow-sm">
@@ -41,6 +42,7 @@ export default function CartItemsSection({ items, selectedItems, onSelectItem, o
             onDelete={onDelete}
             onIncrement={() => { }}
             onDecrement={() => { }}
+            hideQuantityControls={hideQuantityControls}
           />
         ))}
       </View>

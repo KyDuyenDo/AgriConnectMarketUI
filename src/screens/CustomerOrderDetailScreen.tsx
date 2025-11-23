@@ -19,60 +19,55 @@ import { TimelineRow, TimelineStep } from '@/components/customer-order-detail/Ti
 import { OrderItem, OrderItemRow } from '@/components/customer-order-detail/OrderItemRow';
 import { InfoRow } from '@/components/customer-order-detail/InfoRow';
 import { SummaryRow } from '@/components/customer-cart/SummaryRow';
+import { useRoute } from '@react-navigation/native';
+import { useOrderDetail } from '@/hooks/useOrderDetail';
+import { ActivityIndicator } from 'react-native';
+import { formatDate } from '@/utils/date';
 
-
-const TIMELINE: TimelineStep[] = [
-  {
-    id: '1',
-    title: 'Order Confirmed',
-    time: 'Dec 15, 2:30 PM',
-    done: true,
-  },
-  {
-    id: '2',
-    title: 'Picked from Farm',
-    time: 'Dec 16, 8:45 AM',
-    done: true,
-  },
-  {
-    id: '3',
-    title: 'Out for Delivery',
-    time: 'Dec 16, 2:15 PM',
-    done: true,
-  },
-  {
-    id: '4',
-    title: 'Delivered',
-    time: 'Expected: Dec 16, 5:00 PM',
-    done: false,
-  },
-];
-
-const ORDER_ITEMS: OrderItem[] = [
-  {
-    id: '1',
-    name: 'Organic Tomatoes',
-    price: '$9.98',
-    qtyLabel: '2 lbs • $4.99/lb',
-    tag: 'Organic',
-  },
-  {
-    id: '2',
-    name: 'Fresh Lettuce',
-    price: '$2.49',
-    qtyLabel: '1 head • $2.49',
-    tag: 'Fresh Today',
-  },
-  {
-    id: '3',
-    name: 'Fresh Basil',
-    price: '$3.99',
-    qtyLabel: '1 bunch • $3.99',
-    tag: 'Organic',
-  },
-];
 
 const CustomerOrderDetailScreen: React.FC = () => {
+  const route = useRoute<any>();
+  const { orderId } = route.params || {};
+  const { data: order, isLoading } = useOrderDetail(orderId);
+
+  if (isLoading) {
+    return (
+      <View className="flex-1 justify-center items-center bg-[#F4F5F9]">
+        <ActivityIndicator size="large" color="#32C373" />
+      </View>
+    );
+  }
+
+  if (!order) {
+    return (
+      <View className="flex-1 justify-center items-center bg-[#F4F5F9]">
+        <Text>Order not found</Text>
+      </View>
+    );
+  }
+
+  const timeline = [
+    {
+      id: '1',
+      title: 'Order Placed',
+      time: formatDate(order.orderDate),
+      done: true,
+    },
+    {
+      id: '2',
+      title: 'Current Status',
+      time: order.orderStatus,
+      done: order.orderStatus === 'Delivered',
+    }
+  ];
+
+  const orderItems = order.orderItems?.map((item: any) => ({
+    id: item.id,
+    name: item.batch?.season?.product?.productName || 'Product',
+    price: `$${item.unitPrice}`,
+    qtyLabel: `${item.quantity} ${item.batch?.units || 'units'}`,
+    tag: 'Organic', // Placeholder
+  })) || [];
   return (
     <View className="flex-1 bg-[#F4F5F9]">
       <ScrollView
@@ -83,19 +78,19 @@ const CustomerOrderDetailScreen: React.FC = () => {
           <View className="mb-3 flex-row items-center">
             <View className="rounded-full bg-[#E6F7EA] px-3 py-1">
               <Text className="text-[11px] font-semibold text-[#32C373]">
-                In Transit
+                {order.orderStatus}
               </Text>
             </View>
             <Text className="ml-3 text-[13px] font-semibold text-[#333333]">
-              Order #FG2024-0892
+              Order #{order.orderCode}
             </Text>
           </View>
 
-          {TIMELINE.map((step, index) => (
+          {timeline.map((step, index) => (
             <TimelineRow
               key={step.id}
               step={step}
-              isLast={index === TIMELINE.length - 1}
+              isLast={index === timeline.length - 1}
             />
           ))}
         </View>
@@ -107,8 +102,8 @@ const CustomerOrderDetailScreen: React.FC = () => {
               <Truck size={18} color="#32C373" />
             }
             title="Delivery Address"
-            line1="456 Oak Street, Apt 3B"
-            line2="Springfield, CA 90210"
+            line1={order.customer?.address?.detail || "Address"}
+            line2={`${order.customer?.address?.district || ''}, ${order.customer?.address?.province || ''}`}
           />
 
           <View className="my-2 h-[1px] bg-[#F0F2F5]" />
@@ -163,11 +158,11 @@ const CustomerOrderDetailScreen: React.FC = () => {
           </Text>
 
           <View className="rounded-[22px] bg-white px-4 py-3 shadow-sm">
-            {ORDER_ITEMS.map((item, idx) => (
+            {orderItems.map((item: any, idx: number) => (
               <OrderItemRow
                 key={item.id}
                 item={item}
-                showDivider={idx !== ORDER_ITEMS.length - 1}
+                showDivider={idx !== orderItems.length - 1}
               />
             ))}
           </View>
@@ -177,16 +172,16 @@ const CustomerOrderDetailScreen: React.FC = () => {
               Payment Summary
             </Text>
 
-            <SummaryRow label="Subtotal" value="$16.46" />
-            <SummaryRow label="Delivery Fee" value="$2.99" />
-            <SummaryRow label="Service Fee" value="$1.50" />
-            <SummaryRow label="Tax" value="$1.64" />
+            <SummaryRow label="Subtotal" value={`$${order.totalPrice}`} />
+            <SummaryRow label="Delivery Fee" value={`$${order.shippingFee || 0}`} />
+            <SummaryRow label="Service Fee" value="$0.00" />
+            <SummaryRow label="Tax" value="$0.00" />
 
             <View className="my-2 h-[1px] bg-[#F0F2F5]" />
 
             <SummaryRow
               label="Total"
-              value="$22.59"
+              value={`$${(order.totalPrice + (order.shippingFee || 0)).toFixed(2)}`}
               highlight
             />
 

@@ -26,11 +26,32 @@ export const CustomerCartScreen: React.FC = () => {
   const { handleDelete } = useHandleAddToCart()
   const { mutate: clearCart } = useClearCart()
 
-  const CartItems = Cart?.value?.cartItems || []
+  const CartItems = Cart?.cartItems || []
 
-  const CartItemSelects = CartItems.map((item: any) =>
-    mapBatchToProductCart(item.id, item.batchId, item.quantity, item.itemPrice)
-  );
+  const CartItemSelects = CartItems.map((item: any) => {
+    // Use enriched batch data if available, otherwise fallback to basic mapping
+    const batchData = item.batch;
+    const productName = batchData?.season?.product?.productName || "Loading...";
+    const farmName = batchData?.season?.farm?.farmName || "Unknown Farm";
+    const imageUrl = batchData?.imagesUrl?.[0] || "https://via.placeholder.com/150";
+    const unit = batchData?.units || "unit";
+
+    return {
+      id: item.id,
+      name: productName,
+      farm: farmName,
+      price: `${item.itemPrice}`, // Total price for the item
+      unit: unit,
+      image: imageUrl,
+      quantity: item.quantity, // Should be 1 based on requirements
+      status: "In Stock",
+      batch: item.batchId,
+      // Other fields required by Product type
+      isFavorite: false,
+      rating: 0,
+      numRatings: 0,
+    };
+  });
 
   const handleProceed = () => {
     console.log("Proceed to checkout")
@@ -126,6 +147,7 @@ export const CustomerCartScreen: React.FC = () => {
             setSelectedItems((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]))
           }
           onDelete={handleDelete}
+          hideQuantityControls={true}
         />
 
         <PromoCodeSection />

@@ -1,16 +1,18 @@
 import { useAddToCart, useCart, useRemoveFromCart } from "@/hooks/useCart";
+import { Alert } from "react-native";
 
 /**
  * Custom hook để xử lý thêm sản phẩm vào giỏ hàng
  */
 export const useHandleAddToCart = () => {
-    const { data: Cart } = useCart();
+    const { data: cart } = useCart();
     const { mutate: addToCart, isPending } = useAddToCart();
     const { mutate: removeFromCart, isPending: isDeleting } = useRemoveFromCart();
 
     const handleAddToCart = (batchId: string) => {
-        if (!Cart?.value?.id) {
+        if (!cart?.id) {
             console.error("❌ Không tìm thấy giỏ hàng");
+            Alert.alert("Error", "Cart not found or user not logged in.");
             return;
         }
 
@@ -19,20 +21,22 @@ export const useHandleAddToCart = () => {
             return;
         }
 
-        console.log("🛒 Thêm vào giỏ hàng:", { cartId: Cart?.value?.id, batchId });
+        console.log("🛒 Thêm vào giỏ hàng:", { cartId: cart.id, batchId });
 
         addToCart(
             {
-                cartId: Cart?.value?.id,
-                batchId: '7b1b13fa-f00c-4f2b-a0b1-12086275428d',
+                cartId: cart.id,
+                batchId: batchId,
                 quantity: 1
             },
             {
                 onSuccess: (data) => {
                     console.log("✅ Đã thêm sản phẩm vào giỏ hàng", data);
+                    Alert.alert("Success", "Added to cart!");
                 },
-                onError: (error) => {
+                onError: (error: any) => {
                     console.error("❌ Lỗi thêm sản phẩm vào giỏ hàng:", error);
+                    Alert.alert("Error", "Failed to add to cart. " + (error.message || ""));
                 }
             }
         );
@@ -61,6 +65,6 @@ export const useHandleAddToCart = () => {
         handleDelete,
         isPending,
         isDeleting,
-        cartId: Cart?.value?.id
+        cartId: cart?.id
     };
 };

@@ -17,6 +17,7 @@ interface CartItemProps {
     onIncrement?: () => void;
     onDecrement?: () => void;
     onDelete: (id: string) => void;
+    hideQuantityControls?: boolean;
 }
 
 export function CartItem({
@@ -34,7 +35,8 @@ export function CartItem({
     onSelect,
     onIncrement,
     onDecrement,
-    onDelete
+    onDelete,
+    hideQuantityControls = false
 }: CartItemProps) {
     const badgeStyle = badge.color === 'green'
         ? { bg: 'rgba(232, 249, 230, 1)', text: '#6BCF5F' }
@@ -84,17 +86,23 @@ export function CartItem({
 
                 <View className="flex-row justify-between items-center">
                     <View className="flex-row items-center gap-3">
-                        <View className="flex-row items-center rounded-lg bg-[#E8F5E8]">
-                            <Pressable onPress={onDecrement} className="w-8 h-8 items-center justify-center">
-                                <Minus size={14} color="#4CAF50" />
-                            </Pressable>
-                            <Text className="px-2 text-[14px] font-medium text-[#2D2D2D]">
-                                {quantity}
+                        {!hideQuantityControls ? (
+                            <View className="flex-row items-center rounded-lg bg-[#E8F5E8]">
+                                <Pressable onPress={onDecrement} className="w-8 h-8 items-center justify-center">
+                                    <Minus size={14} color="#4CAF50" />
+                                </Pressable>
+                                <Text className="px-2 text-[14px] font-medium text-[#2D2D2D]">
+                                    {quantity}
+                                </Text>
+                                <Pressable onPress={onIncrement} className="w-8 h-8 items-center justify-center">
+                                    <Plus size={14} color="#4CAF50" />
+                                </Pressable>
+                            </View>
+                        ) : (
+                            <Text className="text-[14px] font-medium text-[#2D2D2D]">
+                                Qty: {quantity}
                             </Text>
-                            <Pressable onPress={onIncrement} className="w-8 h-8 items-center justify-center">
-                                <Plus size={14} color="#4CAF50" />
-                            </Pressable>
-                        </View>
+                        )}
                         <Text className="text-[12px] text-[#8A8A8A]">{unit}</Text>
                     </View>
 

@@ -1,19 +1,40 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import CartService from "@/services/cart.service";
-import { CartItem, CartRequest } from "@/types";
+import CartService, { AddToCartRequest, UpdateCartItemRequest } from "@/services/cart.service";
+import BatchService from "@/services/batches.service";
 
 // Query Keys
-const CART_QUERY_KEYS = {
+export const CART_QUERY_KEYS = {
     cart: ["cart"] as const,
 };
 
 // ======================================================
 // 1️⃣ GET CART
 // ======================================================
+// ======================================================
+// 1️⃣ GET CART (Enriched with Batch Details)
+// ======================================================
 export const useCart = () => {
     return useQuery({
         queryKey: CART_QUERY_KEYS.cart,
-        queryFn: () => CartService.getCart(),
+        queryFn: async () => {
+            const cart = await CartService.getCart();
+            if (!cart || !cart.cartItems) return cart;
+
+            // Fetch details for all batches in parallel
+            const enrichedItems = await Promise.all(
+                cart.cartItems.map(async (item) => {
+                    try {
+                        const batchDetail = await BatchService.getBatchById(item.batchId);
+                        return { ...item, batch: batchDetail };
+                    } catch (error) {
+                        console.error(`Failed to fetch batch detail for ${item.batchId}`, error);
+                        return item; // Return item without batch detail if fetch fails
+                    }
+                })
+            );
+
+            return { ...cart, cartItems: enrichedItems };
+        },
     });
 };
 
@@ -24,7 +45,7 @@ export const useAddToCart = () => {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: (item: Partial<CartRequest>) => CartService.addItem(item),
+        mutationFn: (item: AddToCartRequest) => CartService.addItem(item),
 
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: CART_QUERY_KEYS.cart });
@@ -39,8 +60,8 @@ export const useUpdateCartItem = () => {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: ({ id, updates }: { id: string; updates: Partial<CartItem> }) =>
-            CartService.updateItem(id, updates),
+        mutationFn: ({ cartId, data }: { cartId: string; data: UpdateCartItemRequest }) =>
+            CartService.updateItem(cartId, data),
 
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: CART_QUERY_KEYS.cart });
@@ -55,7 +76,7 @@ export const useRemoveFromCart = () => {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: (id: string) => CartService.removeItem(id),
+        mutationFn: (itemId: string) => CartService.removeItem(itemId),
 
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: CART_QUERY_KEYS.cart });

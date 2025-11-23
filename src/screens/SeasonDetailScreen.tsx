@@ -21,7 +21,9 @@ export default function SeasonDetailScreen() {
     const route = useRoute<SeasonDetailRouteProp>();
     const { seasonId } = route.params;
 
-    const { season, isLoading: isLoadingSeason, refetch: refetchSeason } = useSeason(seasonId);
+    const { season, product, isLoading: isLoadingSeason, refetch: refetchSeason } = useSeason(seasonId);
+
+    const seasonWithProduct = season ? { ...season, product: product || season.product } : null;
     const {
         data: batches,
         isLoading: isLoadingBatches,
@@ -115,7 +117,7 @@ export default function SeasonDetailScreen() {
                 <SeasonProgressStepper status={season.status} />
 
                 {/* Season Header Card */}
-                <SeasonHeaderCard season={season} />
+                <SeasonHeaderCard season={seasonWithProduct!} />
 
                 {/* Season Stats */}
                 <SeasonStats

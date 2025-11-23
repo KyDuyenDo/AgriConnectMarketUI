@@ -13,7 +13,7 @@ export type CustomerStackParamList = {
   CustomerOrders: undefined
   CustomerOrderDetail: { orderId: string }
   FarmDetail: { farmId: string }
-  BatchDetails: { productId: string }
+  BatchDetails: { batchId: string }
   PersonalInformation: undefined
 }
 

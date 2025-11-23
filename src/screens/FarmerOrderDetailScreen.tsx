@@ -42,17 +42,17 @@ export function FarmerOrderDetailScreen() {
     ];
 
     const customer = {
-        name: order.customer?.fullName || 'Guest',
+        name: order.customer?.fullname || 'Guest',
         photo: order.customer?.avatarUrl || 'https://via.placeholder.com/150',
         memberSince: 'Member', // Placeholder
         email: order.customer?.email || 'No email',
-        phone: order.customer?.phoneNumber || 'No phone',
+        phone: order.customer?.phone || 'No phone',
         address: [order.customer?.address?.detail || '', `${order.customer?.address?.district || ''}, ${order.customer?.address?.province || ''}`].filter(Boolean)
     };
 
     const items = order.orderItems?.map(item => ({
         image: item.batch?.imagesUrl?.[0] || 'https://via.placeholder.com/150',
-        name: item.batch?.season?.product?.name || 'Product',
+        name: item.batch?.season?.product?.productName || 'Product',
         quantity: `${item.quantity} ${item.batch?.units || 'units'}`,
         unitPrice: `${item.unitPrice}/${item.batch?.units || 'unit'}`,
         total: item.subTotal.toFixed(2),
