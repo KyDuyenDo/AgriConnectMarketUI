@@ -10,6 +10,7 @@ import { useNavigation } from "@react-navigation/native"
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { Platform, ScrollView } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
+import { useFarmDashboardData } from "@/hooks/useFarmDashboardData"
 
 interface DashboardData {
   userName: string
@@ -20,6 +21,7 @@ interface DashboardData {
   activeProductsTrend: string
   newOrdersCount: number
   newOrdersTrend: string
+  recentOrders?: Order[]
 }
 
 export interface QuickAction {
@@ -33,7 +35,7 @@ export interface QuickAction {
 }
 
 export interface Order {
-  id: number
+  id: string
   name: string
   orderNumber: string
   quantity: string
@@ -137,7 +139,13 @@ export function FarmDashboard({ dashboardData }: FarmDashboardProps) {
     },
   ]
 
-  const data = dashboardData || defaultData
+  const { dashboardData: fetchedData, isLoading } = useFarmDashboardData();
+  const data = dashboardData || fetchedData || defaultData;
+
+  if (isLoading && !dashboardData) {
+    // You might want to return a loading spinner here
+    // return <ActivityIndicator size="large" color="#4CAF50" style={{flex: 1, justifyContent: 'center'}} />;
+  }
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#F9FAF9" }}>
@@ -169,7 +177,7 @@ export function FarmDashboard({ dashboardData }: FarmDashboardProps) {
             navigation.navigate(link as any)
           }
         }} />
-        <RecentOrdersSection orders={orders} onPressOrder={(orderId) => {
+        <RecentOrdersSection orders={data.recentOrders || []} onPressOrder={(orderId) => {
           navigation.navigate("FarmerOrderDetail", { orderId })
         }} />
         <TopProductsSection />

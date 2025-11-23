@@ -30,7 +30,7 @@ apiClient.interceptors.response.use(
         return response;
     },
     error => {
-        console.log("error.response", error.response);
+        console.dir(error.response, { depth: null });
         if (error.response && error.response.status === 400 && error.response.data.message === "User not authenticated!") {
             useAuthStore.getState().logout();
         }

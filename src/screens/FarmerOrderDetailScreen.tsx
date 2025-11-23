@@ -1,4 +1,4 @@
-import { ScrollView, Platform } from 'react-native';
+import { ScrollView, Platform, View, Text, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Header } from '@/components/farmer-order-detail/Header';
 import { OrderHeader } from '@/components/farmer-order-detail/OrderHeader';
@@ -7,76 +7,62 @@ import { CustomerInfo } from '@/components/farmer-order-detail/CustomerInfo';
 import { OrderItems } from '@/components/farmer-order-detail/OrderItems';
 import { SpecialInstructions } from '@/components/farmer-order-detail/SpecialInstructions';
 import { OrderActions } from '@/components/farmer-order-detail/OrderActions';
+import { useRoute, useNavigation } from '@react-navigation/native';
+import { useFarmerOrderDetail } from '@/hooks/useFarmerOrderDetail';
+import { formatDate } from '@/utils/date';
 
-const ORDER_DATA = {
-    orderNumber: 'Order #ORD-2024-1256',
-    placedDate: 'March 15, 2024',
-    status: 'pending' as const,
-    timeline: [
+export function FarmerOrderDetailScreen() {
+    const route = useRoute<any>();
+    const navigation = useNavigation();
+    const { orderId } = route.params;
+    const { data: order, isLoading, updateStatus } = useFarmerOrderDetail(orderId);
+
+    if (isLoading || !order) {
+        return (
+            <SafeAreaView className="flex-1 justify-center items-center">
+                <ActivityIndicator size="large" color="#4CAF50" />
+            </SafeAreaView>
+        );
+    }
+
+    const timeline = [
         {
-            title: 'Order Received',
-            description: 'Mar 15, 2024 at 9:30 AM',
+            title: 'Order Placed',
+            description: formatDate(order.orderDate),
             status: 'completed' as const,
             icon: 'check' as const
         },
+        // Add more timeline steps based on status if needed
         {
-            title: 'Awaiting Confirmation',
-            description: 'Waiting for farmer approval',
+            title: 'Current Status',
+            description: order.orderStatus,
             status: 'current' as const,
             icon: 'clock' as const
-        },
-        {
-            title: 'Ready for Pickup',
-            description: 'Pending',
-            status: 'pending' as const,
-            icon: 'package' as const
         }
-    ],
-    customer: {
-        name: 'Sarah Chen',
-        photo: 'https://static.paraflowcontent.com/public/resource/image/1be67d46-7fda-4b58-8167-2749a33b5a30.jpeg',
-        memberSince: 'Regular customer since 2023',
-        email: 'sarah.chen@email.com',
-        phone: '(555) 123-4567',
-        address: ['1234 Oak Street, Apt 5B', 'San Francisco, CA 94102']
-    },
-    items: [
-        {
-            image: 'https://static.paraflowcontent.com/public/resource/image/44018837-cc6a-403d-bceb-8fd1635ad412.jpeg',
-            name: 'Organic Tomatoes',
-            quantity: '2 lbs',
-            unitPrice: '4.00/lb',
-            total: '8.00',
-            badge: 'Organic'
-        },
-        {
-            image: 'https://static.paraflowcontent.com/public/resource/image/995eec73-967a-4ba0-b5e9-28c6ab488d22.jpeg',
-            name: 'Butter Lettuce',
-            quantity: '1 head',
-            unitPrice: '3.50/head',
-            total: '3.50',
-            badge: 'Organic'
-        },
-        {
-            image: 'https://static.paraflowcontent.com/public/resource/image/7e11328a-72dd-4175-b622-34b9518eecc3.jpeg',
-            name: 'Baby Carrots',
-            quantity: '1 bunch',
-            unitPrice: '4.00/bunch',
-            total: '4.00',
-            badge: 'Organic'
-        }
-    ],
-    subtotal: '15.50',
-    serviceFee: '0.50',
-    total: '16.00',
-    specialInstructions: '"Please select the ripest tomatoes available. I\'m planning to use them for a salad tonight. Thank you!"'
-};
+    ];
 
-export function FarmerOrderDetailScreen() {
+    const customer = {
+        name: order.customer?.fullName || 'Guest',
+        photo: order.customer?.avatarUrl || 'https://via.placeholder.com/150',
+        memberSince: 'Member', // Placeholder
+        email: order.customer?.email || 'No email',
+        phone: order.customer?.phoneNumber || 'No phone',
+        address: [order.customer?.address?.detail || '', `${order.customer?.address?.district || ''}, ${order.customer?.address?.province || ''}`].filter(Boolean)
+    };
+
+    const items = order.orderItems?.map(item => ({
+        image: item.batch?.imagesUrl?.[0] || 'https://via.placeholder.com/150',
+        name: item.batch?.season?.product?.name || 'Product',
+        quantity: `${item.quantity} ${item.batch?.units || 'units'}`,
+        unitPrice: `${item.unitPrice}/${item.batch?.units || 'unit'}`,
+        total: item.subTotal.toFixed(2),
+        badge: 'Organic' // Placeholder
+    })) || [];
+
     return (
         <SafeAreaView className="flex-1" style={{ backgroundColor: '#F9FAF9' }}>
             <Header
-                onBack={() => console.log('Back')}
+                onBack={() => navigation.goBack()}
                 onMenu={() => console.log('Menu')}
             />
 
@@ -86,31 +72,33 @@ export function FarmerOrderDetailScreen() {
                 contentContainerStyle={{ paddingBottom: 30 }}
             >
                 <OrderHeader
-                    orderNumber={ORDER_DATA.orderNumber}
-                    placedDate={ORDER_DATA.placedDate}
-                    status={ORDER_DATA.status}
+                    orderNumber={order.orderCode}
+                    placedDate={formatDate(order.orderDate)}
+                    status={order.orderStatus}
                 />
 
-                <OrderTimeline steps={ORDER_DATA.timeline} />
+                <OrderTimeline steps={timeline} />
 
-                <CustomerInfo {...ORDER_DATA.customer} />
+                <CustomerInfo {...customer} />
 
                 <OrderItems
-                    items={ORDER_DATA.items}
-                    subtotal={ORDER_DATA.subtotal}
-                    serviceFee={ORDER_DATA.serviceFee}
-                    total={ORDER_DATA.total}
+                    items={items}
+                    subtotal={order.totalPrice.toFixed(2)}
+                    serviceFee={order.shippingFee.toFixed(2)}
+                    total={(order.totalPrice + order.shippingFee).toFixed(2)}
                 />
 
-                <SpecialInstructions instructions={ORDER_DATA.specialInstructions} />
+                {order.preOrder?.note && (
+                    <SpecialInstructions instructions={order.preOrder.note} />
+                )}
             </ScrollView>
 
             <OrderActions
-                onConfirm={() => console.log('Confirm')}
-                onMarkReady={() => console.log('Mark Ready')}
+                onConfirm={() => updateStatus({ status: 'Processing' })}
+                onMarkReady={() => updateStatus({ status: 'Shipped' })}
                 onCall={() => console.log('Call')}
                 onMessage={() => console.log('Message')}
-                onCancel={() => console.log('Cancel')}
+                onCancel={() => updateStatus({ status: 'Canceled' })}
             />
         </SafeAreaView>
     );

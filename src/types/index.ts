@@ -9,6 +9,7 @@ export interface Category {
 export interface ProductResponse {
   id: string;
   productName: string;
+  name?: string; // Mapped from productName if needed
   productAttribute: string;
   productDesc: string;
   categoryId: string;
@@ -83,14 +84,31 @@ export interface CartItem {
   image: string
 }
 
+export interface OrderItem {
+  id: string;
+  orderId: string;
+  batchId: string;
+  quantity: number;
+  unitPrice: number;
+  subTotal: number;
+  batch?: Batch;
+}
+
 export interface Order {
-  id: string
-  farm: string
-  itemsCount: number
-  date: string
-  price: string
-  status: "Delivered" | "In Transit"
-  action: string
+  id: string;
+  customerId: string;
+  orderCode: string;
+  totalPrice: number;
+  orderDate: string;
+  shippingFee: number;
+  orderStatus: string;
+  orderType: string;
+  paymentStatus: string;
+  paidDate?: string;
+  deliveredDate?: string;
+  customer?: any; // Profile type
+  orderItems?: OrderItem[];
+  preOrder?: any;
 }
 
 export type HistoryItem = {

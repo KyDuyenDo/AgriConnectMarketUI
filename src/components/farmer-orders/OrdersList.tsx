@@ -1,28 +1,10 @@
 import { View } from "react-native"
 import { OrderCard } from "./OrderCard"
 
-interface OrderItem {
-  id: string
-  number: string
-  customer: string
-  price: string
-  status: "delivered" | "shipped" | "processing" | "pending" | "urgent"
-  timestamp: string
-  products: string[]
-  additionalProducts?: number
-  address?: string
-  rating?: number
-  deliveryTime?: string
-  message?: string
-  timeline?: Array<{
-    text: string
-    time: string
-    color: string
-  }>
-}
+import { Order } from "@/types"
 
 interface OrdersListProps {
-  orders: OrderItem[]
+  orders: Order[]
 }
 
 export function OrdersList({ orders }: OrdersListProps) {
