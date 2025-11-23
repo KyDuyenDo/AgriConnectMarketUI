@@ -1,11 +1,11 @@
 import React from 'react';
 import { View, Text } from 'react-native';
-import { ProductBatch } from '@/types/batch';
+import { Batch } from '@/types';
 import { BatchRow } from './BatchRow';
 
 interface BatchListProps {
-    batches: ProductBatch[];
-    onBatchPress?: (batch: ProductBatch) => void;
+    batches: Batch[];
+    onBatchPress?: (batch: Batch) => void;
 }
 
 export const BatchList: React.FC<BatchListProps> = ({ batches, onBatchPress }) => {

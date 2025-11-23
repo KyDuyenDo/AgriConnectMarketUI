@@ -8,6 +8,9 @@ export const getSeason = async (seasonId: string): Promise<Season> => {
 
 export const getSeasonsByFarm = async (farmId: string): Promise<Season[]> => {
     const response = await apiClient.get(`/api/seasons`);
+    if (response.data.success === false) {
+        return [];
+    }
     return response.data.data;
 };
 export const createSeason = async (data: Partial<Season>): Promise<Season> => {

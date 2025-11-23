@@ -1,53 +1,170 @@
 import React, { useState } from "react";
-import { View, ScrollView, Platform, TouchableOpacity, Text, ActivityIndicator, Image } from "react-native";
+import { View, ScrollView, TouchableOpacity, Text, ActivityIndicator, Image } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Plus, Search, Filter } from "lucide-react-native";
+import { Plus, Search, Filter, Star, MoreVertical, Edit, Trash2, Eye } from "lucide-react-native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { FarmStackParamList } from "@/navigation/types";
 import { useNavigation } from "@react-navigation/native";
 import { useAllBatches } from "@/hooks/useBatches";
 import { Batch } from "@/types";
+import { useAuthStore } from "@/stores/auth";
 
 type Nav = NativeStackNavigationProp<FarmStackParamList>;
 
-const BatchCard = ({ batch, onPress }: { batch: Batch; onPress: () => void }) => (
-  <TouchableOpacity
-    onPress={onPress}
-    className="bg-white rounded-2xl p-3 mb-3 shadow-sm flex-row items-center"
-  >
-    <View className="w-20 h-20 bg-gray-100 rounded-xl mr-4 overflow-hidden">
-      {/* Placeholder image since Batch doesn't have image directly yet, maybe from season/product? */}
-      <View className="w-full h-full items-center justify-center bg-green-50">
-        <Text className="text-green-600 font-bold text-xs text-center p-1">{batch.batchCode || "Batch"}</Text>
+const getBatchCode = (batch: Batch): string => {
+  if (typeof batch.batchCode === 'string') return batch.batchCode;
+  if (batch.batchCode && typeof batch.batchCode === 'object' && 'value' in batch.batchCode) {
+    return (batch.batchCode as { value: string }).value;
+  }
+  return "Batch";
+};
+
+const getStockStatus = (batch: Batch): "In Stock" | "Low Stock" | "Out of Stock" => {
+  const percentage = (batch.availableQuantity / batch.totalYield) * 100;
+  if (percentage === 0) return "Out of Stock";
+  if (percentage < 20) return "Low Stock";
+  return "In Stock";
+};
+
+const getStockBadgeStyle = (stock: string) => {
+  switch (stock) {
+    case "In Stock":
+      return { bg: "bg-[#C8E6C9]", text: "text-[#2E7D32]" };
+    case "Low Stock":
+      return { bg: "bg-[#FFE0B2]", text: "text-[#F57C00]" };
+    case "Out of Stock":
+      return { bg: "bg-[#FFCDD2]", text: "text-[#D32F2F]" };
+    default:
+      return { bg: "bg-[#C8E6C9]", text: "text-[#2E7D32]" };
+  }
+};
+
+const getStockUnitColor = (stock: string) => {
+  switch (stock) {
+    case "Low Stock":
+      return "text-[#F39C12]";
+    case "Out of Stock":
+      return "text-[#E74C3C]";
+    default:
+      return "text-[#5C5C5C]";
+  }
+};
+
+const BatchCard = ({ batch, onPress, onEdit, onDelete }: {
+  batch: Batch;
+  onPress: () => void;
+  onEdit?: () => void;
+  onDelete?: () => void;
+}) => {
+  const imageUrl = batch.imagesUrl && batch.imagesUrl.length > 0 ? batch.imagesUrl[0] : null;
+  const batchCode = getBatchCode(batch);
+  const stockStatus = getStockStatus(batch);
+  const stockBadge = getStockBadgeStyle(stockStatus);
+  const unitColor = getStockUnitColor(stockStatus);
+
+  return (
+    <View className="bg-white rounded-2xl overflow-hidden shadow-sm mb-3" style={{ width: '48%' }}>
+      {/* Product Image with Overlays */}
+      <View className="relative">
+        {imageUrl ? (
+          <Image
+            source={{ uri: imageUrl }}
+            className="w-full h-[120px]"
+            style={{ objectFit: "cover" }}
+          />
+        ) : (
+          <View className="w-full h-[120px] bg-green-50 items-center justify-center">
+            <Text className="text-green-600 font-bold text-lg">{batchCode}</Text>
+          </View>
+        )}
+
+        {/* Stock Badge - Top Right */}
+        <View className={`absolute top-2 right-2 flex-row items-center py-1 px-2 rounded-full ${stockBadge.bg}`}>
+          <Text className={`text-[10px] font-medium ${stockBadge.text}`}>{stockStatus}</Text>
+        </View>
+
+        {/* Star Favorite - Top Left */}
+        <TouchableOpacity className="absolute top-2 left-2 bg-white rounded-full w-6 h-6 flex items-center justify-center">
+          <Star size={14} color={batch.isActive !== false ? "#FF8C42" : "#8A8A8A"} fill={batch.isActive !== false ? "#FF8C42" : "none"} />
+        </TouchableOpacity>
       </View>
-    </View>
-    <View className="flex-1">
-      <View className="flex-row justify-between items-start">
-        <Text className="text-[#2d2d2d] font-semibold text-base mb-1">{batch.batchCode || "Unnamed Batch"}</Text>
-        <View className={`px-2 py-1 rounded-full ${batch.isActive ? 'bg-green-100' : 'bg-gray-100'}`}>
-          <Text className={`text-xs font-medium ${batch.isActive ? 'text-green-600' : 'text-gray-500'}`}>
-            {batch.isActive ? 'Active' : 'Inactive'}
+
+      {/* Content */}
+      <View className="p-3">
+        {/* Batch Code and Menu */}
+        <View className="flex-row justify-between items-center mb-1">
+          <Text className="text-xs font-semibold text-[#2D2D2D] flex-1" numberOfLines={1}>{batchCode}</Text>
+          <TouchableOpacity className="flex items-center justify-center w-6 h-6">
+            <MoreVertical size={14} color="#8A8A8A" />
+          </TouchableOpacity>
+        </View>
+
+        {/* Season */}
+        {batch.season && (
+          <Text className="text-[10px] text-[#8A8A8A] mb-2" numberOfLines={1}>Season: {batch.season.seasonName}</Text>
+        )}
+
+        {/* Price and Units */}
+        <View className="flex-row justify-between items-center mb-2">
+          <Text className="text-sm font-bold text-[#2D2D2D]">${batch.price}</Text>
+          <Text className={`text-[10px] ${unitColor}`} numberOfLines={1}>{batch.availableQuantity}/{batch.totalYield}</Text>
+        </View>
+
+        {/* Planting Date */}
+        <View className="mb-2">
+          <Text className="text-[10px] text-[#8A8A8A]" numberOfLines={1}>
+            {batch.plantingDate ? new Date(batch.plantingDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'N/A'}
           </Text>
         </View>
+
+        {/* Action Buttons */}
+        <View className="flex-row gap-1">
+          <TouchableOpacity
+            onPress={onEdit}
+            className="flex-1 flex items-center justify-center py-2 bg-[#E8F5E8] rounded-lg active:bg-green-100">
+            <Edit size={14} color="#4CAF50" strokeWidth={1.5} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={onDelete}
+            className="flex-1 flex items-center justify-center py-2 bg-[#FDECEA] rounded-lg active:bg-red-100">
+            <Trash2 size={14} color="#E74C3C" strokeWidth={1.5} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={onPress}
+            className="flex-1 flex items-center justify-center py-2 bg-[#E3F2FD] rounded-lg active:bg-blue-100">
+            <Eye size={14} color="#2196F3" strokeWidth={1.5} />
+          </TouchableOpacity>
+        </View>
       </View>
-      <Text className="text-[#5c5c5c] text-sm mb-1">Yield: {batch.totalYield} {batch.units}</Text>
-      <Text className="text-[#4CAF50] font-bold text-sm">${batch.price}/{batch.units}</Text>
     </View>
-  </TouchableOpacity>
-);
+  );
+};
 
 export const FarmerProductsScreen: React.FC = () => {
   const navigation = useNavigation<Nav>();
-  const { data: batches, isLoading } = useAllBatches();
+  const { accountId } = useAuthStore();
+  const { data: batches, isLoading } = useAllBatches(accountId || undefined);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const filteredBatches = batches?.filter(b =>
-    (b.batchCode || "").toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredBatches = batches?.filter(b => {
+    const code = getBatchCode(b);
+    return (code || "").toLowerCase().includes(searchQuery.toLowerCase());
+  });
 
   const onAddBatch = () => {
-    // Navigate to AddBatchScreen without seasonId, so user must select season
     navigation.navigate("AddLot", {});
+  };
+
+  const handleEdit = (batchId: string) => {
+    // TODO: Navigate to edit batch screen
+    console.log("Edit batch:", batchId);
+  };
+
+  const handleDelete = (batchId: string) => {
+    // TODO: Implement delete functionality
+    console.log("Delete batch:", batchId);
   };
 
   return (
@@ -74,13 +191,17 @@ export const FarmerProductsScreen: React.FC = () => {
         {isLoading ? (
           <ActivityIndicator size="large" color="#4CAF50" className="mt-10" />
         ) : (
-          filteredBatches?.map(batch => (
-            <BatchCard
-              key={batch.id}
-              batch={batch}
-              onPress={() => navigation.navigate("LotDetail", { lotId: batch.id })}
-            />
-          ))
+          <View className="flex-row flex-wrap justify-between">
+            {filteredBatches?.map(batch => (
+              <BatchCard
+                key={batch.id}
+                batch={batch}
+                onPress={() => navigation.navigate("LotDetail", { lotId: batch.id })}
+                onEdit={() => handleEdit(batch.id)}
+                onDelete={() => handleDelete(batch.id)}
+              />
+            ))}
+          </View>
         )}
         {!isLoading && filteredBatches?.length === 0 && (
           <Text className="text-center text-gray-500 mt-10">No batches found.</Text>

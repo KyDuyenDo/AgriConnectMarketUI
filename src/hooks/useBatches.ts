@@ -15,10 +15,11 @@ export const useBatchesBySeason = (seasonId: string) => {
     });
 };
 
-export const useAllBatches = () => {
+export const useAllBatches = (accountId?: string) => {
     return useQuery<Batch[]>({
-        queryKey: BATCH_QUERY_KEYS.all,
-        queryFn: () => BatchService.getAll(),
+        queryKey: accountId ? [...BATCH_QUERY_KEYS.all, accountId] : BATCH_QUERY_KEYS.all,
+        queryFn: () => BatchService.getAll(accountId),
+        enabled: !!accountId, // Only run if accountId is provided, or remove if you want it to run always (but service needs to handle undefined)
     });
 };
 
@@ -26,10 +27,11 @@ export const useCreateBatch = () => {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: (data: Partial<Batch>) => BatchService.create(data),
+        mutationFn: (data: FormData) => BatchService.create(data),
         onSuccess: (_data, variables) => {
-            if (variables.seasonId) {
-                queryClient.invalidateQueries({ queryKey: BATCH_QUERY_KEYS.bySeason(variables.seasonId) });
+            const seasonId = variables.get('SeasonId') as string;
+            if (seasonId) {
+                queryClient.invalidateQueries({ queryKey: BATCH_QUERY_KEYS.bySeason(seasonId) });
             }
             queryClient.invalidateQueries({ queryKey: BATCH_QUERY_KEYS.all });
         },

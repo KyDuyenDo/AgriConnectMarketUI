@@ -5,14 +5,14 @@ import { useAuthStore } from "@/stores/auth";
 
 export const getBackendURL = (): string => {
     if (Platform.OS === "web") {
-        return process.env.REACT_APP_API_BASE_URL || "http://192.168.230.66:5170";
+        return process.env.REACT_APP_API_BASE_URL || "http://192.168.1.6:5170";
     }
 
     if (Platform.OS === "ios") {
-        return "http://192.168.230.66:5170";
+        return "http://192.168.1.6:5170";
     }
 
-    return "http://192.168.230.66:5170";
+    return "http://192.168.1.6:5170";
 };
 
 const baseURL = getBackendURL();
@@ -30,7 +30,8 @@ apiClient.interceptors.response.use(
         return response;
     },
     error => {
-        if (error.response && error.response.status === 400) {
+        console.log("error.response", error.response);
+        if (error.response && error.response.status === 400 && error.response.data.message === "User not authenticated!") {
             useAuthStore.getState().logout();
         }
         return Promise.reject(error);

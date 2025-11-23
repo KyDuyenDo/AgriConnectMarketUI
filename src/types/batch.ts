@@ -11,4 +11,7 @@ export interface ProductBatch {
     createdAt?: string;
     seasonName?: string;
     seasonDesc?: string;
+    imagesUrl?: string[];
+    batchCode?: { value: string } | string;
+    units?: string;
 }

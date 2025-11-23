@@ -19,7 +19,7 @@ export function useSeasons(farmId?: string, options: UseSeasonsOptions = {}) {
     });
 
     const seasons = useMemo(() => {
-        if (!query.data) return [];
+        if (!query.data || query.data == undefined) return [];
         let result = [...query.data];
 
         // Filter

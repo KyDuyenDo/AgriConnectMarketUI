@@ -55,7 +55,7 @@ export interface Season {
 
 export interface Batch {
   id: string;
-  batchCode?: string; // Might be generated or optional
+  batchCode?: { value: string } | string;
   totalYield: number;
   availableQuantity: number;
   units: string;
@@ -63,10 +63,14 @@ export interface Batch {
   plantingDate: string;
   harvestDate?: string;
   seasonId: string;
-  season?: Season; // Optional
-  soldQuantity?: number;
-  isActive?: boolean;
+  season?: Season;
+  imagesUrl?: string[];
+  createdAt?: string;
+  status?: string;
+  isActive?: boolean; // Keeping this for UI compatibility if needed, though not in JSON
 }
+
+export type ProductBatch = Batch;
 
 // Keeping existing types that might be used elsewhere for now, but marking them as potentially legacy if they conflict.
 // Re-adding UserData and others that seemed useful.
@@ -176,4 +180,15 @@ export interface FarmStatistics {
   totalSeasons: number;
   totalAvailableQuantity: number;
   activeBatches: number;
+}
+
+export interface CreateBatchRequest {
+  SeasonId: string;
+  TotalYield: number;
+  AvailableQuantity: number;
+  Units: string;
+  PlantingDate: string;
+  IsActive: boolean;
+  Price: number;
+  Images: any; // File or Blob or whatever the picker returns, handled as FormData
 }

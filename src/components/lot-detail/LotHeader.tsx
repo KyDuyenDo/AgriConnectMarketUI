@@ -3,7 +3,12 @@ import { View, Text, TouchableOpacity } from 'react-native';
 import { ChevronLeft, MoreVertical } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 
-export const LotHeader = () => {
+interface LotHeaderProps {
+    batchCode: string;
+    subtitle: string;
+}
+
+export const LotHeader = ({ batchCode, subtitle }: LotHeaderProps) => {
     const navigation = useNavigation();
 
     return (
@@ -20,8 +25,8 @@ export const LotHeader = () => {
 
             <View className="flex-row items-center">
                 <View className="ml-2 items-end">
-                    <Text className="text-[#2D2D2D] text-xl font-bold">Lot A-12</Text>
-                    <Text className="text-[#5C5C5C] text-xs">Summer 2024 - Tomatoes</Text>
+                    <Text className="text-[#2D2D2D] text-xl font-bold">{batchCode}</Text>
+                    <Text className="text-[#5C5C5C] text-xs">{subtitle}</Text>
                 </View>
             </View>
 

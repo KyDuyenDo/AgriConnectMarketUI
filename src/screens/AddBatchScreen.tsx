@@ -7,15 +7,16 @@ import {
     ScrollView,
     Alert,
     ActivityIndicator,
-    Platform,
+    Image,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
-import { ChevronLeft } from "lucide-react-native";
+import { ChevronLeft, Camera, X } from "lucide-react-native";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { Picker } from "@react-native-picker/picker";
+import * as ImagePicker from 'expo-image-picker';
 import { useSeasons } from "@/hooks/useSeasons";
 import { useCreateBatch } from "@/hooks/useBatches";
 import { FarmStackParamList } from "@/navigation/types";
@@ -26,7 +27,7 @@ const schema = yup.object({
     availableQuantity: yup.number().required("Available quantity is required").positive(),
     units: yup.string().required("Unit is required"),
     price: yup.number().required("Price is required").positive(),
-    plantingDate: yup.string().required("Planting date is required"), // Simplified for now
+    plantingDate: yup.string().required("Planting date is required"),
 });
 
 type FormData = yup.InferType<typeof schema>;
@@ -36,25 +37,24 @@ type AddBatchScreenRouteProp = RouteProp<FarmStackParamList, "AddLot">;
 export default function AddBatchScreen() {
     const navigation = useNavigation();
     const route = useRoute<AddBatchScreenRouteProp>();
-    // If seasonId and seasonName are passed via route (e.g. from SeasonDetail), pre-select it
     const preSelectedSeasonId = route.params?.seasonId;
     const preSelectedSeasonName = route.params?.seasonName;
 
     const { data: seasons, isLoading: isLoadingSeasons } = useSeasons();
     const { mutate: createBatch, isPending } = useCreateBatch();
+    const [selectedImages, setSelectedImages] = useState<ImagePicker.ImagePickerAsset[]>([]);
 
     const {
         control,
         handleSubmit,
         setValue,
-        watch,
         formState: { errors },
     } = useForm<FormData>({
         resolver: yupResolver(schema),
         defaultValues: {
             seasonId: preSelectedSeasonId || "",
             units: "kg",
-            plantingDate: new Date().toISOString().split('T')[0], // Default to today
+            plantingDate: new Date().toISOString().split('T')[0],
         },
     });
 
@@ -64,8 +64,47 @@ export default function AddBatchScreen() {
         }
     }, [preSelectedSeasonId, setValue]);
 
+    const pickImage = async () => {
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [4, 3],
+            quality: 1,
+            allowsMultipleSelection: true,
+            selectionLimit: 5,
+        });
+
+        if (!result.canceled) {
+            setSelectedImages([...selectedImages, ...result.assets]);
+        }
+    };
+
+    const removeImage = (index: number) => {
+        const newImages = [...selectedImages];
+        newImages.splice(index, 1);
+        setSelectedImages(newImages);
+    };
+
     const onSubmit = (data: FormData) => {
-        createBatch(data, {
+        const formData = new FormData();
+        formData.append('SeasonId', data.seasonId);
+        formData.append('TotalYield', data.totalYield.toString());
+        formData.append('AvailableQuantity', data.availableQuantity.toString());
+        formData.append('Units', data.units);
+        formData.append('PlantingDate', data.plantingDate);
+        formData.append('IsActive', 'true');
+        formData.append('Price', data.price.toString());
+
+        selectedImages.forEach((image, index) => {
+            // @ts-ignore
+            formData.append('Images', {
+                uri: image.uri,
+                type: 'image/jpeg',
+                name: image.fileName || `batch_image_${index}.jpg`,
+            });
+        });
+
+        createBatch(formData, {
             onSuccess: () => {
                 Alert.alert("Success", "Batch created successfully");
                 navigation.goBack();
@@ -94,7 +133,6 @@ export default function AddBatchScreen() {
                         Season
                     </Text>
                     {preSelectedSeasonId && preSelectedSeasonName ? (
-                        // Show read-only text field when season is pre-selected
                         <View>
                             <TextInput
                                 className="w-full bg-gray-100 border border-gray-200 rounded-lg px-4 py-3 text-gray-900"
@@ -106,7 +144,6 @@ export default function AddBatchScreen() {
                             </Text>
                         </View>
                     ) : (
-                        // Show picker when no pre-selection
                         <View>
                             <View className="bg-gray-50 border border-gray-200 rounded-lg">
                                 <Controller
@@ -269,6 +306,41 @@ export default function AddBatchScreen() {
                             {errors.plantingDate.message}
                         </Text>
                     )}
+                </View>
+
+                {/* Image Picker Section */}
+                <View className="mb-6">
+                    <Text className="text-sm font-medium text-gray-700 mb-2">
+                        Batch Images
+                    </Text>
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row">
+                        <View className="flex-row gap-3">
+                            {/* Add Photo Button */}
+                            <TouchableOpacity
+                                onPress={pickImage}
+                                className="w-24 h-24 bg-gray-50 border-2 border-dashed border-gray-300 rounded-xl justify-center items-center"
+                            >
+                                <Camera size={24} color="#9CA3AF" />
+                                <Text className="text-xs text-gray-400 mt-1">Add Photos</Text>
+                            </TouchableOpacity>
+
+                            {/* Selected Images */}
+                            {selectedImages.map((img, index) => (
+                                <View key={index} className="w-24 h-24 relative">
+                                    <Image
+                                        source={{ uri: img.uri }}
+                                        className="w-full h-full rounded-xl"
+                                    />
+                                    <TouchableOpacity
+                                        onPress={() => removeImage(index)}
+                                        className="absolute -top-2 -right-2 bg-white rounded-full p-1 shadow-sm"
+                                    >
+                                        <X size={16} color="#FF0000" />
+                                    </TouchableOpacity>
+                                </View>
+                            ))}
+                        </View>
+                    </ScrollView>
                 </View>
 
                 {/* Submit Button */}
