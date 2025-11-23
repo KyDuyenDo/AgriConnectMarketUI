@@ -8,21 +8,31 @@ import { OrderItems } from '@/components/farmer-order-detail/OrderItems';
 import { SpecialInstructions } from '@/components/farmer-order-detail/SpecialInstructions';
 import { OrderActions } from '@/components/farmer-order-detail/OrderActions';
 import { useRoute, useNavigation } from '@react-navigation/native';
-import { useFarmerOrderDetail } from '@/hooks/useFarmerOrderDetail';
+import { useOrderDetail, useUpdateOrderStatus, useCancelOrder } from '@/hooks/useOrders';
 import { formatDate } from '@/utils/date';
+
+import { FarmerOrderDetailScreenSkeleton } from '@/components/skeletons/FarmerOrderDetailScreenSkeleton';
+
+// ... imports
 
 export function FarmerOrderDetailScreen() {
     const route = useRoute<any>();
     const navigation = useNavigation();
     const { orderId } = route.params;
-    const { data: order, isLoading, updateStatus } = useFarmerOrderDetail(orderId);
+    const { data: order, isLoading } = useOrderDetail(orderId);
+    const { mutate: updateStatus } = useUpdateOrderStatus();
+    const { mutate: cancelOrder } = useCancelOrder();
+
+    const handleUpdateStatus = (status: string) => {
+        updateStatus({ orderId, status });
+    };
+
+    const handleCancel = () => {
+        cancelOrder(orderId);
+    };
 
     if (isLoading || !order) {
-        return (
-            <SafeAreaView className="flex-1 justify-center items-center">
-                <ActivityIndicator size="large" color="#4CAF50" />
-            </SafeAreaView>
-        );
+        return <FarmerOrderDetailScreenSkeleton />;
     }
 
     const timeline = [
@@ -94,11 +104,11 @@ export function FarmerOrderDetailScreen() {
             </ScrollView>
 
             <OrderActions
-                onConfirm={() => updateStatus({ status: 'Processing' })}
-                onMarkReady={() => updateStatus({ status: 'Shipped' })}
+                onConfirm={() => handleUpdateStatus('Processing')}
+                onMarkReady={() => handleUpdateStatus('Shipped')}
                 onCall={() => console.log('Call')}
                 onMessage={() => console.log('Message')}
-                onCancel={() => updateStatus({ status: 'Canceled' })}
+                onCancel={() => handleCancel()}
             />
         </SafeAreaView>
     );

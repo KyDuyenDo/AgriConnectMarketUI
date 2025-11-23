@@ -18,13 +18,25 @@ import { useCart, useClearCart } from "@/hooks/useCart"
 import { mapBatchToProductCart } from "@/utils/mapProduct"
 import { useHandleAddToCart } from "@/hooks/custome-hook/cart-hook"
 import { Alert } from "react-native"
+import { CustomerCartScreenSkeleton } from "@/components/skeletons/CustomerCartScreenSkeleton"
+import { useCreateOrder } from "@/hooks/useOrders"
+import { useRemoveFromCart } from "@/hooks/useCart"
+import { useAuthStore } from "@/stores/auth"
 
 export const CustomerCartScreen: React.FC = () => {
   const navigation = useNavigation()
   const [selectedItems, setSelectedItems] = useState<any[]>([])
-  const { data: Cart } = useCart()
+  const { data: Cart, isLoading } = useCart()
   const { handleDelete } = useHandleAddToCart()
   const { mutate: clearCart } = useClearCart()
+  const { mutateAsync: createOrder, isPending: isCreatingOrder } = useCreateOrder()
+  const { mutateAsync: removeFromCart } = useRemoveFromCart()
+  const { userId } = useAuthStore()
+
+  // Show skeleton while loading
+  if (isLoading) {
+    return <CustomerCartScreenSkeleton />
+  }
 
   const CartItems = Cart?.cartItems || []
 
@@ -53,8 +65,55 @@ export const CustomerCartScreen: React.FC = () => {
     };
   });
 
-  const handleProceed = () => {
-    console.log("Proceed to checkout")
+  const handleProceed = async () => {
+    if (selectedItems.length === 0) {
+      Alert.alert("No items selected", "Please select items to proceed.");
+      return;
+    }
+
+    if (!userId) {
+      Alert.alert("Error", "User not found. Please login again.");
+      return;
+    }
+
+    try {
+      const itemsToOrder = CartItemSelects.filter((item: any) => selectedItems.includes(item.id));
+
+      const orderItems = itemsToOrder.map((item: any) => ({
+        batchId: item.batch,
+        quantity: item.quantity
+      }));
+
+      // Calculate shipping fee (mock logic or from UI)
+      const shippingFee = itemsToOrder.length > 0 ? 3.99 : 0;
+
+      const payload = {
+        customerId: userId,
+        shippingFee: shippingFee,
+        orderItems: orderItems,
+        // Optional fields
+        orderCode: `ORD-${Date.now()}`, // Mock code, BE generates real one usually but DTO asks for it? 
+        // Actually BE generates it, but DTO has it. I'll send a temp one or let service handle it.
+        // Service handles it.
+      };
+
+      const newOrder = await createOrder(payload);
+
+      // On success, remove selected items from cart
+      // We do this in parallel for speed, though it might be better to do it sequentially or via a bulk endpoint if available.
+      // Since no bulk delete, we loop.
+      await Promise.all(selectedItems.map(id => removeFromCart(id)));
+
+      setSelectedItems([]);
+
+      Alert.alert("Success", "Order created successfully!", [
+        { text: "OK", onPress: () => navigation.navigate("CustomerOrders" as never) }
+      ]);
+
+    } catch (error: any) {
+      console.error("Order creation failed:", error);
+      Alert.alert("Error", error?.response?.data?.message || "Failed to create order.");
+    }
   }
 
   const handleClearAll = () => {

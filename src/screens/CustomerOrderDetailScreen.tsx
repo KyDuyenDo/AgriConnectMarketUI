@@ -19,23 +19,47 @@ import { TimelineRow, TimelineStep } from '@/components/customer-order-detail/Ti
 import { OrderItem, OrderItemRow } from '@/components/customer-order-detail/OrderItemRow';
 import { InfoRow } from '@/components/customer-order-detail/InfoRow';
 import { SummaryRow } from '@/components/customer-cart/SummaryRow';
-import { useRoute } from '@react-navigation/native';
-import { useOrderDetail } from '@/hooks/useOrderDetail';
-import { ActivityIndicator } from 'react-native';
+import { useRoute, useNavigation } from '@react-navigation/native';
+import { useOrderDetail, useCancelOrder } from '@/hooks/useOrders';
+import { ActivityIndicator, Alert } from 'react-native';
 import { formatDate } from '@/utils/date';
+import { CustomerOrderDetailSkeleton } from '@/components/skeletons/CustomerOrderDetailSkeleton';
 
 
 const CustomerOrderDetailScreen: React.FC = () => {
   const route = useRoute<any>();
   const { orderId } = route.params || {};
   const { data: order, isLoading } = useOrderDetail(orderId);
+  const { mutate: cancelOrder, isPending: isCancelling } = useCancelOrder();
+  const navigation = useNavigation();
+
+  const handleCancel = () => {
+    Alert.alert(
+      "Cancel Order",
+      "Are you sure you want to cancel this order?",
+      [
+        { text: "No", style: "cancel" },
+        {
+          text: "Yes",
+          style: "destructive",
+          onPress: () => {
+            cancelOrder(orderId, {
+              onSuccess: () => {
+                Alert.alert("Success", "Order cancelled successfully");
+                navigation.goBack();
+              },
+              onError: (err: any) => {
+                Alert.alert("Error", err?.response?.data?.message || "Failed to cancel order");
+              }
+            });
+          }
+        }
+      ]
+    );
+  };
 
   if (isLoading) {
-    return (
-      <View className="flex-1 justify-center items-center bg-[#F4F5F9]">
-        <ActivityIndicator size="large" color="#32C373" />
-      </View>
-    );
+    return <CustomerOrderDetailSkeleton />;
   }
 
   if (!order) {
@@ -228,6 +252,25 @@ const CustomerOrderDetailScreen: React.FC = () => {
           </TouchableOpacity>
         </View>
       </View>
+
+      {/* Cancel Button for Pending Orders */}
+      {order.orderStatus === 'Pending' && (
+        <View className="absolute bottom-24 left-4 right-4">
+          <TouchableOpacity
+            onPress={handleCancel}
+            disabled={isCancelling}
+            className="items-center justify-center rounded-xl bg-red-50 py-3 border border-red-200"
+          >
+            {isCancelling ? (
+              <ActivityIndicator color="#EF4444" />
+            ) : (
+              <Text className="text-[15px] font-semibold text-red-600">
+                Cancel Order
+              </Text>
+            )}
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
   );
 };

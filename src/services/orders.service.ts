@@ -3,18 +3,22 @@ import { Order } from "@/types";
 
 export const ordersService = {
     getFarmOrders: async (farmId: string) => {
-        const response = await apiClient.get<{ data: Order[] }>(`/api/orders/farm/${farmId}`);
+        const response = await apiClient.get<any>(`/api/orders/farm/${farmId}`);
+        // The backend might return a wrapped Result object { isSuccess: true, value: [...] }
+        if (response.data.data && 'value' in response.data.data) {
+            return response.data.data.value;
+        }
         return response.data.data;
     },
 
     getOrderDetail: async (orderId: string) => {
-        const response = await apiClient.get<{ data: Order }>(`/orders/${orderId}`);
+        const response = await apiClient.get<{ data: Order }>(`/api/orders/${orderId}`);
         return response.data.data;
     },
 
     updateOrderStatus: async (orderId: string, status: string) => {
         const response = await apiClient.patch<{ data: { orderId: string; orderStatus: string } }>(
-            `/orders/${orderId}/order-status`,
+            `/api/orders/${orderId}/order-status`,
             { orderStatus: status }
         );
         return response.data.data;
@@ -24,4 +28,30 @@ export const ordersService = {
         const response = await apiClient.get<{ data: Order[] }>("/api/orders/me");
         return response.data.data;
     },
+
+    createOrder: async (payload: {
+        customerId: string;
+        shippingFee: number;
+        orderItems: { batchId: string; quantity: number }[];
+        orderCode?: string;
+        orderDate?: string;
+        orderType?: string;
+    }) => {
+        // Fill in dummy values for required fields that BE ignores but expects in DTO
+        const dto = {
+            ...payload,
+            orderCode: payload.orderCode || "TEMP",
+            orderDate: payload.orderDate || new Date().toISOString(),
+            orderType: payload.orderType || "Order"
+        };
+        const response = await apiClient.post<{ data: Order }>("/api/orders", dto);
+        return response.data.data;
+    },
+
+    cancelOrder: async (orderId: string) => {
+        const response = await apiClient.patch<{ data: { orderId: string; orderStatus: string } }>(
+            `/api/orders/${orderId}/cancel`
+        );
+        return response.data.data;
+    }
 };

@@ -38,6 +38,7 @@ export function FarmSetupInformationScreen() {
                 ward: existingFarm.address?.ward || '',
                 detail: existingFarm.address?.detail || '',
                 bannerImage: null,
+                batchCodePrefix: existingFarm.batchCodePrefix || '',
             });
         }
     }, [farmId, existingFarm]);
@@ -112,6 +113,13 @@ export function FarmSetupInformationScreen() {
                         value={formData.farmName}
                         onChangeText={(text) => updateField('farmName', text)}
                         required
+                    />
+
+                    <FormInput
+                        label="Batch Code Prefix"
+                        placeholder="e.g., GVF"
+                        value={formData.batchCodePrefix}
+                        onChangeText={(text) => updateField('batchCodePrefix', text)}
                     />
 
                     <FormTextarea

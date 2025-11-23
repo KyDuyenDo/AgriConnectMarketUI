@@ -18,6 +18,7 @@ import { FarmStackParamList } from "@/navigation/types";
 import { useSeasons } from "@/hooks/useSeasons";
 import { useFarmByMe } from "@/hooks/useFarm";
 import { useFarmStatistics } from "@/hooks/custom/useFarmStatistics";
+import { FarmerFarmDetailScreenSkeleton } from "@/components/skeletons/FarmerFarmDetailScreenSkeleton";
 
 type Nav = NativeStackNavigationProp<FarmStackParamList>;
 
@@ -29,15 +30,7 @@ export default function FarmDetailScreen() {
 
   // Loading state
   if (farmLoading) {
-    return (
-      <SafeAreaView className="flex-1 bg-gray-50">
-        <StatusBar barStyle="dark-content" backgroundColor="white" />
-        <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#16a34a" />
-          <Text className="text-gray-600 mt-4">Loading farm information...</Text>
-        </View>
-      </SafeAreaView>
-    );
+    return <FarmerFarmDetailScreenSkeleton />;
   }
 
   // New farmer - no farm data

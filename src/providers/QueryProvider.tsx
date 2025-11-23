@@ -13,7 +13,8 @@ export const QueryProvider = ({ children }: QueryProviderProps) => {
           queries: {
             staleTime: 1000 * 60 * 5,
             retry: 3,
-            refetchOnWindowFocus: false,
+            refetchOnWindowFocus: true, // Refetch data when app regains focus
+            refetchOnMount: true, // Refetch data every time a screen is mounted
           },
           mutations: {
             retry: 1,

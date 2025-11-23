@@ -8,6 +8,7 @@ import { profileMenuItems } from "@/data/mockData";
 import { useAuthStore } from "@/stores/auth";
 import { useGetProfile } from "@/hooks/useProfile";
 import { useGetAddresses } from "@/hooks/useAddress";
+import { ProfileScreenSkeleton } from "@/components/skeletons/ProfileScreenSkeleton";
 
 export default function ProfileScreen() {
   const navigation = useNavigation();
@@ -18,6 +19,9 @@ export default function ProfileScreen() {
 
   // Address Data
   const { data: addresses, isLoading: isAddressLoading } = useGetAddresses();
+
+  // Unified loading state
+  const isLoading = isProfileLoading || isAddressLoading;
 
   const handleLogout = () => {
     Alert.alert("Logout", "Are you sure you want to logout?", [
@@ -34,12 +38,9 @@ export default function ProfileScreen() {
     }
   };
 
-  if (isProfileLoading) {
-    return (
-      <SafeAreaView className="flex-1 bg-gray-50 justify-center items-center">
-        <ActivityIndicator size="large" color="#4CAF50" />
-      </SafeAreaView>
-    );
+  // Show skeleton while loading
+  if (isLoading) {
+    return <ProfileScreenSkeleton />;
   }
 
   const displayUserData = {
@@ -68,9 +69,7 @@ export default function ProfileScreen() {
         {/* Default Address Section */}
         <View className="mt-6 px-4">
           <Text className="mb-4 text-lg font-bold text-gray-900">My Address</Text>
-          {isAddressLoading ? (
-            <ActivityIndicator size="small" color="#4CAF50" />
-          ) : defaultAddress ? (
+          {defaultAddress ? (
             <View className="rounded-xl bg-white p-4 shadow-sm border border-gray-100">
               <View className="flex-row items-start">
                 <View className="mt-1 mr-3 rounded-full bg-green-50 p-2">

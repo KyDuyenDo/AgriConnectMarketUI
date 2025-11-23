@@ -211,3 +211,19 @@ export interface CreateBatchRequest {
   Price: number;
   Images: any; // File or Blob or whatever the picker returns, handled as FormData
 }
+
+export interface UnifiedProduct {
+  id: string; // Batch ID
+  batchCode: string;
+  productName: string;
+  farmName: string;
+  farmId: string;
+  price: number;
+  unit: string;
+  availableQuantity: number;
+  categoryName: string;
+  categoryId: string;
+  imageUrl: string;
+  rating: number; // Mocked or derived
+  location: string; // Province
+}

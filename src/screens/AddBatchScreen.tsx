@@ -20,6 +20,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { useSeasons } from "@/hooks/useSeasons";
 import { useCreateBatch } from "@/hooks/useBatches";
 import { FarmStackParamList } from "@/navigation/types";
+import { AddBatchScreenSkeleton } from "@/components/skeletons/AddBatchScreenSkeleton";
 
 const schema = yup.object({
     seasonId: yup.string().required("Season is required"),
@@ -41,6 +42,10 @@ export default function AddBatchScreen() {
     const preSelectedSeasonName = route.params?.seasonName;
 
     const { data: seasons, isLoading: isLoadingSeasons } = useSeasons();
+
+    if (isLoadingSeasons) {
+        return <AddBatchScreenSkeleton />;
+    }
     const { mutate: createBatch, isPending } = useCreateBatch();
     const [selectedImages, setSelectedImages] = useState<ImagePicker.ImagePickerAsset[]>([]);
 

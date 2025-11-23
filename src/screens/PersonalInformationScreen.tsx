@@ -11,6 +11,7 @@ import { AddressList } from "@/components/profile/AddressList";
 import { AddEditAddressModal } from "@/components/profile/AddEditAddressModal";
 import { Address, CreateAddressData, UpdateAddressData } from "@/api/address";
 import { UpdateProfileData } from "@/api/profile";
+import { PersonalInformationScreenSkeleton } from "@/components/skeletons/PersonalInformationScreenSkeleton";
 
 interface FormData {
     fullname: string;
@@ -31,6 +32,9 @@ export default function PersonalInformationScreen() {
     const createAddressMutation = useCreateAddress();
     const updateAddressMutation = useUpdateAddress();
     const deleteAddressMutation = useDeleteAddress();
+
+    // Unified loading state
+    const isLoading = isProfileLoading || isAddressLoading;
 
     // Modal State
     const [isAddressModalVisible, setIsAddressModalVisible] = useState(false);
@@ -166,12 +170,9 @@ export default function PersonalInformationScreen() {
         }
     };
 
-    if (isProfileLoading) {
-        return (
-            <SafeAreaView className="flex-1 bg-gray-50 justify-center items-center">
-                <ActivityIndicator size="large" color="#4CAF50" />
-            </SafeAreaView>
-        );
+    // Show skeleton while loading
+    if (isLoading) {
+        return <PersonalInformationScreenSkeleton />;
     }
 
     const renderField = (name: keyof FormData, label: string, placeholder: string, keyboardType: any = "default") => {

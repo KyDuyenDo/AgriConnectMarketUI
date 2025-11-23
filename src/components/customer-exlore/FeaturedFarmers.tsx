@@ -18,7 +18,7 @@ export const FeaturedFarmers = ({ Farmers }: FeaturedFarmersProps) => {
                     View All
                 </Text>
             </View>
-            <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} className="">
+            <ScrollView className="py-3 px-1" horizontal={true} showsHorizontalScrollIndicator={false}>
                 {Farmers.map((farm) => (
                     <FarmFeatureCard
                         key={farm.id}

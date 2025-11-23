@@ -12,6 +12,8 @@ import { Platform, ScrollView } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useFarmDashboardData } from "@/hooks/useFarmDashboardData"
 
+import { FarmDashboardSkeleton } from "@/components/skeletons/FarmDashboardSkeleton"
+
 interface DashboardData {
   userName: string
   userImageUrl: string
@@ -143,8 +145,7 @@ export function FarmDashboard({ dashboardData }: FarmDashboardProps) {
   const data = dashboardData || fetchedData || defaultData;
 
   if (isLoading && !dashboardData) {
-    // You might want to return a loading spinner here
-    // return <ActivityIndicator size="large" color="#4CAF50" style={{flex: 1, justifyContent: 'center'}} />;
+    return <FarmDashboardSkeleton />;
   }
 
   return (

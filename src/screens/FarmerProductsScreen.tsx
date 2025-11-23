@@ -8,6 +8,7 @@ import { useNavigation } from "@react-navigation/native";
 import { useAllBatches } from "@/hooks/useBatches";
 import { Batch } from "@/types";
 import { useAuthStore } from "@/stores/auth";
+import { FarmerProductsScreenSkeleton } from "@/components/skeletons/FarmerProductsScreenSkeleton"
 
 type Nav = NativeStackNavigationProp<FarmStackParamList>;
 
@@ -142,11 +143,15 @@ const BatchCard = ({ batch, onPress, onEdit, onDelete }: {
   );
 };
 
-export const FarmerProductsScreen: React.FC = () => {
+export const FarmerProductsScreen = () => {
   const navigation = useNavigation<Nav>();
   const { accountId } = useAuthStore();
   const { data: batches, isLoading } = useAllBatches(accountId || undefined, { enabled: !!accountId });
   const [searchQuery, setSearchQuery] = useState("");
+
+  if (isLoading) {
+    return <FarmerProductsScreenSkeleton />;
+  }
 
   const filteredBatches = batches?.filter(b => {
     const code = getBatchCode(b);
@@ -188,21 +193,17 @@ export const FarmerProductsScreen: React.FC = () => {
         contentContainerStyle={{ paddingBottom: 100 }}
         showsVerticalScrollIndicator={false}
       >
-        {isLoading ? (
-          <ActivityIndicator size="large" color="#4CAF50" className="mt-10" />
-        ) : (
-          <View className="flex-row flex-wrap justify-between">
-            {filteredBatches?.map(batch => (
-              <BatchCard
-                key={batch.id}
-                batch={batch}
-                onPress={() => navigation.navigate("LotDetail", { lotId: batch.id })}
-                onEdit={() => handleEdit(batch.id)}
-                onDelete={() => handleDelete(batch.id)}
-              />
-            ))}
-          </View>
-        )}
+        <View className="flex-row flex-wrap justify-between">
+          {filteredBatches?.map(batch => (
+            <BatchCard
+              key={batch.id}
+              batch={batch}
+              onPress={() => navigation.navigate("LotDetail", { lotId: batch.id })}
+              onEdit={() => handleEdit(batch.id)}
+              onDelete={() => handleDelete(batch.id)}
+            />
+          ))}
+        </View>
         {!isLoading && filteredBatches?.length === 0 && (
           <Text className="text-center text-gray-500 mt-10">No batches found.</Text>
         )}

@@ -16,12 +16,18 @@ const FarmFeatureCard: React.FC<FarmTransparencyCardProps> = ({
     farm
 }) => {
     const navigator = useNavigation<NavigationProp>();
+
+    // Construct location string
+    const location = farm.address
+        ? `${farm.address.province}, ${farm.address.district}`
+        : "Unknown Location";
+
     return (
         <View
             key={farm.id}
-            className="p-4"
+            className="p-4 mr-3"
             style={{
-                minWidth: 280,
+                width: 280,
                 backgroundColor: '#FFFFFF',
                 borderRadius: 16,
                 shadowColor: '#000',
@@ -33,35 +39,35 @@ const FarmFeatureCard: React.FC<FarmTransparencyCardProps> = ({
         >
             <View className="flex-row items-center mb-3">
                 <Image
-                    source={{ uri: farm.bannerUrl }}
+                    source={{ uri: farm.bannerUrl || "https://via.placeholder.com/150" }}
                     className="w-12 h-12 rounded-full mr-3"
                 />
                 <View className="flex-1">
-                    <Text className="text-[14px] font-semibold" style={{ color: '#1B1F24' }}>
+                    <Text className="text-[14px] font-semibold" style={{ color: '#1B1F24' }} numberOfLines={1}>
                         {farm.farmName}
                     </Text>
-                    <Text className="text-[12px]" style={{ color: '#6B737A' }}>
-                        {farm.addressId}
-                    </Text>
+                    <View className="flex-row items-center gap-1">
+                        <MapPin size={10} color="#6B737A" />
+                        <Text className="text-[12px]" style={{ color: '#6B737A' }} numberOfLines={1}>
+                            {location}
+                        </Text>
+                    </View>
                     <View className="flex-row items-center gap-1 mt-1">
                         <Star size={12} color="#FFB380" fill="#FFB380" />
                         <Text className="text-[10px]" style={{ color: '#9DA3A8' }}>
-                            {/* {farm.rating} ({farm.reviews} reviews) */}
+                            4.8 (120 reviews)
                         </Text>
                     </View>
                 </View>
-                <View
-                    className="px-2 py-0.5 rounded-full"
-                    style={{ backgroundColor: '#C8E6C9' }}
-                >
-                    <Text className="text-[8px] font-medium" style={{ color: '#2E7D32' }}>
-                        {/* {farm.tags[0]} */}
-                    </Text>
-                </View>
             </View>
+
+            <Text className="text-[12px] mb-3" style={{ color: '#6B737A' }} numberOfLines={2}>
+                {farm.farmDesc || "No description available."}
+            </Text>
+
             <View className="flex-row justify-between items-center">
                 <Text className="text-[12px]" style={{ color: '#6B737A' }}>
-                    47 products available
+                    View Products
                 </Text>
                 <Pressable
                     className="py-2 px-4"
@@ -69,7 +75,7 @@ const FarmFeatureCard: React.FC<FarmTransparencyCardProps> = ({
                     onPress={() => navigator.navigate('FarmDetail', { farmId: String(farm.id) })}
                 >
                     <Text className="text-[12px] font-semibold" style={{ color: '#4CAF50' }}>
-                        View Products
+                        Visit Farm
                     </Text>
                 </Pressable>
             </View>

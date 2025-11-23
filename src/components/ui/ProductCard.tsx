@@ -60,14 +60,14 @@ const PriceSection = ({ price, unit, onPress }: { price: string; unit: string; o
     )
 }
 
-export const ProductCard: React.FC<ProductCardProps> = ({ product, toggleFavorite, onPress, onAddToCart }) => {
+export const ProductCard: React.FC<{ product: any; toggleFavorite: (id: string) => void; onPress?: () => void; onAddToCart?: () => void }> = ({ product, toggleFavorite, onPress, onAddToCart }) => {
     // Determine badge info based on product status
+    const isOutOfStock = product.availableQuantity === 0;
     const getBadgeInfo = () => {
-        if (product.status === "Out of Stock") {
-            return { text: "Low Stock", bgColor: '#FEF5E7', textColor: '#F39C12' }
+        if (isOutOfStock) {
+            return { text: "Out of Stock", bgColor: '#FEF5E7', textColor: '#F39C12' }
         }
-        // Default to Organic badge
-        return { text: "Organic", bgColor: '#C8E6C9', textColor: '#2E7D32' }
+        return { text: product.categoryName || "Fresh", bgColor: '#C8E6C9', textColor: '#2E7D32' }
     }
 
     const badge = getBadgeInfo()
@@ -75,24 +75,25 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, toggleFavorit
     return (
         <Pressable
             onPress={onPress}
-            className="overflow-hidden rounded-2xl"
+            className="overflow-hidden rounded-2xl mb-3"
             style={{
                 backgroundColor: '#FFFFFF',
                 shadowColor: '#000',
                 shadowOffset: { width: 0, height: 2 },
                 shadowOpacity: 0.08,
                 shadowRadius: 8,
-                elevation: 3
+                elevation: 3,
+                width: '100%'
             }}
         >
             {/* Product Image */}
             <View className="relative" style={{ height: 120 }}>
                 <Image
-                    source={{ uri: product.image || "https://via.placeholder.com/192" }}
+                    source={{ uri: product.imageUrl || "https://via.placeholder.com/192" }}
                     className="w-full h-full"
                     style={{ resizeMode: 'cover' }}
                 />
-                <FavoriteButton isFavorite={product.isFavorite ?? false} onPress={() => toggleFavorite(product.id)} />
+                <FavoriteButton isFavorite={false} onPress={() => toggleFavorite(product.id)} />
 
                 {/* Badge */}
                 <View
@@ -108,24 +109,31 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, toggleFavorit
             {/* Product Info */}
             <View className="p-3">
                 <Text className="text-[14px] font-semibold mb-1" style={{ color: '#1B1F24' }} numberOfLines={1}>
-                    {product.name}
+                    {product.productName}
                 </Text>
                 <Text className="text-[12px] mb-1" style={{ color: '#6B737A' }} numberOfLines={1}>
-                    {product.farm}
+                    {product.farmName}
                 </Text>
 
-                {/* Rating and Distance */}
+                {/* Rating and Location */}
                 <View className="flex-row items-center gap-1 mb-2">
-                    <RatingInfo rating={product.rating} numRatings={product.numRatings} />
+                    <RatingInfo rating={product.rating} numRatings={10} />
                     <View
                         className="w-1 h-1 rounded-full mx-1"
                         style={{ backgroundColor: '#E8E8E8' }}
                     />
-                    <Text className="text-[10px]" style={{ color: '#9DA3A8' }}>2.3 mi</Text>
+                    <Text className="text-[10px]" style={{ color: '#9DA3A8' }} numberOfLines={1}>{product.location}</Text>
                 </View>
 
                 {/* Price and Add Button */}
-                <PriceSection price={product.price} unit={product.unit} onPress={onAddToCart} />
+                <PriceSection
+                    price={product.price?.toString() || "0"}
+                    unit={product.unit || "unit"}
+                    onPress={isOutOfStock ? undefined : onAddToCart}
+                />
+                {isOutOfStock && (
+                    <Text className="text-[10px] text-red-500 mt-1">Out of Stock</Text>
+                )}
             </View>
         </Pressable>
     )

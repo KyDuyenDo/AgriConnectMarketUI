@@ -13,6 +13,7 @@ interface FarmFormData {
     ward: string;
     detail: string;
     bannerImage: any; // Can be File, Blob, or React Native asset
+    batchCodePrefix: string;
 }
 
 export const useFarmForm = (existingFarmId?: string) => {
@@ -26,6 +27,7 @@ export const useFarmForm = (existingFarmId?: string) => {
         ward: "",
         detail: "",
         bannerImage: null,
+        batchCodePrefix: "",
     });
 
     const { accountId } = useAuthStore();
@@ -44,6 +46,11 @@ export const useFarmForm = (existingFarmId?: string) => {
 
         if (!existingFarmId && !formData.bannerImage) {
             Alert.alert("Validation Error", "Farm banner image is required");
+            return false;
+        }
+
+        if (!formData.batchCodePrefix?.trim()) {
+            Alert.alert("Validation Error", "Batch Code Prefix is required");
             return false;
         }
 
@@ -89,6 +96,10 @@ export const useFarmForm = (existingFarmId?: string) => {
 
         if (formData.bannerImage) {
             data.append("FarmBanner", formData.bannerImage);
+        }
+
+        if (formData.batchCodePrefix) {
+            data.append("BatchCodePrefix", formData.batchCodePrefix);
         }
 
         return data;

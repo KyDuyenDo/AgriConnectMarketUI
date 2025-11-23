@@ -7,15 +7,17 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { useMyOrders } from '@/hooks/useMyOrders';
 import { formatDate } from '@/utils/date';
+import { CustomerOrdersScreenSkeleton } from '@/components/skeletons/CustomerOrdersScreenSkeleton';
 
 const FILTERS = ['All Orders', 'Active', 'Delivered', 'Cancelled'] as const;
 type FilterType = (typeof FILTERS)[number];
 
 const mapStatus = (status: string): Order['status'] => {
   const s = status.toLowerCase();
-  if (s.includes('transit') || s.includes('shipping')) return 'in_transit';
+  if (s.includes('shipped') || s.includes('shipping')) return 'in_transit';
   if (s.includes('deliver') || s.includes('complete')) return 'delivered';
   if (s.includes('cancel')) return 'cancelled';
+  if (s.includes('processing')) return 'pending'; // Or create a new 'processing' status in Order type if needed
   return 'pending';
 };
 
@@ -114,7 +116,7 @@ const CustomerOrdersScreen: React.FC = () => {
         showsVerticalScrollIndicator={false}
       >
         {isLoading ? (
-          <ActivityIndicator size="large" color="#4CAF50" className="mt-10" />
+          <CustomerOrdersScreenSkeleton />
         ) : (
           filteredOrders.map(order => (
             <OrderCard key={order.id} order={order} />

@@ -14,11 +14,15 @@ import { SafeAreaView } from "react-native-safe-area-context"
 import { useGetProfile } from "@/hooks/useProfile"
 import { useMyOrders } from "@/hooks/useMyOrders"
 import { formatDate } from "@/utils/date"
+import { CustomerDashboardSkeleton } from "@/components/skeletons/CustomerDashboardSkeleton"
 
 export const CustomerDashboardScreen: React.FC = () => {
-  const { data: profile } = useGetProfile()
-  const { data: cart } = useCart()
-  const { data: orders } = useMyOrders()
+  const { data: profile, isLoading: isProfileLoading } = useGetProfile()
+  const { data: cart, isLoading: isCartLoading } = useCart()
+  const { data: orders, isLoading: isOrdersLoading } = useMyOrders()
+
+  // Unified loading state
+  const isLoading = isProfileLoading || isCartLoading || isOrdersLoading
 
   const [favorites, setFavorites] = useState(favoriteProducts)
 
@@ -26,8 +30,17 @@ export const CustomerDashboardScreen: React.FC = () => {
     setFavorites(favorites.map((fav) => (fav.id === id ? { ...fav, isFavorite: !fav.isFavorite } : fav)))
   }
 
+  // Transform CartItemResponse to CartItem format for UI
+  const cartItems = cart?.cartItems?.map((item) => ({
+    id: item.id,
+    name: item.batch?.season?.product?.productName || 'Unknown Product',
+    quantity: `${item.quantity} ${item.batch?.units || 'units'}`,
+    price: `$${item.itemPrice.toFixed(2)}`,
+    image: item.batch?.imagesUrl?.[0] || 'https://via.placeholder.com/40',
+  })) || []
+
   const cartItemsCount = cart?.cartItems?.length || 0
-  const cartTotalValue = cart?.cartItems?.reduce((sum: number, item: any) => sum + (item.subTotal || 0), 0) || 0
+  const cartTotalValue = cart?.totalPrice || 0
   const cartTotal = `$${cartTotalValue.toFixed(2)}`
 
   const actions: ActionButton[] = [
@@ -36,6 +49,11 @@ export const CustomerDashboardScreen: React.FC = () => {
     { id: "3", label: "Orders", icon: <Clock color="#4CAF50" size={20} />, backgroundColor: "bg-[#F5F7F5]", borderStyle: "border border-[#E8EAEB]", link: "CustomerOrders" },
     { id: "4", label: "Nearby", icon: <Locate color="#4CAF50" size={20} />, backgroundColor: "bg-[#F5F7F5]", borderStyle: "border border-[#E8EAEB]", link: "Nearby" },
   ]
+
+  // Show skeleton while loading
+  if (isLoading) {
+    return <CustomerDashboardSkeleton />
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-[#F9FAF9]">
@@ -57,7 +75,7 @@ export const CustomerDashboardScreen: React.FC = () => {
         </View>
         <ActionButtonList actions={actions} />
         <View className="px-4">
-          <YourCartCard items={cart?.cartItems || []} total={cartTotal} itemsCount={cartItemsCount} />
+          <YourCartCard items={cartItems} total={cartTotal} itemsCount={cartItemsCount} />
         </View>
         <RecentOrdersCard orders={orders || []} />
         <YourFavoriteCard favorites={favorites} onToggleFavorite={handleToggleFavorite} />

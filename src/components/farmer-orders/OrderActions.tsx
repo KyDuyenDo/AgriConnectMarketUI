@@ -1,31 +1,44 @@
-import { View, Pressable, Text } from "react-native"
+import { View, Pressable, Text, TouchableOpacity } from "react-native"
 import { Phone, Eye, X } from "lucide-react-native"
 
 interface OrderActionsProps {
-  status: "delivered" | "shipped" | "processing" | "pending" | "urgent"
+  status: "delivered" | "shipped" | "processing" | "pending" | "urgent" | "canceled"
+  onUpdateStatus: (newStatus: string) => void
 }
 
 const getActionButtonConfig = (status: string) => {
   switch (status) {
     case "delivered":
-      return { label: "Order Completed", bgColor: "bg-[#C8E6C9]", textColor: "text-[#4CAF50]", isCompleted: true }
+      return { label: "Order Completed", bgColor: "bg-[#C8E6C9]", textColor: "text-[#4CAF50]", isCompleted: true, nextStatus: null }
     case "shipped":
-      return { label: "Mark as Delivered", bgColor: "bg-[#4CAF50]", textColor: "text-white", isCompleted: false }
+      return { label: "Mark as Delivered", bgColor: "bg-[#4CAF50]", textColor: "text-white", isCompleted: false, nextStatus: "Delivered" }
     case "processing":
-      return { label: "Mark as Shipped", bgColor: "bg-[#FFA726]", textColor: "text-white", isCompleted: false }
+      return { label: "Mark as Shipped", bgColor: "bg-[#FFA726]", textColor: "text-white", isCompleted: false, nextStatus: "Shipping" }
+    case "pending":
+      return { label: "Confirm Order", bgColor: "bg-[#4CAF50]", textColor: "text-white", isCompleted: false, nextStatus: "Processing" }
     default:
-      return { label: "Confirm Order", bgColor: "bg-[#4CAF50]", textColor: "text-white", isCompleted: false }
+      return { label: "View Details", bgColor: "bg-[#F5F7F5]", textColor: "text-[#8A8A8A]", isCompleted: true, nextStatus: null }
   }
 }
 
-export function OrderActions({ status }: OrderActionsProps) {
-  const { label, bgColor, textColor, isCompleted } = getActionButtonConfig(status)
+export function OrderActions({ status, onUpdateStatus }: OrderActionsProps) {
+  const { label, bgColor, textColor, isCompleted, nextStatus } = getActionButtonConfig(status)
+
+  const handlePress = () => {
+    if (nextStatus) {
+      onUpdateStatus(nextStatus)
+    }
+  }
 
   return (
     <View className="flex-row justify-between items-center">
-      <View className={`py-2 px-4 rounded-lg ${bgColor}`}>
+      <TouchableOpacity
+        onPress={handlePress}
+        disabled={!nextStatus}
+        className={`py-2 px-4 rounded-lg ${bgColor}`}
+      >
         <Text className={`${textColor} font-medium text-sm`}>{label}</Text>
-      </View>
+      </TouchableOpacity>
 
       <View className="flex-row gap-2">
         {!isCompleted && (

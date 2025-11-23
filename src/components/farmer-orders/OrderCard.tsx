@@ -6,6 +6,7 @@ import { OrderActions } from "./OrderActions"
 import { Order } from "@/types"
 import { useNavigation } from "@react-navigation/native"
 import { formatDate } from "@/utils/date"
+import { ordersService } from "@/services/orders.service"
 
 interface OrderCardProps {
   order: Order
@@ -24,6 +25,7 @@ export function OrderCard({ order }: OrderCardProps) {
     switch (status.toLowerCase()) {
       case "delivered": return "delivered"
       case "shipped": return "shipped"
+      case "shipping": return "shipped"
       case "processing": return "processing"
       case "pending": return "pending"
       case "canceled": return "canceled"
@@ -34,6 +36,17 @@ export function OrderCard({ order }: OrderCardProps) {
   const status = getStatus(order.orderStatus)
   const productNames = order.orderItems?.map(item => item.batch?.season?.product?.name || "Product").slice(0, 3) || []
   const additionalProducts = (order.orderItems?.length || 0) > 3 ? (order.orderItems?.length || 0) - 3 : 0
+
+  const handleUpdateStatus = async (newStatus: string) => {
+    try {
+      await ordersService.updateOrderStatus(order.id, newStatus)
+      // Ideally, we should invalidate queries here to refresh the list
+      // For now, we rely on the parent component or context to handle refresh if needed
+      // Or we can add a callback prop to OrderCard to notify parent
+    } catch (error) {
+      console.error("Failed to update order status:", error)
+    }
+  }
 
   return (
     <TouchableOpacity onPress={handlePress} activeOpacity={0.9}>
@@ -65,7 +78,7 @@ export function OrderCard({ order }: OrderCardProps) {
           timeline={order.timeline}
         /> */}
 
-        <OrderActions status={status as any} />
+        <OrderActions status={status as any} onUpdateStatus={handleUpdateStatus} />
       </View>
     </TouchableOpacity>
   )

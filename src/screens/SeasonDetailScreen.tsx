@@ -12,6 +12,7 @@ import { SeasonProgressStepper } from '@/components/farm-seasons/SeasonProgressS
 import { SeasonHeaderCard } from '@/components/farm-seasons/SeasonHeaderCard';
 import { SeasonStats } from '@/components/farm-seasons/SeasonStats';
 import { BatchList } from '@/components/farm-seasons/BatchList';
+import { SeasonDetailScreenSkeleton } from '@/components/skeletons/SeasonDetailScreenSkeleton';
 
 type Nav = NativeStackNavigationProp<FarmStackParamList>;
 type SeasonDetailRouteProp = RouteProp<FarmStackParamList, 'SeasonDetail'>;
@@ -39,6 +40,9 @@ export default function SeasonDetailScreen() {
         endDate: season?.endDate,
     });
 
+    // Unified loading state
+    const isLoading = isLoadingSeason || isLoadingBatches;
+
     const onRefresh = () => {
         refetchSeason();
         refetchBatches();
@@ -48,13 +52,9 @@ export default function SeasonDetailScreen() {
         console.log('Batch pressed:', batch.id);
     };
 
-    if (isLoadingSeason) {
-        return (
-            <SafeAreaView className="flex-1 bg-gray-50 justify-center items-center">
-                <ActivityIndicator size="large" color="#16a34a" />
-                <Text className="text-gray-500 mt-4">Loading season details...</Text>
-            </SafeAreaView>
-        );
+    // Show skeleton while loading
+    if (isLoading) {
+        return <SeasonDetailScreenSkeleton />;
     }
 
     if (!season) {

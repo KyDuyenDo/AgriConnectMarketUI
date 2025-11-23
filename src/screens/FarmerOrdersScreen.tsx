@@ -8,6 +8,7 @@ import { View, ScrollView, Platform, Text } from "react-native"
 import { useFarmerOrders } from "@/hooks/useFarmerOrders"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useMyFarm } from "@/hooks/useMyFarm"
+import { FarmerOrdersScreenSkeleton } from "@/components/skeletons/FarmerOrdersScreenSkeleton"
 
 export function FarmerOrders() {
   const [activeFilter, setActiveFilter] = useState("All Orders")
@@ -37,7 +38,7 @@ export function FarmerOrders() {
         <StatsSection />
         <FilterTabs activeFilter={activeFilter} onFilterChange={setActiveFilter} />
         {isLoading ? (
-          <View className="p-4"><Text>Loading...</Text></View>
+          <FarmerOrdersScreenSkeleton />
         ) : (
           <OrdersList orders={filteredOrders} />
         )}

@@ -15,6 +15,7 @@ import { batchDetailFarmItems } from "@/data/mockData"
 import { useRoute, useNavigation } from "@react-navigation/native"
 import { useBatchDetail } from "@/hooks/useBatchDetail"
 import { formatDate } from "@/utils/date"
+import { CustomerBatchDetailSkeleton } from "@/components/skeletons/CustomerBatchDetailSkeleton"
 
 export const CustomerBatchDetailScreen: React.FC = () => {
   const insets = useSafeAreaInsets()
@@ -24,11 +25,7 @@ export const CustomerBatchDetailScreen: React.FC = () => {
   const { data: batch, isLoading } = useBatchDetail(batchId)
 
   if (isLoading) {
-    return (
-      <View className="flex-1 justify-center items-center bg-[#F9FAF9]">
-        <ActivityIndicator size="large" color="#4CAF50" />
-      </View>
-    )
+    return <CustomerBatchDetailSkeleton />
   }
 
   if (!batch) {
