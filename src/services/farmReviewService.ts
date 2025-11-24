@@ -1,4 +1,4 @@
-import { api } from '@/api/config';
+import apiClient from '@/api/config';
 
 export interface CreateFarmReviewDto {
     farmId: string;
@@ -27,17 +27,17 @@ export interface FarmReviewResponse {
 
 export const farmReviewService = {
     createReview: async (dto: CreateFarmReviewDto) => {
-        const response = await api.post('/farmreviews', dto);
+        const response = await apiClient.post('/farmreviews', dto);
         return response.data;
     },
 
     getFarmReviews: async (farmId: string) => {
-        const response = await api.get<{ data: FarmReviewResponse[] }>(`/farmreviews/farm/${farmId}`);
+        const response = await apiClient.get<{ data: FarmReviewResponse[] }>(`/farmreviews/farm/${farmId}`);
         return response.data.data;
     },
 
     replyToReview: async (reviewId: string, dto: ReplyFarmReviewDto) => {
-        const response = await api.put(`/farmreviews/${reviewId}/reply`, dto);
+        const response = await apiClient.put(`/farmreviews/${reviewId}/reply`, dto);
         return response.data;
     },
 };
