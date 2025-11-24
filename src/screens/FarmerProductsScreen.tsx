@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, ScrollView, TouchableOpacity, Text, ActivityIndicator, Image, TextInput } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Plus, Search, Filter, Star, MoreVertical, Edit, Trash2, Eye } from "lucide-react-native";
@@ -9,6 +9,8 @@ import { useAllBatches } from "@/hooks/useBatches";
 import { Batch } from "@/types";
 import { useAuthStore } from "@/stores/auth";
 import { FarmerProductsScreenSkeleton } from "@/components/skeletons/FarmerProductsScreenSkeleton"
+import { CategorySelector } from "@/components/CategorySelector";
+import { useCategories } from "@/hooks/useCategories";
 
 type Nav = NativeStackNavigationProp<FarmStackParamList>;
 
@@ -147,7 +149,14 @@ export const FarmerProductsScreen = () => {
   const navigation = useNavigation<Nav>();
   const { accountId } = useAuthStore();
   const { data: batches, isLoading } = useAllBatches(accountId || undefined, { enabled: !!accountId });
+
+  const { data: categories } = useCategories();
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
+  useEffect(() => {
+    console.log("Selected Category:", selectedCategory);
+  }, [selectedCategory]);
 
   if (isLoading) {
     return <FarmerProductsScreenSkeleton />;
@@ -157,7 +166,17 @@ export const FarmerProductsScreen = () => {
     const code = getBatchCode(b);
     const seasonName = b.season?.seasonName || "";
     const query = searchQuery.toLowerCase();
-    return (code || "").toLowerCase().includes(query) || seasonName.toLowerCase().includes(query);
+    const matchesSearch = (code || "").toLowerCase().includes(query) || seasonName.toLowerCase().includes(query);
+
+    // Check for category match
+    // Note: We need to traverse b.season?.product?.categoryId or similar.
+    // Based on types, Season has product, ProductResponse has categoryId.
+    const categoryId = b.season?.product?.categoryId;
+    const matchesCategory = selectedCategory
+      ? (categoryId || "").toLowerCase() === selectedCategory.toLowerCase()
+      : true;
+
+    return matchesSearch && matchesCategory;
   });
 
   const onAddBatch = () => {
@@ -194,6 +213,15 @@ export const FarmerProductsScreen = () => {
             onChangeText={setSearchQuery}
           />
         </View>
+      </View>
+
+      {/* Category Filter */}
+      <View className="bg-white pt-2">
+        <CategorySelector
+          categories={categories || []}
+          selectedCategory={selectedCategory}
+          onSelectCategory={setSelectedCategory}
+        />
       </View>
 
       <ScrollView
