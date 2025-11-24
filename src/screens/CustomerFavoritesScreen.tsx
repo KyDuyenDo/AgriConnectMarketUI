@@ -10,10 +10,9 @@ import { ActionButtonRow } from "@/components/customer-favorites/ActionButtonRow
 import { PriceInsightsGrid } from "@/components/customer-favorites/PriceInsightsGrid"
 import { FarmUpdateCard } from "@/components/customer-favorites/FarmUpdateCard"
 import { SafeAreaView } from "react-native-safe-area-context"
-import { Product } from "@/types"
-import { mockProducts } from "./ExploreScreen"
 import { Collection } from "@/components/customer-favorites/CollectionCard"
 import { useHandleAddToCart } from "@/hooks/custome-hook/cart-hook"
+import { mockProducts } from "@/data/mockData"
 
 
 const MOCK_COLLECTIONS: Collection[] = [
@@ -64,9 +63,9 @@ export function CustomerFavoritesScreen() {
 
         <ActionButtonRow />
 
-        <AllFavorites searchQuery={searchQuery} products={mockProducts} onAddToCart={handleAddToCart} />
+        <AllFavorites searchQuery={searchQuery} products={[]} onAddToCart={handleAddToCart} />
 
-        <PriceInsightsGrid products={mockProducts} />
+        <PriceInsightsGrid products={[]} />
 
         <FarmUpdateCard />
       </ScrollView>

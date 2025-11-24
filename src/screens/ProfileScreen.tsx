@@ -2,9 +2,9 @@ import React from "react";
 import { View, Text, ScrollView, TouchableOpacity, Alert, ActivityIndicator } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { LogOut, MapPin } from "lucide-react-native";
+import { LogOut, MapPin, Settings, Shield, ShoppingBag, Truck, User } from "lucide-react-native";
 import { ProfileCard } from "@/components/profile/ProfileCard";
-import { profileMenuItems } from "@/data/mockData";
+
 import { useAuthStore } from "@/stores/auth";
 import { useGetProfile } from "@/hooks/useProfile";
 import { useGetAddresses } from "@/hooks/useAddress";
@@ -31,10 +31,19 @@ export default function ProfileScreen() {
   };
 
   const handleMenuAction = (title: string, action: () => void) => {
-    if (title === "Personal Information") {
-      navigation.navigate("PersonalInformation" as never);
-    } else {
-      action();
+    switch (title) {
+      case "Personal Information":
+        navigation.navigate("PersonalInformation" as never);
+        break;
+      case "Shipping Address":
+        navigation.navigate("CustomerAddress" as never);
+        break;
+      case "My Orders":
+        navigation.navigate("CustomerOrders" as never);
+        break;
+      default:
+        action();
+        break;
     }
   };
 
@@ -55,6 +64,39 @@ export default function ProfileScreen() {
   };
 
   const defaultAddress = addresses?.find(a => a.isDefault);
+
+  const profileMenuItems = [
+    {
+      title: "Personal Information",
+      icon: User,
+      color: "#3B82F6",
+      action: () => Alert.alert("Personal Info", "Edit personal information")
+    },
+    {
+      title: "My Orders",
+      icon: ShoppingBag,
+      color: "#10B981",
+      action: () => Alert.alert("Orders", "View order history")
+    },
+    {
+      title: "Shipping Address",
+      icon: Truck,
+      color: "#F59E0B",
+      action: () => Alert.alert("Shipping", "Manage shipping addresses")
+    },
+    //{
+    //   title: "Settings",
+    //   icon: Settings,
+    //   color: "#6B7280",
+    //   action: () => Alert.alert("Settings", "App settings")
+    // },
+    // {
+    //   title: "Help & Support",
+    //   icon: Shield,
+    //   color: "#EF4444",
+    //   action: () => Alert.alert("Support", "Contact support team")
+    // }
+  ]
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
@@ -99,22 +141,25 @@ export default function ProfileScreen() {
         <View className="mt-6 px-4">
           <Text className="mb-4 text-lg font-bold text-gray-900">Account Settings</Text>
           <View className="overflow-hidden rounded-2xl bg-white shadow-sm">
-            {profileMenuItems.map((item, index) => (
-              <TouchableOpacity
-                key={index}
-                className={`flex-row items-center justify-between p-4 ${index !== profileMenuItems.length - 1 ? "border-b border-gray-100" : ""
-                  }`}
-                onPress={() => handleMenuAction(item.title, item.action)}
-              >
-                <View className="flex-row items-center">
-                  <View className={`mr-4 rounded-full p-2`} style={{ backgroundColor: `${item.color}15` }}>
-                    <item.icon size={20} color={item.color} />
+            {profileMenuItems.map((item, index) => {
+              const Icon = item.icon;
+              return (
+                <TouchableOpacity
+                  key={index}
+                  className={`flex-row items-center justify-between p-4 ${index !== profileMenuItems.length - 1 ? "border-b border-gray-100" : ""
+                    }`}
+                  onPress={() => handleMenuAction(item.title, item.action)}
+                >
+                  <View className="flex-row items-center">
+                    <View className={`mr-4 rounded-full p-2`} style={{ backgroundColor: `${item.color}15` }}>
+                      <Icon size={20} color={item.color} />
+                    </View>
+                    <Text className="text-base font-medium text-gray-900">{item.title}</Text>
                   </View>
-                  <Text className="text-base font-medium text-gray-900">{item.title}</Text>
-                </View>
-                <Text className="text-gray-400">›</Text>
-              </TouchableOpacity>
-            ))}
+                  <Text className="text-gray-400">›</Text>
+                </TouchableOpacity>
+              );
+            })}
           </View>
         </View>
 
