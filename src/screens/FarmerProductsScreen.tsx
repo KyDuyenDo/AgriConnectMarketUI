@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { View, ScrollView, TouchableOpacity, Text, ActivityIndicator, Image, TextInput } from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, TouchableOpacity, Text, ActivityIndicator, Image, TextInput, FlatList, Platform } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Plus, Search, Filter, Star, MoreVertical, Edit, Trash2, Eye } from "lucide-react-native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -9,6 +9,8 @@ import { useAllBatches } from "@/hooks/useBatches";
 import { Batch } from "@/types";
 import { useAuthStore } from "@/stores/auth";
 import { FarmerProductsScreenSkeleton } from "@/components/skeletons/FarmerProductsScreenSkeleton"
+import { CategorySelector } from "@/components/CategorySelector";
+import { useCategories } from "@/hooks/useCategories";
 
 type Nav = NativeStackNavigationProp<FarmStackParamList>;
 
@@ -30,24 +32,24 @@ const getStockStatus = (batch: Batch): "In Stock" | "Low Stock" | "Out of Stock"
 const getStockBadgeStyle = (stock: string) => {
   switch (stock) {
     case "In Stock":
-      return { bg: "bg-[#C8E6C9]", text: "text-[#2E7D32]" };
+      return { bg: "bg-green-100", text: "text-green-700" };
     case "Low Stock":
-      return { bg: "bg-[#FFE0B2]", text: "text-[#F57C00]" };
+      return { bg: "bg-orange-100", text: "text-orange-700" };
     case "Out of Stock":
-      return { bg: "bg-[#FFCDD2]", text: "text-[#D32F2F]" };
+      return { bg: "bg-red-100", text: "text-red-700" };
     default:
-      return { bg: "bg-[#C8E6C9]", text: "text-[#2E7D32]" };
+      return { bg: "bg-green-100", text: "text-green-700" };
   }
 };
 
 const getStockUnitColor = (stock: string) => {
   switch (stock) {
     case "Low Stock":
-      return "text-[#F39C12]";
+      return "text-orange-600";
     case "Out of Stock":
-      return "text-[#E74C3C]";
+      return "text-red-600";
     default:
-      return "text-[#5C5C5C]";
+      return "text-gray-500";
   }
 };
 
@@ -64,78 +66,75 @@ const BatchCard = ({ batch, onPress, onEdit, onDelete }: {
   const unitColor = getStockUnitColor(stockStatus);
 
   return (
-    <View className="bg-white rounded-2xl overflow-hidden shadow-sm mb-3" style={{ width: '48%' }}>
+    <View className="bg-white rounded-2xl overflow-hidden mb-3 border border-gray-100" style={{ width: '48%', elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 2 }}>
       {/* Product Image with Overlays */}
       <View className="relative">
         {imageUrl ? (
           <Image
             source={{ uri: imageUrl }}
-            className="w-full h-[120px]"
+            className="w-full h-[130px]"
             style={{ objectFit: "cover" }}
           />
         ) : (
-          <View className="w-full h-[120px] bg-green-50 items-center justify-center">
-            <Text className="text-green-600 font-bold text-lg">{batchCode}</Text>
+          <View className="w-full h-[130px] bg-gray-50 items-center justify-center">
+            <Text className="text-gray-400 font-medium text-sm">{batchCode}</Text>
           </View>
         )}
 
         {/* Stock Badge - Top Right */}
         <View className={`absolute top-2 right-2 flex-row items-center py-1 px-2 rounded-full ${stockBadge.bg}`}>
-          <Text className={`text-[10px] font-medium ${stockBadge.text}`}>{stockStatus}</Text>
+          <Text className={`text-[10px] font-semibold ${stockBadge.text}`}>{stockStatus}</Text>
         </View>
 
         {/* Star Favorite - Top Left */}
-        <TouchableOpacity className="absolute top-2 left-2 bg-white rounded-full w-6 h-6 flex items-center justify-center">
-          <Star size={14} color={batch.isActive !== false ? "#FF8C42" : "#8A8A8A"} fill={batch.isActive !== false ? "#FF8C42" : "none"} />
+        <TouchableOpacity className="absolute top-2 left-2 bg-white/90 rounded-full w-7 h-7 flex items-center justify-center shadow-sm">
+          <Star size={14} color={batch.isActive !== false ? "#F59E0B" : "#9CA3AF"} fill={batch.isActive !== false ? "#F59E0B" : "none"} />
         </TouchableOpacity>
       </View>
 
       {/* Content */}
       <View className="p-3">
         {/* Batch Code and Menu */}
-        <View className="flex-row justify-between items-center mb-1">
-          <Text className="text-xs font-semibold text-[#2D2D2D] flex-1" numberOfLines={1}>{batchCode}</Text>
-          <TouchableOpacity className="flex items-center justify-center w-6 h-6">
-            <MoreVertical size={14} color="#8A8A8A" />
+        <View className="flex-row justify-between items-start mb-1">
+          <Text className="text-sm font-bold text-gray-900 flex-1 mr-1" numberOfLines={1}>{batchCode}</Text>
+          <TouchableOpacity className="flex items-center justify-center w-5 h-5 -mr-1">
+            <MoreVertical size={16} color="#9CA3AF" />
           </TouchableOpacity>
         </View>
 
         {/* Season */}
         {batch.season && (
-          <Text className="text-[10px] text-[#8A8A8A] mb-2" numberOfLines={1}>Season: {batch.season.seasonName}</Text>
+          <Text className="text-[11px] text-gray-500 mb-2" numberOfLines={1}>
+            {batch.season.seasonName}
+          </Text>
         )}
 
         {/* Price and Units */}
-        <View className="flex-row justify-between items-center mb-2">
-          <Text className="text-sm font-bold text-[#2D2D2D]">${batch.price}</Text>
-          <Text className={`text-[10px] ${unitColor}`} numberOfLines={1}>{batch.availableQuantity}/{batch.totalYield}</Text>
-        </View>
-
-        {/* Planting Date */}
-        <View className="mb-2">
-          <Text className="text-[10px] text-[#8A8A8A]" numberOfLines={1}>
-            {batch.plantingDate ? new Date(batch.plantingDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'N/A'}
+        <View className="flex-row justify-between items-end mb-3">
+          <Text className="text-base font-bold text-green-600">${batch.price}</Text>
+          <Text className={`text-[11px] font-medium ${unitColor}`} numberOfLines={1}>
+            {batch.availableQuantity} / {batch.totalYield}
           </Text>
         </View>
 
         {/* Action Buttons */}
-        <View className="flex-row gap-1">
+        <View className="flex-row gap-2 pt-2 border-t border-gray-50">
           <TouchableOpacity
             onPress={onEdit}
-            className="flex-1 flex items-center justify-center py-2 bg-[#E8F5E8] rounded-lg active:bg-green-100">
-            <Edit size={14} color="#4CAF50" strokeWidth={1.5} />
+            className="flex-1 flex items-center justify-center py-1.5 bg-gray-50 rounded-lg active:bg-gray-100">
+            <Edit size={14} color="#4B5563" strokeWidth={1.5} />
           </TouchableOpacity>
 
           <TouchableOpacity
             onPress={onDelete}
-            className="flex-1 flex items-center justify-center py-2 bg-[#FDECEA] rounded-lg active:bg-red-100">
-            <Trash2 size={14} color="#E74C3C" strokeWidth={1.5} />
+            className="flex-1 flex items-center justify-center py-1.5 bg-red-50 rounded-lg active:bg-red-100">
+            <Trash2 size={14} color="#EF4444" strokeWidth={1.5} />
           </TouchableOpacity>
 
           <TouchableOpacity
             onPress={onPress}
-            className="flex-1 flex items-center justify-center py-2 bg-[#E3F2FD] rounded-lg active:bg-blue-100">
-            <Eye size={14} color="#2196F3" strokeWidth={1.5} />
+            className="flex-1 flex items-center justify-center py-1.5 bg-blue-50 rounded-lg active:bg-blue-100">
+            <Eye size={14} color="#3B82F6" strokeWidth={1.5} />
           </TouchableOpacity>
         </View>
       </View>
@@ -147,7 +146,10 @@ export const FarmerProductsScreen = () => {
   const navigation = useNavigation<Nav>();
   const { accountId } = useAuthStore();
   const { data: batches, isLoading } = useAllBatches(accountId || undefined, { enabled: !!accountId });
+
+  const { data: categories } = useCategories();
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   if (isLoading) {
     return <FarmerProductsScreenSkeleton />;
@@ -157,73 +159,105 @@ export const FarmerProductsScreen = () => {
     const code = getBatchCode(b);
     const seasonName = b.season?.seasonName || "";
     const query = searchQuery.toLowerCase();
-    return (code || "").toLowerCase().includes(query) || seasonName.toLowerCase().includes(query);
-  });
+    const matchesSearch = (code || "").toLowerCase().includes(query) || seasonName.toLowerCase().includes(query);
+
+    const categoryId = b.season?.product?.categoryId;
+    const matchesCategory = selectedCategory
+      ? (categoryId || "").toLowerCase() === selectedCategory.toLowerCase()
+      : true;
+
+    return matchesSearch && matchesCategory;
+  }) || [];
 
   const onAddBatch = () => {
     navigation.navigate("AddLot", {});
   };
 
   const handleEdit = (batchId: string) => {
-    // TODO: Navigate to edit batch screen
     console.log("Edit batch:", batchId);
   };
 
   const handleDelete = (batchId: string) => {
-    // TODO: Implement delete functionality
     console.log("Delete batch:", batchId);
   };
 
-  return (
-    <SafeAreaView className="flex-1 bg-[#F9FAF9]" edges={['top']}>
-      <View className="px-6 py-4 bg-white border-b border-gray-100 flex-row justify-between items-center">
-        <Text className="text-[#2d2d2d] text-xl font-bold">My Batches</Text>
-        <TouchableOpacity>
-          <Filter size={20} color="#2d2d2d" />
-        </TouchableOpacity>
-      </View>
-
-      <View className="px-6 py-3 bg-white border-b border-gray-100">
-        <View className="flex-row items-center bg-gray-50 rounded-xl px-4 py-2">
-          <Search size={20} color="#9ca3af" />
+  const renderHeader = () => (
+    <View className="pb-2">
+      {/* Search Bar */}
+      <View className="px-4 py-2">
+        <View className="flex-row items-center bg-white border border-gray-200 rounded-xl px-4 py-2.5 shadow-sm">
+          <Search size={20} color="#9CA3AF" />
           <TextInput
-            className="flex-1 ml-2 text-gray-800 h-10"
+            className="flex-1 ml-3 text-gray-900 text-base h-full"
             placeholder="Search batches..."
-            placeholderTextColor="#9ca3af"
+            placeholderTextColor="#9CA3AF"
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
         </View>
       </View>
 
-      <ScrollView
-        className="flex-1 px-4 pt-4"
-        contentContainerStyle={{ paddingBottom: 100 }}
-        showsVerticalScrollIndicator={false}
-      >
-        <View className="flex-row flex-wrap justify-between">
-          {filteredBatches?.map(batch => (
-            <BatchCard
-              key={batch.id}
-              batch={batch}
-              onPress={() => navigation.navigate("LotDetail", { lotId: batch.id })}
-              onEdit={() => handleEdit(batch.id)}
-              onDelete={() => handleDelete(batch.id)}
-            />
-          ))}
-        </View>
-        {!isLoading && filteredBatches?.length === 0 && (
-          <Text className="text-center text-gray-500 mt-10">No batches found.</Text>
-        )}
-      </ScrollView>
+      {/* Category Filter */}
+      <View className="py-2">
+        <CategorySelector
+          categories={categories || []}
+          selectedCategory={selectedCategory}
+          onSelectCategory={setSelectedCategory}
+        />
+      </View>
+    </View>
+  );
 
-      <View className="absolute bottom-6 right-6">
+  return (
+    <SafeAreaView className="flex-1 bg-gray-50" edges={['top']}>
+      {/* Sticky Header Title */}
+      <View className="px-6 py-4 bg-white border-b border-gray-100 flex-row justify-between items-center z-10">
+        <Text className="text-gray-900 text-xl font-bold">My Batches</Text>
+        <TouchableOpacity className="bg-gray-50 p-2 rounded-full">
+          <Filter size={20} color="#4B5563" />
+        </TouchableOpacity>
+      </View>
+
+      <FlatList
+        data={filteredBatches}
+        renderItem={({ item }) => (
+          <BatchCard
+            batch={item}
+            onPress={() => navigation.navigate("LotDetail", { lotId: item.id })}
+            onEdit={() => handleEdit(item.id)}
+            onDelete={() => handleDelete(item.id)}
+          />
+        )}
+        keyExtractor={(item) => item.id}
+        numColumns={2}
+        columnWrapperStyle={{ justifyContent: 'space-between', paddingHorizontal: 16 }}
+        contentContainerStyle={{
+          paddingBottom: Platform.OS === 'ios' ? 120 : 120,
+          paddingTop: 8
+        }}
+        ListHeaderComponent={renderHeader}
+        ListEmptyComponent={
+          !isLoading ? (
+            <View className="items-center justify-center py-20">
+              <View className="bg-gray-100 p-4 rounded-full mb-4">
+                <Search size={32} color="#9CA3AF" />
+              </View>
+              <Text className="text-gray-500 text-base font-medium">No batches found</Text>
+              <Text className="text-gray-400 text-sm mt-1">Try adjusting your search or filters</Text>
+            </View>
+          ) : null
+        }
+        showsVerticalScrollIndicator={false}
+      />
+
+      {/* Floating Action Button */}
+      <View className="absolute bottom-6 right-6 shadow-lg shadow-green-900/20">
         <TouchableOpacity
           onPress={onAddBatch}
-          className="bg-[#4CAF50] w-14 h-14 rounded-full items-center justify-center shadow-lg"
-          style={{ elevation: 5 }}
+          className="bg-green-600 w-14 h-14 rounded-full items-center justify-center"
+          style={{ elevation: 6 }}
         >
-          <Plus size={24} color="white" />
+          <Plus size={28} color="white" strokeWidth={2.5} />
         </TouchableOpacity>
       </View>
     </SafeAreaView>

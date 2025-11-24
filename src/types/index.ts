@@ -55,6 +55,7 @@ export interface Season {
 }
 
 
+
 export interface Batch {
   id: string;
   batchCode?: { value: string } | string;
@@ -69,7 +70,7 @@ export interface Batch {
   imagesUrl?: string[];
   createdAt?: string;
   status?: string;
-  isActive?: boolean; // Keeping this for UI compatibility if needed, though not in JSON
+  isActive?: boolean; // UI compatibility
 }
 
 export type ProductBatch = Batch;

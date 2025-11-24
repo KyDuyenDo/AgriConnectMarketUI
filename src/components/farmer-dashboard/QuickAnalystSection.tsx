@@ -1,6 +1,5 @@
 import { View, Text } from "react-native"
-import { ShoppingCart } from "lucide-react-native"
-import { AnalysticCard } from "../ui/AnalysticCard"
+import { ShoppingCart, Package } from "lucide-react-native"
 
 interface QuickAnalystSectionProps {
   activeProducts: { count: number; trend: string }
@@ -9,26 +8,44 @@ interface QuickAnalystSectionProps {
 
 export function QuickAnalystSection({ activeProducts, newOrders }: QuickAnalystSectionProps) {
   return (
-    <View style={{ gap: 12 }}>
-      {/* Stats Row */}
-      <View style={{ flexDirection: "row", gap: 12 }}>
+    <View className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
+      <Text className="text-lg font-bold text-gray-900 mb-4">Overview</Text>
+      <View className="flex-row gap-2">
         {/* Active Products Card */}
-        <AnalysticCard
-          title="Active Products"
-          value={activeProducts.count.toString()}
-          trend={activeProducts.trend}
-          iConColor="#7EC850"
-          iConBackgroundColor="#C8E6C9"
-        />
+        <View className="flex-1 bg-green-50 rounded-xl p-3 border border-green-100">
+          <View className="flex-row justify-between items-start mb-2">
+            <View className="bg-green-100 rounded-full p-1.5">
+              <Package size={16} color="#16a34a" strokeWidth={2.5} />
+            </View>
+            {activeProducts.trend && (
+              <Text className="text-green-600 text-[10px] font-medium bg-green-100 px-1.5 py-0.5 rounded-full">
+                {activeProducts.trend}
+              </Text>
+            )}
+          </View>
+          <Text className="text-green-950 text-2xl font-bold -mt-1">
+            {activeProducts.count}
+          </Text>
+          <Text className="text-green-600 text-xs font-medium">Active Products</Text>
+        </View>
+
         {/* New Orders Card */}
-        <AnalysticCard
-          iConColor="#FFA726"
-          iConBackgroundColor="#FFE0B2"
-          title="New Orders"
-          value={newOrders.count.toString()}
-          trend={newOrders.trend}
-          icon={<ShoppingCart size={18} color="#FFA726" strokeWidth={2} />}
-        />
+        <View className="flex-1 bg-orange-50 rounded-xl p-3 border border-orange-100">
+          <View className="flex-row justify-between items-start mb-2">
+            <View className="bg-orange-100 rounded-full p-1.5">
+              <ShoppingCart size={16} color="#ea580c" strokeWidth={2.5} />
+            </View>
+            {newOrders.trend && (
+              <Text className="text-orange-600 text-[10px] font-medium bg-orange-100 px-1.5 py-0.5 rounded-full">
+                {newOrders.trend}
+              </Text>
+            )}
+          </View>
+          <Text className="text-orange-950 text-2xl font-bold -mt-1">
+            {newOrders.count}
+          </Text>
+          <Text className="text-orange-600 text-xs font-medium">New Orders</Text>
+        </View>
       </View>
     </View>
   )
