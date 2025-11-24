@@ -1,9 +1,9 @@
-import React, { useLayoutEffect } from 'react';
+import React, { useLayoutEffect, useCallback } from 'react';
 import { View, ScrollView, StatusBar, ActivityIndicator, Text, TouchableOpacity, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { FarmStackParamList } from '@/navigation/types';
-import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { useNavigation, useRoute, RouteProp, useFocusEffect } from '@react-navigation/native';
 import { ArrowLeft, MoreVertical, Plus, Share2 } from 'lucide-react-native';
 import { useSeason } from '@/hooks/useSeason';
 import { useProductBatches } from '@/hooks/useProductBatches';
@@ -43,17 +43,23 @@ export default function SeasonDetailScreen() {
     // Unified loading state
     const isLoading = isLoadingSeason || isLoadingBatches;
 
-    const onRefresh = () => {
+    const onRefresh = useCallback(() => {
         refetchSeason();
         refetchBatches();
-    };
+    }, [refetchSeason, refetchBatches]);
+
+    useFocusEffect(
+        useCallback(() => {
+            onRefresh();
+        }, [onRefresh])
+    );
 
     const onBatchPress = (batch: any) => {
-        console.log('Batch pressed:', batch.id);
+        navigation.navigate('LotDetail', { lotId: batch.id });
     };
 
     // Show skeleton while loading
-    if (isLoading) {
+    if (isLoading && !season) {
         return <SeasonDetailScreenSkeleton />;
     }
 

@@ -1,109 +1,159 @@
-✅ 1. API: GET /api/seasons/{seasonId}
-📌 Purpose
+GET
+/api/orders/farm/{farmId}
 
-Fetch detailed information for one specific Season.
+Parameters
+Cancel
+Name	Description
+farmId *
+string($uuid)
+(path)
+C00436BC-D95F-49AC-1818-08DE2AF521BC
+Execute
+Clear
+Responses
+Curl
 
-📥 Input (Path Parameter)
-Name	Type	Required	Description
-seasonId	UUID	Yes	The ID of the season to retrieve
-📤 Response (200 OK)
-
-Returns a single Season object with fields such as:
-
-Field	Description
-Id	Season ID
-SeasonName	Name of the season
-SeasonDesc	Description
-Status	Status (Pending, Active, Done…)
-StartDate	Start date
-EndDate	End date
-CreatedAt	Creation timestamp
-CreatedBy	Creator
-UpdatedAt	Latest update timestamp
-UpdatedBy	Updater
-FarmId	Farm linked to this season
-ProductId	Product grown in this season
-📝 Usage
-
-Season detail page
-
-Pre-fill update form
-
-Display farmer’s season timeline
-
-✅ 2. API: GET /api/product-batches/{seasonId}
-📌 Purpose
-
-Retrieve all product batches belonging to a specific Season.
-
-📥 Input (Path Parameter)
-Name	Type	Required	Description
-seasonId	UUID	Yes	ID of the season whose batches should be returned
-📤 Response (200 OK)
-
-Returns a list of ProductBatch objects, each containing:
-
-Field	Description
-Id	Batch ID
-SeasonName	Name of the season
-SeasonDesc	Description
-Status	Batch status
-StartDate	Start date
-EndDate	End date
-CreatedAt	Timestamp created
-FarmId	Farm related to batch
-ProductId	Product related to batch
-📝 Usage
-
-Display all batches inside a Season
-
-Batch management UI
-
-Show production progress
-
-✅ 3. API: GET /api/products/{productId}
-📌 Purpose
-
-Fetch detailed information for one specific Product.
-
-📥 Input (Path Parameter)
-Name	Type	Required	Description
-productId	UUID	Yes	The ID of the product to retrieve
-📤 Response (200 OK)
-
-Returns:
-
+curl -X 'GET' \
+  'http://192.168.230.69:5170/api/orders/farm/C00436BC-D95F-49AC-1818-08DE2AF521BC' \
+  -H 'accept: */*'
+Request URL
+http://192.168.230.69:5170/api/orders/farm/C00436BC-D95F-49AC-1818-08DE2AF521BC
+Server response
+Code	Details
+200	
+Response body
+Download
 {
   "success": true,
-  "message": "Retrieving data successfully!",
+  "message": "Success",
+  "data": [
+    {
+      "customerId": "4e976752-460a-4333-3e1e-08de2af4d009",
+      "orderCode": "ORD-20251124013950-V8JP",
+      "totalPrice": 1213,
+      "orderDate": "2025-11-24T01:39:50.7733141",
+      "shippingFee": 3.99,
+      "orderStatus": "Processing",
+      "orderType": "Order",
+      "paymentStatus": "Pending",
+      "createdAt": "2025-11-24T01:39:50.8476379",
+      "updatedAt": "2025-11-24T01:43:14.1249702",
+      "customer": {
+        "fullname": "string",
+        "email": "string@string.com",
+        "phone": "012345678",
+        "avatarUrl": "http://res.cloudinary.com/dos0qfmda/image/upload/v1763946345/agriconnect/agriconnect/747ba9b645c444f6a4caee0890768874.jpg",
+        "accountId": "65ccc80d-2d88-4b3b-fd09-08de2af4d00e",
+        "orders": [
+          null
+        ],
+        "createdAt": "2025-11-24T01:05:46.2447625",
+        "id": "4e976752-460a-4333-3e1e-08de2af4d009"
+      },
+      "orderItems": [
+        {
+          "orderId": "66e62a46-8e0f-4732-e9e7-08de2afa5c0f",
+          "batchId": "2935b504-430e-47fc-15b1-08de2af584c5",
+          "quantity": 1,
+          "unitPrice": 1213,
+          "subTotal": 1213,
+          "id": "f77761a1-34d8-4b36-7fdd-08de2afa5c15"
+        }
+      ],
+      "id": "66e62a46-8e0f-4732-e9e7-08de2afa5c0f"
+    }
+  ]
+}
+Response headers
+ content-type: application/json; charset=utf-8 
+ date: Mon,24 Nov 2025 01:49:28 GMT 
+ server: Kestrel 
+ transfer-encoding: chunked 
+Responses
+Code	Description	Links
+200	
+OK
+--
+khi gọi api lấy tất cả order của farm thông tin trả về như trên, có batchId, lấy batchId này gọi:
+GET
+/api/product-batches/{batchId}
+
+Parameters
+Cancel
+Name	Description
+batchId *
+string($uuid)
+(path)
+2935b504-430e-47fc-15b1-08de2af584c5
+Execute
+Clear
+Responses
+Curl
+
+curl -X 'GET' \
+  'http://192.168.230.69:5170/api/product-batches/2935b504-430e-47fc-15b1-08de2af584c5' \
+  -H 'accept: */*'
+Request URL
+http://192.168.230.69:5170/api/product-batches/2935b504-430e-47fc-15b1-08de2af584c5
+Server response
+Code	Details
+200	
+Response body
+Download
+{
+  "success": true,
+  "message": "Success",
   "data": {
-    "productName": "Bánh",
-    "productAttribute": "hdjdh",
-    "productDesc": "Ưbxnnd",
-    "categoryId": "a8ba5142-474d-46e7-32ff-08de2965ff1e",
-    "createdAt": "2025-11-22T01:25:42.898515",
-    "id": "9436a591-3bc0-46d0-d2ab-08de29660dd6"
+    "batchCode": {
+      "value": "AFGH-001"
+    },
+    "totalYield": 31212,
+    "availableQuantity": 3131,
+    "units": "kg",
+    "price": 1213,
+    "plantingDate": "2025-11-24T00:00:00",
+    "harvestDate": "2025-11-24T01:05:06.1288986",
+    "imagesUrl": [
+      "https://res.cloudinary.com/dos0qfmda/image/upload/v1763946308/agriconnect/agriconnect/471da112d65043838d840a9d511b8ec0.jpg",
+      "https://res.cloudinary.com/dos0qfmda/image/upload/v1763946308/agriconnect/agriconnect/ad91bf09cdcc420abba4c7348abb3dfb.jpg",
+      "https://res.cloudinary.com/dos0qfmda/image/upload/v1763946308/agriconnect/agriconnect/76d6ed8df78a4b2ba77bbc4d405f65c1.jpg"
+    ],
+    "seasonId": "e7eb3122-9080-4615-f0ec-08de2af56084",
+    "season": {
+      "seasonName": "2024",
+      "seasonDesc": "Delicious ",
+      "status": "Pending",
+      "startDate": "2025-11-24T00:00:00",
+      "endDate": "2026-02-24T00:00:00",
+      "createdAt": "2025-11-24T01:04:10.8132221",
+      "farmId": "c00436bc-d95f-49ac-1818-08de2af521bc",
+      "productId": "686d658d-3f61-4de8-1b7c-08de2af5532d",
+      "product": {
+        "productName": "Tomato ",
+        "productAttribute": "Fresh",
+        "productDesc": "Delicious ",
+        "categoryId": "595494f6-dbd6-4e15-bb20-08de2af54a1e",
+        "seasons": [
+          null
+        ],
+        "createdAt": "2025-11-24T01:03:48.4256795",
+        "id": "686d658d-3f61-4de8-1b7c-08de2af5532d"
+      },
+      "productBatches": [
+        null
+      ],
+      "id": "e7eb3122-9080-4615-f0ec-08de2af56084"
+    },
+    "createdAt": "2025-11-24T01:05:11.6469553",
+    "id": "2935b504-430e-47fc-15b1-08de2af584c5"
   }
 }
-
-Product fields meaning:
-Field	Description
-productName	Name of the product
-productAttribute	Additional attributes (e.g., size, variety, type)
-productDesc	Product description
-categoryId	Category this product belongs to
-createdAt	Timestamp when product was created
-id	Product ID
-📝 Usage
-
-Display product information inside Season Details
-
-When creating a Season or Batch, fetch the selected Product info
-
-Product detail screen
-
-🎯 How the three APIs relate
-API	Returns	Purpose
-GET /api/seasons/{seasonId}	1 Season	Season details
-GET /api/product-batches/{seasonId}	List<Batch>	All batches in the season
-GET /api/products/{productId}	1 Product	Product information used in the Season
+Response headers
+ content-type: application/json; charset=utf-8 
+ date: Mon,24 Nov 2025 01:51:30 GMT 
+ server: Kestrel 
+ transfer-encoding: chunked 
+Responses
+Code	Description	Links
+200	
+OK

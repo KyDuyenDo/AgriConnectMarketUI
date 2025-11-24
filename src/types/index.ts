@@ -99,18 +99,30 @@ export interface Order {
   id: string;
   customerId: string;
   orderCode: string;
-  totalPrice: number;
+
   orderDate: string;
-  shippingFee: number;
-  orderStatus: string;
   orderType: string;
+  orderStatus: string;
   paymentStatus: string;
+
+  shippingFee: number;
+  totalPrice: number;
+
   paidDate?: string;
   deliveredDate?: string;
-  customer?: any; // Profile type
+
+  // NEW FIELDS FROM TABLE
+  createdAt: string;
+  createdBy: string;
+  updatedAt?: string;
+  updatedBy?: string;
+
+  // Existing relations
+  customer?: any;       // Profile type
   orderItems?: OrderItem[];
   preOrder?: any;
 }
+
 
 export type HistoryItem = {
   id: string;

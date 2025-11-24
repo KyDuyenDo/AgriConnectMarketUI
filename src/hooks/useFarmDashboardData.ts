@@ -5,9 +5,12 @@ import BatchService from "@/services/batches.service";
 import { useAuthStore } from "@/stores/auth";
 import { useMemo } from "react";
 import { Order } from "@/types"; // Import Order type
+import { useGetProfile } from "@/hooks/useProfile";
 
 export function useFarmDashboardData() {
     const { accountId } = useAuthStore();
+
+    const { data: profile } = useGetProfile();
 
     const { data: farm, isLoading: isLoadingFarm } = useQuery({
         queryKey: ["my-farm"],
@@ -50,24 +53,31 @@ export function useFarmDashboardData() {
         );
 
         return {
-            userName: farm?.farmName || "Farmer",
-            userImageUrl: farm?.bannerUrl || "https://via.placeholder.com/150",
+            userName: profile?.fullname || farm?.farmName || "Farmer",
+            userImageUrl: profile?.avatarUrl || farm?.bannerUrl || "https://via.placeholder.com/150",
             earningsAmount: `$${totalEarnings.toLocaleString()}`,
-            earningsPeriod: "Total", // Placeholder as we don't have historical data for trend
+            earningsPeriod: "",
             activeProductsCount: activeBatches.length,
-            activeProductsTrend: "0%", // Placeholder
+            activeProductsTrend: "",
             newOrdersCount: newOrders.length,
-            newOrdersTrend: "0%", // Placeholder
+            newOrdersTrend: "",
             recentOrders: orders.slice(0, 5).map((order: any) => {
-                const firstItem = order.orderItems?.[0];
-                const productName = firstItem?.batch?.season?.product?.productName || order.orderCode || "Order";
-                const imageUrl = firstItem?.batch?.imagesUrl?.[0] || "https://via.placeholder.com/50";
+                const orderItems = order.orderItems || [];
+                const firstItem = orderItems[0];
+                const totalQuantity = orderItems.reduce((sum: number, item: any) => sum + (item.quantity || 0), 0);
+
+                // Find batch details to get image and product name
+                const batchId = firstItem?.batchId;
+                const batch = batches.find((b: any) => b.id === batchId);
+
+                const productName = batch?.season?.product?.productName || order.orderCode || "Order";
+                const imageUrl = batch?.imagesUrl?.[0] || "https://via.placeholder.com/50";
 
                 return {
                     id: order.id.toString(),
                     name: productName,
-                    orderNumber: order.orderCode || "",
-                    quantity: `${order.orderItems?.length || 0} items`,
+                    orderNumber: order.orderCode ? (order.orderCode.length > 20 ? order.orderCode.substring(0, 20) + '...' : order.orderCode) : "",
+                    quantity: `${totalQuantity} items`,
                     price: `$${order.totalPrice}`,
                     status: order.orderStatus,
                     statusColor: getStatusColor(order.orderStatus),
@@ -76,7 +86,7 @@ export function useFarmDashboardData() {
                 };
             }),
         };
-    }, [farm, orders, batches]);
+    }, [farm, orders, batches, profile]);
 
     return {
         dashboardData,
