@@ -112,14 +112,16 @@ export default function CustomerAddressScreen() {
             </View>
 
             {/* Address List */}
-            <AddressList
-                addresses={addresses}
-                isLoading={isAddressLoading}
-                onAddAddress={handleAddAddress}
-                onEditAddress={handleEditAddress}
-                onDeleteAddress={handleDeleteAddress}
-                onSetDefaultAddress={handleSetDefaultAddress}
-            />
+            <View className="mt-2">
+                <AddressList
+                    addresses={addresses}
+                    isLoading={isAddressLoading}
+                    onAddAddress={handleAddAddress}
+                    onEditAddress={handleEditAddress}
+                    onDeleteAddress={handleDeleteAddress}
+                    onSetDefaultAddress={handleSetDefaultAddress}
+                />
+            </View>
 
             {/* Address Modal */}
             <AddEditAddressModal

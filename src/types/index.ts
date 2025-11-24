@@ -65,7 +65,7 @@ export interface Batch {
   plantingDate: string;
   harvestDate?: string;
   seasonId: string;
-  season?: Season;
+  season?: any;
   imagesUrl?: string[];
   createdAt?: string;
   status?: string;

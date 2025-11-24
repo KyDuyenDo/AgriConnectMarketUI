@@ -22,6 +22,8 @@ import { CustomerCartScreenSkeleton } from "@/components/skeletons/CustomerCartS
 import { useCreateOrder } from "@/hooks/useOrders"
 import { useRemoveFromCart } from "@/hooks/useCart"
 import { useAuthStore } from "@/stores/auth"
+import { useGetAddresses } from "@/hooks/useAddress"
+import { useCartShipping } from "@/hooks/useCartShipping"
 
 export const CustomerCartScreen: React.FC = () => {
   const navigation = useNavigation()
@@ -33,12 +35,30 @@ export const CustomerCartScreen: React.FC = () => {
   const { mutateAsync: removeFromCart } = useRemoveFromCart()
   const { userId } = useAuthStore()
 
-  // Show skeleton while loading
-  if (isLoading) {
-    return <CustomerCartScreenSkeleton />
-  }
+  // Address data
+  const { data: addresses } = useGetAddresses()
+  const defaultAddress = addresses?.find(addr => addr.isDefault)
 
+  // Show skeleton while loading
+  if (isLoading) 
+    return <CustomerCartScreenSkeleton />
+
+  console.log("Cart", Cart?.cartItems[0].batch?.season)
   const CartItems = Cart?.cartItems || []
+
+  // Cart shipping calculation using custom hook
+  const { shippingFee, isCalculating: calculatingShipping, farmAddresses } = useCartShipping({
+    cartItems: CartItems,
+    selectedItemIds: selectedItems,
+    customerAddress: defaultAddress ? {
+      province: defaultAddress.province,
+      district: defaultAddress.district,
+      ward: defaultAddress.ward,
+      detail: defaultAddress.detail,
+    } : null,
+  })
+
+  console.log("Farm Addresses", farmAddresses)
 
   const CartItemSelects = CartItems.map((item: any) => {
     // Use enriched batch data if available, otherwise fallback to basic mapping
@@ -154,7 +174,7 @@ export const CustomerCartScreen: React.FC = () => {
   }, 0);
 
   const itemCount = selectedCartItems.length;
-  const deliveryFee = itemCount > 0 ? 3.99 : 0;
+  const deliveryFee = calculatingShipping ? 0 : shippingFee;
 
   // Calculate tax (10% of subtotal)
   const tax = subtotal * 0.1;
@@ -209,9 +229,13 @@ export const CustomerCartScreen: React.FC = () => {
           hideQuantityControls={true}
         />
 
-        <PromoCodeSection />
+        {/* <PromoCodeSection /> */}
 
-        <DeliveryOptionsCard />
+        <DeliveryOptionsCard
+          defaultAddress={defaultAddress}
+          customer={Cart?.customer}
+          onChangeAddress={() => navigation.navigate("CustomerAddress" as never)}
+        />
 
         <OrderSummary
           subtotal={subtotal}
@@ -224,7 +248,20 @@ export const CustomerCartScreen: React.FC = () => {
           savedMessage={discountAmount > 0 ? `You saved $${discountAmount.toFixed(2)} with promo code!` : ""}
         />
 
-        <YouMightAlsoLikeSection />
+        {/* Shipping calculation status */}
+        {calculatingShipping && (
+          <View className="mx-4 mt-2 p-3 bg-blue-50 rounded-lg">
+            <Text className="text-sm text-blue-600">Đang tính phí vận chuyển từ {farmAddresses.length} farm...</Text>
+          </View>
+        )}
+
+        {farmAddresses.length > 0 && !calculatingShipping && (
+          <View className="mx-4 mt-2 p-3 bg-green-50 rounded-lg">
+            <Text className="text-xs text-green-600">📍 Giao hàng từ: {farmAddresses.map(a => a.province).join(', ')}</Text>
+          </View>
+        )}
+
+        {/* <YouMightAlsoLikeSection /> */}
 
         <CartActionsSection onProceed={handleProceed} />
       </ScrollView>

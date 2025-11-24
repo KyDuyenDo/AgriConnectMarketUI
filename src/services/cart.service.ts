@@ -1,5 +1,5 @@
 import apiClient from "@/api/config";
-import { ProductBatch } from "@/types";
+import { Batch, ProductBatch } from "@/types";
 
 export interface CartItemResponse {
     id: string;
@@ -7,13 +7,21 @@ export interface CartItemResponse {
     batchId: string;
     quantity: number;
     itemPrice: number;
-    batch?: ProductBatch;
+    batch?: Batch;
+}
+
+export interface Customer {
+    id: string;
+    fullname: string;
+    phone: string;
+    email?: string;
 }
 
 export interface CartResponse {
     id: string;
     customerId: string;
     totalPrice: number;
+    customer?: Customer;
     cartItems: CartItemResponse[];
 }
 
@@ -34,9 +42,9 @@ export const CartService = {
     /**
      * Get current user's cart (GET /api/carts/me)
      */
-    getCart: async (): Promise<CartResponse | null> => {
+    getCart: async () => {
         try {
-            const res = await apiClient.get<any>(`${BASE_URL}/me`);
+            const res = await apiClient.get(`${BASE_URL}/me`);
             // Backend returns: { success: true, data: { isSuccess: true, value: { ... } } }
             if (res.data?.success && res.data?.data?.isSuccess) {
                 return res.data.data.value;
@@ -104,3 +112,119 @@ export const CartService = {
 };
 
 export default CartService;
+
+// ============================================
+// UTILITY FUNCTIONS FOR SHIPPING CALCULATION
+// ============================================
+
+/**
+ * Address type for farm locations
+ */
+export type Address = {
+    province: string;
+    district: string;
+    ward: string;
+    detail: string;
+};
+
+/**
+ * Result of shipping calculation
+ */
+export interface ShippingCalculationResult {
+    addresses: Address[];
+    totalShippingFee: number;
+}
+
+/**
+ * Extract all farm addresses from cart items
+ * @param cartItems - Array of cart items with batch/season/farm data
+ * @returns Array of unique farm addresses
+ */
+export const extractFarmAddresses = (cartItems: any[]): Address[] => {
+    const addresses: Address[] = [];
+    const seenAddresses = new Set<string>();
+
+    for (const item of cartItems) {
+        const farmAddress = item.batch?.season?.farm?.address;
+        console.log("Farm Address", farmAddress)
+        if (farmAddress) {
+            // Create unique key to avoid duplicates
+            const addressKey = `${farmAddress.province}-${farmAddress.district}-${farmAddress.ward}-${farmAddress.detail}`;
+
+            if (!seenAddresses.has(addressKey)) {
+                seenAddresses.add(addressKey);
+                addresses.push({
+                    province: farmAddress.province || '',
+                    district: farmAddress.district || '',
+                    ward: farmAddress.ward || '',
+                    detail: farmAddress.detail || '',
+                });
+            }
+        }
+    }
+
+    return addresses;
+};
+
+/**
+ * Calculate shipping fee for a single address
+ * This is a placeholder - replace with actual GHTK API call
+ * @param farmAddress - Farm pickup address
+ * @param customerAddress - Customer delivery address  
+ * @param weight - Total weight in grams
+ * @returns Shipping fee in USD
+ */
+export const calculateShippingFee = async (
+    farmAddress: Address,
+    customerAddress: Address,
+    weight: number
+): Promise<number> => {
+    // TODO: Replace with actual GHTK API call
+    // For now, return a mock fee based on weight
+    const baseRate = 0.5; // $0.50 base
+    const perKgRate = 1.0; // $1.00 per kg
+    const weightInKg = weight / 1000;
+
+    return baseRate + (weightInKg * perKgRate);
+};
+
+/**
+ * Calculate total shipping fee for all cart items
+ * @param cartItems - Cart items with farm addresses
+ * @param customerAddress - Customer delivery address
+ * @returns Shipping calculation result with addresses and total fee
+ */
+export const calculateTotalShipping = async (
+    cartItems: CartItemResponse[],
+    customerAddress: Address
+): Promise<ShippingCalculationResult> => {
+    const farmAddresses = extractFarmAddresses(cartItems);
+    let totalShippingFee = 0;
+
+    // Calculate shipping fee for each unique farm address
+    for (const farmAddress of farmAddresses) {
+        // Calculate total weight for items from this farm
+        const itemsFromFarm = cartItems.filter(item => {
+            const addr = item.batch?.season?.farm?.address;
+            return addr &&
+                addr.province === farmAddress.province &&
+                addr.district === farmAddress.district &&
+                addr.ward === farmAddress.ward &&
+                addr.detail === farmAddress.detail;
+        });
+
+        const totalWeight = itemsFromFarm.reduce((sum, item) => {
+            // Assume 500g per item, adjust as needed
+            return sum + (item.quantity * 500);
+        }, 0);
+
+        // Calculate shipping fee for this farm
+        const fee = await calculateShippingFee(farmAddress, customerAddress, totalWeight);
+        totalShippingFee += fee;
+    }
+
+    return {
+        addresses: farmAddresses,
+        totalShippingFee,
+    };
+};

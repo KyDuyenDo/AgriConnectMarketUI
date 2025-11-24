@@ -2,17 +2,10 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import CartService, { AddToCartRequest, UpdateCartItemRequest } from "@/services/cart.service";
 import BatchService from "@/services/batches.service";
 
-// Query Keys
 export const CART_QUERY_KEYS = {
     cart: ["cart"] as const,
 };
 
-// ======================================================
-// 1️⃣ GET CART
-// ======================================================
-// ======================================================
-// 1️⃣ GET CART (Enriched with Batch Details)
-// ======================================================
 export const useCart = () => {
     return useQuery({
         queryKey: CART_QUERY_KEYS.cart,
@@ -22,7 +15,7 @@ export const useCart = () => {
 
             // Fetch details for all batches in parallel
             const enrichedItems = await Promise.all(
-                cart.cartItems.map(async (item) => {
+                cart.cartItems.map(async (item: any) => {
                     try {
                         const batchDetail = await BatchService.getBatchById(item.batchId);
                         return { ...item, batch: batchDetail };
@@ -38,9 +31,6 @@ export const useCart = () => {
     });
 };
 
-// ======================================================
-// 2️⃣ ADD TO CART
-// ======================================================
 export const useAddToCart = () => {
     const queryClient = useQueryClient();
 
