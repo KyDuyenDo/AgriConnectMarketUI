@@ -31,7 +31,7 @@ export const CustomerDashboardScreen: React.FC = () => {
   }
 
   // Transform CartItemResponse to CartItem format for UI
-  const cartItems = cart?.cartItems?.map((item) => ({
+  const cartItems = cart?.cartItems?.map((item: any) => ({
     id: item.id,
     name: item.batch?.season?.product?.productName || 'Unknown Product',
     quantity: `${item.quantity} ${item.batch?.units || 'units'}`,

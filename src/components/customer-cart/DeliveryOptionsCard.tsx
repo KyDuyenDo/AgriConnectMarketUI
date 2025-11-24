@@ -1,14 +1,64 @@
 import { useState } from "react"
 import { View, Text, TouchableOpacity } from "react-native"
-import { MapPin, ChevronRight, Clock, Zap } from "lucide-react-native"
+import { MapPin, ChevronRight, Clock, Zap, User, Phone } from "lucide-react-native"
 
-export default function DeliveryOptionsCard() {
+interface Address {
+  id: string
+  province: string
+  district: string
+  ward: string
+  detail: string
+  isDefault: boolean
+}
+
+interface Customer {
+  id: string
+  fullname: string
+  phone: string
+  email?: string
+}
+
+interface DeliveryOptionsCardProps {
+  defaultAddress?: Address | null
+  customer?: Customer | null
+  onChangeAddress?: () => void
+}
+
+export default function DeliveryOptionsCard({
+  defaultAddress,
+  customer,
+  onChangeAddress
+}: DeliveryOptionsCardProps) {
   const [selectedDelivery, setSelectedDelivery] = useState("express")
 
   return (
     <View className="px-4 mb-4">
       <View className="bg-white p-4 rounded-2xl shadow-sm">
-        <Text className="text-base font-semibold text-[#2D2D2D] mb-4">Delivery Options</Text>
+        <Text className="text-base font-semibold text-[#2D2D2D] mb-4">Delivery Information</Text>
+
+        {/* Customer Info */}
+        {customer && (
+          <View className="bg-[#F5F5F5] rounded-xl p-3 mb-3">
+            <View className="flex-row items-center gap-3 mb-2">
+              <View className="w-8 h-8 items-center justify-center">
+                <User size={18} color="#4CAF50" />
+              </View>
+              <View className="flex-1">
+                <Text className="text-xs text-[#8A8A8A] mb-1">Customer Name</Text>
+                <Text className="text-sm font-medium text-[#2D2D2D]">{customer.fullname}</Text>
+              </View>
+            </View>
+            <View className="flex-row items-center gap-3">
+              <View className="w-8 h-8 items-center justify-center">
+                <Phone size={18} color="#4CAF50" />
+              </View>
+              <View className="flex-1">
+                <Text className="text-xs text-[#8A8A8A] mb-1">Phone Number</Text>
+                <Text className="text-sm font-medium text-[#2D2D2D]">{customer.phone}</Text>
+              </View>
+            </View>
+          </View>
+        )}
 
         {/* Address */}
         <View className="bg-[#E8F5E8] rounded-xl p-3 mb-3 flex-row justify-between items-center">
@@ -17,17 +67,19 @@ export default function DeliveryOptionsCard() {
               <MapPin size={20} color="#4CAF50" />
             </View>
             <View>
-              <Text className="text-sm font-medium text-[#2D2D2D]">123 Main Street</Text>
-              <Text className="text-xs text-[#8A8A8A]">Apartment 4B, San Francisco, CA</Text>
+              <Text className="text-sm font-medium text-[#2D2D2D]">{defaultAddress?.detail}</Text>
+              <Text className="text-xs text-[#8A8A8A]">{defaultAddress?.ward}, {defaultAddress?.district}, {defaultAddress?.province}</Text>
             </View>
           </View>
-          <TouchableOpacity className="w-8 h-8 items-center justify-center">
+          <TouchableOpacity className="w-8 h-8 items-center justify-center"
+          onPress={onChangeAddress}
+          >
             <ChevronRight size={18} color="#8A8A8A" />
           </TouchableOpacity>
         </View>
 
         {/* Standard Delivery */}
-        <View className="border border-[#E8E8E8] rounded-xl p-3 mb-3 flex-row justify-between items-center">
+        {/* <View className="border border-[#E8E8E8] rounded-xl p-3 mb-3 flex-row justify-between items-center">
           <View className="flex-row items-center gap-3">
             <View className="w-8 h-8 items-center justify-center">
               <Clock size={20} color="#4CAF50" />
@@ -40,10 +92,10 @@ export default function DeliveryOptionsCard() {
           <TouchableOpacity className="w-8 h-8 items-center justify-center">
             <ChevronRight size={18} color="#8A8A8A" />
           </TouchableOpacity>
-        </View>
+        </View> */}
 
         {/* Express Delivery */}
-        <TouchableOpacity
+        {/* <TouchableOpacity
           onPress={() => setSelectedDelivery("express")}
           className={`border rounded-xl p-3 flex-row justify-between items-center ${selectedDelivery === "express" ? "border-[#E8E8E8]" : "border-[#E8E8E8]"
             }`}
@@ -63,7 +115,7 @@ export default function DeliveryOptionsCard() {
           >
             {selectedDelivery === "express" && <View className="w-2.5 h-2.5 rounded-full bg-[#FF8C42]" />}
           </View>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
     </View>
   )

@@ -16,7 +16,7 @@ export default function CartActionsSection({ onProceed }: CartActionsSectionProp
                 <Text className="text-white text-base font-semibold">Proceed to Checkout</Text>
             </TouchableOpacity>
 
-            <View className="flex-row gap-3 mb-3">
+            {/* <View className="flex-row gap-3 mb-3">
                 <TouchableOpacity className="flex-1 bg-[#E8F5E8] py-3 rounded-xl flex-row items-center justify-center">
                     <Bookmark size={18} color="#4CAF50" className="mr-2" />
                     <Text className="text-[#4CAF50] text-sm font-semibold ml-2">Save for Later</Text>
@@ -33,7 +33,7 @@ export default function CartActionsSection({ onProceed }: CartActionsSectionProp
                 <Text className="text-[#2E7D32] text-xs font-medium">
                     Estimated delivery: Tomorrow 2-4 PM
                 </Text>
-            </View>
+            </View> */}
         </View>
     );
 }
