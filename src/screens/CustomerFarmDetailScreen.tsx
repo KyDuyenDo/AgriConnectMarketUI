@@ -118,7 +118,7 @@ export function CustomerFarmDetailScreen({ route, navigation }: Props) {
                         {batches?.map(batch => (
                             <View key={batch.id} className="w-[48%] mb-3">
                                 <FarmProductCard
-                                    id={batch.id}
+                                    key={batch.id}
                                     image={batch.imagesUrl?.[0] || 'https://via.placeholder.com/150'}
                                     name={batch.season?.product?.productName || 'Unknown Product'}
                                     price={`$${batch.price}/${batch.units}`}

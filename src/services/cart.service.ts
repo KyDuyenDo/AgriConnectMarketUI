@@ -44,9 +44,9 @@ export const CartService = {
      */
     getCart: async () => {
         try {
-            const res = await apiClient.get(`${BASE_URL}/me`);
+            const res = await apiClient.get<{ data: { isSuccess: boolean, value: CartResponse } }>(`${BASE_URL}/me`);
             // Backend returns: { success: true, data: { isSuccess: true, value: { ... } } }
-            if (res.data?.success && res.data?.data?.isSuccess) {
+            if (res.data?.data?.isSuccess) {
                 return res.data.data.value;
             }
             return null;

@@ -8,6 +8,7 @@ import { Picker } from '@react-native-picker/picker';
 import { useCategories } from '@/hooks/useCategories';
 import { useProducts } from '@/hooks/useProducts';
 import { useCreateSeason } from '@/hooks/useSeasons';
+import { useFarmByMe } from '@/hooks/useFarm';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 
@@ -32,7 +33,11 @@ interface FormData {
 export default function AddSeasonScreen() {
     const navigation = useNavigation();
     const route = useRoute();
-    const { farmId } = route.params as { farmId: string };
+
+    // Get farm data using hook instead of route params
+    const { data: farm, isLoading: isLoadingFarm } = useFarmByMe();
+    const farmId = farm?.id;
+
     const { data: categories, isLoading: isLoadingCategories } = useCategories();
     const [selectedCategory, setSelectedCategory] = useState<string>("");
 
@@ -60,6 +65,11 @@ export default function AddSeasonScreen() {
     }, [categoryId, setValue]);
 
     const onSubmit = (data: FormData) => {
+        if (!farmId) {
+            Alert.alert("Error", "Farm not found. Please create a farm first.");
+            return;
+        }
+
         createSeason({
             seasonName: data.seasonName,
             seasonDesc: data.seasonDesc || "",
@@ -233,13 +243,15 @@ export default function AddSeasonScreen() {
                 {/* Submit Button */}
                 <TouchableOpacity
                     onPress={handleSubmit(onSubmit)}
-                    disabled={isPending}
-                    className={`w-full py-4 rounded-xl items-center mb-8 ${isPending ? "bg-green-300" : "bg-green-600"}`}
+                    disabled={isPending || isLoadingFarm || !farmId}
+                    className={`w-full py-4 rounded-xl items-center mb-8 ${isPending || isLoadingFarm || !farmId ? "bg-green-300" : "bg-green-600"}`}
                 >
-                    {isPending ? (
+                    {isPending || isLoadingFarm ? (
                         <ActivityIndicator color="white" />
                     ) : (
-                        <Text className="text-white font-bold text-lg">Create Season</Text>
+                        <Text className="text-white font-bold text-lg">
+                            {!farmId ? "No Farm Found" : "Create Season"}
+                        </Text>
                     )}
                 </TouchableOpacity>
             </ScrollView>
