@@ -8,7 +8,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { Edit, BarChart3, Award, Calendar, Package, Settings } from "lucide-react-native";
+import { Edit, BarChart3, Award, Calendar, Package, Settings, Package2, TrendingUp, Layers } from "lucide-react-native";
 import Carousel from "@/components/ui/Carousel";
 import { FarmInfoCard } from "@/components/farm/FarmInfoCard";
 import { FarmManagementButton } from "@/components/farm/FarmManagementButton";
@@ -111,41 +111,78 @@ export default function FarmDetailScreen() {
           />
 
           {/* Quick Statistics Overview */}
-          <View className="bg-white rounded-xl p-4 mb-6 border border-gray-100">
-            <Text className="text-base font-bold text-gray-900 mb-3">
+          <View className="bg-white rounded-2xl p-5 mb-6 shadow-sm border border-gray-100">
+            <Text className="text-lg font-bold text-gray-900 mb-4">
               Quick Overview
             </Text>
             {statsLoading ? (
-              <ActivityIndicator size="small" color="#16a34a" />
+              <View className="py-8">
+                <ActivityIndicator size="small" color="#16a34a" />
+              </View>
             ) : statistics ? (
-              <View className="flex-row flex-wrap">
-                <View className="w-1/2 pr-2 mb-3">
-                  <Text className="text-gray-500 text-xs mb-1">Total Batches</Text>
-                  <Text className="text-gray-900 text-lg font-bold">
-                    {statistics.totalBatches}
-                  </Text>
+              <View className="gap-2">
+                {/* First Row */}
+                <View className="flex-row gap-2">
+                  {/* Total Batches Card */}
+                  <View className="flex-1 bg-blue-50 rounded-xl p-3 border border-blue-100">
+                    <View className="flex-row justify-between items-start mb-2">
+                      <View className="bg-blue-100 rounded-full p-1.5">
+                        <Package2 size={16} color="#2563eb" strokeWidth={2.5} />
+                      </View>
+                    </View>
+                    <Text className="text-blue-950 text-2xl font-bold -mt-1">
+                      {statistics.totalBatches}
+                    </Text>
+                    <Text className="text-blue-600 text-xs font-medium">Total Batches</Text>
+                  </View>
+
+                  {/* Active Seasons Card */}
+                  <View className="flex-1 bg-purple-50 rounded-xl p-3 border border-purple-100">
+                    <View className="flex-row justify-between items-start mb-2">
+                      <View className="bg-purple-100 rounded-full p-1.5">
+                        <Calendar size={16} color="#9333ea" strokeWidth={2.5} />
+                      </View>
+                    </View>
+                    <Text className="text-purple-950 text-2xl font-bold -mt-1">
+                      {statistics.totalSeasons}
+                    </Text>
+                    <Text className="text-purple-600 text-xs font-medium">Active Seasons</Text>
+                  </View>
                 </View>
-                <View className="w-1/2 pl-2 mb-3">
-                  <Text className="text-gray-500 text-xs mb-1">Active Seasons</Text>
-                  <Text className="text-gray-900 text-lg font-bold">
-                    {statistics.totalSeasons}
-                  </Text>
-                </View>
-                <View className="w-1/2 pr-2">
-                  <Text className="text-gray-500 text-xs mb-1">Available</Text>
-                  <Text className="text-gray-900 text-lg font-bold">
-                    {statistics.totalAvailableQuantity}
-                  </Text>
-                </View>
-                <View className="w-1/2 pl-2">
-                  <Text className="text-gray-500 text-xs mb-1">Active Batches</Text>
-                  <Text className="text-gray-900 text-lg font-bold">
-                    {statistics.activeBatches}
-                  </Text>
+
+                {/* Second Row */}
+                <View className="flex-row gap-2">
+                  {/* Available Quantity Card */}
+                  <View className="flex-1 bg-green-50 rounded-xl p-3 border border-green-100">
+                    <View className="flex-row justify-between items-start mb-2">
+                      <View className="bg-green-100 rounded-full p-1.5">
+                        <TrendingUp size={16} color="#16a34a" strokeWidth={2.5} />
+                      </View>
+                    </View>
+                    <Text className="text-green-950 text-2xl font-bold -mt-1">
+                      {statistics.totalAvailableQuantity}
+                    </Text>
+                    <Text className="text-green-600 text-xs font-medium">Available</Text>
+                  </View>
+
+                  {/* Active Batches Card */}
+                  <View className="flex-1 bg-orange-50 rounded-xl p-3 border border-orange-100">
+                    <View className="flex-row justify-between items-start mb-2">
+                      <View className="bg-orange-100 rounded-full p-1.5">
+                        <Layers size={16} color="#ea580c" strokeWidth={2.5} />
+                      </View>
+                    </View>
+                    <Text className="text-orange-950 text-2xl font-bold -mt-1">
+                      {statistics.activeBatches}
+                    </Text>
+                    <Text className="text-orange-600 text-xs font-medium">Active Batches</Text>
+                  </View>
                 </View>
               </View>
             ) : (
-              <Text className="text-gray-400 text-sm">No statistics available</Text>
+              <View className="py-6">
+                <Text className="text-gray-400 text-sm text-center">No statistics available</Text>
+              </View>
             )}
           </View>
 

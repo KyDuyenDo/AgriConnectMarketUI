@@ -1,5 +1,4 @@
-import { View } from "react-native"
-import { AnalysticCard } from "../ui/AnalysticCard"
+import { View, Text } from "react-native"
 import { ShoppingCart, Clock, DollarSign, TrendingUp } from "lucide-react-native"
 
 interface StatsSectionProps {
@@ -10,92 +9,68 @@ interface StatsSectionProps {
 }
 
 export function StatsSection({ ordersToday, pendingOrders, weeklyRevenue, avgOrderValue }: StatsSectionProps) {
-  const statCards = [
-    {
-      id: "1",
-      label: "Orders Today",
-      value: ordersToday.toString(),
-      change: "", // Trend calculation requires historical data
-      bgColor: "#C8E6C9",
-      textColor: "#4CAF50",
-      icon: <ShoppingCart size={18} color="#4CAF50" strokeWidth={2} />,
-    },
-    {
-      id: "2",
-      label: "Pending Orders",
-      value: pendingOrders.toString(),
-      badge: pendingOrders.toString(),
-      bgColor: "#FFE0B2",
-      textColor: "#F57C00",
-      icon: <Clock size={18} color="#F57C00" strokeWidth={2} />,
-    },
-    {
-      id: "3",
-      label: "Weekly Revenue",
-      value: `$${weeklyRevenue.toLocaleString()}`,
-      change: "",
-      bgColor: "#FFE0B2",
-      textColor: "#4CAF50",
-      icon: <DollarSign size={18} color="#FFA726" strokeWidth={2} />,
-    },
-    {
-      id: "4",
-      label: "Avg Order Value",
-      value: `$${avgOrderValue.toLocaleString()}`,
-      badge: `$${avgOrderValue.toLocaleString()}`,
-      bgColor: "#BBDEFB",
-      textColor: "#2C7BE5",
-      icon: <TrendingUp size={18} color="#2C7BE5" strokeWidth={2} />,
-    },
-  ];
-
   return (
     <View className="mb-4 px-4">
-      {/* First Row */}
-      <View className="flex-row gap-3 mb-3">
-        <View className="flex-1">
-          <AnalysticCard
-            title={statCards[0].label}
-            value={statCards[0].value}
-            trend={statCards[0].change}
-            iConBackgroundColor={statCards[0].bgColor}
-            iConColor={statCards[0].textColor}
-            icon={statCards[0].icon}
-          />
-        </View>
-        <View className="flex-1">
-          <AnalysticCard
-            title={statCards[1].label}
-            value={statCards[1].value}
-            trend={statCards[1].change || statCards[1].badge || ""}
-            iConBackgroundColor={statCards[1].bgColor}
-            iConColor={statCards[1].textColor}
-            icon={statCards[1].icon}
-          />
-        </View>
-      </View>
+      <View className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
+        <Text className="text-lg font-bold text-gray-900 mb-4">Order Statistics</Text>
+        <View className="gap-2">
+          {/* First Row */}
+          <View className="flex-row gap-2">
+            {/* Orders Today Card */}
+            <View className="flex-1 bg-green-50 rounded-xl p-3 border border-green-100">
+              <View className="flex-row justify-between items-start mb-2">
+                <View className="bg-green-100 rounded-full p-1.5">
+                  <ShoppingCart size={16} color="#16a34a" strokeWidth={2.5} />
+                </View>
+              </View>
+              <Text className="text-green-950 text-2xl font-bold -mt-1">
+                {ordersToday}
+              </Text>
+              <Text className="text-green-600 text-xs font-medium">Orders Today</Text>
+            </View>
 
-      {/* Second Row */}
-      <View className="flex-row gap-3">
-        <View className="flex-1">
-          <AnalysticCard
-            title={statCards[2].label}
-            value={statCards[2].value}
-            trend={statCards[2].change || statCards[2].badge || ""}
-            iConBackgroundColor={statCards[2].bgColor}
-            iConColor={statCards[2].textColor}
-            icon={statCards[2].icon}
-          />
-        </View>
-        <View className="flex-1">
-          <AnalysticCard
-            title={statCards[3].label}
-            value={statCards[3].value}
-            trend={statCards[3].change || statCards[3].badge || ""}
-            iConBackgroundColor={statCards[3].bgColor}
-            iConColor={statCards[3].textColor}
-            icon={statCards[3].icon}
-          />
+            {/* Pending Orders Card */}
+            <View className="flex-1 bg-orange-50 rounded-xl p-3 border border-orange-100">
+              <View className="flex-row justify-between items-start mb-2">
+                <View className="bg-orange-100 rounded-full p-1.5">
+                  <Clock size={16} color="#ea580c" strokeWidth={2.5} />
+                </View>
+              </View>
+              <Text className="text-orange-950 text-2xl font-bold -mt-1">
+                {pendingOrders}
+              </Text>
+              <Text className="text-orange-600 text-xs font-medium">Pending Orders</Text>
+            </View>
+          </View>
+
+          {/* Second Row */}
+          <View className="flex-row gap-2">
+            {/* Weekly Revenue Card */}
+            <View className="flex-1 bg-yellow-50 rounded-xl p-3 border border-yellow-100">
+              <View className="flex-row justify-between items-start mb-2">
+                <View className="bg-yellow-100 rounded-full p-1.5">
+                  <DollarSign size={16} color="#ca8a04" strokeWidth={2.5} />
+                </View>
+              </View>
+              <Text className="text-yellow-950 text-2xl font-bold -mt-1">
+                ${weeklyRevenue.toLocaleString()}
+              </Text>
+              <Text className="text-yellow-600 text-xs font-medium">Weekly Revenue</Text>
+            </View>
+
+            {/* Avg Order Value Card */}
+            <View className="flex-1 bg-blue-50 rounded-xl p-3 border border-blue-100">
+              <View className="flex-row justify-between items-start mb-2">
+                <View className="bg-blue-100 rounded-full p-1.5">
+                  <TrendingUp size={16} color="#2563eb" strokeWidth={2.5} />
+                </View>
+              </View>
+              <Text className="text-blue-950 text-2xl font-bold -mt-1">
+                ${avgOrderValue.toLocaleString()}
+              </Text>
+              <Text className="text-blue-600 text-xs font-medium">Avg Order Value</Text>
+            </View>
+          </View>
         </View>
       </View>
     </View>
