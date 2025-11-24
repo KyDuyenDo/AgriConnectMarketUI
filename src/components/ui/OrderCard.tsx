@@ -36,9 +36,11 @@ export function OrderCard({ order, onPress }: OrderCardProps) {
     >
       <Image source={{ uri: order.image }} style={{ width: 40, height: 40, borderRadius: 8 }} />
       <View style={{ flex: 1 }}>
-        <Text style={{ fontWeight: "600", color: "#2D2D2D", fontSize: 14 }}>{order.name}</Text>
         <Text style={{ fontSize: 12, color: "#5C5C5C", marginTop: 2 }}>
-          Order #{order.orderNumber} • {order.quantity}
+          #{order.orderNumber}
+        </Text>
+        <Text style={{ fontSize: 12, color: "#5C5C5C", marginTop: 2 }}>
+          {order.quantity}
         </Text>
       </View>
       <View style={{ alignItems: "flex-end", gap: 6 }}>

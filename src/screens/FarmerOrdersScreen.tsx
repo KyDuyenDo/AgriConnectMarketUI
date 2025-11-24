@@ -9,6 +9,7 @@ import { useFarmerOrders } from "@/hooks/useFarmerOrders"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useMyFarm } from "@/hooks/useMyFarm"
 import { FarmerOrdersScreenSkeleton } from "@/components/skeletons/FarmerOrdersScreenSkeleton"
+import { Order } from "@/types"
 
 export function FarmerOrders() {
   const [activeFilter, setActiveFilter] = useState("All Orders")
@@ -18,10 +19,27 @@ export function FarmerOrders() {
 
   const isLoading = isLoadingFarm || isLoadingOrders
 
-  const filteredOrders = orders?.filter(order => {
+  const filteredOrders = orders?.filter((order: Order) => {
     if (activeFilter === "All Orders") return true
     return order.orderStatus.toLowerCase() === activeFilter.toLowerCase()
   }) || []
+
+  // Calculate stats
+  const now = new Date();
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const oneWeekAgo = todayStart - 7 * 24 * 60 * 60 * 1000;
+
+  const ordersToday = orders?.filter((o: Order) => new Date(o.createdAt || 0).getTime() >= todayStart).length || 0;
+  const pendingOrders = orders?.filter((o: Order) => ['Pending', 'Processing'].includes(o.orderStatus)).length || 0;
+
+  const completedOrders = orders?.filter((o: Order) => ['Delivered', 'Completed'].includes(o.orderStatus)) || [];
+  const weeklyRevenue = completedOrders
+    .filter((o: Order) => new Date(o.createdAt || 0).getTime() >= oneWeekAgo)
+    .reduce((sum: number, o: Order) => sum + (o.totalPrice || 0), 0);
+
+  const avgOrderValue = completedOrders.length > 0
+    ? completedOrders.reduce((sum: number, o: Order) => sum + (o.totalPrice || 0), 0) / completedOrders.length
+    : 0;
 
   return (
     <SafeAreaView className="flex-1 bg-[#F9FAF9]">
@@ -35,12 +53,21 @@ export function FarmerOrders() {
           paddingBottom: Platform.OS === "ios" ? 140 : 80,
         }}
       >
-        <StatsSection />
+        <StatsSection
+          ordersToday={ordersToday}
+          pendingOrders={pendingOrders}
+          weeklyRevenue={weeklyRevenue}
+          avgOrderValue={Math.round(avgOrderValue)}
+        />
         <FilterTabs activeFilter={activeFilter} onFilterChange={setActiveFilter} />
         {isLoading ? (
           <FarmerOrdersScreenSkeleton />
-        ) : (
+        ) : filteredOrders.length > 0 ? (
           <OrdersList orders={filteredOrders} />
+        ) : (
+          <View className="items-center justify-center py-12">
+            <Text className="text-gray-500 text-base">No orders found</Text>
+          </View>
         )}
       </ScrollView>
 

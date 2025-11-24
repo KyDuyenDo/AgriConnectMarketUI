@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useState } from 'react';
+import React, { useLayoutEffect, useState, useCallback } from 'react';
 import {
     View,
     Text,
@@ -8,7 +8,7 @@ import {
     TouchableOpacity,
     RefreshControl,
 } from 'react-native';
-import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { useNavigation, useRoute, RouteProp, useFocusEffect } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeft, Plus } from 'lucide-react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -17,6 +17,8 @@ import { useSeasons } from '@/hooks/useSeasons';
 import { SeasonCard } from '@/components/farm-seasons/SeasonCard';
 import { SearchBar } from '@/components/farm-seasons/SearchBar';
 import { SortDropdown } from '@/components/farm-seasons/SortDropdown';
+import { useQuery } from '@tanstack/react-query';
+import BatchService from '@/services/batches.service';
 
 type Nav = NativeStackNavigationProp<FarmStackParamList>;
 type RouteParams = RouteProp<FarmStackParamList, 'FarmSeasons'>;
@@ -32,10 +34,27 @@ export default function FarmSeasonsScreen() {
     const [search, setSearch] = useState('');
     const [sortBy, setSortBy] = useState<string>('date');
 
-    const { data: seasons, isLoading, refetch, seasons: filteredSeasons } = useSeasons(farmId, {
+    const { data: seasonsData, isLoading: isLoadingSeasons, refetch: refetchSeasons, seasons: filteredSeasons } = useSeasons(farmId, {
         search,
         sortBy: sortBy as any,
     });
+
+    const { data: allBatches, isLoading: isLoadingBatches, refetch: refetchBatches } = useQuery({
+        queryKey: ['farm-batches', farmId],
+        queryFn: () => BatchService.getBatchesByFarm(farmId),
+        enabled: !!farmId
+    });
+
+    const onRefresh = useCallback(() => {
+        refetchSeasons();
+        refetchBatches();
+    }, [refetchSeasons, refetchBatches]);
+
+    useFocusEffect(
+        useCallback(() => {
+            onRefresh();
+        }, [onRefresh])
+    );
 
     const onPressSeason = (seasonId: string) => {
         navigation.navigate('SeasonDetail', { seasonId });
@@ -47,6 +66,8 @@ export default function FarmSeasonsScreen() {
         { label: 'Category', value: 'category' },
         { label: 'Product Name', value: 'product' },
     ];
+
+    const isLoading = isLoadingSeasons || isLoadingBatches;
 
     return (
         <SafeAreaView className="flex-1 bg-gray-50">
@@ -89,23 +110,35 @@ export default function FarmSeasonsScreen() {
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{ padding: 16, paddingBottom: 80 }}
                 refreshControl={
-                    <RefreshControl refreshing={isLoading} onRefresh={refetch} colors={['#16a34a']} />
+                    <RefreshControl refreshing={isLoading} onRefresh={onRefresh} colors={['#16a34a']} />
                 }
             >
-                {!seasons ? (
+                {isLoading && !seasonsData ? (
                     <View className="mt-8 items-center">
                         <ActivityIndicator size="large" color="#16a34a" />
                         <Text className="text-gray-500 mt-4">Loading seasons...</Text>
                     </View>
                 ) : filteredSeasons && filteredSeasons.length > 0 ? (
                     <View>
-                        {filteredSeasons.map((season) => (
-                            <SeasonCard
-                                key={season.id}
-                                season={season}
-                                onPress={() => onPressSeason(season.id)}
-                            />
-                        ))}
+                        {filteredSeasons.map((season) => {
+                            const seasonBatches = allBatches?.filter((b: any) => b.seasonId === season.id) || [];
+                            const totalBatch = seasonBatches.length;
+                            const totalYield = seasonBatches.reduce((sum: number, b: any) => sum + (b.totalYield || 0), 0);
+                            const productName = season.product?.productName;
+                            const category = season.product?.category?.categoryName;
+
+                            return (
+                                <SeasonCard
+                                    key={season.id}
+                                    season={season}
+                                    onPress={() => onPressSeason(season.id)}
+                                    totalBatch={totalBatch}
+                                    totalYield={totalYield}
+                                    productName={productName}
+                                    category={category}
+                                />
+                            );
+                        })}
                     </View>
                 ) : (
                     <View className="bg-white rounded-xl p-8 items-center mt-4 shadow-sm">

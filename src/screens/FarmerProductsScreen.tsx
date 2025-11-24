@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, ScrollView, TouchableOpacity, Text, ActivityIndicator, Image } from "react-native";
+import { View, ScrollView, TouchableOpacity, Text, ActivityIndicator, Image, TextInput } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Plus, Search, Filter, Star, MoreVertical, Edit, Trash2, Eye } from "lucide-react-native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -155,7 +155,9 @@ export const FarmerProductsScreen = () => {
 
   const filteredBatches = batches?.filter(b => {
     const code = getBatchCode(b);
-    return (code || "").toLowerCase().includes(searchQuery.toLowerCase());
+    const seasonName = b.season?.seasonName || "";
+    const query = searchQuery.toLowerCase();
+    return (code || "").toLowerCase().includes(query) || seasonName.toLowerCase().includes(query);
   });
 
   const onAddBatch = () => {
@@ -184,7 +186,13 @@ export const FarmerProductsScreen = () => {
       <View className="px-6 py-3 bg-white border-b border-gray-100">
         <View className="flex-row items-center bg-gray-50 rounded-xl px-4 py-2">
           <Search size={20} color="#9ca3af" />
-          <Text className="ml-2 text-gray-400">Search batches...</Text>
+          <TextInput
+            className="flex-1 ml-2 text-gray-800 h-10"
+            placeholder="Search batches..."
+            placeholderTextColor="#9ca3af"
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
         </View>
       </View>
 
