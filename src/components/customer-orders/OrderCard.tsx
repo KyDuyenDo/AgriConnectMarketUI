@@ -268,7 +268,8 @@ const OrderCard: React.FC<{ order: Order }> = ({ order }) => {
           />
 
           <View className="flex-row gap-2">
-            <Pressable className="flex-1 items-center justify-center rounded-xl py-2 bg-[#F5F7F5]">
+            <Pressable className="flex-1 items-center justify-center rounded-xl py-2 bg-[#F5F7F5]"
+            onPress={() => navigation.navigate('CustomerOrderDetail', { orderId: order.id })}>
               <Text className="text-[14px] font-semibold text-[#4CAF50]">
                 View Details
               </Text>
