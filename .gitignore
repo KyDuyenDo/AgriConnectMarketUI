@@ -11,7 +11,11 @@ npm-debug.*
 web-build/
 
 
+.env.local
+.env.development
+.env.production
 
+.gitignore
 
 ios
 android
