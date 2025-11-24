@@ -87,7 +87,14 @@ const BatchCard = ({ batch, onPress, onEdit, onDelete }: {
         </View>
 
         {/* Star Favorite - Top Left */}
-        <TouchableOpacity className="absolute top-2 left-2 bg-white/90 rounded-full w-7 h-7 flex items-center justify-center shadow-sm">
+        <TouchableOpacity
+          onPress={() => {
+            if (batch.season?.farmId) {
+              // @ts-ignore - navigation type issue
+              navigation.navigate("ProductDetailReviews", { batchId: batch.id, farmId: batch.season.farmId });
+            }
+          }}
+          className="absolute top-2 left-2 bg-white/90 rounded-full w-7 h-7 flex items-center justify-center shadow-sm">
           <Star size={14} color={batch.isActive !== false ? "#F59E0B" : "#9CA3AF"} fill={batch.isActive !== false ? "#F59E0B" : "none"} />
         </TouchableOpacity>
       </View>

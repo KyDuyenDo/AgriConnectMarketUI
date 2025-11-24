@@ -13,7 +13,7 @@ export type FarmStackParamList = {
     FarmerOrders: { farmerId: string };
     FarmerOrderDetail: { orderId: string };
     FarmSetupInformation: { farmId: string };
-    FarmProductDetailReviews: { productId: string };
+    ProductDetailReviews: { batchId: string; farmId: string };
     PersonalInformation: undefined;
     FarmStatistics: undefined;
     FarmCertificates: { farmId: string };

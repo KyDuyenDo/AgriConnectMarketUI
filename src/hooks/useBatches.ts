@@ -15,6 +15,14 @@ export const useBatchesBySeason = (seasonId: string) => {
     });
 };
 
+export const useBatchesByFarm = (farmId: string) => {
+    return useQuery<Batch[]>({
+        queryKey: ["batches", "farm", farmId],
+        queryFn: () => BatchService.getBatchesByFarm(farmId),
+        enabled: !!farmId,
+    });
+};
+
 export const useAllBatches = (accountId?: string, options?: { enabled?: boolean }) => {
     return useQuery<Batch[]>({
         queryKey: accountId ? [...BATCH_QUERY_KEYS.all, accountId] : BATCH_QUERY_KEYS.all,

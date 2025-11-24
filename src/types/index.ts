@@ -133,6 +133,13 @@ export type HistoryItem = {
   color: string;
 };
 
+export interface FarmHistoryItem {
+  year: string;
+  title: string;
+  description: string;
+  color: string;
+}
+
 export type UserData = {
   name: string;
   email: string;
@@ -192,6 +199,15 @@ export interface Farm {
   farmerId: string;
   addressId?: string;
   address?: Address;
+  farmer?: {
+    profile?: {
+      fullname: string;
+      avatarUrl?: string;
+      phone?: string;
+      email?: string;
+    };
+  };
+  history?: FarmHistoryItem[];
 }
 
 export interface CreateFarmRequest {

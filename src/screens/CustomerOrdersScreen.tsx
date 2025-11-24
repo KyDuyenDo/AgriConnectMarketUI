@@ -28,17 +28,24 @@ const CustomerOrdersScreen: React.FC = () => {
 
   const ordersData = useMemo(() => {
     if (!orders) return [];
-    return orders.map((order: any) => ({
-      id: order.id,
-      code: order.orderCode,
-      date: formatDate(order.orderDate),
-      farmName: 'Farm', // Placeholder
-      subtitle: `${order.orderItems?.length || 0} items`,
-      status: mapStatus(order.orderStatus),
-      itemsCount: order.orderItems?.length || 0,
-      total: `$${order.totalPrice}`,
-      estDelivery: 'TBD',
-    } as Order));
+    return orders.map((order: any) => {
+      const firstItem = order.orderItems?.[0];
+      const farm = firstItem?.batch?.season?.farm;
+
+      return {
+        id: order.id,
+        code: order.orderCode,
+        date: formatDate(order.orderDate),
+        farmName: farm?.farmName || 'Unknown Farm',
+        farmId: farm?.id,
+        batchId: firstItem?.batchId,
+        subtitle: `${order.orderItems?.length || 0} items`,
+        status: mapStatus(order.orderStatus),
+        itemsCount: order.orderItems?.length || 0,
+        total: `$${order.totalPrice}`,
+        estDelivery: 'TBD',
+      } as Order;
+    });
   }, [orders]);
 
   const filteredOrders = useMemo(() => {

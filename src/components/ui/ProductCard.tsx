@@ -25,24 +25,6 @@ const RatingInfo = ({ rating, numRatings }: { rating?: number; numRatings?: numb
     )
 }
 
-const FavoriteButton = ({
-    isFavorite,
-    onPress,
-}: {
-    isFavorite: boolean
-    onPress: () => void
-}) => {
-    return (
-        <TouchableOpacity
-            onPress={onPress}
-            className="absolute top-2 right-2 w-6 h-6 items-center justify-center rounded-full"
-            style={{ backgroundColor: '#FFFFFF' }}
-        >
-            <Heart size={14} fill={isFavorite ? "#FF8C42" : "transparent"} color={isFavorite ? "#FF8C42" : "#8A8A8A"} />
-        </TouchableOpacity>
-    )
-}
-
 const PriceSection = ({ price, unit, onPress }: { price: string; unit: string; onPress?: () => void }) => {
     return (
         <View className="flex-row items-center justify-between">
@@ -93,7 +75,7 @@ export const ProductCard: React.FC<{ product: any; toggleFavorite: (id: string) 
                     className="w-full h-full"
                     style={{ resizeMode: 'cover' }}
                 />
-                <FavoriteButton isFavorite={false} onPress={() => toggleFavorite(product.id)} />
+
 
                 {/* Badge */}
                 <View

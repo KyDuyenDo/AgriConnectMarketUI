@@ -1,74 +1,53 @@
-import React, { useState } from "react"
-import {
-  ScrollView,
-  Platform,
-} from "react-native"
-import { Header } from "@/components/customer-favorites/Header"
-import { AllFavorites } from "@/components/customer-favorites/AllFavorites"
-import { CollectionsScreen } from "@/components/customer-favorites/CollectionsScreen"
-import { ActionButtonRow } from "@/components/customer-favorites/ActionButtonRow"
-import { PriceInsightsGrid } from "@/components/customer-favorites/PriceInsightsGrid"
-import { FarmUpdateCard } from "@/components/customer-favorites/FarmUpdateCard"
-import { SafeAreaView } from "react-native-safe-area-context"
-import { Collection } from "@/components/customer-favorites/CollectionCard"
-import { useHandleAddToCart } from "@/hooks/custome-hook/cart-hook"
-import { mockProducts } from "@/data/mockData"
+import React from 'react';
+import { View, Text, ScrollView, SafeAreaView, TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { CustomerStackParamList } from '@/navigation/CustomerNavigator';
+import { useFavoriteFarms } from '@/hooks/useFavoriteFarm';
+import FarmFeatureCard from '@/components/customer-exlore/FarmFeatureCard';
+import { ArrowLeft } from 'lucide-react-native';
+
+export const CustomerFavoritesScreen = () => {
+    const navigation = useNavigation<NativeStackNavigationProp<CustomerStackParamList>>();
+    const { data: favoriteFarms, isLoading } = useFavoriteFarms();
+
+    return (
+        <SafeAreaView className="flex-1 bg-[#F9FAF9]">
+            <View className="px-4 py-3 flex-row items-center border-b border-gray-100 bg-white">
+                <TouchableOpacity onPress={() => navigation.goBack()} className="mr-3">
+                    <ArrowLeft size={24} color="#1B1F24" />
+                </TouchableOpacity>
+                <Text className="text-lg font-semibold text-[#1B1F24]">My Favorite Farms</Text>
+            </View>
+
+            <ScrollView className="flex-1 p-4" contentContainerStyle={{ paddingBottom: 20 }}>
+                {isLoading ? (
+                    <Text className="text-center text-gray-500 mt-10">Loading favorites...</Text>
+                ) : favoriteFarms && favoriteFarms.length > 0 ? (
+                    <View className="flex-row flex-wrap justify-between">
+                        {favoriteFarms.map((farm: any) => (
+                            <View key={farm.id} className="w-[48%] mb-4">
+                                <FarmFeatureCard
+                                    farm={farm}
+                                    style={{ width: '100%' }}
+                                />
+                            </View>
+                        ))}
+                    </View>
+                ) : (
+                    <View className="flex-1 items-center justify-center mt-20">
+                        <Text className="text-gray-500 text-base">No favorite farms yet.</Text>
+                        <TouchableOpacity
+                            onPress={() => navigation.navigate('MainTabs')}
+                            className="mt-4 bg-green-600 px-6 py-2 rounded-full"
+                        >
+                            <Text className="text-white font-medium">Explore Farms</Text>
+                        </TouchableOpacity>
+                    </View>
+                )}
+            </ScrollView>
+        </SafeAreaView>
+    );
+};
 
 
-const MOCK_COLLECTIONS: Collection[] = [
-  {
-    id: 1,
-    title: 'All Favorites',
-    subtitle: 'Everything',
-    itemCount: 38,
-    isFeatured: true,
-  },
-  {
-    id: 2,
-    title: 'Fruits',
-    subtitle: 'Fresh picks',
-    itemCount: 12,
-    isFeatured: false,
-  },
-  {
-    id: 3,
-    title: 'Weekly Stap',
-    subtitle: 'Essentials',
-    itemCount: 8,
-    isFeatured: false,
-  },
-  {
-    id: 4,
-    title: 'Vegetables',
-    subtitle: 'Green goods',
-    itemCount: 25,
-    isFeatured: false,
-  },
-];
-
-export function CustomerFavoritesScreen() {
-  const [searchQuery, setSearchQuery] = useState("")
-  const { handleAddToCart, isPending } = useHandleAddToCart()
-
-  return (
-    <SafeAreaView className="flex-1" style={{ backgroundColor: '#F9FAF9' }}>
-      <Header />
-
-      <ScrollView
-        className="pt-4 pb-4"
-        contentContainerStyle={{ paddingBottom: 80 }}
-        showsVerticalScrollIndicator={false}
-      >
-        <CollectionsScreen collections={MOCK_COLLECTIONS} />
-
-        <ActionButtonRow />
-
-        <AllFavorites searchQuery={searchQuery} products={[]} onAddToCart={handleAddToCart} />
-
-        <PriceInsightsGrid products={[]} />
-
-        <FarmUpdateCard />
-      </ScrollView>
-    </SafeAreaView>
-  )
-}

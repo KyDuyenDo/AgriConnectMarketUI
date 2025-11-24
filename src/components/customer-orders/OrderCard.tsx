@@ -25,6 +25,8 @@ export type Order = {
   estDelivery?: string;
   deliveredDate?: string;
   rating?: string;
+  farmId?: string;
+  batchId?: string;
 };
 
 type Nav = NativeStackNavigationProp<CustomerStackParamList>
@@ -250,7 +252,13 @@ const OrderCard: React.FC<{ order: Order }> = ({ order }) => {
             </Text>
           </Pressable>
 
-          <Pressable className="items-center justify-center rounded-xl px-4 py-2 flex-row bg-[#F5F7F5]">
+          <Pressable
+            onPress={() => {
+              if (order.farmId && order.batchId) {
+                navigation.navigate('FarmReview', { farmId: order.farmId, batchId: order.batchId });
+              }
+            }}
+            className="items-center justify-center rounded-xl px-4 py-2 flex-row bg-[#F5F7F5]">
             <Star size={14} color="#4CAF50" className="mr-1" />
             <Text className="text-[14px] font-semibold text-[#4CAF50] ml-1">
               Review
@@ -269,7 +277,7 @@ const OrderCard: React.FC<{ order: Order }> = ({ order }) => {
 
           <View className="flex-row gap-2">
             <Pressable className="flex-1 items-center justify-center rounded-xl py-2 bg-[#F5F7F5]"
-            onPress={() => navigation.navigate('CustomerOrderDetail', { orderId: order.id })}>
+              onPress={() => navigation.navigate('CustomerOrderDetail', { orderId: order.id })}>
               <Text className="text-[14px] font-semibold text-[#4CAF50]">
                 View Details
               </Text>

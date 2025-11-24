@@ -20,9 +20,6 @@ export const CategorySelector: React.FC<CategorySelectorProps> = ({
                 <Text className="text-[16px] font-semibold" style={{ color: '#1B1F24' }}>
                     Categories
                 </Text>
-                <Text className="text-[12px] font-medium" style={{ color: '#4CAF50' }}>
-                    View All
-                </Text>
             </View>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row gap-3 pb-2">
                 {/* "View All" Option */}
