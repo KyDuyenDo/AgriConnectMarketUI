@@ -5,12 +5,14 @@ import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 import { Header } from '@/components/farm-setup/Header';
 import { FormInput } from '@/components/farm-setup/FormInput';
+import { FormSelect } from '@/components/farm-setup/FormSelect';
 import { FormTextarea } from '@/components/farm-setup/FormTextarea';
 import { ImageUpload } from '@/components/farm-setup/ImageUpload';
 import { ImagePreview } from '@/components/farm-setup/ImagePreview';
 import { ActionButtons } from '@/components/farm-setup/ActionButtons';
 import { useFarmForm } from '@/hooks/custom/useFarmForm';
 import { useFarmByMe } from '@/hooks/useFarm';
+import { useVietnamLocations } from '@/hooks/useLocationHook';
 import { FarmStackParamList } from '@/navigation/types';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
@@ -24,6 +26,17 @@ export function FarmSetupInformationScreen() {
 
     const { data: existingFarm } = useFarmByMe();
     const { formData, updateField, handleSubmit, isLoading, setFormData } = useFarmForm(farmId);
+
+    // Vietnam Location hook for address selection
+    const {
+        provinces,
+        districts,
+        wards,
+        fetchDistricts,
+        fetchWards,
+        clearDistricts,
+        clearWards,
+    } = useVietnamLocations();
 
     // Load existing farm data if editing
     useEffect(() => {
@@ -92,6 +105,37 @@ export function FarmSetupInformationScreen() {
         });
     };
 
+    // Handle province selection
+    const handleProvinceChange = (provinceCode: string) => {
+        updateField('province', provinceCode);
+        // Clear dependent fields
+        updateField('district', '');
+        updateField('ward', '');
+        clearDistricts();
+        clearWards();
+        // Fetch districts for the selected province
+        if (provinceCode) {
+            fetchDistricts(Number(provinceCode));
+        }
+    };
+
+    // Handle district selection
+    const handleDistrictChange = (districtCode: string) => {
+        updateField('district', districtCode);
+        // Clear dependent fields
+        updateField('ward', '');
+        clearWards();
+        // Fetch wards for the selected district
+        if (districtCode) {
+            fetchWards(Number(districtCode));
+        }
+    };
+
+    // Handle ward selection
+    const handleWardChange = (wardCode: string) => {
+        updateField('ward', wardCode);
+    };
+
     return (
         <SafeAreaView className="flex-1" style={{ backgroundColor: '#F9FAF9' }}>
             <Header onBack={handleBack} onSave={handleSave} />
@@ -153,29 +197,38 @@ export function FarmSetupInformationScreen() {
                         Location & Address
                     </Text>
 
-                    <FormInput
+                    <FormSelect
                         label="Province"
-                        placeholder="Province"
                         value={formData.province}
-                        onChangeText={(text) => updateField('province', text)}
+                        onChange={handleProvinceChange}
+                        options={[
+                            { label: 'Select Province', value: '' },
+                            ...provinces.map(p => ({ label: p.name, value: String(p.code) }))
+                        ]}
                     />
 
-                    <FormInput
+                    <FormSelect
                         label="District"
-                        placeholder="District"
                         value={formData.district}
-                        onChangeText={(text) => updateField('district', text)}
+                        onChange={handleDistrictChange}
+                        options={[
+                            { label: formData.province ? 'Select District' : 'Select Province First', value: '' },
+                            ...districts.map(d => ({ label: d.name, value: String(d.code) }))
+                        ]}
                     />
 
-                    <FormInput
+                    <FormSelect
                         label="Ward"
-                        placeholder="Ward"
                         value={formData.ward}
-                        onChangeText={(text) => updateField('ward', text)}
+                        onChange={handleWardChange}
+                        options={[
+                            { label: formData.district ? 'Select Ward' : 'Select District First', value: '' },
+                            ...wards.map(w => ({ label: w.name, value: String(w.code) }))
+                        ]}
                     />
 
                     <FormTextarea
-                        label="Detailedaddress"
+                        label="Detailed address"
                         placeholder="Street address, building number, etc."
                         value={formData.detail}
                         onChangeText={(text) => updateField('detail', text)}
