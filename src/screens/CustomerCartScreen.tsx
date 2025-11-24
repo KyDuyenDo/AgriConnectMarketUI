@@ -43,7 +43,6 @@ export const CustomerCartScreen: React.FC = () => {
   if (isLoading) 
     return <CustomerCartScreenSkeleton />
 
-  console.log("Cart", Cart?.cartItems[0].batch?.season)
   const CartItems = Cart?.cartItems || []
 
   // Cart shipping calculation using custom hook

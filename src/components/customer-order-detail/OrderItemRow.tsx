@@ -1,5 +1,5 @@
 import { Star } from "lucide-react-native";
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity, Image } from "react-native";
 
 export type OrderItem = {
   id: string;
@@ -7,6 +7,7 @@ export type OrderItem = {
   price: string;
   qtyLabel: string;
   tag?: string;
+  imageUrl?: string | null;
 };
 
 export const OrderItemRow: React.FC<{
@@ -21,7 +22,14 @@ export const OrderItemRow: React.FC<{
   return (
     <>
       <View className="flex-row items-center py-2">
-        <View className="mr-3 h-12 w-12 rounded-2xl bg-[#FFE2E2]" />
+        {item.imageUrl ? (
+          <Image
+            source={{ uri: item.imageUrl }}
+            className="mr-3 h-12 w-12 rounded-2xl bg-[#FFE2E2]"
+          />
+        ) : (
+          <View className="mr-3 h-12 w-12 rounded-2xl bg-[#FFE2E2]" />
+        )}
         <View className="flex-1">
           <Text className="text-[14px] font-semibold text-[#111827]">
             {item.name}
