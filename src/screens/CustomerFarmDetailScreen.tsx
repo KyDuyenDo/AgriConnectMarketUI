@@ -1,4 +1,4 @@
-import { ScrollView, View, Text, Platform } from 'react-native';
+import { ScrollView, View, Text, Platform, TouchableOpacity, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useState } from 'react';
 import { Header } from '@/components/customer-farm-detail/Header';
@@ -16,15 +16,24 @@ import { useBatchesByFarm } from '@/hooks/useBatches';
 import { useFarmById } from '@/hooks/useFarm';
 import { ReviewsList } from '@/components/customer-farm-detail/ReviewsList';
 import { useFarmReviews } from '@/hooks/useFarmReview';
+import { useReviews } from '@/hooks/review.hook';
+import { X } from 'lucide-react-native';
 
 type Props = NativeStackScreenProps<CustomerStackParamList, 'FarmDetail'>;
 
 export function CustomerFarmDetailScreen({ route, navigation }: Props) {
     const { farmId } = route.params;
     const [isFavorited, setIsFavorited] = useState(false);
+    const [selectedBatchId, setSelectedBatchId] = useState<string | null>(null);
+    const [selectedBatchName, setSelectedBatchName] = useState<string>('');
     const { data: farm, isLoading: isLoadingFarm, error: farmError } = useFarmById(farmId);
     const { data: batches, isLoading: isLoadingBatches } = useBatchesByFarm(farmId);
-    const { data: reviews, isLoading: isLoadingReviews } = useFarmReviews(farmId);
+    const { data: farmReviews, isLoading: isLoadingFarmReviews } = useFarmReviews(farmId);
+
+    // Batch-specific reviews (only fetch when a batch is selected)
+    const { data: batchReviews, isLoading: isLoadingBatchReviews, error: batchReviewsError } = useReviews(
+        selectedBatchId || ''
+    );
 
     // Show loading state
     if (isLoadingFarm || isLoadingBatches) {
@@ -129,6 +138,16 @@ export function CustomerFarmDetailScreen({ route, navigation }: Props) {
                                     onAdd={() => console.log('Add', batch.id)}
                                     onPreOrder={() => console.log('Pre-order', batch.id)}
                                 />
+                                {/* View Reviews Button */}
+                                <TouchableOpacity
+                                    onPress={() => {
+                                        setSelectedBatchId(batch.id);
+                                        setSelectedBatchName(batch.season?.product?.productName || 'Product');
+                                    }}
+                                    className="mt-2 py-2 bg-gray-100 rounded-lg items-center"
+                                >
+                                    <Text className="text-xs font-medium text-gray-700">View Reviews</Text>
+                                </TouchableOpacity>
                             </View>
                         ))}
                         {(!batches || batches.length === 0) && (
@@ -147,10 +166,13 @@ export function CustomerFarmDetailScreen({ route, navigation }: Props) {
                 <View className="mb-4 px-4">
                     <View className="flex-row justify-between items-center mb-4">
                         <Text className="text-[18px] font-semibold" style={{ color: '#1B1F24' }}>
-                            Reviews ({reviews?.length || 0})
+                            Farm Reviews ({farmReviews?.length || 0})
                         </Text>
                     </View>
-                    <ReviewsList reviews={reviews || []} />
+                    <ReviewsList
+                        reviews={farmReviews || []}
+                        isLoading={isLoadingFarmReviews}
+                    />
                 </View>
 
                 <View className="mb-4 px-4">
@@ -171,6 +193,48 @@ export function CustomerFarmDetailScreen({ route, navigation }: Props) {
                 onMessage={() => console.log('Message')}
                 onViewProducts={() => console.log('View Products')}
             />
+
+            {/* Batch Reviews Modal */}
+            <Modal
+                visible={!!selectedBatchId}
+                animationType="slide"
+                transparent={true}
+                onRequestClose={() => setSelectedBatchId(null)}
+            >
+                <View className="flex-1 bg-black/50" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+                    <View
+                        className="flex-1 mt-20 bg-white rounded-t-3xl"
+                        style={{ backgroundColor: '#FFFFFF' }}
+                    >
+                        {/* Modal Header */}
+                        <View className="px-4 py-4 border-b border-gray-200 flex-row justify-between items-center">
+                            <View className="flex-1">
+                                <Text className="text-xl font-bold text-gray-900">
+                                    Product Reviews
+                                </Text>
+                                <Text className="text-sm text-gray-500 mt-1">
+                                    {selectedBatchName}
+                                </Text>
+                            </View>
+                            <TouchableOpacity
+                                onPress={() => setSelectedBatchId(null)}
+                                className="p-2"
+                            >
+                                <X size={24} color="#6B737A" />
+                            </TouchableOpacity>
+                        </View>
+
+                        {/* Modal Content */}
+                        <ScrollView className="flex-1 px-4 py-4">
+                            <ReviewsList
+                                reviews={batchReviews || []}
+                                isLoading={isLoadingBatchReviews}
+                                error={batchReviewsError}
+                            />
+                        </ScrollView>
+                    </View>
+                </View>
+            </Modal>
         </SafeAreaView>
     );
 }
