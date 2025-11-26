@@ -21,12 +21,12 @@ export function PreOrderCard({ preOrder, onApprove, onConvertToOrder }: PreOrder
                     </Text>
                 </View>
                 <View className={`px-2 py-1 rounded-full ${preOrder.status === 'Pending' ? 'bg-yellow-100' :
-                        preOrder.status === 'Approved' ? 'bg-blue-100' :
-                            preOrder.status === 'Ready' ? 'bg-green-100' : 'bg-gray-100'
+                    preOrder.status === 'Approved' ? 'bg-blue-100' :
+                        preOrder.status === 'Ready' ? 'bg-green-100' : 'bg-gray-100'
                     }`}>
                     <Text className={`text-xs font-medium ${preOrder.status === 'Pending' ? 'text-yellow-800' :
-                            preOrder.status === 'Approved' ? 'text-blue-800' :
-                                preOrder.status === 'Ready' ? 'text-green-800' : 'text-gray-800'
+                        preOrder.status === 'Approved' ? 'text-blue-800' :
+                            preOrder.status === 'Ready' ? 'text-green-800' : 'text-gray-800'
                         }`}>
                         {preOrder.status}
                     </Text>

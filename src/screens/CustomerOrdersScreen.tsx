@@ -9,7 +9,10 @@ import { useMyOrders } from '@/hooks/useMyOrders';
 import { formatDate } from '@/utils/date';
 import { CustomerOrdersScreenSkeleton } from '@/components/skeletons/CustomerOrdersScreenSkeleton';
 
-const FILTERS = ['All Orders', 'Active', 'Delivered', 'Cancelled'] as const;
+import { useMyPreOrders } from '@/hooks/usePreOrders';
+import { CustomerPreOrderCard } from '@/components/customer-orders/CustomerPreOrderCard';
+
+const FILTERS = ['All Orders', 'Active', 'Delivered', 'Cancelled', 'Pre-orders'] as const;
 type FilterType = (typeof FILTERS)[number];
 
 const mapStatus = (status: string): Order['status'] => {
@@ -24,7 +27,10 @@ const mapStatus = (status: string): Order['status'] => {
 const CustomerOrdersScreen: React.FC = () => {
   const [filter, setFilter] = useState<FilterType>('All Orders');
   const navigation = useNavigation()
-  const { data: orders, isLoading } = useMyOrders();
+  const { data: orders, isLoading: isLoadingOrders } = useMyOrders();
+  const { data: preOrders, isLoading: isLoadingPreOrders } = useMyPreOrders();
+
+  const isLoading = isLoadingOrders || (filter === 'Pre-orders' && isLoadingPreOrders);
 
   const ordersData = useMemo(() => {
     if (!orders) return [];
@@ -125,12 +131,20 @@ const CustomerOrdersScreen: React.FC = () => {
       >
         {isLoading ? (
           <CustomerOrdersScreenSkeleton />
+        ) : filter === 'Pre-orders' ? (
+          preOrders && preOrders.length > 0 ? (
+            preOrders.map(preOrder => (
+              <CustomerPreOrderCard key={preOrder.id} preOrder={preOrder} />
+            ))
+          ) : (
+            <Text className="text-center text-gray-500 mt-10">No pre-orders found.</Text>
+          )
         ) : (
           filteredOrders.map(order => (
             <OrderCard key={order.id} order={order} />
           ))
         )}
-        {!isLoading && filteredOrders.length === 0 && (
+        {!isLoading && filter !== 'Pre-orders' && filteredOrders.length === 0 && (
           <Text className="text-center text-gray-500 mt-10">No orders found.</Text>
         )}
       </ScrollView>

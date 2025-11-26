@@ -6,6 +6,7 @@ import { BottomNavigation } from "@/components/farmer-orders/BottomNavigation"
 import { useState } from "react"
 import { View, ScrollView, Platform, Text } from "react-native"
 import { useFarmerOrders } from "@/hooks/useFarmerOrders"
+import { useFarmPreOrders } from "@/hooks/usePreOrders"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useMyFarm } from "@/hooks/useMyFarm"
 import { FarmerOrdersScreenSkeleton } from "@/components/skeletons/FarmerOrdersScreenSkeleton"
@@ -20,23 +21,13 @@ export function FarmerOrders() {
 
   const { data: farm, isLoading: isLoadingFarm } = useMyFarm()
   const { data: orders, isLoading: isLoadingOrders } = useFarmerOrders(farm?.id)
-  const [preOrders, setPreOrders] = useState<PreOrder[]>([])
-  const [isLoadingPreOrders, setIsLoadingPreOrders] = useState(false)
+  const { data: preOrdersData, isLoading: isLoadingPreOrders, refetch: refetchPreOrders } = useFarmPreOrders(farm?.id)
+  const preOrders = preOrdersData || []
 
   // Date Picker State
   const [selectedPreOrder, setSelectedPreOrder] = useState<PreOrder | null>(null)
   const [isDatePickerVisible, setDatePickerVisible] = useState(false)
   const [selectedDate, setSelectedDate] = useState(new Date())
-
-  useState(() => {
-    if (farm?.id) {
-      setIsLoadingPreOrders(true)
-      PreOrderService.getFarmPreOrders(farm.id)
-        .then(setPreOrders)
-        .catch(console.error)
-        .finally(() => setIsLoadingPreOrders(false))
-    }
-  })
 
   const handleApprovePreOrder = (preOrder: PreOrder) => {
     setSelectedPreOrder(preOrder)
@@ -49,10 +40,7 @@ export function FarmerOrders() {
       try {
         await PreOrderService.updateReleaseDate(selectedPreOrder.id, selectedDate.toISOString())
         // Refresh preorders
-        if (farm?.id) {
-          const updated = await PreOrderService.getFarmPreOrders(farm.id)
-          setPreOrders(updated)
-        }
+        refetchPreOrders()
         setDatePickerVisible(false)
       } catch (error) {
         console.error("Failed to update date", error)
