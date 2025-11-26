@@ -12,7 +12,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { FarmStackParamList } from '@/navigation/types';
 import { useFarmReviews, useReplyFarmReview } from '@/hooks/useFarmReview';
 import { useState } from 'react';
-import { useBatchById } from '@/hooks/useBatches';
+
 
 type Props = NativeStackScreenProps<FarmStackParamList, 'ProductDetailReviews'>;
 
@@ -172,3 +172,7 @@ export function FarmerProductDetailReviewsScreen({ route, navigation }: Props) {
         </SafeAreaView>
     );
 }
+function useBatchById(batchId: string): { data: any; isLoading: any; } {
+    throw new Error('Function not implemented.');
+}
+

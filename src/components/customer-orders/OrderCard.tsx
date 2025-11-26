@@ -254,19 +254,6 @@ const OrderCard: React.FC<{ order: Order }> = ({ order }) => {
                 View Details
               </Text>
             </Pressable>
-
-            <Pressable
-              onPress={() => {
-                if (order.farmId && order.batchId) {
-                  navigation.navigate('FarmReview', { farmId: order.farmId, batchId: order.batchId });
-                }
-              }}
-              className="items-center justify-center rounded-xl px-4 py-2 flex-row bg-[#F5F7F5]">
-              <Star size={14} color="#4CAF50" className="mr-1" />
-              <Text className="text-[14px] font-semibold text-[#4CAF50] ml-1">
-                Review
-              </Text>
-            </Pressable>
           </View>
         )
       }

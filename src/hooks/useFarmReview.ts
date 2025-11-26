@@ -1,10 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { farmReviewService, CreateFarmReviewDto, ReplyFarmReviewDto } from '@/services/farmReviewService';
 
-export const useFarmReviews = (farmId: string) => {
+export const useFarmReviews = (farmId: string, filters?: { categoryId?: string, productId?: string, batchId?: string }) => {
     return useQuery({
-        queryKey: ['farm-reviews', farmId],
-        queryFn: () => farmReviewService.getFarmReviews(farmId),
+        queryKey: ['farm-reviews', farmId, filters],
+        queryFn: () => farmReviewService.getFarmReviews(farmId, filters),
         enabled: !!farmId,
     });
 };

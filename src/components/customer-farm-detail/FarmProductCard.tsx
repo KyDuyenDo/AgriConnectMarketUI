@@ -1,11 +1,13 @@
 import { View, Text, Image, Pressable } from 'react-native';
-import { Plus } from 'lucide-react-native';
+import { Plus, Star } from 'lucide-react-native';
 
 interface FarmProductCardProps {
     image: string;
     name: string;
     price: string;
     badge?: { label: string; color: 'green' | 'orange' };
+    rating?: number;
+    reviewCount?: number;
     onAdd?: () => void;
     onPreOrder?: () => void;
 }
@@ -15,6 +17,8 @@ export function FarmProductCard({
     name,
     price,
     badge,
+    rating,
+    reviewCount,
     onAdd,
     onPreOrder
 }: FarmProductCardProps) {
@@ -56,6 +60,14 @@ export function FarmProductCard({
                 <Text className="text-sm font-semibold mb-1" style={{ color: '#1B1F24' }}>
                     {name}
                 </Text>
+                {rating !== undefined && (
+                    <View className="flex-row items-center mb-2">
+                        <Star size={12} color="#FFB380" fill="#FFB380" />
+                        <Text className="text-[10px] ml-1" style={{ color: '#9DA3A8' }}>
+                            {rating.toFixed(1)} ({reviewCount || 0})
+                        </Text>
+                    </View>
+                )}
                 <View className="flex-row justify-between items-center mb-2">
                     <Text className="text-base font-bold" style={{ color: '#4CAF50' }}>
                         {price}

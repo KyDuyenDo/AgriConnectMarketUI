@@ -1,23 +1,15 @@
+import React from 'react';
 import { Star } from "lucide-react-native";
 import { View, Text, TouchableOpacity, Image } from "react-native";
+import { OrderItemDisplay } from '@/types';
 
-export type OrderItem = {
-  id: string;
-  name: string;
-  price: string;
-  qtyLabel: string;
-  tag?: string;
-  imageUrl?: string | null;
-  productAttribute?: string;
-  productDesc?: string;
-  batchCode?: string;
-  subTotal?: number;
-};
 
 export const OrderItemRow: React.FC<{
-  item: OrderItem;
+  item: OrderItemDisplay;
   showDivider: boolean;
-}> = ({ item, showDivider }) => {
+  onReview?: (item: OrderItemDisplay) => void;
+  isReviewed?: boolean;
+}> = ({ item, showDivider, onReview, isReviewed }) => {
   const tagBg =
     item.tag === 'Fresh Today' ? '#E3F0FF' : '#E6F7EA';
   const tagColor =
@@ -79,14 +71,25 @@ export const OrderItemRow: React.FC<{
               Total: ${item.subTotal}
             </Text>
           )}
-          <TouchableOpacity
-            activeOpacity={0.8}
-            className="mt-2 flex-row items-center">
-            <Star size={14} color="#FFC34D" />
-            <Text className="ml-1 text-[12px] font-semibold text-[#32C373]">
-              Rate
-            </Text>
-          </TouchableOpacity>
+
+          {isReviewed ? (
+            <View className="mt-2 flex-row items-center bg-gray-100 px-2 py-1 rounded-full">
+              <Star size={12} color="#9CA3AF" fill="#9CA3AF" />
+              <Text className="ml-1 text-[11px] font-medium text-gray-500">
+                Reviewed
+              </Text>
+            </View>
+          ) : (
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={() => onReview?.(item)}
+              className="mt-2 flex-row items-center bg-[#E6F7EA] px-2 py-1 rounded-full">
+              <Star size={12} color="#32C373" />
+              <Text className="ml-1 text-[11px] font-semibold text-[#32C373]">
+                Review
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
       {showDivider && (
