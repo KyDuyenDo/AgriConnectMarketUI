@@ -58,22 +58,80 @@ export interface Season {
 
 export interface Batch {
   id: string;
-  batchCode?: { value: string } | string;
+
+  // batchCode can be an object or a plain string (hybrid data source)
+  batchCode: { value: string } | string;
+
   totalYield: number;
   availableQuantity: number;
   units: string;
   price: number;
+
   plantingDate: string;
   harvestDate?: string;
+
+  imagesUrl: string[];
+
   seasonId: string;
-  season?: any;
-  imagesUrl?: string[];
+  season?: {
+    seasonName: string;
+    seasonDesc: string;
+    status: string;
+    startDate: string;
+    endDate: string;
+    createdAt: string;
+    farmId: string;
+    productId: string;
+
+    product: {
+      productName: string;
+      productAttribute: string;
+      productDesc: string;
+      categoryId: string;
+
+      category: {
+        categoryName: string;
+        categoryDesc: string;
+        illustrativeImageUrl: string;
+        isDelete: boolean;
+        id: string;
+        products: any[]; // backend returns [null], so type is loose
+      };
+
+      seasons: any[]; // backend returns [null]
+      createdAt: string;
+      id: string;
+    };
+
+    productBatches: {
+      batchCode: { value: string };
+      totalYield: number;
+      availableQuantity: number;
+      units: string;
+      price: number;
+      plantingDate: string;
+      harvestDate: string;
+      imagesUrl: string[];
+      seasonId: string;
+      createdAt: string;
+      updatedAt: string;
+      id: string;
+    }[];
+
+    id: string;
+  };
+
   createdAt?: string;
+
+  // new fields from metadata
+  averageRating: number;
+  reviewCount: number;
+
+  // optional UI helpers
   status?: string;
-  isActive?: boolean; // UI compatibility
-  averageRating?: number;
-  reviewCount?: number;
+  isActive?: boolean;
 }
+
 
 export type ProductBatch = Batch;
 

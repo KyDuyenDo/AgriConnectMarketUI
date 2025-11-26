@@ -2,6 +2,7 @@ import type React from "react"
 import { View, ScrollView, Text, TouchableOpacity, Image, Alert } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { ChevronLeft, Share, Heart, ShieldCheck } from "lucide-react-native"
+import { useState } from "react"
 import Carousel from "@/components/ui/Carousel"
 import FarmInformationCard from "@/components/customer-batch-detail/FarmInformationCard"
 import ProductStockCard from "@/components/customer-batch-detail/ProductStockCard"
@@ -11,7 +12,6 @@ import CustomerReviewsCard from "@/components/customer-batch-detail/reviews/Cust
 import FromThisFarmSection from "@/components/customer-batch-detail/FromThisFarmSection"
 import PurchaseCard from "@/components/customer-batch-detail/PurchaseCard"
 import NutritionQualityCard from "@/components/customer-batch-detail/NutritionQualityCard"
-import { batchDetailFarmItems } from "@/data/mockData"
 import { useRoute, useNavigation } from "@react-navigation/native"
 import { useBatchDetail } from "@/hooks/useBatchDetail"
 import { formatDate } from "@/utils/date"
@@ -20,6 +20,9 @@ import { useAddToCart, useCart } from "@/hooks/useCart"
 import { useCreateOrder } from "@/hooks/useOrders"
 import { useAuthStore } from "@/stores/auth"
 import { useGetAddresses } from "@/hooks/useAddress"
+import { useFarmById } from "@/hooks/useFarm"
+import { useBatchesByFarm } from "@/hooks/useBatches"
+import { useFarmReviews } from "@/hooks/useFarmReview"
 
 export const CustomerBatchDetailScreen: React.FC = () => {
   const insets = useSafeAreaInsets()
@@ -32,8 +35,17 @@ export const CustomerBatchDetailScreen: React.FC = () => {
   const addToCartMutation = useAddToCart()
   const { mutateAsync: createOrder, isPending: isCreatingOrder } = useCreateOrder()
   const { userId } = useAuthStore()
-  const { data: addresses } = useGetAddresses()
-  const defaultAddress = addresses?.find((addr) => addr.isDefault)
+  const { data: reviews, isLoading: isLoadingReviews } = useFarmReviews(batch?.season?.farmId || "");
+
+  const [selectedQuantity, setSelectedQuantity] = useState(1)
+
+  const farmId = batch?.season?.farmId
+  const { data: farm } = useFarmById(farmId || "")
+  const { data: farmBatches } = useBatchesByFarm(farmId || "")
+
+  const averageRating = reviews && reviews.length > 0
+    ? reviews.reduce((acc, review) => acc + review.rate, 0) / reviews.length
+    : 0;
 
   if (isLoading) {
     return <CustomerBatchDetailSkeleton />
@@ -50,8 +62,8 @@ export const CustomerBatchDetailScreen: React.FC = () => {
   const productImages =
     batch.imagesUrl && batch.imagesUrl.length > 0 ? batch.imagesUrl : ["https://via.placeholder.com/400"]
 
-  const farmName = batch.season?.farm?.farmName || "Unknown Farm"
-  const farmImage = batch.season?.farm?.bannerUrl || "https://via.placeholder.com/50"
+  const farmName = farm?.farmName || "Unknown Farm"
+  const farmImage = farm?.bannerUrl || "https://via.placeholder.com/50"
 
   const handleAddToCart = (quantity: number) => {
     if (!cart?.id) {
@@ -68,6 +80,7 @@ export const CustomerBatchDetailScreen: React.FC = () => {
       {
         onSuccess: () => {
           Alert.alert("Success", `Added ${quantity} ${batch.units} to cart!`)
+          setSelectedQuantity(1)
         },
         onError: (error: any) => {
           Alert.alert("Error", "Failed to add to cart. " + (error.message || ""))
@@ -106,7 +119,7 @@ export const CustomerBatchDetailScreen: React.FC = () => {
       // Then create order with only this item (bypass regular cart)
       const payload = {
         customerId: userId,
-        shippingFee: 0, // Will be calculated on checkout screen
+        shippingFee: 0,
         orderItems: [
           {
             batchId: batch.id,
@@ -196,9 +209,11 @@ export const CustomerBatchDetailScreen: React.FC = () => {
             pricePerLb={batch.price || 0}
             available={`${batch.availableQuantity || 0} ${batch.units || "units"} available`}
             weightType={batch.units || "unit"}
-            stockLevel={0.8}
-            initialQuantity={1}
-            onQuantityChange={(q) => console.log("New quantity:", q)}
+            stockLevel={batch.availableQuantity || 0}
+            initialQuantity={selectedQuantity}
+            maxQuantity={batch.totalYield || 0}
+            unit={batch.units || "unit"}
+            onQuantityChange={setSelectedQuantity}
           />
 
           <View>
@@ -206,12 +221,12 @@ export const CustomerBatchDetailScreen: React.FC = () => {
             <FarmTransparencyCard
               image={farmImage}
               name={farmName}
-              location="Unknown Location"
+              location={farm?.address ? `${farm.address.ward}, ${farm.address.district}` : "Unknown Location"}
               distance="2.3 mi"
-              rating={4.8}
-              reviews={124}
+              rating={averageRating}
+              reviews={reviews?.length || 0}
               tags={["Organic Certified", "Sustainable"]}
-              onPress={() => console.log("View profile")}
+              onPress={() => (navigation as any).navigate("FarmDetail", { farmId: farmId })}
             />
           </View>
 
@@ -233,22 +248,24 @@ export const CustomerBatchDetailScreen: React.FC = () => {
             <NutritionQualityCard />
           </View>
 
-          <View>
-            <FromThisFarmSection items={batchDetailFarmItems} />
-          </View>
+          {farmBatches && farmBatches.length > 0 && (
+            <View>
+              <FromThisFarmSection items={farmBatches.slice(0, 5)} />
+            </View>
+          )}
         </View>
       </ScrollView>
 
       <PurchaseCard
-        total={`$${(batch.price || 0).toFixed(2)}`}
-        weight={`1 ${batch.units || "unit"}`}
+        total={`$${(batch.price * selectedQuantity || 0).toFixed(2)}`}
+        weight={`${selectedQuantity} ${batch.units || "unit"}`}
         pricePerLb={`$${batch.price || 0}/${batch.units || "unit"}`}
         availableQuantity={batch.availableQuantity || 0}
         unit={batch.units || "unit"}
         price={batch.price || 0}
-        onAddToCart={handleAddToCart}
-        onBuyNow={handleBuyNow}
-        showQuantitySelector={true}
+        onAddToCart={() => handleAddToCart(selectedQuantity)}
+        onBuyNow={() => handleBuyNow(selectedQuantity)}
+        showQuantitySelector={false}
       />
     </View>
   )

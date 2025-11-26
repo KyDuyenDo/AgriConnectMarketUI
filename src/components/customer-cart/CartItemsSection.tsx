@@ -1,16 +1,26 @@
+"use client"
+
 import { View, Text } from "react-native"
 import { CartItem } from "./CartItem"
-import { Product } from "@/types"
+import type { Product } from "@/types"
 
 type Props = {
   items: Product[]
   selectedItems: string[]
   onSelectItem: (id: string) => void
   onDelete: (id: string) => void
+  onQuantityChange?: (itemId: string, newQuantity: number) => void
   hideQuantityControls?: boolean
 }
 
-export default function CartItemsSection({ items, selectedItems, onSelectItem, onDelete, hideQuantityControls }: Props) {
+export default function CartItemsSection({
+  items,
+  selectedItems,
+  onSelectItem,
+  onDelete,
+  onQuantityChange,
+  hideQuantityControls,
+}: Props) {
   return (
     <View className="px-4 mb-4">
       <View className="bg-white p-4 rounded-2xl shadow-sm">
@@ -32,16 +42,18 @@ export default function CartItemsSection({ items, selectedItems, onSelectItem, o
               label: item.status,
               color: "green",
             }}
-            harvestInfo={''}
+            harvestInfo={""}
             quantity={item.quantity}
             unitPrice={item.price}
-            total={(parseFloat(item.price) * item.quantity).toFixed(2)}
+            total={(Number.parseFloat(item.price) * item.quantity).toFixed(2)}
             unit={item.unit}
+            maxQuantity={100}
             isSelected={selectedItems.includes(item.id)}
             onSelect={onSelectItem}
             onDelete={onDelete}
-            onIncrement={() => { }}
-            onDecrement={() => { }}
+            onIncrement={() => onQuantityChange?.(item.id, item.quantity + 1)}
+            onDecrement={() => onQuantityChange?.(item.id, Math.max(1, item.quantity - 1))}
+            onQuantityChange={(newQuantity) => onQuantityChange?.(item.id, newQuantity)}
             hideQuantityControls={hideQuantityControls}
           />
         ))}
