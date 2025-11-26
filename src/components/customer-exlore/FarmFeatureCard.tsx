@@ -74,9 +74,9 @@ const FarmFeatureCard = ({ farm, style }: FarmFeatureCardProps) => {
                         <Text className="text-xs font-medium text-gray-700 ml-1">4.8</Text>
                         <Text className="text-xs text-gray-400 ml-1">(120)</Text>
                     </View>
-                    <Text className="text-xs text-green-600 font-medium">
+                    {/* <Text className="text-xs text-green-600 font-medium">
                         {farm.seasons?.length || 0} Active Seasons
-                    </Text>
+                    </Text> */}
                 </View>
             </View>
         </Pressable>

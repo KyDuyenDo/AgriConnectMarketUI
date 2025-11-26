@@ -5,7 +5,7 @@ interface FilterTabsProps {
   onFilterChange: (filter: string) => void
 }
 
-const FILTERS = ["All Orders", "Pending", "Confirmed", "Processing", "Shipped", "Delivered"]
+const FILTERS = ["All Orders", "Pending", "Confirmed", "Processing", "Shipped", "Delivered", "PreOrders", "Ready PreOrders"]
 
 export function FilterTabs({ activeFilter, onFilterChange }: FilterTabsProps) {
   return (

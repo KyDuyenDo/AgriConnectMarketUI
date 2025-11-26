@@ -275,3 +275,19 @@ export interface UnifiedProduct {
   reviewCount?: number;
   location: string; // Province
 }
+
+export interface PreOrder {
+  id: string; // Assuming BaseEntity<Guid> gives Id
+  orderId?: string;
+  farmId: string;
+  customerId: string;
+  productId: string;
+  quantity: number;
+  expectedReleaseDate?: string;
+  partiallyPaidAmount?: number;
+  note?: string;
+  status: string;
+  product?: ProductResponse;
+  farm?: Farm;
+  createdAt?: string;
+}
