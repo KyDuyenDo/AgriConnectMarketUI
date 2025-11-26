@@ -230,8 +230,8 @@ export const FarmerProductsScreen = () => {
         renderItem={({ item }) => (
           <BatchCard
             batch={item}
-            onPress={() => navigation.navigate("LotDetail", { lotId: item.id })}
-            onEdit={() => handleEdit(item.id)}
+            onPress={() => navigation.navigate("ProductDetailReviews", { batchId: item.id, farmId: item.season.farmId })}
+            onEdit={() => navigation.navigate("LotDetail", { lotId: item.id })}
             onDelete={() => handleDelete(item.id)}
           />
         )}

@@ -1,4 +1,4 @@
-import { ScrollView, View, Text, Platform, Alert } from 'react-native';
+import { ScrollView, View, Text, Platform, Alert, Keyboard } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useEffect } from 'react';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
@@ -61,6 +61,12 @@ export function FarmSetupInformationScreen() {
     };
 
     const handleChooseImage = async () => {
+        // Dismiss keyboard first to prevent crash/race conditions
+        Keyboard.dismiss();
+
+        // Small delay to allow keyboard to dismiss completely
+        await new Promise(resolve => setTimeout(resolve, 100));
+
         try {
             const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
@@ -144,6 +150,7 @@ export function FarmSetupInformationScreen() {
                 showsVerticalScrollIndicator={false}
                 className="pt-4 pb-4"
                 contentContainerStyle={{ paddingBottom: Platform.OS === 'ios' ? 20 : 10 }}
+                keyboardShouldPersistTaps="handled"
             >
                 {/* Basic Information */}
                 <View className="mb-6 px-4">
@@ -203,7 +210,7 @@ export function FarmSetupInformationScreen() {
                         onChange={handleProvinceChange}
                         options={[
                             { label: 'Select Province', value: '' },
-                            ...provinces.map(p => ({ label: p.name, value: String(p.code) }))
+                            ...(Array.isArray(provinces) ? provinces : []).map(p => ({ label: p.name, value: String(p.code) }))
                         ]}
                     />
 
@@ -213,7 +220,7 @@ export function FarmSetupInformationScreen() {
                         onChange={handleDistrictChange}
                         options={[
                             { label: formData.province ? 'Select District' : 'Select Province First', value: '' },
-                            ...districts.map(d => ({ label: d.name, value: String(d.code) }))
+                            ...(Array.isArray(districts) ? districts : []).map(d => ({ label: d.name, value: String(d.code) }))
                         ]}
                     />
 
@@ -223,7 +230,7 @@ export function FarmSetupInformationScreen() {
                         onChange={handleWardChange}
                         options={[
                             { label: formData.district ? 'Select Ward' : 'Select District First', value: '' },
-                            ...wards.map(w => ({ label: w.name, value: String(w.code) }))
+                            ...(Array.isArray(wards) ? wards : []).map(w => ({ label: w.name, value: String(w.code) }))
                         ]}
                     />
 

@@ -59,10 +59,13 @@ export function useVietnamLocations() {
             const res = await fetch(`${BASE_URL}/?depth=1`)
             if (!res.ok) throw new Error("Failed to fetch provinces")
             const data = (await res.json()) as Province[]
-            setProvinces(data)
-            cacheRef.current.provinces = data
+            // Ensure data is an array
+            const safeData = Array.isArray(data) ? data : []
+            setProvinces(safeData)
+            cacheRef.current.provinces = safeData
         } catch (err: any) {
             setError(err?.message ?? "Unknown error")
+            setProvinces([]) // Fallback to empty array
         } finally {
             setLoadingProvinces(false)
         }
@@ -83,11 +86,12 @@ export function useVietnamLocations() {
             if (!res.ok) throw new Error("Failed to fetch districts")
             const data = await res.json()
             // API returns province object with .districts
-            const districtsList = (data?.districts ?? []) as District[]
+            const districtsList = (Array.isArray(data?.districts) ? data.districts : []) as District[]
             setDistricts(districtsList)
             cacheRef.current.districtsByProvince[provinceCode] = districtsList
         } catch (err: any) {
             setError(err?.message ?? "Unknown error")
+            setDistricts([]) // Fallback
         } finally {
             setLoadingDistricts(false)
         }
@@ -108,11 +112,12 @@ export function useVietnamLocations() {
             if (!res.ok) throw new Error("Failed to fetch wards")
             const data = await res.json()
             // API returns district object with .wards
-            const wardsList = (data?.wards ?? []) as Ward[]
+            const wardsList = (Array.isArray(data?.wards) ? data.wards : []) as Ward[]
             setWards(wardsList)
             cacheRef.current.wardsByDistrict[districtCode] = wardsList
         } catch (err: any) {
             setError(err?.message ?? "Unknown error")
+            setWards([]) // Fallback
         } finally {
             setLoadingWards(false)
         }

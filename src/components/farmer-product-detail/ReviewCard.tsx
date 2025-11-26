@@ -9,6 +9,7 @@ interface FarmerReply {
 }
 
 interface ReviewCardProps {
+    id: string;
     customerName: string;
     customerAvatar: string;
     rating: number;
@@ -20,6 +21,7 @@ interface ReviewCardProps {
 }
 
 export function ReviewCard({
+    id,
     customerName,
     customerAvatar,
     rating,

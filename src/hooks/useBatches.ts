@@ -23,6 +23,14 @@ export const useBatchesByFarm = (farmId: string) => {
     });
 };
 
+export const useBatchById = (batchId: string) => {
+    return useQuery<Batch>({
+        queryKey: ["batches", batchId],
+        queryFn: () => BatchService.getBatchById(batchId),
+        enabled: !!batchId,
+    });
+};
+
 export const useAllBatches = (accountId?: string, options?: { enabled?: boolean }) => {
     return useQuery<Batch[]>({
         queryKey: accountId ? [...BATCH_QUERY_KEYS.all, accountId] : BATCH_QUERY_KEYS.all,
