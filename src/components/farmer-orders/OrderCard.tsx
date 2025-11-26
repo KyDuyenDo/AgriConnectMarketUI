@@ -6,7 +6,7 @@ import { OrderActions } from "./OrderActions"
 import { Order } from "@/types"
 import { useNavigation } from "@react-navigation/native"
 import { formatDate } from "@/utils/date"
-import { ordersService } from "@/services/orders.service"
+import { useUpdateOrderStatus } from "@/hooks/useOrders"
 
 interface OrderCardProps {
   order: Order
@@ -37,15 +37,10 @@ export function OrderCard({ order }: OrderCardProps) {
   const productNames = order.orderItems?.map(item => item.batch?.season?.product?.name || "Product").slice(0, 3) || []
   const additionalProducts = (order.orderItems?.length || 0) > 3 ? (order.orderItems?.length || 0) - 3 : 0
 
-  const handleUpdateStatus = async (newStatus: string) => {
-    try {
-      await ordersService.updateOrderStatus(order.id, newStatus)
-      // Ideally, we should invalidate queries here to refresh the list
-      // For now, we rely on the parent component or context to handle refresh if needed
-      // Or we can add a callback prop to OrderCard to notify parent
-    } catch (error) {
-      console.error("Failed to update order status:", error)
-    }
+  const { mutate: updateStatus } = useUpdateOrderStatus()
+
+  const handleUpdateStatus = (newStatus: string) => {
+    updateStatus({ orderId: order.id, status: newStatus })
   }
 
   return (

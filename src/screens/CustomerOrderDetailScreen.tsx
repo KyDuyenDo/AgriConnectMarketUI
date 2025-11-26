@@ -107,6 +107,12 @@ const CustomerOrderDetailScreen: React.FC = () => {
   const orderItems = order.orderItems?.map((item: any) => ({
     id: item.id,
     name: item.batch?.season?.product?.productName || 'Product',
+    productAttribute: item.batch?.season?.product?.productAttribute,
+    productDesc: item.batch?.season?.product?.productDesc,
+    batchCode: item.batch?.batchCode?.value,
+    subTotal: item.subTotal,
+    farmId: item.batch?.season?.farmId,
+    batchId: item.batch?.id,
     price: `$${item.unitPrice}`,
     qtyLabel: `${item.quantity} ${item.batch?.units || 'units'}`,
     tag: 'Organic', // Placeholder

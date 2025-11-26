@@ -15,6 +15,8 @@ const FarmReviewScreen = ({ route, navigation }: Props) => {
     const { mutate: createReview, isPending } = useCreateFarmReview();
 
     const handleSubmit = () => {
+        console.log('Rating:', farmId);
+        console.log('Message:', batchId);
         if (!message.trim()) {
             Alert.alert('Error', 'Please enter a review message.');
             return;

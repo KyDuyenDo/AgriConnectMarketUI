@@ -27,17 +27,17 @@ export interface FarmReviewResponse {
 
 export const farmReviewService = {
     createReview: async (dto: CreateFarmReviewDto) => {
-        const response = await apiClient.post('/farmreviews', dto);
+        const response = await apiClient.post('/api/farmreviews', dto);
         return response.data;
     },
 
     getFarmReviews: async (farmId: string) => {
-        const response = await apiClient.get<{ data: FarmReviewResponse[] }>(`/farmreviews/farm/${farmId}`);
+        const response = await apiClient.get<{ data: FarmReviewResponse[] }>(`/api/farmreviews/farm/${farmId}`);
         return response.data.data;
     },
 
     replyToReview: async (reviewId: string, dto: ReplyFarmReviewDto) => {
-        const response = await apiClient.put(`/farmreviews/${reviewId}/reply`, dto);
+        const response = await apiClient.put(`/api/farmreviews/${reviewId}/reply`, dto);
         return response.data;
     },
 };
