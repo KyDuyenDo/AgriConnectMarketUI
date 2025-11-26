@@ -107,7 +107,7 @@ export function FarmDashboard({ dashboardData }: FarmDashboardProps) {
           paddingHorizontal: 16,
           paddingVertical: 16,
           gap: 16,
-          paddingBottom: Platform.OS === "ios" ? 140 : 50,
+          paddingBottom: Platform.OS === "ios" ? 140 : 140,
         }}
       >
         <DashboardHeader />
