@@ -32,7 +32,7 @@ export const YourFavoriteCard: React.FC<YourFavoriteCardProps> = ({ favorites, o
           <TouchableOpacity
             key={product.id}
             className="w-[48%] bg-white rounded-2xl shadow-sm shadow-gray-100 overflow-hidden mb-3"
-            onPress={() => navigation.navigate("BatchDetails", { productId: product.id })}
+            onPress={() => navigation.navigate("FarmDetail", { farmId: product.id })}
           >
             <View className="relative">
               <Image
