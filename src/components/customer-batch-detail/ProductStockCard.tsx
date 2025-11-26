@@ -48,7 +48,7 @@ const ProductStockCard: React.FC<ProductStockCardProps> = ({
         <View className="flex-row justify-between items-center mb-3">
           <View className="flex-row items-baseline">
             <Text className="text-2xl font-semibold text-[#2D2D2D]">${pricePerLb.toFixed(2)}</Text>
-            <Text className="text-[#8A8A8A] text-sm ml-1">/lb</Text>
+            <Text className="text-[#8A8A8A] text-sm ml-1">/{unit}</Text>
           </View>
 
           <View className="items-end">
@@ -74,13 +74,6 @@ const ProductStockCard: React.FC<ProductStockCardProps> = ({
 
           <View className="flex-row items-center gap-3">
             <TouchableOpacity
-              onPress={() => setIsModalVisible(true)}
-              className="w-8 h-8 rounded-lg bg-[#E8F5E8] justify-center items-center"
-            >
-              <Edit2 size={14} color="#4CAF50" />
-            </TouchableOpacity>
-
-            <TouchableOpacity
               onPress={() => handleChange(quantity - 1)}
               disabled={quantity <= 1}
               className="w-8 h-8 rounded-full bg-[#F5F5F5] justify-center items-center"
@@ -96,6 +89,12 @@ const ProductStockCard: React.FC<ProductStockCardProps> = ({
               className="w-8 h-8 rounded-full bg-[#4CAF50] justify-center items-center"
             >
               <Plus size={14} color="#FFFFFF" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => setIsModalVisible(true)}
+              className="w-8 h-8 rounded-lg bg-[#E8F5E8] justify-center items-center"
+            >
+              <Edit2 size={14} color="#4CAF50" />
             </TouchableOpacity>
           </View>
         </View>
