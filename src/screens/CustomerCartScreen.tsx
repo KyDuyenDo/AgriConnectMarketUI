@@ -4,7 +4,7 @@ import type React from "react"
 import { useState } from "react"
 import { ScrollView, View, Text, TouchableOpacity } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
-import { ChevronLeft } from "lucide-react-native"
+import { ChevronLeft, ShoppingCart as ShoppingCartIcon } from "lucide-react-native"
 import { useNavigation } from "@react-navigation/native"
 
 import CartItemsSection from "@/components/customer-cart/CartItemsSection"
@@ -53,12 +53,12 @@ export const CustomerCartScreen: React.FC = () => {
       : null,
   })
 
-  console.log("Farm Addresses", farmAddresses)
-
   // Show skeleton while loading
   if (isLoading) return <CustomerCartScreenSkeleton />
 
   const CartItems = Cart?.cartItems || []
+
+  const hasCartItems = CartItems.length > 0
 
   const CartItemSelects = CartItems.map((item: any) => {
     const batchData = item.batch
@@ -88,7 +88,6 @@ export const CustomerCartScreen: React.FC = () => {
       const item = CartItems.find((ci: any) => ci.id === itemId)
       if (!item) return
 
-      // Update quantity on backend
       await updateCartItem({
         cartId: Cart?.id || "",
         data: {
@@ -186,6 +185,42 @@ export const CustomerCartScreen: React.FC = () => {
   const discountAmount = subtotal * discountPercentage
 
   const total = subtotal + deliveryFee + tax - discountAmount
+
+  if (!hasCartItems) {
+    return (
+      <View className="flex-1 bg-[#F9FAF9]">
+        <SafeAreaView edges={["top"]} className="bg-[#F9FAF9]">
+          <View className="h-[56px] flex-row items-center justify-between px-6">
+            <TouchableOpacity onPress={() => navigation.goBack()} className="flex-row items-center gap-2">
+              <View className="w-5 h-5 items-center justify-center">
+                <ChevronLeft size={20} color="#4CAF50" />
+              </View>
+              <Text className="text-base font-semibold text-[#4CAF50]">Back</Text>
+            </TouchableOpacity>
+
+            <Text className="text-[20px] font-semibold text-[#2D2D2D]">Shopping Cart</Text>
+
+            <View style={{ width: 80 }} />
+          </View>
+        </SafeAreaView>
+
+        <View className="flex-1 items-center justify-center px-6">
+          <ShoppingCartIcon size={60} color="#9ca3af" />
+          <Text className="text-lg font-semibold text-[#2D2D2D] mt-6 text-center">Your cart is empty</Text>
+          <Text className="text-sm text-[#6B737A] mt-2 text-center">
+            Add items from your favorite farms to get started
+          </Text>
+
+          <TouchableOpacity
+            className="mt-8 bg-[#4CAF50] px-8 py-3 rounded-xl"
+            onPress={() => navigation.navigate("Explore" as never)}
+          >
+            <Text className="text-white font-semibold text-sm">Continue Shopping</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    )
+  }
 
   return (
     <View className="flex-1 bg-[#F9FAF9]">
