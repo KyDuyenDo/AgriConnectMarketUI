@@ -18,8 +18,6 @@ export function Header({ onBack, onSave }: HeaderProps) {
                 elevation: 2
             }}
         >
-            <View style={{ height: 0 }} /> {/* Safe area top placeholder */}
-
             <View className="flex-row justify-between items-center h-14 px-4">
                 <Pressable
                     onPress={onBack}
