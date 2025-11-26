@@ -175,4 +175,3 @@ export function FarmerProductDetailReviewsScreen({ route, navigation }: Props) {
 function useBatchById(batchId: string): { data: any; isLoading: any; } {
     throw new Error('Function not implemented.');
 }
-

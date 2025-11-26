@@ -41,4 +41,3 @@ export const SeasonStats: React.FC<SeasonStatsProps> = ({ batchCount, totalYield
         </View>
     );
 };
-

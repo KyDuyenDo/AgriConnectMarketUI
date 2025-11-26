@@ -64,4 +64,3 @@ export const SeasonHeaderCard: React.FC<SeasonHeaderCardProps> = ({ season }) =>
         </View>
     );
 };
-

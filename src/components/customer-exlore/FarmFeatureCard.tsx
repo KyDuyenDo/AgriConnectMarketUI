@@ -30,53 +30,51 @@ const FarmFeatureCard = ({ farm, style }: FarmFeatureCardProps) => {
     return (
         <Pressable
             onPress={handlePress}
-            className="mr-3 bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100"
-            style={[{ width: 280 }, style]}
+            className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100"
+            style={[style]}
         >
-            <View className="relative h-32">
+            <View className="relative h-28">
                 <Image
-                    source={{ uri: farm.bannerUrl || 'https://via.placeholder.com/280x128' }}
+                    source={{ uri: farm.bannerUrl || 'https://via.placeholder.com/400x200' }}
                     className="w-full h-full"
                     resizeMode="cover"
                 />
+                <View className="absolute inset-0 bg-black/5" />
+
                 <TouchableOpacity
                     onPress={handleToggleFavorite}
-                    className="absolute top-2 right-2 w-8 h-8 bg-white rounded-full items-center justify-center shadow-sm"
+                    className="absolute top-2 right-2 w-7 h-7 bg-white/90 backdrop-blur-sm rounded-full items-center justify-center shadow-sm"
                 >
                     <Heart
-                        size={18}
-                        fill={isFavorite ? "#FF8C42" : "transparent"}
-                        color={isFavorite ? "#FF8C42" : "#8A8A8A"}
+                        size={14}
+                        fill={isFavorite ? "#EF4444" : "transparent"}
+                        color={isFavorite ? "#EF4444" : "#6B7280"}
                     />
                 </TouchableOpacity>
-                <View className="absolute bottom-2 left-2 bg-white/90 px-2 py-1 rounded-md">
-                    <Text className="text-xs font-medium text-green-700">
-                        {farm.isConfirmAsMall ? 'Certified Mall' : 'Local Farm'}
+
+                <View className="absolute top-2 left-2 bg-white/90 backdrop-blur-sm px-2 py-0.5 rounded-md shadow-sm">
+                    <Text className="text-[10px] font-semibold text-green-700">
+                        {farm.isConfirmAsMall ? 'Mall' : 'Farm'}
                     </Text>
                 </View>
             </View>
 
             <View className="p-3">
-                <Text className="text-base font-semibold text-gray-900 mb-1" numberOfLines={1}>
-                    {farm.farmName}
-                </Text>
+                <View className="flex-row justify-between items-start mb-1">
+                    <Text className="text-base font-bold text-gray-900 flex-1 mr-1" numberOfLines={1}>
+                        {farm.farmName}
+                    </Text>
+                    <View className="flex-row items-center bg-orange-50 px-1.5 py-0.5 rounded-md ml-2">
+                        <Star size={10} fill="#F59E0B" color="#F59E0B" />
+                        <Text className="text-[10px] font-bold text-orange-700 ml-1">4.8</Text>
+                    </View>
+                </View>
 
-                <View className="flex-row items-center mb-2">
-                    <MapPin size={14} color="#6B7280" className="mr-1" />
+                <View className="flex-row items-center">
+                    <MapPin size={12} color="#9CA3AF" className="mr-1" />
                     <Text className="text-xs text-gray-500 flex-1" numberOfLines={1}>
                         {farm.address ? `${farm.address.ward}, ${farm.address.district}` : 'Unknown Location'}
                     </Text>
-                </View>
-
-                <View className="flex-row items-center justify-between mt-1">
-                    <View className="flex-row items-center">
-                        <Star size={14} fill="#F59E0B" color="#F59E0B" />
-                        <Text className="text-xs font-medium text-gray-700 ml-1">4.8</Text>
-                        <Text className="text-xs text-gray-400 ml-1">(120)</Text>
-                    </View>
-                    {/* <Text className="text-xs text-green-600 font-medium">
-                        {farm.seasons?.length || 0} Active Seasons
-                    </Text> */}
                 </View>
             </View>
         </Pressable>

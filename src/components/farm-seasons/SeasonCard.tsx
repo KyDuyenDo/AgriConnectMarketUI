@@ -104,4 +104,3 @@ export const SeasonCard: React.FC<SeasonCardProps> = ({
         </TouchableOpacity>
     );
 };
-

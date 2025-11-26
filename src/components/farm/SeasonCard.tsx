@@ -124,4 +124,3 @@ export function SeasonCard({
 
 // Export the format functions for use in other components
 export { formatDate, formatDateRange };
-

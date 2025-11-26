@@ -40,7 +40,7 @@ export const CustomerCartScreen: React.FC = () => {
   const defaultAddress = addresses?.find(addr => addr.isDefault)
 
   // Show skeleton while loading
-  if (isLoading) 
+  if (isLoading)
     return <CustomerCartScreenSkeleton />
 
   const CartItems = Cart?.cartItems || []

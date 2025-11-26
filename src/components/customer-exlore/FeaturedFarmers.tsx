@@ -10,13 +10,14 @@ interface FeaturedFarmersProps {
 export const FeaturedFarmers = ({ Farmers }: FeaturedFarmersProps) => {
     return (
         <View className="px-4">
-            <ScrollView className="py-3 px-1" horizontal={true} showsHorizontalScrollIndicator={false} style={{ width: "100%" }}>
+            <ScrollView className="py-3 px-1" horizontal={true} showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingRight: 16 }}>
                 {Farmers.map((farm) => (
-                    <FarmFeatureCard
-                        key={farm.id}
-                        farm={farm}
-                        style={{ width: "100%" }}
-                    />
+                    <View key={farm.id} className="mr-4">
+                        <FarmFeatureCard
+                            farm={farm}
+                            style={{ width: 240 }}
+                        />
+                    </View>
                 ))}
             </ScrollView>
         </View>

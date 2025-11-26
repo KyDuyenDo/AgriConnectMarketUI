@@ -98,8 +98,9 @@ export default function FarmListScreen() {
                     data={filteredFarms}
                     renderItem={renderFarmItem}
                     keyExtractor={(item) => item.id}
-                    contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 20 }}
+                    contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 20, paddingTop: 10 }}
                     showsVerticalScrollIndicator={false}
+                    ItemSeparatorComponent={() => <View className="h-4" />}
                     ListEmptyComponent={
                         <View className="flex-1 justify-center items-center mt-10">
                             <Text className="text-gray-500 text-lg">No farms found</Text>

@@ -1,4 +1,3 @@
-
 import { ScrollView, View, Text, Platform, Alert, Keyboard } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useEffect, useMemo } from "react"
