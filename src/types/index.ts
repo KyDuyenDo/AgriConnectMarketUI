@@ -71,6 +71,8 @@ export interface Batch {
   createdAt?: string;
   status?: string;
   isActive?: boolean; // UI compatibility
+  averageRating?: number;
+  reviewCount?: number;
 }
 
 export type ProductBatch = Batch;
@@ -94,6 +96,22 @@ export interface OrderItem {
   unitPrice: number;
   subTotal: number;
   batch?: Batch;
+}
+
+// UI-friendly type for displaying order items
+export interface OrderItemDisplay {
+  id: string;
+  name: string;
+  price: string;
+  qtyLabel: string;
+  tag?: string;
+  imageUrl?: string | null;
+  productAttribute?: string;
+  productDesc?: string;
+  batchCode?: string;
+  batchId?: string;
+  farmId: string;
+  subTotal?: number;
 }
 
 export interface Order {
@@ -254,5 +272,22 @@ export interface UnifiedProduct {
   categoryId: string;
   imageUrl: string;
   rating: number; // Mocked or derived
+  reviewCount?: number;
   location: string; // Province
+}
+
+export interface PreOrder {
+  id: string; // Assuming BaseEntity<Guid> gives Id
+  orderId?: string;
+  farmId: string;
+  customerId: string;
+  productId: string;
+  quantity: number;
+  expectedReleaseDate?: string;
+  partiallyPaidAmount?: number;
+  note?: string;
+  status: string;
+  product?: ProductResponse;
+  farm?: Farm;
+  createdAt?: string;
 }

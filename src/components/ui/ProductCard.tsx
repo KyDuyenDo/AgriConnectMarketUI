@@ -99,7 +99,7 @@ export const ProductCard: React.FC<{ product: any; toggleFavorite: (id: string) 
 
                 {/* Rating and Location */}
                 <View className="flex-row items-center gap-1 mb-2">
-                    <RatingInfo rating={product.rating} numRatings={10} />
+                    <RatingInfo rating={product.rating} numRatings={product.reviewCount || product.numRatings || 0} />
                     <View
                         className="w-1 h-1 rounded-full mx-1"
                         style={{ backgroundColor: '#E8E8E8' }}

@@ -153,7 +153,7 @@ export const CustomerBatchDetailScreen: React.FC = () => {
 
           <View>
             <Text className="text-[#2D2D2D] text-lg font-semibold mb-3">Customer Reviews</Text>
-            <CustomerReviewsCard />
+            <CustomerReviewsCard batchId={batchId} />
           </View>
 
           <View>

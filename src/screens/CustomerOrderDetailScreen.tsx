@@ -1,5 +1,5 @@
 // CustomerOrderDetailScreen.tsx
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -18,7 +18,7 @@ import {
   ChevronLeft,
 } from 'lucide-react-native';
 import { TimelineRow, TimelineStep } from '@/components/customer-order-detail/TimelineRow';
-import { OrderItem, OrderItemRow } from '@/components/customer-order-detail/OrderItemRow';
+import { OrderItemRow } from '@/components/customer-order-detail/OrderItemRow';
 import { InfoRow } from '@/components/customer-order-detail/InfoRow';
 import { SummaryRow } from '@/components/customer-cart/SummaryRow';
 import { useRoute, useNavigation } from '@react-navigation/native';
@@ -29,8 +29,10 @@ import { CustomerOrderDetailSkeleton } from '@/components/skeletons/CustomerOrde
 import { useFarmById } from '@/hooks/useFarm';
 import { useGetAddresses } from '@/hooks/useAddress';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Header } from '@/components/customer-farm-detail/Header';
-import { OrdersHeader } from '@/components/farmer-orders/OrdersHeader';
+import { ReviewModal } from '@/components/ReviewModal';
+import { OrderItemDisplay } from '@/types';
+import { useAuthStore } from '@/stores/auth';
+import { useCreateFarmReview } from '@/hooks/useFarmReview';
 
 
 const CustomerOrderDetailScreen: React.FC = () => {
@@ -38,7 +40,17 @@ const CustomerOrderDetailScreen: React.FC = () => {
   const { orderId } = route.params || {};
   const { data: order, isLoading } = useOrderDetail(orderId);
   const { mutate: cancelOrder, isPending: isCancelling } = useCancelOrder();
+  const { mutate: createReview, isPending } = useCreateFarmReview();
   const navigation = useNavigation();
+
+  const customerId = order?.customerId;
+  const { userId } = useAuthStore();
+
+  // Review State
+  const [isReviewModalVisible, setIsReviewModalVisible] = useState(false);
+  const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+  const [selectedItemForReview, setSelectedItemForReview] = useState<OrderItemDisplay | null>(null);
+
 
   // Get farmerId from the first order item's batch
   const farmerId = order?.orderItems?.[0]?.batch?.season?.farmId;
@@ -49,8 +61,32 @@ const CustomerOrderDetailScreen: React.FC = () => {
 
   const defaultAddress = addresses?.find(addr => addr.isDefault);
 
-  console.log('Farm Data:', farmData);
-  console.log('Default Address:', defaultAddress);
+  const handleReviewPress = (item: OrderItemDisplay) => {
+    setSelectedItemForReview(item);
+    setIsReviewModalVisible(true);
+  };
+
+  const handleSubmitReview = async (rating: number, message: string) => {
+    if (!selectedItemForReview || !selectedItemForReview.batchId) return;
+
+    setIsSubmittingReview(true);
+    createReview({
+      farmId: selectedItemForReview.farmId,
+      batchId: selectedItemForReview.batchId,
+      rate: rating,
+      message,
+    }, {
+      onSuccess: () => {
+        Alert.alert('Success', 'Thank you for your review!');
+        setIsReviewModalVisible(false);
+      },
+      onError: (error) => {
+        setIsSubmittingReview(false);
+        console.error('Review submission error:', error);
+        Alert.alert('Error', 'Failed to submit review. Please try again.');
+      }
+    });
+  };
 
   const handleCancel = () => {
     Alert.alert(
@@ -107,6 +143,12 @@ const CustomerOrderDetailScreen: React.FC = () => {
   const orderItems = order.orderItems?.map((item: any) => ({
     id: item.id,
     name: item.batch?.season?.product?.productName || 'Product',
+    productAttribute: item.batch?.season?.product?.productAttribute,
+    productDesc: item.batch?.season?.product?.productDesc,
+    batchCode: item.batch?.batchCode?.value,
+    subTotal: item.subTotal,
+    farmId: item.batch?.season?.farmId,
+    batchId: item.batch?.id,
     price: `$${item.unitPrice}`,
     qtyLabel: `${item.quantity} ${item.batch?.units || 'units'}`,
     tag: 'Organic', // Placeholder
@@ -224,13 +266,17 @@ const CustomerOrderDetailScreen: React.FC = () => {
           </Text>
 
           <View className="rounded-[22px] bg-white px-4 py-3 shadow-sm">
-            {orderItems.map((item: any, idx: number) => (
-              <OrderItemRow
-                key={item.id}
-                item={item}
-                showDivider={idx !== orderItems.length - 1}
-              />
-            ))}
+            {orderItems.map((item: any, idx: number) => {
+              return (
+                <OrderItemRow
+                  key={item.id}
+                  item={item}
+                  showDivider={idx !== orderItems.length - 1}
+                  onReview={handleReviewPress}
+                  isReviewed={false}
+                />
+              );
+            })}
           </View>
 
           <View className="mt-4 rounded-[22px] bg-white px-4 py-4 shadow-sm">
@@ -313,6 +359,14 @@ const CustomerOrderDetailScreen: React.FC = () => {
           </TouchableOpacity>
         </View>
       )}
+
+      <ReviewModal
+        isVisible={isReviewModalVisible}
+        onClose={() => setIsReviewModalVisible(false)}
+        onSubmit={handleSubmitReview}
+        isSubmitting={isSubmittingReview}
+        productName={selectedItemForReview?.name}
+      />
     </SafeAreaView>
   );
 };

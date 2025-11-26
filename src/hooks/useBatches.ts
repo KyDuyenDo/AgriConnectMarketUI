@@ -76,3 +76,11 @@ export const useDeleteBatch = () => {
         },
     });
 };
+
+export const useGetBatchById = (batchId: string) => {
+    return useQuery({
+        queryKey: ["batches", batchId],
+        queryFn: () => BatchService.getBatchById(batchId),
+        enabled: !!batchId,
+    });
+};

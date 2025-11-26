@@ -19,6 +19,7 @@ export type CustomerStackParamList = {
   CustomerAddress: undefined
   FarmList: undefined
   FarmReview: { farmId: string; batchId: string }
+  CustomerAllReviews: { farmId: string }
 }
 
 const Stack = createNativeStackNavigator<CustomerStackParamList>()
@@ -80,6 +81,11 @@ const CustomerNavigator = () => {
         name="FarmReview"
         component={require("@/screens/FarmReviewScreen").default}
         options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="CustomerAllReviews"
+        component={require("@/screens/CustomerAllReviewsScreen").default}
+        options={{ title: "All Reviews" }}
       />
     </Stack.Navigator>
   )

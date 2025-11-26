@@ -37,13 +37,14 @@ const CustomerOrdersScreen: React.FC = () => {
         code: order.orderCode,
         date: formatDate(order.orderDate),
         farmName: farm?.farmName || 'Unknown Farm',
-        farmId: farm?.id,
-        batchId: firstItem?.batchId,
+        farmId: firstItem?.batch?.season?.farmId,
+        batchId: firstItem?.batch?.id,
         subtitle: `${order.orderItems?.length || 0} items`,
         status: mapStatus(order.orderStatus),
         itemsCount: order.orderItems?.length || 0,
         total: `$${order.totalPrice}`,
         estDelivery: 'TBD',
+        images: firstItem?.batch?.imagesUrl || [],
       } as Order;
     });
   }, [orders]);

@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { useAuthStore } from "@/stores/auth";
 import FarmService from '@/services/farm.service';
 import CategoryService from '@/services/categories.service';
 import ProductService from '@/services/products.service';
@@ -14,6 +15,8 @@ export const useHomeData = () => {
     const [batches, setBatches] = useState<ProductBatch[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+
+    const { isAuthenticated, userId } = useAuthStore();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -50,8 +53,10 @@ export const useHomeData = () => {
             }
         };
 
-        fetchData();
-    }, []);
+        if (isAuthenticated) {
+            fetchData();
+        }
+    }, [isAuthenticated, userId]);
 
     const unifiedProducts: UnifiedProduct[] = useMemo(() => {
         if (!batches.length || !seasons.length || !products.length || !farms.length) return [];
@@ -82,7 +87,8 @@ export const useHomeData = () => {
                 categoryName: category?.categoryName || "Uncategorized",
                 categoryId: category?.id || "",
                 imageUrl: batch.imagesUrl && batch.imagesUrl.length > 0 ? batch.imagesUrl[0] : (category?.illustrativeImageUrl || ""),
-                rating: 5, // Mocked for now as requested
+                rating: batch.averageRating || 0,
+                reviewCount: batch.reviewCount || 0,
                 location: farm?.address?.province || "Unknown Location"
             };
         });

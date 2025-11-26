@@ -27,6 +27,7 @@ export type Order = {
   rating?: string;
   farmId?: string;
   batchId?: string;
+  images: string[];
 };
 
 type Nav = NativeStackNavigationProp<CustomerStackParamList>
@@ -71,23 +72,6 @@ const OrderCard: React.FC<{ order: Order }> = ({ order }) => {
     'Mountain View Farm': 'https://static.paraflowcontent.com/public/resource/image/7fcc0591-30c8-4560-afda-6cffef4c0010.jpeg',
   };
 
-  const productImages: Record<string, string[]> = {
-    '1': [
-      'https://static.paraflowcontent.com/public/resource/image/78119ac1-8362-4f20-b3aa-9f68c914fa3b.jpeg',
-      'https://static.paraflowcontent.com/public/resource/image/67a55f15-e262-46d6-8826-fc7433b6dcbf.jpeg',
-      'https://static.paraflowcontent.com/public/resource/image/8a845ba6-bead-4d43-8518-120454391534.jpeg',
-    ],
-    '2': [
-      'https://static.paraflowcontent.com/public/resource/image/c728c914-4890-43aa-b704-08ff7c51af0b.jpeg',
-      'https://static.paraflowcontent.com/public/resource/image/9a3c6293-c970-4a4b-8453-e0a400437802.jpeg',
-      'https://static.paraflowcontent.com/public/resource/image/d11f674d-551a-4b3f-a480-ea1c0a85d330.jpeg',
-    ],
-    '3': [
-      'https://static.paraflowcontent.com/public/resource/image/a07969fb-ac0f-4354-ac80-c4fe4eda6d70.jpeg',
-      'https://static.paraflowcontent.com/public/resource/image/d937e226-a607-4b2a-b5a5-06c9546c050e.jpeg',
-    ],
-  };
-
   return (
     <View
       className="mb-3 rounded-2xl bg-white p-4"
@@ -125,10 +109,10 @@ const OrderCard: React.FC<{ order: Order }> = ({ order }) => {
         <Pressable className="h-8 w-8 items-center justify-center rounded-lg bg-[#F5F7F5]">
           <MoreHorizontal size={16} color="#4CAF50" />
         </Pressable>
-      </View>
+      </View >
 
       {/* Farm info */}
-      <View className="flex-row items-center mb-3">
+      < View className="flex-row items-center mb-3" >
         <Image
           source={{ uri: farmImages[order.farmName] }}
           className="w-10 h-10 rounded-lg mr-3"
@@ -143,43 +127,51 @@ const OrderCard: React.FC<{ order: Order }> = ({ order }) => {
           </Text>
         </View>
 
-        {(isInTransit || isPending) && (
-          <Pressable className="h-8 w-8 items-center justify-center rounded-lg bg-[#F5F7F5]">
-            <PhoneCall size={14} color="#4CAF50" />
-          </Pressable>
-        )}
+        {
+          (isInTransit || isPending) && (
+            <Pressable className="h-8 w-8 items-center justify-center rounded-lg bg-[#F5F7F5]">
+              <PhoneCall size={14} color="#4CAF50" />
+            </Pressable>
+          )
+        }
 
-        {isDelivered && (
-          <View className="flex-row items-center gap-1">
-            <Star size={12} color="#FFA726" fill="#FFA726" />
-            <Text className="text-[12px] text-[#6B737A]">
-              {order.rating}
-            </Text>
-          </View>
-        )}
-      </View>
+        {
+          isDelivered && (
+            <View className="flex-row items-center gap-1">
+              <Star size={12} color="#FFA726" fill="#FFA726" />
+              <Text className="text-[12px] text-[#6B737A]">
+                {order.rating}
+              </Text>
+            </View>
+          )
+        }
+      </View >
 
       {/* Thumbnails */}
-      <View className="flex-row gap-2 mb-3">
-        {productImages[order.id]?.slice(0, 3).map((img, idx) => (
-          <Image
-            key={idx}
-            source={{ uri: img }}
-            className="w-12 h-12 rounded-lg"
-            resizeMode="cover"
-          />
-        ))}
-        {order.itemsCount > 3 && (
-          <View className="h-12 w-12 items-center justify-center rounded-lg bg-[#F5F7F5]">
-            <Text className="text-[12px] font-medium text-[#4CAF50]">
-              +{order.itemsCount - 3}
-            </Text>
-          </View>
-        )}
-      </View>
+      < View className="flex-row gap-2 mb-3" >
+        {
+          order.images?.slice(0, 3).map((img, idx) => (
+            <Image
+              key={idx}
+              source={{ uri: img }}
+              className="w-12 h-12 rounded-lg"
+              resizeMode="cover"
+            />
+          ))
+        }
+        {
+          order.itemsCount > 3 && (
+            <View className="h-12 w-12 items-center justify-center rounded-lg bg-[#F5F7F5]">
+              <Text className="text-[12px] font-medium text-[#4CAF50]">
+                +{order.itemsCount - 3}
+              </Text>
+            </View>
+          )
+        }
+      </View >
 
       {/* items + total */}
-      <View className="flex-row items-center justify-between mb-3">
+      < View className="flex-row items-center justify-between mb-3" >
         <View>
           <Text className="text-[14px] font-semibold text-[#1B1F24]">
             {order.itemsCount} items
@@ -213,95 +205,106 @@ const OrderCard: React.FC<{ order: Order }> = ({ order }) => {
         <Text className="text-[16px] font-bold text-[#4CAF50]">
           {order.total}
         </Text>
-      </View>
+      </View >
 
       {/* Progress + actions theo trạng thái */}
-      {isInTransit && (
-        <>
-          <StatusBar
-            labels={['Confirmed', 'Processing', 'Shipped', 'Delivered']}
-            activeIndex={2}
-            activeColor="#4CAF50"
-          />
+      {
+        isInTransit && (
+          <>
+            <StatusBar
+              labels={['Confirmed', 'Processing', 'Shipped', 'Delivered']}
+              activeIndex={2}
+              activeColor="#4CAF50"
+            />
 
+            <View className="flex-row gap-2">
+              <Pressable
+                onPress={() => navigation.navigate('CustomerOrderDetail', { orderId: order.id })}
+                className="flex-1 items-center justify-center rounded-xl py-2 bg-[#F5F7F5]">
+                <Text className="text-[14px] font-semibold text-[#4CAF50]">
+                  View Details
+                </Text>
+              </Pressable>
+
+              <Pressable className="items-center justify-center rounded-xl px-4 py-2 flex-row bg-[#C8E6C9]">
+                <MessageCircle size={14} color="#2E7D32" className="mr-1" />
+                <Text className="text-[14px] font-semibold text-[#2E7D32] ml-1">
+                  Chat
+                </Text>
+              </Pressable>
+            </View>
+          </>
+        )
+      }
+
+      {
+        isDelivered && (
           <View className="flex-row gap-2">
+            <Pressable
+              className="flex-1 items-center justify-center rounded-xl py-2 bg-[#4CAF50]">
+              <Text className="text-[14px] font-semibold text-white">
+                Reorder
+              </Text>
+            </Pressable>
+
             <Pressable
               onPress={() => navigation.navigate('CustomerOrderDetail', { orderId: order.id })}
               className="flex-1 items-center justify-center rounded-xl py-2 bg-[#F5F7F5]">
               <Text className="text-[14px] font-semibold text-[#4CAF50]">
-                Track Order
-              </Text>
-            </Pressable>
-
-            <Pressable className="items-center justify-center rounded-xl px-4 py-2 flex-row bg-[#C8E6C9]">
-              <MessageCircle size={14} color="#2E7D32" className="mr-1" />
-              <Text className="text-[14px] font-semibold text-[#2E7D32] ml-1">
-                Chat
+                View Details
               </Text>
             </Pressable>
           </View>
-        </>
-      )}
+        )
+      }
 
-      {isDelivered && (
-        <View className="flex-row gap-2">
-          <Pressable
-            className="flex-1 items-center justify-center rounded-xl py-2 bg-[#4CAF50]">
-            <Text className="text-[14px] font-semibold text-white">
-              Reorder
-            </Text>
-          </Pressable>
+      {
+        isPending && (
+          <>
+            <StatusBar
+              labels={['Pending', 'Confirmed', 'Shipped', 'Delivered']}
+              activeIndex={0}
+              activeColor="#2C7BE5"
+            />
 
-          <Pressable
-            onPress={() => {
-              if (order.farmId && order.batchId) {
-                navigation.navigate('FarmReview', { farmId: order.farmId, batchId: order.batchId });
-              }
-            }}
-            className="items-center justify-center rounded-xl px-4 py-2 flex-row bg-[#F5F7F5]">
-            <Star size={14} color="#4CAF50" className="mr-1" />
-            <Text className="text-[14px] font-semibold text-[#4CAF50] ml-1">
-              Review
-            </Text>
-          </Pressable>
-        </View>
-      )}
+            <View className="flex-row gap-2">
+              <Pressable className="flex-1 items-center justify-center rounded-xl py-2 bg-[#F5F7F5]"
+                onPress={() => navigation.navigate('CustomerOrderDetail', { orderId: order.id })}>
+                <Text className="text-[14px] font-semibold text-[#4CAF50]">
+                  View Details
+                </Text>
+              </Pressable>
 
-      {isPending && (
-        <>
-          <StatusBar
-            labels={['Pending', 'Confirmed', 'Shipped', 'Delivered']}
-            activeIndex={0}
-            activeColor="#2C7BE5"
-          />
+              <Pressable className="items-center justify-center rounded-xl px-4 py-2 bg-[#FFCDD2]">
+                <Text className="text-[14px] font-semibold text-[#D32F2F]">
+                  Cancel
+                </Text>
+              </Pressable>
+            </View>
+          </>
+        )
+      }
 
-          <View className="flex-row gap-2">
-            <Pressable className="flex-1 items-center justify-center rounded-xl py-2 bg-[#F5F7F5]"
-              onPress={() => navigation.navigate('CustomerOrderDetail', { orderId: order.id })}>
+      {
+        isCancelled && (
+          <View>
+            <Pressable className="items-center justify-center rounded-xl py-2 bg-[#4CAF50]">
+              <Text className="text-[14px] font-semibold text-white">
+                Reorder Items
+              </Text>
+            </Pressable>
+
+            <Pressable
+              onPress={() => navigation.navigate('CustomerOrderDetail', { orderId: order.id })}
+              className="mt-2 items-center justify-center rounded-xl py-2 bg-[#F5F7F5]">
               <Text className="text-[14px] font-semibold text-[#4CAF50]">
                 View Details
               </Text>
             </Pressable>
-
-            <Pressable className="items-center justify-center rounded-xl px-4 py-2 bg-[#FFCDD2]">
-              <Text className="text-[14px] font-semibold text-[#D32F2F]">
-                Cancel
-              </Text>
-            </Pressable>
           </View>
-        </>
-      )}
-
-      {isCancelled && (
-        <View>
-          <Pressable className="items-center justify-center rounded-xl py-2 bg-[#4CAF50]">
-            <Text className="text-[14px] font-semibold text-white">
-              Reorder Items
-            </Text>
-          </Pressable>
-        </View>
-      )}
-    </View>
+        )
+      }
+    </View >
   );
 };
 
