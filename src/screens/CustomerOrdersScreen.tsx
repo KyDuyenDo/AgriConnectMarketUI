@@ -69,7 +69,7 @@ const CustomerOrdersScreen: React.FC<Props> = ({ route, navigation }) => {
       return ordersData.filter(o => o.status === 'delivered');
     }
     return ordersData.filter(o => o.status === 'cancelled');
-  }, [filter]);
+  }, [filter, ordersData]);
 
   return (
     <SafeAreaView className="flex-1 bg-[#F9FAF9]">

@@ -146,7 +146,7 @@ export function EditProfileModal({ visible, onClose, onSave, name, email, phone,
                         ) : (
                             <FlatList
                                 data={dataList}
-                                keyExtractor={(item: any) => String(item.code)}
+                                keyExtractor={(item: any) => String(item?.code ?? "")}
                                 renderItem={({ item }) => (
                                     <Pressable
                                         onPress={() => {
@@ -156,7 +156,7 @@ export function EditProfileModal({ visible, onClose, onSave, name, email, phone,
                                         }}
                                         className="px-4 py-3 border-b border-gray-100"
                                     >
-                                        <Text className="text-base text-gray-800">{item.name}</Text>
+                                        <Text className="text-base text-gray-800">{String(item?.name ?? "")}</Text>
                                     </Pressable>
                                 )}
                             />
@@ -205,7 +205,7 @@ export function EditProfileModal({ visible, onClose, onSave, name, email, phone,
                                         onPress={() => setPickerVisible("province")}
                                         className="w-full mb-2  rounded-2xl border bg-white px-4 py-3 border-gray-200"
                                     >
-                                        <Text className="text-gray-800">{selectedProvince ? selectedProvince.name : "Select Province"}</Text>
+                                        <Text className="text-gray-800">{selectedProvince ? String(selectedProvince?.name ?? "") : "Select Province"}</Text>
                                     </Pressable>
 
                                     <Pressable
@@ -219,7 +219,7 @@ export function EditProfileModal({ visible, onClose, onSave, name, email, phone,
                                         }}
                                         className="w-full mb-2 rounded-2xl border bg-white px-4 py-3 border-gray-200"
                                     >
-                                        <Text className="text-gray-800">{selectedDistrict ? selectedDistrict.name : "Select District"}</Text>
+                                        <Text className="text-gray-800">{selectedDistrict ? String(selectedDistrict?.name ?? "") : "Select District"}</Text>
                                     </Pressable>
 
                                     <Pressable
@@ -232,7 +232,7 @@ export function EditProfileModal({ visible, onClose, onSave, name, email, phone,
                                         }}
                                         className="w-full px-4 py-3 rounded-2xl border bg-white border-gray-200"
                                     >
-                                        <Text className="text-gray-800">{selectedWard ? selectedWard.name : "Select Ward"}</Text>
+                                        <Text className="text-gray-800">{selectedWard ? String(selectedWard?.name ?? "") : "Select Ward"}</Text>
                                     </Pressable>
                                 </View>
 

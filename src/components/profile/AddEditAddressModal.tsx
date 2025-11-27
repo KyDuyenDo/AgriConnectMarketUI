@@ -114,7 +114,10 @@ export const AddEditAddressModal: React.FC<AddEditAddressModalProps> = ({
     const provinceOptions = useMemo(
         () => [
             { label: "Select Province", value: "" },
-            ...(Array.isArray(provinces) ? provinces : []).map((p) => ({ label: p.name, value: String(p.code) })),
+            ...(Array.isArray(provinces) ? provinces : []).map((p) => ({
+                label: String(p?.name ?? ""),
+                value: String(p?.code ?? "")
+            })),
         ],
         [provinces],
     )
@@ -122,7 +125,10 @@ export const AddEditAddressModal: React.FC<AddEditAddressModalProps> = ({
     const districtOptions = useMemo(
         () => [
             { label: "Select District", value: "" },
-            ...(Array.isArray(districts) ? districts : []).map((d) => ({ label: d.name, value: String(d.code) })),
+            ...(Array.isArray(districts) ? districts : []).map((d) => ({
+                label: String(d?.name ?? ""),
+                value: String(d?.code ?? "")
+            })),
         ],
         [districts],
     )
@@ -130,7 +136,10 @@ export const AddEditAddressModal: React.FC<AddEditAddressModalProps> = ({
     const wardOptions = useMemo(
         () => [
             { label: "Select Ward", value: "" },
-            ...(Array.isArray(wards) ? wards : []).map((w) => ({ label: w.name, value: String(w.code) })),
+            ...(Array.isArray(wards) ? wards : []).map((w) => ({
+                label: String(w?.name ?? ""),
+                value: String(w?.code ?? "")
+            })),
         ],
         [wards],
     )
