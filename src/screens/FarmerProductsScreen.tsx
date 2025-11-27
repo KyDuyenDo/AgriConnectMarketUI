@@ -153,15 +153,15 @@ const BatchCard = ({
 
         {/* Price and Units */}
         <View className="flex-row justify-between items-end mb-3">
-          <Text className="text-base font-bold text-green-600">${batch.price}</Text>
+          <Text className="text-base font-bold text-green-600">${batch.price}/{batch.units}</Text>
           <Text className={`text-[11px] font-medium ${unitColor}`} numberOfLines={1}>
-            {batch.availableQuantity} / {batch.totalYield}
+            {batch.availableQuantity}{batch.units} / {batch.totalYield}{batch.units}
           </Text>
         </View>
 
         {/* Action Buttons */}
         <View className="pt-2 border-t border-gray-50">
-          <View className="flex-row gap-2 mb-2">
+          {/* <View className="flex-row gap-2 mb-2">
             <TouchableOpacity
               onPress={onEdit}
               className="flex-1 flex items-center justify-center py-1.5 bg-gray-50 rounded-lg active:bg-gray-100"
@@ -182,7 +182,7 @@ const BatchCard = ({
             >
               <Eye size={14} color="#3B82F6" strokeWidth={1.5} />
             </TouchableOpacity>
-          </View>
+          </View> */}
 
           <View className="flex-row gap-2">
             <TouchableOpacity
