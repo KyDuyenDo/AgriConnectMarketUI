@@ -1,6 +1,8 @@
+"use client"
+
 import { ScrollView, View, Text, Platform, Alert, Keyboard } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
-import { useEffect, useMemo } from "react"
+import { useEffect, useMemo, useRef, useCallback } from "react"
 import { useNavigation, useRoute, type RouteProp } from "@react-navigation/native"
 import * as ImagePicker from "expo-image-picker"
 import { Header } from "@/components/farm-setup/Header"
@@ -30,6 +32,8 @@ export function FarmSetupInformationScreen() {
     // Vietnam Location hook for address selection
     const { provinces, districts, wards, fetchDistricts, fetchWards, clearDistricts, clearWards } = useVietnamLocations()
 
+    const initialFetchDoneRef = useRef(false)
+
     const provinceOptions = useMemo(
         () => [
             { label: "Select Province", value: "" },
@@ -55,11 +59,10 @@ export function FarmSetupInformationScreen() {
     )
 
     useEffect(() => {
-        // Fetch provinces on mount (only runs once due to empty dependency)
-        if (provinces.length === 0) {
-            console.log("Initial provinces load")
+        if (!initialFetchDoneRef.current && provinces.length > 0) {
+            initialFetchDoneRef.current = true
         }
-    }, [])
+    }, [provinces])
 
     // Load existing farm data if editing
     useEffect(() => {
@@ -77,7 +80,7 @@ export function FarmSetupInformationScreen() {
                 batchCodePrefix: existingFarm.batchCodePrefix || "",
             })
         }
-    }, [farmId, existingFarm])
+    }, [farmId, existingFarm, setFormData])
 
     const handleBack = () => {
         navigation.goBack()
@@ -127,43 +130,49 @@ export function FarmSetupInformationScreen() {
         }
     }
 
-    const handleSave = () => {
+    const handleSave = useCallback(() => {
         handleSubmit(() => {
             // Navigate back to farm detail on success
             navigation.goBack()
         })
-    }
+    }, [handleSubmit, navigation])
 
-    // Handle province selection
-    const handleProvinceChange = (provinceCode: string) => {
-        updateField("province", provinceCode)
-        // Clear dependent fields
-        updateField("district", "")
-        updateField("ward", "")
-        clearDistricts()
-        clearWards()
-        // Fetch districts for the selected province
-        if (provinceCode) {
-            fetchDistricts(Number(provinceCode))
-        }
-    }
+    const handleProvinceChange = useCallback(
+        (provinceCode: string) => {
+            updateField("province", provinceCode)
+            // Clear dependent fields
+            updateField("district", "")
+            updateField("ward", "")
+            clearDistricts()
+            clearWards()
+            // Fetch districts for the selected province
+            if (provinceCode) {
+                fetchDistricts(Number(provinceCode))
+            }
+        },
+        [updateField, clearDistricts, clearWards, fetchDistricts],
+    )
 
-    // Handle district selection
-    const handleDistrictChange = (districtCode: string) => {
-        updateField("district", districtCode)
-        // Clear dependent fields
-        updateField("ward", "")
-        clearWards()
-        // Fetch wards for the selected district
-        if (districtCode) {
-            fetchWards(Number(districtCode))
-        }
-    }
+    const handleDistrictChange = useCallback(
+        (districtCode: string) => {
+            updateField("district", districtCode)
+            // Clear dependent fields
+            updateField("ward", "")
+            clearWards()
+            // Fetch wards for the selected district
+            if (districtCode) {
+                fetchWards(Number(districtCode))
+            }
+        },
+        [updateField, clearWards, fetchWards],
+    )
 
-    // Handle ward selection
-    const handleWardChange = (wardCode: string) => {
-        updateField("ward", wardCode)
-    }
+    const handleWardChange = useCallback(
+        (wardCode: string) => {
+            updateField("ward", wardCode)
+        },
+        [updateField],
+    )
 
     return (
         <SafeAreaView className="flex-1" style={{ backgroundColor: "#F9FAF9" }}>
@@ -273,7 +282,7 @@ export function FarmSetupInformationScreen() {
                     )}
                 </View>
 
-                <ActionButtons onSave={handleSave} onPreview={() => { }} />
+                <ActionButtons onSave={handleSave} onPreview={() => { }} isLoading={isLoading} />
             </ScrollView>
         </SafeAreaView>
     )

@@ -1,3 +1,5 @@
+"use client"
+
 import { useCallback, useEffect, useRef, useState } from "react"
 
 const BASE_URL = "https://provinces.open-api.vn/api"
@@ -37,6 +39,12 @@ export function useVietnamLocations() {
 
     const [error, setError] = useState<string | null>(null)
 
+    const abortControllerRef = useRef({
+        provinces: null as AbortController | null,
+        districts: null as AbortController | null,
+        wards: null as AbortController | null,
+    })
+
     const cacheRef = useRef({
         provinces: null as Province[] | null,
         districtsByProvince: {} as Record<number, District[]>,
@@ -44,8 +52,16 @@ export function useVietnamLocations() {
     })
 
     useEffect(() => {
-        fetchProvinces()
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+        let mounted = true
+        fetchProvinces().then(() => {
+            if (mounted) {
+                // Component still mounted after fetch completes
+            }
+        })
+        return () => {
+            mounted = false
+            abortControllerRef.current.provinces?.abort()
+        }
     }, [])
 
     const fetchProvinces = useCallback(async () => {
@@ -53,10 +69,15 @@ export function useVietnamLocations() {
             setProvinces(cacheRef.current.provinces)
             return
         }
+
+        abortControllerRef.current.provinces?.abort()
+        const abortController = new AbortController()
+        abortControllerRef.current.provinces = abortController
+
         setLoadingProvinces(true)
         setError(null)
         try {
-            const res = await fetch(`${BASE_URL}/?depth=1`)
+            const res = await fetch(`${BASE_URL}/?depth=1`, { signal: abortController.signal })
             if (!res.ok) throw new Error("Failed to fetch provinces")
             const data = (await res.json()) as Province[]
             // Ensure data is an array
@@ -64,8 +85,10 @@ export function useVietnamLocations() {
             setProvinces(safeData)
             cacheRef.current.provinces = safeData
         } catch (err: any) {
-            setError(err?.message ?? "Unknown error")
-            setProvinces([]) // Fallback to empty array
+            if (err.name !== "AbortError") {
+                setError(err?.message ?? "Unknown error")
+                setProvinces([])
+            }
         } finally {
             setLoadingProvinces(false)
         }
@@ -79,10 +102,14 @@ export function useVietnamLocations() {
             return
         }
 
+        abortControllerRef.current.districts?.abort()
+        const abortController = new AbortController()
+        abortControllerRef.current.districts = abortController
+
         setLoadingDistricts(true)
         setError(null)
         try {
-            const res = await fetch(`${BASE_URL}/p/${provinceCode}?depth=2`)
+            const res = await fetch(`${BASE_URL}/p/${provinceCode}?depth=2`, { signal: abortController.signal })
             if (!res.ok) throw new Error("Failed to fetch districts")
             const data = await res.json()
             // API returns province object with .districts
@@ -90,8 +117,10 @@ export function useVietnamLocations() {
             setDistricts(districtsList)
             cacheRef.current.districtsByProvince[provinceCode] = districtsList
         } catch (err: any) {
-            setError(err?.message ?? "Unknown error")
-            setDistricts([]) // Fallback
+            if (err.name !== "AbortError") {
+                setError(err?.message ?? "Unknown error")
+                setDistricts([])
+            }
         } finally {
             setLoadingDistricts(false)
         }
@@ -105,10 +134,14 @@ export function useVietnamLocations() {
             return
         }
 
+        abortControllerRef.current.wards?.abort()
+        const abortController = new AbortController()
+        abortControllerRef.current.wards = abortController
+
         setLoadingWards(true)
         setError(null)
         try {
-            const res = await fetch(`${BASE_URL}/d/${districtCode}?depth=2`)
+            const res = await fetch(`${BASE_URL}/d/${districtCode}?depth=2`, { signal: abortController.signal })
             if (!res.ok) throw new Error("Failed to fetch wards")
             const data = await res.json()
             // API returns district object with .wards
@@ -116,8 +149,10 @@ export function useVietnamLocations() {
             setWards(wardsList)
             cacheRef.current.wardsByDistrict[districtCode] = wardsList
         } catch (err: any) {
-            setError(err?.message ?? "Unknown error")
-            setWards([]) // Fallback
+            if (err.name !== "AbortError") {
+                setError(err?.message ?? "Unknown error")
+                setWards([])
+            }
         } finally {
             setLoadingWards(false)
         }

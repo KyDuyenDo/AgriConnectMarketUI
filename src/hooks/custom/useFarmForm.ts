@@ -1,19 +1,21 @@
-import { useState } from "react";
-import { useCreateFarm, useUpdateFarm } from "@/hooks/useFarm";
-import { useAuthStore } from "@/stores/auth";
-import { Alert } from "react-native";
+"use client"
+
+import { useState, useCallback } from "react"
+import { useCreateFarm, useUpdateFarm } from "@/hooks/useFarm"
+import { useAuthStore } from "@/stores/auth"
+import { Alert } from "react-native"
 
 interface FarmFormData {
-    farmName: string;
-    description: string;
-    phone: string;
-    area: string;
-    province: string;
-    district: string;
-    ward: string;
-    detail: string;
-    bannerImage: any; // Can be File, Blob, or React Native asset
-    batchCodePrefix: string;
+    farmName: string
+    description: string
+    phone: string
+    area: string
+    province: string
+    district: string
+    ward: string
+    detail: string
+    bannerImage: any // Can be File, Blob, or React Native asset
+    batchCodePrefix: string
 }
 
 export const useFarmForm = (existingFarmId?: string) => {
@@ -28,107 +30,107 @@ export const useFarmForm = (existingFarmId?: string) => {
         detail: "",
         bannerImage: null,
         batchCodePrefix: "",
-    });
+    })
 
-    const { accountId } = useAuthStore();
-    const createFarmMutation = useCreateFarm();
-    const updateFarmMutation = useUpdateFarm();
+    const { accountId } = useAuthStore()
+    const createFarmMutation = useCreateFarm()
+    const updateFarmMutation = useUpdateFarm()
 
-    const updateField = (field: keyof FarmFormData, value: any) => {
-        setFormData((prev) => ({ ...prev, [field]: value }));
-    };
+    const updateField = useCallback((field: keyof FarmFormData, value: any) => {
+        setFormData((prev) => ({ ...prev, [field]: value }))
+    }, [])
 
     const validateForm = (): boolean => {
         if (!formData.farmName.trim()) {
-            Alert.alert("Validation Error", "Farm name is required");
-            return false;
+            Alert.alert("Validation Error", "Farm name is required")
+            return false
         }
 
         if (!existingFarmId && !formData.bannerImage) {
-            Alert.alert("Validation Error", "Farm banner image is required");
-            return false;
+            Alert.alert("Validation Error", "Farm banner image is required")
+            return false
         }
 
         if (!formData.batchCodePrefix?.trim()) {
-            Alert.alert("Validation Error", "Batch Code Prefix is required");
-            return false;
+            Alert.alert("Validation Error", "Batch Code Prefix is required")
+            return false
         }
 
-        return true;
-    };
+        return true
+    }
 
     const createFormData = (): FormData => {
-        const data = new FormData();
+        const data = new FormData()
 
-        data.append("FarmName", formData.farmName);
+        data.append("FarmName", formData.farmName)
 
         if (formData.description) {
-            data.append("FarmDesc", formData.description);
+            data.append("FarmDesc", formData.description)
         }
 
         if (formData.phone) {
-            data.append("Phone", formData.phone);
+            data.append("Phone", formData.phone)
         }
 
         if (formData.area) {
-            data.append("Area", formData.area);
+            data.append("Area", formData.area)
         }
 
         if (accountId) {
-            data.append("FarmerId", accountId);
+            data.append("FarmerId", accountId)
         }
 
         if (formData.province) {
-            data.append("Province", formData.province);
+            data.append("Province", formData.province)
         }
 
         if (formData.district) {
-            data.append("District", formData.district);
+            data.append("District", formData.district)
         }
 
         if (formData.ward) {
-            data.append("Ward", formData.ward);
+            data.append("Ward", formData.ward)
         }
 
         if (formData.detail) {
-            data.append("Detail", formData.detail);
+            data.append("Detail", formData.detail)
         }
 
         if (formData.bannerImage) {
-            data.append("FarmBanner", formData.bannerImage);
+            data.append("FarmBanner", formData.bannerImage)
         }
 
         if (formData.batchCodePrefix) {
-            data.append("BatchCodePrefix", formData.batchCodePrefix);
+            data.append("BatchCodePrefix", formData.batchCodePrefix)
         }
 
-        return data;
-    };
+        return data
+    }
 
     const handleSubmit = async (onSuccess?: () => void) => {
         if (!validateForm()) {
-            return;
+            return
         }
 
-        const data = createFormData();
+        const data = createFormData()
 
         try {
             if (existingFarmId) {
-                await updateFarmMutation.mutateAsync({ farmId: existingFarmId, formData: data });
-                Alert.alert("Success", "Farm updated successfully!");
+                await updateFarmMutation.mutateAsync({ farmId: existingFarmId, formData: data })
+                Alert.alert("Success", "Farm updated successfully!")
             } else {
-                await createFarmMutation.mutateAsync(data);
-                Alert.alert("Success", "Farm created successfully!");
+                await createFarmMutation.mutateAsync(data)
+                Alert.alert("Success", "Farm created successfully!")
             }
 
             if (onSuccess) {
-                onSuccess();
+                onSuccess()
             }
         } catch (error: any) {
-            const errorMessage = error?.response?.data?.message || "An error occurred";
-            Alert.alert("Error", errorMessage);
+            const errorMessage = error?.response?.data?.message || "An error occurred"
+            Alert.alert("Error", errorMessage)
         }
-    };
+    }
 
     return {
         formData,
@@ -137,5 +139,5 @@ export const useFarmForm = (existingFarmId?: string) => {
         handleSubmit,
         isLoading: createFarmMutation.isPending || updateFarmMutation.isPending,
         isSuccess: createFarmMutation.isSuccess || updateFarmMutation.isSuccess,
-    };
-};
+    }
+}
