@@ -128,7 +128,7 @@ export default function CustomerAddressScreen() {
                 visible={isAddressModalVisible}
                 onClose={() => setIsAddressModalVisible(false)}
                 onSave={handleSaveAddress}
-                initialData={editingAddress}
+                initialData={editingAddress || undefined}
                 isSaving={createAddressMutation.isPending || updateAddressMutation.isPending}
             />
         </SafeAreaView>

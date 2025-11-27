@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { ScrollView, View, Text, TouchableOpacity } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { ChevronLeft, ShoppingCart as ShoppingCartIcon } from "lucide-react-native"
@@ -35,6 +35,13 @@ export const CustomerCartScreen: React.FC = () => {
   const { data: addresses } = useGetAddresses()
   const defaultAddress = addresses?.find((addr) => addr.isDefault)
 
+  useEffect(
+    () => {
+      console.log("Selected items:", Cart)
+    }
+    , [Cart]
+  )
+
   // Cart shipping calculation using custom hook
   const {
     shippingFee,
@@ -45,11 +52,11 @@ export const CustomerCartScreen: React.FC = () => {
     selectedItemIds: selectedItems,
     customerAddress: defaultAddress
       ? {
-          province: defaultAddress.province,
-          district: defaultAddress.district,
-          ward: defaultAddress.ward,
-          detail: defaultAddress.detail,
-        }
+        province: defaultAddress.province,
+        district: defaultAddress.district,
+        ward: defaultAddress.ward,
+        detail: defaultAddress.detail,
+      }
       : null,
   })
 
@@ -114,6 +121,20 @@ export const CustomerCartScreen: React.FC = () => {
       return
     }
 
+    if (!addresses || addresses.length === 0) {
+      Alert.alert("Address Required", "You need to set up an address before checkout.", [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Add Address",
+          onPress: () => navigation.navigate("CustomerAddress" as never),
+        },
+      ])
+      return
+    }
+
     try {
       const itemsToOrder = CartItemSelects.filter((item: any) => selectedItems.includes(item.id))
 
@@ -128,6 +149,7 @@ export const CustomerCartScreen: React.FC = () => {
         customerId: userId,
         shippingFee: shippingFee,
         orderItems: orderItems,
+        addressId: defaultAddress?.id || addresses?.[0]?.id,
       }
 
       const newOrder = await createOrder(payload)

@@ -1,29 +1,156 @@
 import apiClient from "@/api/config";
-import { Batch, ProductBatch } from "@/types";
 
-export interface CartItemResponse {
-    id: string;
-    cartId: string;
-    batchId: string;
-    quantity: number;
-    itemPrice: number;
-    batch?: Batch;
-}
+
 
 export interface Customer {
     id: string;
     fullname: string;
     phone: string;
-    email?: string;
+    email: string;
 }
 
-export interface CartResponse {
-    id: string;
+export interface ResponseCart {
+    success: boolean;
+    message: string;
+    data: {
+        isSuccess: boolean;
+        value: CartValue;
+    };
+}
+
+export interface CartValue {
     customerId: string;
     totalPrice: number;
-    customer?: Customer;
-    cartItems: CartItemResponse[];
+    customer: Customer;
+    cartItems: CartItem[];
+    id: string;
 }
+
+export interface Customer {
+    fullname: string;
+    email: string;
+    phone: string;
+    avatarUrl: string;
+    accountId: string;
+    createdAt: string;
+    id: string;
+}
+
+export interface CartItem {
+    cartId: string;
+    batchId: string;
+    quantity: number;
+    itemPrice: number;
+    batch: Batch;
+    id: string;
+}
+
+export interface Batch {
+    batchCode: {
+        value: string;
+    };
+    totalYield: number;
+    availableQuantity: number;
+    units: string;
+    price: number;
+    plantingDate: string;
+    harvestDate: string;
+    imagesUrl: string[];
+    seasonId: string;
+    season: Season;
+    productId: string;
+    product: Product;
+    productBatches: (ProductBatch | null)[];
+    createdAt: string;
+    id: string;
+}
+
+export interface Season {
+    seasonName: string;
+    seasonDesc: string;
+    status: string;
+    startDate: string;
+    endDate: string;
+    createdAt: string;
+    farmId: string;
+    farm: Farm;
+    productId?: string;
+    productBatches?: ProductBatch[];
+    id: string;
+}
+
+export interface Farm {
+    farmName: string;
+    batchCodePrefix: string;
+    bannerUrl: string;
+    phone: string;
+    area: string;
+    isDelete: boolean;
+    isBanned: boolean;
+    isValidForSelling: boolean;
+    isConfirmAsMall: boolean;
+    createdAt: string;
+    farmerId: string;
+    addressId: string;
+    address: Address;
+    seasons: (Season | null)[];
+    history: FarmHistory[];
+    id: string;
+}
+
+export interface Address {
+    province: string;
+    district: string;
+    ward: string;
+    detail: string;
+    isDefault?: boolean;
+    createdAt?: string;
+    id?: string;
+}
+
+export interface FarmHistory {
+    year: string;
+    title: string;
+    description: string;
+    color: string;
+}
+
+export interface Product {
+    productName: string;
+    productAttribute: string;
+    productDesc: string;
+    categoryId: string;
+    category: Category;
+    seasons: (Season | null)[];
+    createdAt: string;
+    id: string;
+}
+
+export interface Category {
+    categoryName: string;
+    categoryDesc: string;
+    illustrativeImageUrl: string;
+    isDelete: boolean;
+    products: (Product | null)[];
+    id: string;
+}
+
+export interface ProductBatch {
+    batchCode: {
+        value: string;
+    };
+    totalYield: number;
+    availableQuantity: number;
+    units: string;
+    price: number;
+    plantingDate: string;
+    harvestDate: string;
+    imagesUrl: string[];
+    seasonId: string;
+    createdAt: string;
+    id: string;
+}
+
 
 export interface AddToCartRequest {
     cartId: string;
@@ -44,7 +171,7 @@ export const CartService = {
      */
     getCart: async () => {
         try {
-            const res = await apiClient.get<{ data: { isSuccess: boolean, value: CartResponse } }>(`${BASE_URL}/me`);
+            const res = await apiClient.get<{ data: { isSuccess: boolean, value: CartValue } }>(`${BASE_URL}/me`);
             // Backend returns: { success: true, data: { isSuccess: true, value: { ... } } }
             if (res.data?.data?.isSuccess) {
                 return res.data.data.value;
@@ -62,10 +189,10 @@ export const CartService = {
     /**
      * Add item to cart (POST /api/carts)
      */
-    addItem: async (item: AddToCartRequest): Promise<CartItemResponse> => {
+    addItem: async (item: AddToCartRequest): Promise<CartItem> => {
         try {
             console.log("📦 Adding item to cart:", item);
-            const res = await apiClient.post<{ data: CartItemResponse }>(`${BASE_URL}`, item);
+            const res = await apiClient.post<{ data: CartItem }>(`${BASE_URL}`, item);
             console.log("✅ Item added successfully:", res.data);
             return res.data.data;
         } catch (error) {
@@ -77,9 +204,9 @@ export const CartService = {
     /**
      * Update cart item (PATCH /api/carts/{cartId})
      */
-    updateItem: async (cartId: string, data: UpdateCartItemRequest): Promise<CartItemResponse> => {
+    updateItem: async (cartId: string, data: UpdateCartItemRequest): Promise<CartItem> => {
         try {
-            const res = await apiClient.patch<{ data: CartItemResponse }>(`${BASE_URL}/${cartId}`, data);
+            const res = await apiClient.patch<{ data: CartItem }>(`${BASE_URL}/${cartId}`, data);
             return res.data.data;
         } catch (error) {
             console.error(`❌ Error updating cart item:`, error);
@@ -120,12 +247,6 @@ export default CartService;
 /**
  * Address type for farm locations
  */
-export type Address = {
-    province: string;
-    district: string;
-    ward: string;
-    detail: string;
-};
 
 /**
  * Result of shipping calculation
@@ -154,10 +275,10 @@ export const extractFarmAddresses = (cartItems: any[]): Address[] => {
             if (!seenAddresses.has(addressKey)) {
                 seenAddresses.add(addressKey);
                 addresses.push({
-                    province: farmAddress.province || '',
-                    district: farmAddress.district || '',
-                    ward: farmAddress.ward || '',
-                    detail: farmAddress.detail || '',
+                    province: farmAddress.province,
+                    district: farmAddress.district,
+                    ward: farmAddress.ward,
+                    detail: farmAddress.detail,
                 });
             }
         }
@@ -195,7 +316,7 @@ export const calculateShippingFee = async (
  * @returns Shipping calculation result with addresses and total fee
  */
 export const calculateTotalShipping = async (
-    cartItems: CartItemResponse[],
+    cartItems: CartItem[],
     customerAddress: Address
 ): Promise<ShippingCalculationResult> => {
     const farmAddresses = extractFarmAddresses(cartItems);
