@@ -11,6 +11,7 @@ import { BottomActions } from '@/components/farmer-product-detail/BottomActions'
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { FarmStackParamList } from '@/navigation/types';
 import { useFarmReviews, useReplyFarmReview } from '@/hooks/useFarmReview';
+import { useBatchById } from '@/hooks/useBatches';
 import { useState } from 'react';
 
 
@@ -171,7 +172,4 @@ export function FarmerProductDetailReviewsScreen({ route, navigation }: Props) {
             </Modal>
         </SafeAreaView>
     );
-}
-function useBatchById(batchId: string): { data: any; isLoading: any; } {
-    throw new Error('Function not implemented.');
 }
