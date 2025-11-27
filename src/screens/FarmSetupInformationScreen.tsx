@@ -19,11 +19,10 @@ import type { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { useVietnamLocations } from "@/hooks/useLocationHook"
 
 type Nav = NativeStackNavigationProp<FarmStackParamList>
-type Route = RouteProp<FarmStackParamList, "FarmSetupInformation">
 
 export function FarmSetupInformationScreen() {
     const navigation = useNavigation<Nav>()
-    const route = useRoute<Route>()
+    const route = useRoute<RouteProp<FarmStackParamList, "FarmSetupInformation">>()
     const farmId = route.params?.farmId
 
     const { data: existingFarm } = useFarmByMe()
@@ -76,7 +75,7 @@ export function FarmSetupInformationScreen() {
                 district: existingFarm.address?.district || "",
                 ward: existingFarm.address?.ward || "",
                 detail: existingFarm.address?.detail || "",
-                bannerImage: null,
+                bannerImage: "",
                 batchCodePrefix: existingFarm.batchCodePrefix || "",
             })
         }

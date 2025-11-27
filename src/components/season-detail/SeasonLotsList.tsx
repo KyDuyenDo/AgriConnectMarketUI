@@ -17,7 +17,7 @@ const LotCard = ({
     <View className="bg-white mb-3 p-4 rounded-2xl shadow-sm">
         <View className="flex-row justify-between items-start mb-3">
             <View className="flex-1">
-                <Text className="mb-1 text-[#2d2d2d] text-sm font-semibold">{batch.batchCode || "Batch"}</Text>
+                <Text className="mb-1 text-[#2d2d2d] text-sm font-semibold">{(typeof batch.batchCode === 'string' ? batch.batchCode : batch.batchCode?.value) || "Batch"}</Text>
 
                 <View>
                     <View className="flex-row items-center mb-1">

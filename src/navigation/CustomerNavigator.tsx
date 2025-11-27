@@ -11,7 +11,7 @@ import CustomerAddressScreen from "@/screens/CustomerAddressScreen"
 
 export type CustomerStackParamList = {
   MainTabs: undefined
-  CustomerOrders: undefined
+  CustomerOrders: { initialFilter?: string } | undefined
   CustomerOrderDetail: { orderId: string }
   FarmDetail: { farmId: string }
   BatchDetails: { batchId: string }

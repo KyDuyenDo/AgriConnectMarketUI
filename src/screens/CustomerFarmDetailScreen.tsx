@@ -17,9 +17,10 @@ import { useFarmReviews } from '@/hooks/useFarmReview';
 import { FarmReviewCard } from '@/components/customer-farm-detail/FarmReviewCard';
 import { FarmReviewSummary } from '@/components/customer-farm-detail/FarmReviewSummary';
 import { Ionicons } from '@expo/vector-icons';
-import PreOrderService from '@/services/preorder.service';
+
 import { ProductResponse } from '@/types';
 import { Modal, TextInput, Alert } from 'react-native';
+import { useQueryClient } from '@tanstack/react-query';
 
 type Props = NativeStackScreenProps<CustomerStackParamList, 'FarmDetail'>;
 
@@ -29,49 +30,10 @@ export function CustomerFarmDetailScreen({ route, navigation }: Props) {
     const { data: farm, isLoading: isLoadingFarm, error: farmError } = useFarmById(farmId);
     const { data: batches, isLoading: isLoadingBatches } = useBatchesByFarm(farmId);
     const { data: reviews, isLoading: isLoadingReviews } = useFarmReviews(farmId);
-    const [suggestions, setSuggestions] = useState<ProductResponse[]>([]);
-    const [isPreOrderModalVisible, setIsPreOrderModalVisible] = useState(false);
-    const [selectedProductForPreOrder, setSelectedProductForPreOrder] = useState<ProductResponse | null>(null);
-    const [preOrderQuantity, setPreOrderQuantity] = useState('');
-    const [preOrderNote, setPreOrderNote] = useState('');
 
-    useState(() => {
-        const fetchSuggestions = async () => {
-            try {
-                const data = await PreOrderService.getSuggestions(farmId);
-                setSuggestions(data);
-            } catch (error) {
-                console.error("Failed to fetch suggestions", error);
-            }
-        };
-        fetchSuggestions();
-    });
+    const queryClient = useQueryClient();
 
-    const handlePreOrder = (product: ProductResponse) => {
-        setSelectedProductForPreOrder(product);
-        setIsPreOrderModalVisible(true);
-    };
 
-    const submitPreOrder = async () => {
-        if (!selectedProductForPreOrder || !preOrderQuantity) {
-            Alert.alert("Error", "Please enter quantity");
-            return;
-        }
-        try {
-            await PreOrderService.create({
-                farmId,
-                productId: selectedProductForPreOrder.id,
-                quantity: parseFloat(preOrderQuantity),
-                note: preOrderNote
-            });
-            Alert.alert("Success", "PreOrder placed successfully!");
-            setIsPreOrderModalVisible(false);
-            setPreOrderQuantity('');
-            setPreOrderNote('');
-        } catch (error) {
-            Alert.alert("Error", "Failed to place preorder");
-        }
-    };
 
     // Show loading state
     if (isLoadingFarm || isLoadingBatches) {
@@ -208,7 +170,7 @@ export function CustomerFarmDetailScreen({ route, navigation }: Props) {
                                         rating={batch.averageRating || 0}
                                         reviewCount={batch.reviewCount || 0}
                                         onAdd={() => console.log('Add', batch.id)}
-                                        onPreOrder={() => console.log('Pre-order', batch.id)}
+
                                     />
                                 </View>
                             ))}
@@ -220,36 +182,7 @@ export function CustomerFarmDetailScreen({ route, navigation }: Props) {
                     )}
                 </View>
 
-                {/* Product Suggestions / PreOrder */}
-                <View className="mt-6">
-                    <View className="px-4 flex-row justify-between items-center mb-1">
-                        <Text className="text-lg font-bold text-gray-900">Upcoming / Suggestions</Text>
-                    </View>
-                    {suggestions.length > 0 ? (
-                        <ScrollView
-                            horizontal
-                            showsHorizontalScrollIndicator={false}
-                            contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 8 }}
-                        >
-                            {suggestions.map(product => (
-                                <View key={product.id} className="w-[160px] mr-4">
-                                    <FarmProductCard
-                                        image={product.category?.illustrativeImageUrl || 'https://via.placeholder.com/150'}
-                                        name={product.productName}
-                                        price="Contact"
-                                        badge={{ label: 'Pre-Order', color: 'orange' }}
-                                        onPreOrder={() => handlePreOrder(product)}
-                                        onAdd={() => { }} // Disable add for suggestions
-                                    />
-                                </View>
-                            ))}
-                        </ScrollView>
-                    ) : (
-                        <View className="px-4">
-                            <Text className="text-gray-500 italic">No suggestions available.</Text>
-                        </View>
-                    )}
-                </View>
+
 
                 {/* Farm History */}
                 <View className="mt-4 px-4">
@@ -315,52 +248,7 @@ export function CustomerFarmDetailScreen({ route, navigation }: Props) {
                 onViewProducts={() => console.log('View Products')}
             />
 
-            {/* PreOrder Modal */}
-            <Modal
-                visible={isPreOrderModalVisible}
-                transparent={true}
-                animationType="slide"
-                onRequestClose={() => setIsPreOrderModalVisible(false)}
-            >
-                <View className="flex-1 justify-center items-center bg-black/50">
-                    <View className="bg-white p-6 rounded-2xl w-[90%]">
-                        <Text className="text-xl font-bold mb-4">PreOrder {selectedProductForPreOrder?.productName}</Text>
 
-                        <Text className="text-sm text-gray-600 mb-1">Quantity (kg)</Text>
-                        <TextInput
-                            className="border border-gray-300 rounded-lg p-3 mb-4"
-                            keyboardType="numeric"
-                            value={preOrderQuantity}
-                            onChangeText={setPreOrderQuantity}
-                            placeholder="Enter quantity"
-                        />
-
-                        <Text className="text-sm text-gray-600 mb-1">Note (Optional)</Text>
-                        <TextInput
-                            className="border border-gray-300 rounded-lg p-3 mb-6"
-                            value={preOrderNote}
-                            onChangeText={setPreOrderNote}
-                            placeholder="Any special requests?"
-                            multiline
-                        />
-
-                        <View className="flex-row justify-end gap-3">
-                            <TouchableOpacity
-                                onPress={() => setIsPreOrderModalVisible(false)}
-                                className="px-4 py-2 rounded-lg bg-gray-200"
-                            >
-                                <Text className="font-medium">Cancel</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                onPress={submitPreOrder}
-                                className="px-4 py-2 rounded-lg bg-green-600"
-                            >
-                                <Text className="text-white font-medium">Confirm PreOrder</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                </View>
-            </Modal>
         </SafeAreaView>
     );
 }

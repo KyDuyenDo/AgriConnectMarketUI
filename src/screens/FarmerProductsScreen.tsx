@@ -205,6 +205,45 @@ const BatchCard = ({
   )
 }
 
+const FarmerProductsHeader = ({
+  searchQuery,
+  setSearchQuery,
+  categories,
+  selectedCategory,
+  setSelectedCategory,
+}: {
+  searchQuery: string
+  setSearchQuery: (text: string) => void
+  categories: any[]
+  selectedCategory: string | null
+  setSelectedCategory: (category: string | null) => void
+}) => (
+  <View className="pb-2">
+    {/* Search Bar */}
+    <View className="px-4 py-2">
+      <View className="flex-row items-center bg-white border border-gray-200 rounded-xl px-4 py-2.5 shadow-sm">
+        <Search size={20} color="#9CA3AF" />
+        <TextInput
+          className="flex-1 ml-3 text-gray-900 text-base h-full"
+          placeholder="Search batches..."
+          placeholderTextColor="#9CA3AF"
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+        />
+      </View>
+    </View>
+
+    {/* Category Filter */}
+    <View className="py-2">
+      <CategorySelector
+        categories={categories || []}
+        selectedCategory={selectedCategory}
+        onSelectCategory={setSelectedCategory}
+      />
+    </View>
+  </View>
+)
+
 export const FarmerProductsScreen = () => {
   const navigation = useNavigation<Nav>()
   const { accountId } = useAuthStore()
@@ -255,32 +294,6 @@ export const FarmerProductsScreen = () => {
     }
   }
 
-  const renderHeader = () => (
-    <View className="pb-2">
-      {/* Search Bar */}
-      <View className="px-4 py-2">
-        <View className="flex-row items-center bg-white border border-gray-200 rounded-xl px-4 py-2.5 shadow-sm">
-          <Search size={20} color="#9CA3AF" />
-          <TextInput
-            className="flex-1 ml-3 text-gray-900 text-base h-full"
-            placeholder="Search batches..."
-            placeholderTextColor="#9CA3AF"
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-          />
-        </View>
-      </View>
-
-      {/* Category Filter */}
-      <View className="py-2">
-        <CategorySelector
-          categories={categories || []}
-          selectedCategory={selectedCategory}
-          onSelectCategory={setSelectedCategory}
-        />
-      </View>
-    </View>
-  )
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50" edges={["top"]}>
@@ -313,7 +326,15 @@ export const FarmerProductsScreen = () => {
           paddingBottom: Platform.OS === "ios" ? 120 : 120,
           paddingTop: 8,
         }}
-        ListHeaderComponent={renderHeader}
+        ListHeaderComponent={
+          <FarmerProductsHeader
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            categories={categories || []}
+            selectedCategory={selectedCategory}
+            setSelectedCategory={setSelectedCategory}
+          />
+        }
         ListEmptyComponent={
           !isLoading ? (
             <View className="items-center justify-center py-20">

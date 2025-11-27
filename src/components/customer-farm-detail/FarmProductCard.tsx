@@ -9,7 +9,6 @@ interface FarmProductCardProps {
     rating?: number;
     reviewCount?: number;
     onAdd?: () => void;
-    onPreOrder?: () => void;
 }
 
 export function FarmProductCard({
@@ -20,7 +19,6 @@ export function FarmProductCard({
     rating,
     reviewCount,
     onAdd,
-    onPreOrder
 }: FarmProductCardProps) {
     const badgeStyle = badge?.color === 'green'
         ? { bg: 'rgba(200, 230, 201, 1)', text: '#2E7D32' }
@@ -80,15 +78,6 @@ export function FarmProductCard({
                         <Plus size={12} color="#FFFFFF" />
                     </Pressable>
                 </View>
-                <Pressable
-                    onPress={onPreOrder}
-                    className="w-full py-2 rounded-[12px] items-center active:bg-[#E8EAEB]"
-                    style={{ backgroundColor: '#F5F7F5' }}
-                >
-                    <Text className="text-xs font-medium" style={{ color: '#4CAF50' }}>
-                        Pre-order
-                    </Text>
-                </Pressable>
             </View>
         </View>
     );

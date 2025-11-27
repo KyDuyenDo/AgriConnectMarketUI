@@ -36,6 +36,7 @@ export const useFarmForm = (existingFarmId?: string) => {
     const createFarmMutation = useCreateFarm()
     const updateFarmMutation = useUpdateFarm()
 
+    // Update form fields directly without debounce
     const updateField = useCallback((field: keyof FarmFormData, value: any) => {
         setFormData((prev) => ({ ...prev, [field]: value }))
     }, [])
@@ -97,7 +98,17 @@ export const useFarmForm = (existingFarmId?: string) => {
         }
 
         if (formData.bannerImage) {
-            data.append("FarmBanner", formData.bannerImage)
+            // Keep bannerImage safely
+            if (typeof formData.bannerImage === "string") {
+                data.append("FarmBanner", formData.bannerImage)
+            } else if ("uri" in formData.bannerImage) {
+                const { uri, name, type } = formData.bannerImage
+                data.append("FarmBanner", {
+                    uri,
+                    name: name || "farm-banner.jpg",
+                    type: type || "image/jpeg",
+                } as any)
+            }
         }
 
         if (formData.batchCodePrefix) {
@@ -108,9 +119,7 @@ export const useFarmForm = (existingFarmId?: string) => {
     }
 
     const handleSubmit = async (onSuccess?: () => void) => {
-        if (!validateForm()) {
-            return
-        }
+        if (!validateForm()) return
 
         const data = createFormData()
 
@@ -123,9 +132,7 @@ export const useFarmForm = (existingFarmId?: string) => {
                 Alert.alert("Success", "Farm created successfully!")
             }
 
-            if (onSuccess) {
-                onSuccess()
-            }
+            if (onSuccess) onSuccess()
         } catch (error: any) {
             const errorMessage = error?.response?.data?.message || "An error occurred"
             Alert.alert("Error", errorMessage)

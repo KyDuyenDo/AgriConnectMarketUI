@@ -22,7 +22,7 @@ export const LotDetailScreen = () => {
     const { data: batch, isLoading, error } = useBatchDetail(lotId);
 
     const onAddLogEntry = () => {
-        navigation.navigate('AddCropLog');
+        navigation.navigate('AddCropLog' as any);
     }
 
     if (isLoading) {

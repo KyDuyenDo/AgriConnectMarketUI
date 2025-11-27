@@ -194,7 +194,7 @@ export interface Order {
   // Existing relations
   customer?: any // Profile type
   orderItems?: OrderItem[]
-  preOrder?: any
+
 }
 
 export type HistoryItem = {
@@ -330,21 +330,7 @@ export interface UnifiedProduct {
   location: string // Province
 }
 
-export interface PreOrder {
-  id: string // Assuming BaseEntity<Guid> gives Id
-  orderId?: string
-  farmId: string
-  customerId: string
-  productId: string
-  quantity: number
-  expectedReleaseDate?: string
-  partiallyPaidAmount?: number
-  note?: string
-  status: string
-  product?: ProductResponse
-  farm?: Farm
-  createdAt?: string
-}
+
 
 export interface CareEventType {
   id: string

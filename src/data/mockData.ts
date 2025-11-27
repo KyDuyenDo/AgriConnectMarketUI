@@ -16,6 +16,7 @@ export const favoriteProducts: Product[] = [
     numRatings: 120,
     batch: "A1",
     quantity: 50,
+    status: "In Stock",
   },
   {
     id: "2",
@@ -28,6 +29,9 @@ export const favoriteProducts: Product[] = [
     isFavorite: true,
     batch: "B2",
     quantity: 30,
+    status: "In Stock",
+    rating: 4.8,
+    numRatings: 85,
   },
 ]
 
@@ -50,7 +54,7 @@ export const cartItems: CartItem[] = [
   },
 ]
 
-export const recentOrders: Order[] = [
+export const recentOrders = [
   {
     id: "1",
     farm: "Green Valley Farm",
@@ -312,7 +316,7 @@ export const mockProducts: Product[] = [
     id: "P001",
     name: "Organic Tomatoes",
     farm: "Green Valley Farm",
-    price: "2.50",
+    price: "15.00",
     unit: "kg",
     image: "https://facts.net/wp-content/uploads/2024/06/20-great-interesting-facts-about-vegetables-1717310986.jpg",
     isFavorite: true,
@@ -327,8 +331,9 @@ export const mockProducts: Product[] = [
     id: "P002",
     name: "Fresh Lettuce",
     farm: "Sunny Fields",
+    price: "25.50",
     isFavorite: true,
-    price: "1.20",
+
     unit: "piece",
     image: "https://facts.net/wp-content/uploads/2024/06/20-great-interesting-facts-about-vegetables-1717310986.jpg",
     rating: 4.3,

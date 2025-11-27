@@ -97,10 +97,10 @@ export function FarmerProductDetailReviewsScreen({ route, navigation }: Props) {
 
                 <ProductInfo
                     name={batch?.season?.product?.productName || 'Unknown Product'}
-                    farm={batch?.season?.farm?.farmName || 'My Farm'}
+                    farm={(batch?.season as any)?.farm?.farmName || 'My Farm'}
                     price={batch?.price.toString() || '0'}
                     unit={batch?.units || 'unit'}
-                    description={batch?.season?.description || ''}
+                    description={batch?.season?.seasonDesc || ''}
                 />
 
                 {/* SalesPerformance placeholder or real data if available */}
