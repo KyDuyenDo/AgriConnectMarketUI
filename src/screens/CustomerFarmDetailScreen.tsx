@@ -314,10 +314,6 @@ export function CustomerFarmDetailScreen({ route, navigation }: Props) {
                 onMessage={() => console.log('Message')}
                 onViewProducts={() => console.log('View Products')}
             />
-            <BottomActions
-                onMessage={() => console.log('Message')}
-                onViewProducts={() => console.log('View Products')}
-            />
 
             {/* PreOrder Modal */}
             <Modal
