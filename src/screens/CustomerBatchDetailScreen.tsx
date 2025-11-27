@@ -36,6 +36,7 @@ export const CustomerBatchDetailScreen: React.FC = () => {
   const { mutateAsync: createOrder, isPending: isCreatingOrder } = useCreateOrder()
   const { userId } = useAuthStore()
   const { data: reviews, isLoading: isLoadingReviews } = useFarmReviews(batch?.season?.farmId || "");
+  const { data: addresses } = useGetAddresses()
 
   const [selectedQuantity, setSelectedQuantity] = useState(1)
 
@@ -100,6 +101,20 @@ export const CustomerBatchDetailScreen: React.FC = () => {
       return
     }
 
+    // Check if user has a default address
+    const defaultAddress = addresses?.find(addr => addr.isDefault)
+    if (!defaultAddress) {
+      Alert.alert(
+        "No Address",
+        "Please add a delivery address before placing an order.",
+        [
+          { text: "Cancel", style: "cancel" },
+          { text: "Add Address", onPress: () => navigation.navigate("CustomerAddress" as never) },
+        ]
+      )
+      return
+    }
+
     try {
       // First, add the item to cart
       await new Promise<void>((resolve, reject) => {
@@ -119,6 +134,7 @@ export const CustomerBatchDetailScreen: React.FC = () => {
       // Then create order with only this item (bypass regular cart)
       const payload = {
         customerId: userId,
+        addressId: defaultAddress.id,
         shippingFee: 0,
         orderItems: [
           {
