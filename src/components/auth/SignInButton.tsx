@@ -1,4 +1,4 @@
-import { TouchableOpacity, Text } from "react-native"
+import { TouchableOpacity, Text, View, ActivityIndicator } from "react-native"
 
 interface SignInButtonProps {
   isLoading: boolean
@@ -13,7 +13,10 @@ export function SignInButton({ isLoading, onPress }: SignInButtonProps) {
       disabled={isLoading}
       activeOpacity={0.8}
     >
-      <Text className="text-center text-lg font-bold text-white">{isLoading ? "Signing In..." : "Sign In"}</Text>
+      <View className="flex-row items-center justify-center gap-2">
+        {isLoading && <ActivityIndicator color="white" size="small" />}
+        <Text className="text-center text-lg font-bold text-white">{isLoading ? "Signing In..." : "Sign In"}</Text>
+      </View>
     </TouchableOpacity>
   )
 }
