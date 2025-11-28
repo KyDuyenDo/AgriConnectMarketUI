@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { FarmStackParamList } from '@/navigation/types';
 import { useNavigation, useRoute, RouteProp, useFocusEffect } from '@react-navigation/native';
-import { ArrowLeft, MoreVertical, Plus, Share2 } from 'lucide-react-native';
+import { ArrowLeft, ChevronLeft, MoreVertical, Plus, Share2 } from 'lucide-react-native';
 import { useSeason } from '@/hooks/useSeason';
 import { useProductBatches } from '@/hooks/useProductBatches';
 import { useComputedSeasonProgress } from '@/hooks/useComputedSeasonProgress';
@@ -94,10 +94,16 @@ export default function SeasonDetailScreen() {
             {/* Header Bar */}
             <View className="flex-row items-center justify-between px-4 py-3 bg-white border-b border-gray-100">
                 <View className="flex-row items-center flex-1">
-                    <TouchableOpacity onPress={() => navigation.goBack()} className="mr-3">
-                        <ArrowLeft size={24} color="#374151" />
+                    <TouchableOpacity
+                        onPress={() => navigation.goBack()}
+                        className="flex-row items-center gap-2"
+                    >
+                        <View className="w-5 h-5 items-center justify-center">
+                            <ChevronLeft size={20} color="#4CAF50" />
+                        </View>
+                        <Text className="text-base font-semibold text-[#4CAF50]">Back</Text>
                     </TouchableOpacity>
-                    <Text className="text-lg font-bold text-gray-900" numberOfLines={1}>
+                    <Text className="ml-2 text-base font-semibold" numberOfLines={1}>
                         {season.seasonName}
                     </Text>
                 </View>

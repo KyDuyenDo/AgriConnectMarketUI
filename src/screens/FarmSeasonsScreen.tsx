@@ -2,7 +2,7 @@ import { useState, useCallback } from "react"
 import { View, Text, ScrollView, StatusBar, TouchableOpacity, RefreshControl } from "react-native"
 import { useNavigation, useRoute, type RouteProp, useFocusEffect } from "@react-navigation/native"
 import { SafeAreaView } from "react-native-safe-area-context"
-import { ArrowLeft, Plus } from "lucide-react-native"
+import { ArrowLeft, ChevronLeft, Plus } from "lucide-react-native"
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import type { FarmStackParamList } from "@/navigation/types"
 import { useSeasons } from "@/hooks/useSeasons"
@@ -80,10 +80,15 @@ export default function FarmSeasonsScreen() {
             {/* Header */}
             <View className="flex-row items-center justify-between px-4 py-3 bg-white border-b border-gray-100">
                 <View className="flex-row items-center flex-1">
-                    <TouchableOpacity onPress={() => navigation.goBack()} className="mr-3">
-                        <ArrowLeft size={24} color="#374151" />
+                    <TouchableOpacity
+                        onPress={() => navigation.goBack()}
+                        className="flex-row items-center gap-2"
+                    >
+                        <View className="w-5 h-5 items-center justify-center">
+                            <ChevronLeft size={20} color="#4CAF50" />
+                        </View>
                     </TouchableOpacity>
-                    <Text className="text-lg font-bold text-gray-900">Farm Seasons</Text>
+                    <Text className="text-base font-semibold text-[#4CAF50]">Back</Text>
                 </View>
                 <TouchableOpacity
                     onPress={() => navigation.navigate("AddSeason", { farmId })}
