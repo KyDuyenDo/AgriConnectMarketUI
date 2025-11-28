@@ -43,7 +43,7 @@ export const CustomerCartScreen: React.FC = () => {
   if (isLoading) 
     return <CustomerCartScreenSkeleton />
 
-  console.log("Cart", Cart?.cartItems[0].batch?.season)
+
   const CartItems = Cart?.cartItems || []
 
   // Cart shipping calculation using custom hook
@@ -257,7 +257,8 @@ export const CustomerCartScreen: React.FC = () => {
 
         {farmAddresses.length > 0 && !calculatingShipping && (
           <View className="mx-4 mt-2 p-3 bg-green-50 rounded-lg">
-            <Text className="text-xs text-green-600">📍 Giao hàng từ: {farmAddresses.map(a => a.province).join(', ')}</Text>
+            <Text className="text-xs text-green-600">📍 Giao hàng từ:</Text>
+            <Text className="text-xs text-green-600">{farmAddresses.map(a => `${a.detail} (${a.province}/${a.district})`).join(' • ')}</Text>
           </View>
         )}
 
