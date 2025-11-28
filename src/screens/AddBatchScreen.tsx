@@ -43,7 +43,7 @@ export default function AddBatchScreen() {
     const preSelectedSeasonName = route.params?.seasonName;
     const farmId = route.params?.farmId;
 
-    const { data: seasons, isLoading: isLoadingSeasons } = useSeasons(farmId);
+    const { seasons, isLoading: isLoadingSeasons } = useSeasons(farmId);
 
 
     const { mutate: createBatch, isPending } = useCreateBatch();
