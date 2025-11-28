@@ -1,5 +1,5 @@
 import apiClient from "@/api/config"
-import type { CareEvent, CareEventType } from "@/types"
+import type { CareEvent, CareEventType, CreateCareEventResponse } from "@/types"
 
 const CareEventService = {
   // Create a new care event
@@ -8,8 +8,8 @@ const CareEventService = {
     eventTypeId: string
     payload: string
     occurredAt?: string
-  }): Promise<CareEvent> => {
-    const response = await apiClient.post<{ data: CareEvent }>("/api/care-events", {
+  }): Promise<CreateCareEventResponse> => {
+    const response = await apiClient.post<{ data: CreateCareEventResponse }>("/api/care-events", {
       ...data,
       occurredAt: data.occurredAt || new Date().toISOString(),
     })

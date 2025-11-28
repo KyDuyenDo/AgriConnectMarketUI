@@ -6,7 +6,7 @@ export interface Profile {
     email: string;
     phone: string;
     avatarUrl?: string;
-    userId: string;
+    accountId: string;
 }
 
 export interface UpdateProfileData {

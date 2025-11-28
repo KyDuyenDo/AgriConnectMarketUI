@@ -2,7 +2,7 @@ import { View, Text } from "react-native"
 import { OrderCard } from "@/components/ui/OrderCard"
 import { Order } from "@/types"
 
-export function RecentOrdersSection({ orders, onPressOrder }: { orders: Order[], onPressOrder?: (orderId: string) => void }) {
+export function RecentOrdersSection({ orders, onPressOrder }: { orders: any[], onPressOrder?: (orderId: string) => void }) {
   return (
     <View style={{ gap: 12 }}>
       <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
@@ -15,14 +15,14 @@ export function RecentOrdersSection({ orders, onPressOrder }: { orders: Order[],
             key={order.id}
             order={{
               id: order.id,
-              name: "Order",
-              orderNumber: order.orderCode,
-              quantity: (order.orderItems?.length || 0) + " items",
-              price: "$" + order.totalPrice,
-              status: order.orderStatus,
-              statusColor: "#E8F5E9",
-              statusTextColor: "#2E7D32",
-              image: "https://via.placeholder.com/40"
+              name: order.name,
+              orderNumber: order.orderNumber,
+              quantity: order.quantity,
+              price: order.price,
+              status: order.status,
+              statusColor: order.statusColor,
+              statusTextColor: order.statusTextColor,
+              image: order.image
             }}
             onPress={() => onPressOrder && onPressOrder(order.id.toString())}
           />

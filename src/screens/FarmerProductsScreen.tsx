@@ -305,59 +305,61 @@ export const FarmerProductsScreen = () => {
         </TouchableOpacity>
       </View>
 
-      <FlatList
-        data={filteredBatches}
-        renderItem={({ item }) => (
-          <BatchCard
-            batch={item}
-            onPress={() =>
-              navigation.navigate("ProductDetailReviews", { batchId: item.id, farmId: item.season?.farmId || "" })
-            }
-            onEdit={() => navigation.navigate("LotDetail", { lotId: item.id })}
-            onDelete={() => handleDelete(item.id)}
-            onLogCareEvent={() => handleLogCareEvent(item)}
-            onViewReviews={() => handleViewReviews(item)}
-          />
-        )}
-        keyExtractor={(item) => item.id}
-        numColumns={2}
-        columnWrapperStyle={{ justifyContent: "space-between", paddingHorizontal: 16 }}
-        contentContainerStyle={{
-          paddingBottom: Platform.OS === "ios" ? 120 : 120,
-          paddingTop: 8,
-        }}
-        ListHeaderComponent={
-          <FarmerProductsHeader
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            categories={categories || []}
-            selectedCategory={selectedCategory}
-            setSelectedCategory={setSelectedCategory}
-          />
-        }
-        ListEmptyComponent={
-          !isLoading ? (
-            <View className="items-center justify-center py-20">
-              <View className="bg-gray-100 p-4 rounded-full mb-4">
-                <Search size={32} color="#9CA3AF" />
+      <View className="flex-1">
+        <FlatList
+          data={filteredBatches}
+          renderItem={({ item }) => (
+            <BatchCard
+              batch={item}
+              onPress={() =>
+                navigation.navigate("ProductDetailReviews", { batchId: item.id, farmId: item.season?.farmId || "" })
+              }
+              onEdit={() => navigation.navigate("LotDetail", { lotId: item.id })}
+              onDelete={() => handleDelete(item.id)}
+              onLogCareEvent={() => handleLogCareEvent(item)}
+              onViewReviews={() => handleViewReviews(item)}
+            />
+          )}
+          keyExtractor={(item) => item.id}
+          numColumns={2}
+          columnWrapperStyle={{ justifyContent: "space-between", paddingHorizontal: 16 }}
+          contentContainerStyle={{
+            paddingBottom: Platform.OS === "ios" ? 120 : 120,
+            paddingTop: 8,
+          }}
+          ListHeaderComponent={
+            <FarmerProductsHeader
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              categories={categories || []}
+              selectedCategory={selectedCategory}
+              setSelectedCategory={setSelectedCategory}
+            />
+          }
+          ListEmptyComponent={
+            !isLoading ? (
+              <View className="items-center justify-center py-20">
+                <View className="bg-gray-100 p-4 rounded-full mb-4">
+                  <Search size={32} color="#9CA3AF" />
+                </View>
+                <Text className="text-gray-500 text-base font-medium">No batches found</Text>
+                <Text className="text-gray-400 text-sm mt-1">Try adjusting your search or filters</Text>
               </View>
-              <Text className="text-gray-500 text-base font-medium">No batches found</Text>
-              <Text className="text-gray-400 text-sm mt-1">Try adjusting your search or filters</Text>
-            </View>
-          ) : null
-        }
-        showsVerticalScrollIndicator={false}
-      />
+            ) : null
+          }
+          showsVerticalScrollIndicator={false}
+        />
 
-      {/* Floating Action Button */}
-      <View className="absolute bottom-6 right-6 shadow-lg shadow-green-900/20">
-        <TouchableOpacity
-          onPress={onAddBatch}
-          className="bg-green-600 w-14 h-14 rounded-full items-center justify-center"
-          style={{ elevation: 6 }}
-        >
-          <Plus size={28} color="white" strokeWidth={2.5} />
-        </TouchableOpacity>
+        {/* Floating Action Button */}
+        <View className="absolute right-6 shadow-lg shadow-green-900/20" style={{ bottom: 126, zIndex: 999 }}>
+          <TouchableOpacity
+            onPress={onAddBatch}
+            className="bg-green-600 w-14 h-14 rounded-full items-center justify-center"
+            style={{ elevation: 6 }}
+          >
+            <Plus size={28} color="white" strokeWidth={2.5} />
+          </TouchableOpacity>
+        </View>
       </View>
     </SafeAreaView>
   )

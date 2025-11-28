@@ -11,6 +11,7 @@ import { SafeAreaView } from "react-native-safe-area-context"
 import { useFarmDashboardData } from "@/hooks/useFarmDashboardData"
 
 import { FarmDashboardSkeleton } from "@/components/skeletons/FarmDashboardSkeleton"
+import { useEffect } from "react"
 
 interface DashboardData {
   userName: string
@@ -92,7 +93,7 @@ export function FarmDashboard({ dashboardData }: FarmDashboardProps) {
     },
   ]
 
-  const { dashboardData: fetchedData, isLoading } = useFarmDashboardData();
+  const { dashboardData: fetchedData, farmer, isLoading } = useFarmDashboardData();
 
   if (isLoading && !dashboardData) {
     return <FarmDashboardSkeleton />;
@@ -112,8 +113,8 @@ export function FarmDashboard({ dashboardData }: FarmDashboardProps) {
       >
         <DashboardHeader />
         <IntroSection
-          userName={fetchedData?.userName || 'Farmer'}
-          userImageUrl={fetchedData?.userImageUrl || 'https://via.placeholder.com/150'}
+          userName={farmer?.fullname || 'Farmer'}
+          userImageUrl={farmer?.avatarUrl || 'https://via.placeholder.com/150'}
           earningsAmount={fetchedData?.earningsAmount || '$0'}
           earningsPeriod={fetchedData?.earningsPeriod || '0%'}
         />

@@ -8,9 +8,6 @@ interface UserData {
     phone: string;
     location: string;
     avatar: string;
-    joinDate: string;
-    rating: number;
-    totalOrders: number;
 }
 
 interface ProfileCardProps {
@@ -29,34 +26,10 @@ export function ProfileCard({ userData, onEditProfile }: ProfileCardProps) {
                             source={{ uri: userData?.avatar || "" }}
                             className="h-24 w-24 rounded-full border-4 border-white shadow-lg"
                         />
-                        <TouchableOpacity className="absolute bottom-0 right-0 rounded-full bg-[#4CAF50] p-2 shadow-md">
-                            <Camera size={16} color="white" />
-                        </TouchableOpacity>
                     </View>
 
                     <Text className="mt-4 text-2xl font-bold text-gray-900">{userData?.name}</Text>
                     <Text className="text-gray-600">{userData?.email}</Text>
-
-                    {/* Stats */}
-                    <View className="mt-4 flex-row items-center space-x-6">
-                        <View className="items-center mx-2">
-                            <View className="flex-row items-center">
-                                <Star size={16} color="#F59E0B" />
-                                <Text className="ml-1 text-lg font-semibold text-gray-900">{userData?.rating}</Text>
-                            </View>
-                            <Text className="text-sm text-gray-600">Rating</Text>
-                        </View>
-                        <View className="h-8 w-px bg-gray-200" />
-                        <View className="items-center mx-2">
-                            <Text className="text-lg font-semibold text-gray-900">{userData?.totalOrders}</Text>
-                            <Text className="text-sm text-gray-600">Orders</Text>
-                        </View>
-                        <View className="h-8 w-px bg-gray-200" />
-                        <View className="items-center mx-2">
-                            <Text className="text-lg font-semibold text-gray-900">{userData?.joinDate}</Text>
-                            <Text className="text-sm text-gray-600">Joined</Text>
-                        </View>
-                    </View>
                 </View>
 
                 {/* Edit Profile Button */}

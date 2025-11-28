@@ -34,7 +34,6 @@ export function OrderCard({ order }: OrderCardProps) {
   }
 
   const status = getStatus(order.orderStatus)
-  const productNames = order.orderItems?.map(item => item.batch?.season?.product?.productName || "Product").slice(0, 3) || []
   const additionalProducts = (order.orderItems?.length || 0) > 3 ? (order.orderItems?.length || 0) - 3 : 0
 
   const { mutate: updateStatus } = useUpdateOrderStatus()
@@ -58,12 +57,12 @@ export function OrderCard({ order }: OrderCardProps) {
         <View className="flex-row justify-between items-center mb-3">
           <View>
             <Text className="text-[#2D2D2D] font-semibold text-sm">{order.orderCode}</Text>
-            <Text className="text-[#5C5C5C] text-xs">{order.customer?.fullName || "Customer"}</Text>
+            <Text className="text-[#5C5C5C] text-xs">{order.customer?.fullname || "Customer"}</Text>
           </View>
           <Text className="text-base font-bold text-[#2D2D2D]">${order.totalPrice}</Text>
         </View>
 
-        <OrderProducts products={productNames} additionalProducts={additionalProducts} />
+        <OrderProducts products={order.orderItems || []} additionalProducts={additionalProducts} />
 
         {/* <OrderMetadata
           message={order.message}

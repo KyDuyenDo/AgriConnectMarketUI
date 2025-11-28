@@ -27,11 +27,11 @@ const apiClient = axios.create({
 
 apiClient.interceptors.response.use(
     response => {
-        console.log("response", response);
+        console.log(JSON.stringify(response, null, 2));
         return response;
     },
     error => {
-        console.dir(error.response, { depth: null });
+        //console.dir(error.response, { depth: null });
         if (error.response && error.response.status === 400 && error.response.data.message === "User not authenticated!") {
             useAuthStore.getState().logout();
         }

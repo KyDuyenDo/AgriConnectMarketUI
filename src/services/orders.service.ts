@@ -5,10 +5,10 @@ export const ordersService = {
     getFarmOrders: async (farmId: string) => {
         const response = await apiClient.get<any>(`/api/orders/farm/${farmId}`);
         // The backend might return a wrapped Result object { isSuccess: true, value: [...] }
-        if (response.data.data && 'value' in response.data.data) {
-            return response.data.data.value;
+        if (response.data.success === true) {
+            return response.data.data;
         }
-        return response.data.data;
+        return [];
     },
 
     getOrderDetail: async (orderId: string) => {

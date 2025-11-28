@@ -13,12 +13,8 @@ export const useToggleFavoriteFarm = () => {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: async ({ farmId, isFavorite }: { farmId: string; isFavorite: boolean }) => {
-            if (isFavorite) {
-                return favoriteFarmService.removeFavoriteFarm(farmId);
-            } else {
-                return favoriteFarmService.addFavoriteFarm(farmId);
-            }
+        mutationFn: async ({ farmId }: { farmId: string }) => {
+            return favoriteFarmService.toggleFavoriteFarm(farmId);
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['favorite-farms'] });
