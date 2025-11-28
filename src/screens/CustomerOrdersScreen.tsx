@@ -2,7 +2,7 @@
 import React, { useMemo, useState } from 'react';
 import { View, Text, Pressable, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import OrderCard, { Order } from '../components/customer-orders/OrderCard';
-import { Search, Filter, ChevronLeft } from 'lucide-react-native';
+import { Search, Filter, ChevronLeft, ShoppingBagIcon } from 'lucide-react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { useMyOrders } from '@/hooks/useMyOrders';
@@ -140,7 +140,13 @@ const CustomerOrdersScreen: React.FC<Props> = ({ route, navigation }) => {
           ))
         )}
         {!isLoading && filteredOrders.length === 0 && (
-          <Text className="text-center text-gray-500 mt-10">No orders found.</Text>
+          <View className="bg-white rounded-2xl p-4 shadow-sm shadow-gray-100">
+            <View className="items-center py-8">
+              <ShoppingBagIcon color="#9ca3af" size={40} />
+              <Text className="text-sm font-medium text-[#6B737A] mt-3">No orders found</Text>
+              <Text className="text-xs text-[#9ca3af] mt-1 text-center">You have no orders yet</Text>
+            </View>
+          </View>
         )}
       </ScrollView>
     </SafeAreaView>
