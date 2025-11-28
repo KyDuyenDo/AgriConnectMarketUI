@@ -18,8 +18,8 @@ export const BatchList: React.FC<BatchListProps> = ({ batches, onBatchPress }) =
     }
 
     return (
-        <View className="bg-white border-t border-b border-gray-200">
-            <View className="py-3 bg-gray-50 border-b border-gray-200">
+        <View className="">
+            <View className="py-3">
                 <Text className="text-sm font-bold text-gray-500 uppercase tracking-wider">
                     Batches ({batches.length})
                 </Text>

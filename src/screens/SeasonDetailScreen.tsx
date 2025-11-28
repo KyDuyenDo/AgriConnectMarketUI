@@ -141,18 +141,19 @@ export default function SeasonDetailScreen() {
 
                 {/* Batch List */}
                 <View>
-                    <View className='flex flex-row justify-between items-center my-4'>
-                        <Text className='text-lg font-bold text-gray-900'>Batch List</Text>
+                    <View className='flex-1'>
                         {/* Add lot */}
-                        <TouchableOpacity
-                            onPress={() => navigation.navigate('AddLot', {
+                        <View className="mb-4">
+                            <TouchableOpacity onPress={() => navigation.navigate('AddLot', {
                                 seasonId,
                                 seasonName: season.seasonName
-                            })}
-                            className="bg-green-500 w-8 h-8 rounded-full items-center justify-center"
-                        >
-                            <Plus size={20} color="white" />
-                        </TouchableOpacity>
+                            })} className="bg-[#4CAF50] flex-row justify-center items-center py-3 rounded-xl w-full">
+                                <View className="mr-2">
+                                    <Plus size={18} color="#FFFFFF" />
+                                </View>
+                                <Text className="text-white text-sm font-semibold">Add batch</Text>
+                            </TouchableOpacity>
+                        </View>
                     </View>
                     <BatchList
                         batches={batches || []}
