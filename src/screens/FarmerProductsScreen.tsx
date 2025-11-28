@@ -24,6 +24,7 @@ import { useAuthStore } from "@/stores/auth"
 import { FarmerProductsScreenSkeleton } from "@/components/skeletons/FarmerProductsScreenSkeleton"
 import { CategorySelector } from "@/components/CategorySelector"
 import { useCategories } from "@/hooks/useCategories"
+import { useFarmByMe } from "@/hooks/useFarm"
 
 type Nav = NativeStackNavigationProp<FarmStackParamList>
 
@@ -248,12 +249,14 @@ export const FarmerProductsScreen = () => {
   const navigation = useNavigation<Nav>()
   const { accountId } = useAuthStore()
   const { data: batches, isLoading } = useAllBatches(accountId || undefined, { enabled: !!accountId })
+  const { data: farmer, isLoading: isLoadingFarmer } = useFarmByMe()
 
+  const farmId = farmer?.id
   const { data: categories } = useCategories()
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
 
-  if (isLoading) {
+  if (isLoading || isLoadingFarmer) {
     return <FarmerProductsScreenSkeleton />
   }
 
@@ -273,7 +276,7 @@ export const FarmerProductsScreen = () => {
     }) || []
 
   const onAddBatch = () => {
-    navigation.navigate("AddLot", {})
+    navigation.navigate("AddLot", { farmId })
   }
 
   const handleEdit = (batchId: string) => {
