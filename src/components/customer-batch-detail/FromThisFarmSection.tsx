@@ -1,17 +1,12 @@
 import React from "react";
 import { View, Text, ScrollView } from "react-native";
 import FarmItemCard from "./FarmItemCard";
+import { Batch } from "@/types";
 
-type Item = {
-  id: string;
-  name: string;
-  price: string;
-  image: string;
-};
 
 type Props = {
   title?: string;
-  items: Item[];
+  items: Batch[];
 };
 
 export default function FromThisFarmSection({ title = "From This Farm", items }: Props) {
@@ -23,9 +18,9 @@ export default function FromThisFarmSection({ title = "From This Farm", items }:
           {items.map((item) => (
             <FarmItemCard
               key={item.id}
-              name={item.name}
-              price={item.price}
-              image={item.image}
+              name={item.season?.product?.productName || ""}
+              price={item?.price?.toString() || ""}
+              image={item?.imagesUrl?.[0] || ""}
             />
           ))}
         </View>

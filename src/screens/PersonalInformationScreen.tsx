@@ -281,7 +281,7 @@ export default function PersonalInformationScreen() {
                 visible={isAddressModalVisible}
                 onClose={() => setIsAddressModalVisible(false)}
                 onSave={handleSaveAddress}
-                initialData={editingAddress}
+                initialData={editingAddress || undefined}
                 isSaving={createAddressMutation.isPending || updateAddressMutation.isPending}
             />
         </SafeAreaView>

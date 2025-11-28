@@ -1,6 +1,6 @@
 import { View, Text } from "react-native"
 import { OrderCard } from "@/components/ui/OrderCard"
-import { Order } from "@/screens/FarmDashboard"
+import { Order } from "@/types"
 
 export function RecentOrdersSection({ orders, onPressOrder }: { orders: Order[], onPressOrder?: (orderId: string) => void }) {
   return (
@@ -11,7 +11,21 @@ export function RecentOrdersSection({ orders, onPressOrder }: { orders: Order[],
       </View>
       <View style={{ backgroundColor: "#FFFFFF", padding: 16, borderRadius: 16, gap: 12 }}>
         {orders.map((order) => (
-          <OrderCard key={order.id} order={order} onPress={() => onPressOrder && onPressOrder(order.id.toString())} />
+          <OrderCard
+            key={order.id}
+            order={{
+              id: order.id,
+              name: "Order",
+              orderNumber: order.orderCode,
+              quantity: (order.orderItems?.length || 0) + " items",
+              price: "$" + order.totalPrice,
+              status: order.orderStatus,
+              statusColor: "#E8F5E9",
+              statusTextColor: "#2E7D32",
+              image: "https://via.placeholder.com/40"
+            }}
+            onPress={() => onPressOrder && onPressOrder(order.id.toString())}
+          />
         ))}
       </View>
     </View>

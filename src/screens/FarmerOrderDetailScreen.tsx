@@ -97,10 +97,6 @@ export function FarmerOrderDetailScreen() {
                     serviceFee={order.shippingFee.toFixed(2)}
                     total={(order.totalPrice + order.shippingFee).toFixed(2)}
                 />
-
-                {order.preOrder?.note && (
-                    <SpecialInstructions instructions={order.preOrder.note} />
-                )}
             </ScrollView>
 
             <OrderActions

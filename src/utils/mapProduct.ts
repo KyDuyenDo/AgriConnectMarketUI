@@ -16,12 +16,12 @@ const mapProductResponseToProduct = (response: ProductResponse, batch: string): 
     status: "In Stock",
     batch: batch,
     quantity: 0,
-    category: response.categoryId,
+    categoryId: response.categoryId,
     season: undefined,
   };
 };
 
-const mapBatchToProductCart = (id: string, batch: string, quantity: number ,price: string ): Product => {
+const mapBatchToProductCart = (id: string, batch: string, quantity: number, price: string): Product => {
   return {
     id: id,
     name: batch,
@@ -36,7 +36,7 @@ const mapBatchToProductCart = (id: string, batch: string, quantity: number ,pric
     status: "In Stock",
     batch: batch,
     quantity: quantity,
-    category: "",
+    categoryId: "",
     season: undefined,
   };
 };

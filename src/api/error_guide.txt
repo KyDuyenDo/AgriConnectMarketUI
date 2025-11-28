@@ -1,0 +1,102 @@
+Title: React Native ParagraphShadowNode / YogaLayout Crash - Fix Guide
+
+---
+
+Based on the stacktrace, this is NOT a JavaScript error. 
+This is a **native crash** in React Native Fabric (ParagraphShadowNode / YogaLayout) — the UI layout is causing the native crash.
+
+This is a common crash when:
+
+✅ Cause:
+
+Crash originates from:
+
+facebook::react::ParagraphShadowNode::updateStateIfNeeded
+facebook::react::YogaLayoutableShadowNode::layout
+ScrollViewShadowNode::layout
+
+This indicates that React Native is trying to layout a Text / Paragraph with invalid data or style. Common causes:
+
+1. Rendering a Text with children = null/undefined
+2. Text receiving an object instead of a string
+3. Passing numbers, booleans, etc. directly into <Text>
+4. Emojis or Unicode characters causing layout issues when wrapping
+5. Flex in ScrollView causing infinite layout
+6. A custom component with height = NaN or width = NaN
+7. Incorrect usage of numberOfLines, ellipsizeMode
+8. Nested <Text> inside Paragraph incorrectly
+
+---
+
+💥 Especially on Expo Go:
+
+Crash often happens when rendering Text like this:
+
+<Text>{someObject}</Text>
+<Text>{undefined}</Text>
+<Text>{null}</Text>
+
+Or when backend returns non-string data:
+
+<Text>{item.price}</Text>  // OK if number
+<Text>{item.details}</Text> // CRASH if details is an object
+
+---
+
+🧪 Quick debug (90% success rate):
+
+1. Comment out recently added UI parts — if crash disappears → layout is the cause.
+2. Log all data rendered in <Text>:
+
+console.log("review", JSON.stringify(review));
+
+3. Check all <Text> components for potential objects being passed.
+
+---
+
+⭐ Suggested Fixes:
+
+1. Ensure all Text children are strings:
+
+<Text>{String(value ?? "")}</Text>
+
+2. Do not pass objects into Text:
+
+Wrong:
+<Text>{item}</Text>
+
+Correct:
+<Text>{JSON.stringify(item)}</Text>
+
+3. Avoid using flex: 1 in child components inside ScrollView:
+
+Wrong:
+<ScrollView>
+  <View style={{ flex: 1 }}>
+
+4. If using Paragraph from react-native-renderer / latest Expo SDK, try downgrading or disabling Fabric:
+
+Add in app.json:
+
+{
+  "expo": {
+    "experiments": {
+      "reactNativeMetroConfig": false
+    }
+  }
+}
+
+Or:
+
+"reactNative": {
+  "fabricExperimental": false
+}
+
+---
+
+🔥 To fix precisely:
+
+You need to send the UI file where the crash occurs (or a screenshot / JSX snippet containing the Text/Paragraph causing the crash).  
+ParagraphShadowNode crash is always tied to a specific Text component.
+
+💬 Send the screen file you just edited → we can point out the exact fix.

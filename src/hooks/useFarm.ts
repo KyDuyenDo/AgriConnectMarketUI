@@ -21,6 +21,7 @@ export const useFarmById = (farmId: string) => {
         queryKey: FARM_QUERY_KEYS.detail(farmId),
         queryFn: () => FarmService.getFarmById(farmId),
         retry: false,
+        enabled: !!farmId,
     });
 }
 

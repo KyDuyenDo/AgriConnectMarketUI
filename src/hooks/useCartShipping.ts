@@ -1,9 +1,9 @@
 import { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { useCalculateGHTKShipping } from './GHTK/useCalculateGHTKShipping';
-import { extractFarmAddresses, CartItemResponse, Address } from '@/services/cart.service';
+import { extractFarmAddresses, CartItem, Address } from '@/services/cart.service';
 
 interface UseCartShippingParams {
-    cartItems: CartItemResponse[];
+    cartItems: CartItem[];
     selectedItemIds: string[];
     customerAddress?: Address | null;
 }

@@ -11,6 +11,7 @@ import { BottomActions } from '@/components/farmer-product-detail/BottomActions'
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { FarmStackParamList } from '@/navigation/types';
 import { useFarmReviews, useReplyFarmReview } from '@/hooks/useFarmReview';
+import { useBatchById } from '@/hooks/useBatches';
 import { useState } from 'react';
 
 
@@ -96,10 +97,10 @@ export function FarmerProductDetailReviewsScreen({ route, navigation }: Props) {
 
                 <ProductInfo
                     name={batch?.season?.product?.productName || 'Unknown Product'}
-                    farm={batch?.season?.farm?.farmName || 'My Farm'}
+                    farm={(batch?.season as any)?.farm?.farmName || 'My Farm'}
                     price={batch?.price.toString() || '0'}
                     unit={batch?.units || 'unit'}
-                    description={batch?.season?.description || ''}
+                    description={batch?.season?.seasonDesc || ''}
                 />
 
                 {/* SalesPerformance placeholder or real data if available */}
@@ -172,7 +173,3 @@ export function FarmerProductDetailReviewsScreen({ route, navigation }: Props) {
         </SafeAreaView>
     );
 }
-function useBatchById(batchId: string): { data: any; isLoading: any; } {
-    throw new Error('Function not implemented.');
-}
-

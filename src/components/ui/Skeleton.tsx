@@ -1,13 +1,5 @@
-import React, { useEffect } from 'react';
-import { ViewStyle, StyleProp, DimensionValue } from 'react-native';
-import Animated, {
-    useSharedValue,
-    useAnimatedStyle,
-    withRepeat,
-    withTiming,
-    withSequence,
-    Easing,
-} from 'react-native-reanimated';
+import React, { useEffect, useRef } from 'react';
+import { ViewStyle, StyleProp, DimensionValue, Animated, Easing } from 'react-native';
 
 interface SkeletonProps {
     width?: DimensionValue;
@@ -22,24 +14,26 @@ export const Skeleton: React.FC<SkeletonProps> = ({
     borderRadius = 8,
     style,
 }) => {
-    const opacity = useSharedValue(0.3);
+    const opacity = useRef(new Animated.Value(0.3)).current;
 
     useEffect(() => {
-        opacity.value = withRepeat(
-            withSequence(
-                withTiming(0.7, { duration: 1000, easing: Easing.inOut(Easing.ease) }),
-                withTiming(0.3, { duration: 1000, easing: Easing.inOut(Easing.ease) })
-            ),
-            -1,
-            true
-        );
-    }, []);
-
-    const animatedStyle = useAnimatedStyle(() => {
-        return {
-            opacity: opacity.value,
-        };
-    });
+        Animated.loop(
+            Animated.sequence([
+                Animated.timing(opacity, {
+                    toValue: 0.7,
+                    duration: 1000,
+                    easing: Easing.inOut(Easing.ease),
+                    useNativeDriver: true,
+                }),
+                Animated.timing(opacity, {
+                    toValue: 0.3,
+                    duration: 1000,
+                    easing: Easing.inOut(Easing.ease),
+                    useNativeDriver: true,
+                }),
+            ])
+        ).start();
+    }, [opacity]);
 
     return (
         <Animated.View
@@ -49,8 +43,8 @@ export const Skeleton: React.FC<SkeletonProps> = ({
                     height,
                     borderRadius,
                     backgroundColor: '#E0E0E0',
+                    opacity,
                 },
-                animatedStyle,
                 style,
             ]}
         />

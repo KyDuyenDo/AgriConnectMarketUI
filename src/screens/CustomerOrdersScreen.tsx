@@ -9,6 +9,8 @@ import { useMyOrders } from '@/hooks/useMyOrders';
 import { formatDate } from '@/utils/date';
 import { CustomerOrdersScreenSkeleton } from '@/components/skeletons/CustomerOrdersScreenSkeleton';
 
+
+
 const FILTERS = ['All Orders', 'Active', 'Delivered', 'Cancelled'] as const;
 type FilterType = (typeof FILTERS)[number];
 
@@ -21,10 +23,17 @@ const mapStatus = (status: string): Order['status'] => {
   return 'pending';
 };
 
-const CustomerOrdersScreen: React.FC = () => {
-  const [filter, setFilter] = useState<FilterType>('All Orders');
-  const navigation = useNavigation()
-  const { data: orders, isLoading } = useMyOrders();
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { CustomerStackParamList } from '@/navigation/CustomerNavigator';
+
+type Props = NativeStackScreenProps<CustomerStackParamList, 'CustomerOrders'>;
+
+const CustomerOrdersScreen: React.FC<Props> = ({ route, navigation }) => {
+  const { initialFilter } = route.params || {};
+  const [filter, setFilter] = useState<FilterType>((initialFilter as FilterType) || 'All Orders');
+
+  const { data: orders, isLoading: isLoadingOrders } = useMyOrders();
+  const isLoading = isLoadingOrders;
 
   const ordersData = useMemo(() => {
     if (!orders) return [];
@@ -60,7 +69,7 @@ const CustomerOrdersScreen: React.FC = () => {
       return ordersData.filter(o => o.status === 'delivered');
     }
     return ordersData.filter(o => o.status === 'cancelled');
-  }, [filter]);
+  }, [filter, ordersData]);
 
   return (
     <SafeAreaView className="flex-1 bg-[#F9FAF9]">

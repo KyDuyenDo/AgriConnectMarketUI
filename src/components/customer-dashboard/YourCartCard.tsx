@@ -10,6 +10,12 @@ interface YourCartCardProps {
 }
 
 export const YourCartCard: React.FC<YourCartCardProps> = ({ items, total, itemsCount, onCheckout }) => {
+  const handleCheckout = () => {
+    if (itemsCount > 0 && onCheckout) {
+      onCheckout()
+    }
+  }
+
   return (
     <View className="bg-white rounded-2xl p-4 shadow-sm shadow-gray-100">
       {/* Header */}
@@ -23,7 +29,10 @@ export const YourCartCard: React.FC<YourCartCardProps> = ({ items, total, itemsC
       {/* Cart Items */}
       <View className="mb-3">
         {items.map((item, index) => (
-          <View key={item.id} className={`flex-row items-center justify-between ${index !== items.length - 1 ? "mb-3" : ""}`}>
+          <View
+            key={item.id}
+            className={`flex-row items-center justify-between ${index !== items.length - 1 ? "mb-3" : ""}`}
+          >
             <View className="flex-row items-center">
               <Image
                 source={{ uri: item.image || "https://via.placeholder.com/40" }}
@@ -47,8 +56,14 @@ export const YourCartCard: React.FC<YourCartCardProps> = ({ items, total, itemsC
         </View>
 
         {/* Checkout Button */}
-        <TouchableOpacity className="w-full bg-[#4CAF50] rounded-xl py-3" onPress={onCheckout}>
-          <Text className="text-white font-semibold text-sm text-center">Checkout</Text>
+        <TouchableOpacity
+          className={`w-full rounded-xl py-3 ${itemsCount > 0 ? "bg-[#4CAF50]" : "bg-[#d1d5db] opacity-50"}`}
+          onPress={handleCheckout}
+          disabled={itemsCount === 0}
+        >
+          <Text className={`font-semibold text-sm text-center ${itemsCount > 0 ? "text-white" : "text-gray-500"}`}>
+            Checkout
+          </Text>
         </TouchableOpacity>
       </View>
     </View>

@@ -34,7 +34,7 @@ export function OrderCard({ order }: OrderCardProps) {
   }
 
   const status = getStatus(order.orderStatus)
-  const productNames = order.orderItems?.map(item => item.batch?.season?.product?.name || "Product").slice(0, 3) || []
+  const productNames = order.orderItems?.map(item => item.batch?.season?.product?.productName || "Product").slice(0, 3) || []
   const additionalProducts = (order.orderItems?.length || 0) > 3 ? (order.orderItems?.length || 0) - 3 : 0
 
   const { mutate: updateStatus } = useUpdateOrderStatus()
