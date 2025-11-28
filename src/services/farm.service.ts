@@ -1,6 +1,6 @@
 import apiClient from "@/api/config";
 import { Farm } from "@/types";
-import { FarmQuery, FarmResponse } from "@/types/farm";
+import { FarmQuery, FarmResponse, CreateFarmResponse, UpdateFarmResponse } from "@/types/farm";
 
 const FarmService = {
     getFarmByMe: async (): Promise<Farm> => {
@@ -8,22 +8,22 @@ const FarmService = {
         return response.data.data;
     },
 
-    createFarm: async (formData: FormData): Promise<Farm> => {
-        const response = await apiClient.post<Farm>("/api/farms", formData, {
+    createFarm: async (formData: FormData): Promise<CreateFarmResponse> => {
+        const response = await apiClient.post<{ data: CreateFarmResponse }>("/api/farms", formData, {
             headers: {
                 "Content-Type": "multipart/form-data",
             },
         });
-        return response.data;
+        return response.data.data;
     },
 
-    updateFarm: async (farmId: string, formData: FormData): Promise<Farm> => {
-        const response = await apiClient.put<Farm>(`/api/farms/${farmId}`, formData, {
+    updateFarm: async (farmId: string, formData: FormData): Promise<UpdateFarmResponse> => {
+        const response = await apiClient.put<{ data: UpdateFarmResponse }>(`/api/farms/${farmId}`, formData, {
             headers: {
                 "Content-Type": "multipart/form-data",
             },
         });
-        return response.data;
+        return response.data.data;
     },
 
     uploadCertificate: async (farmId: string, formData: FormData): Promise<void> => {

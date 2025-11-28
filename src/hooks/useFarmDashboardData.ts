@@ -3,12 +3,13 @@ import FarmService from "@/services/farm.service";
 import { ordersService } from "@/services/orders.service";
 import BatchService from "@/services/batches.service";
 import { useAuthStore } from "@/stores/auth";
-import { useMemo } from "react";
-import { Order } from "@/types"; // Import Order type
+import { useEffect, useMemo } from "react";
 import { useGetProfile } from "@/hooks/useProfile";
 
 export function useFarmDashboardData() {
     const { accountId } = useAuthStore();
+
+    const { data: farmer, isLoading: farmerLoading } = useGetProfile();
 
     const { data: farm, isLoading: isLoadingFarm } = useQuery({
         queryKey: ["my-farm"],
@@ -33,49 +34,69 @@ export function useFarmDashboardData() {
     const dashboardData = useMemo(() => {
         if (!farm) return null;
 
-        // Calculate Earnings (Sum of completed orders)
+        // Calculate Earnings
         const completedOrders = orders.filter(
-            (o: any) => o.orderStatus === "Delivered" || o.orderStatus === "Completed"
+            (o: any) =>
+                o.orderStatus === "Delivered" ||
+                o.orderStatus === "Completed"
         );
+
         const totalEarnings = completedOrders.reduce(
             (sum: number, order: any) => sum + (order.totalPrice || 0),
             0
         );
 
-        // Active Products (Batches with available quantity > 0)
+        // Active Batches
         const activeBatches = batches.filter((b) => b.availableQuantity > 0);
 
-        // New Orders (Pending or Processing)
+        // New Orders
         const newOrders = orders.filter(
-            (o: any) => o.orderStatus === "Pending" || o.orderStatus === "Processing"
+            (o: any) =>
+                o.orderStatus === "Pending" ||
+                o.orderStatus === "Processing"
         );
 
         return {
-            userName: farm.farmer?.profile?.fullname || farm?.farmName || "Farmer",
-            userImageUrl: farm.farmer?.profile?.avatarUrl || farm?.bannerUrl || "https://via.placeholder.com/150",
             earningsAmount: `$${totalEarnings.toLocaleString()}`,
             earningsPeriod: "",
             activeProductsCount: activeBatches.length,
             activeProductsTrend: "",
             newOrdersCount: newOrders.length,
             newOrdersTrend: "",
-            recentOrders: orders.slice(0, 5).map((order: any) => {
-                const orderItems = order.orderItems || [];
-                const firstItem = orderItems[0];
-                const totalQuantity = orderItems.reduce((sum: number, item: any) => sum + (item.quantity || 0), 0);
 
-                // Find batch details to get image and product name
+            recentOrders: orders.slice(0, 5).map((order: any) => {
+                const orderItems = order.orderItems?.flat() || [];
+                const firstItem = orderItems[0];
+
+                const totalQuantity = orderItems.reduce(
+                    (sum: number, item: any) => sum + (item.quantity || 0),
+                    0
+                );
+
                 const batchId = firstItem?.batchId;
                 const batch = batches.find((b: any) => b.id === batchId);
 
-                const productName = batch?.season?.product?.productName || order.orderCode || "Order";
-                const imageUrl = batch?.imagesUrl?.[0] || "https://via.placeholder.com/50";
+                // FIX: always have a product name
+                const productName =
+                    batch?.season?.product?.productName ||
+                    firstItem?.productName ||
+                    order.orderCode ||
+                    "Order";
+
+                // FIX: always have an image
+                const imageUrl =
+                    batch?.imagesUrl?.[0] ||
+                    firstItem?.imageUrl ||
+                    "https://picsum.photos/50";
 
                 return {
                     id: order.id.toString(),
                     name: productName,
-                    orderNumber: order.orderCode ? (order.orderCode.length > 20 ? order.orderCode.substring(0, 20) + '...' : order.orderCode) : "",
-                    quantity: `${totalQuantity} items`,
+                    orderNumber:
+                        order.orderCode?.length > 20
+                            ? order.orderCode.substring(0, 20) + "..."
+                            : order.orderCode,
+                    quantity: `${totalQuantity} ${batch?.units}`,
                     price: `$${order.totalPrice}`,
                     status: order.orderStatus,
                     statusColor: getStatusColor(order.orderStatus),
@@ -84,11 +105,16 @@ export function useFarmDashboardData() {
                 };
             }),
         };
-    }, [farm, orders, batches]);
+    }, [farm, orders, batches, farmer]);
 
     return {
         dashboardData,
-        isLoading: isLoadingFarm || isLoadingOrders || isLoadingBatches,
+        farmer,
+        isLoading:
+            isLoadingFarm ||
+            isLoadingOrders ||
+            isLoadingBatches ||
+            farmerLoading,
     };
 }
 

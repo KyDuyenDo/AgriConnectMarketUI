@@ -61,44 +61,73 @@ export const useCartShipping = ({
 
             if (addresses.length === 0) {
                 console.warn('⚠️ No farm addresses found');
-                setShippingFee(3.99);
+                setShippingFee(3.99); // Default fallback
                 return;
             }
 
-            const firstFarmAddress = addresses[0];
+            let totalFeeVND = 0;
+            let successfulCalculations = 0;
 
-            // Calculate metrics
-            const totalWeight = selectedItems.reduce((sum, item) => sum + (item.quantity * 500), 0);
-            const subtotal = selectedItems.reduce((sum, item) => sum + (item.itemPrice * item.quantity), 0);
+            // Calculate fee for each farm address
+            for (const farmAddress of addresses) {
+                // Filter items belonging to this farm
+                const farmItems = selectedItems.filter(item => {
+                    const addr = item.batch?.season?.farm?.address;
+                    return addr &&
+                        addr.province === farmAddress.province &&
+                        addr.district === farmAddress.district &&
+                        addr.ward === farmAddress.ward &&
+                        addr.detail === farmAddress.detail;
+                });
 
-            console.log('📦 Calculating GHTK fee:', {
-                from: firstFarmAddress.province,
-                to: customerAddress.province,
-                items: selectedItems.length,
-                weight: totalWeight
-            });
+                if (farmItems.length === 0) continue;
 
-            // Call GHTK API
-            const result = await calculateGHTKFee({
-                pick_province: firstFarmAddress.province,
-                pick_district: firstFarmAddress.district,
-                province: customerAddress.province,
-                district: customerAddress.district,
-                address: customerAddress.detail || '',
-                weight: totalWeight,
-                value: Math.round(subtotal * 24000),
-                transport: 'road',
-            });
+                // Calculate metrics for this farm's shipment
+                const farmWeight = farmItems.reduce((sum, item) => sum + (item.quantity * 500), 0);
+                const farmSubtotalUSD = farmItems.reduce((sum, item) => sum + (item.itemPrice * item.quantity), 0);
+                const farmValueVND = Math.round(farmSubtotalUSD * 24000);
 
-            if (result?.fee?.fee) {
-                const feeInUSD = result.fee.fee / 24000;
-                console.log(`✅ Fee: ${result.fee.fee} VND = $${feeInUSD.toFixed(2)}`);
-                setShippingFee(feeInUSD);
+                console.log(`📦 Calculating GHTK fee for farm in ${farmAddress.province}:`, {
+                    to: customerAddress.province,
+                    items: farmItems.length,
+                    weight: farmWeight,
+                    valueVND: farmValueVND
+                });
+
+                try {
+                    // Call GHTK API for this farm
+                    const result = await calculateGHTKFee({
+                        pick_province: farmAddress.province,
+                        pick_district: farmAddress.district,
+                        province: customerAddress.province,
+                        district: customerAddress.district,
+                        address: customerAddress.detail || '',
+                        weight: farmWeight,
+                        value: farmValueVND,
+                        transport: 'road',
+                    });
+
+                    if (result?.fee?.fee) {
+                        console.log(`✅ Fee for farm ${farmAddress.province}: ${result.fee.fee} VND`);
+                        totalFeeVND += result.fee.fee;
+                        successfulCalculations++;
+                    }
+                } catch (innerErr) {
+                    console.error(`❌ Failed to calculate for farm in ${farmAddress.province}:`, innerErr);
+                    totalFeeVND += 30000;
+                }
+            }
+
+            if (totalFeeVND > 0) {
+                const totalFeeUSD = Math.round((totalFeeVND / 24000) * 100) / 100; // round to 2 decimals
+                console.log(`💰 Total Shipping Fee: ${totalFeeVND} VND = $${totalFeeUSD.toFixed(2)}`);
+                setShippingFee(totalFeeUSD);
             } else {
                 setShippingFee(3.99);
             }
+
         } catch (err) {
-            console.error('❌ Calculation failed:', err);
+            console.error('❌ Global calculation error:', err);
             setShippingFee(3.99);
         } finally {
             isCalculatingRef.current = false;

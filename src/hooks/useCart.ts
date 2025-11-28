@@ -1,6 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import CartService, { AddToCartRequest, UpdateCartItemRequest } from "@/services/cart.service";
-import BatchService from "@/services/batches.service";
 
 export const CART_QUERY_KEYS = {
     cart: ["cart"] as const,

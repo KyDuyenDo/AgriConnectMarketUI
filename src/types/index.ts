@@ -352,3 +352,40 @@ export interface CareEvent {
 }
 
 export type DateTime = string // ISO 8601 format
+
+export interface CreateProductResponse {
+  productId: string
+  productName: string
+  productAttribute: string
+  productDesc?: string
+  category: Category
+}
+
+export interface UpdateProductResponse {
+  productId: string
+  productName: string
+  productAttribute: string
+  productDesc?: string
+  category: Category
+}
+
+export interface CreateProductBatchResponse {
+  batchId: string
+  batchCode: { value: string }
+  totalYield: number
+  availableQuantity: number
+  units: string
+  price: number
+  plantingDate: string
+  harvestDate: string
+  imagesUrl: string[]
+  seasonId: string
+  season: Season
+}
+
+export interface CreateCareEventResponse {
+  occurredAt: string
+  payload: string
+  eventType: CareEventType
+  batch: ProductBatch
+}

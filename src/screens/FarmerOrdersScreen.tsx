@@ -21,9 +21,6 @@ export function FarmerOrders() {
   const { data: farm, isLoading: isLoadingFarm } = useMyFarm()
   const { data: orders, isLoading: isLoadingOrders } = useFarmerOrders(farm?.id)
 
-  const { userId } = useAuthStore()
-
-
 
   const isLoading = isLoadingFarm || isLoadingOrders
 

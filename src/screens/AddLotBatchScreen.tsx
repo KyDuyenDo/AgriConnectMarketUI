@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, SafeAreaView, Alert } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { ChevronLeft } from 'lucide-react-native';
 import { useForm } from 'react-hook-form';
@@ -10,6 +10,7 @@ import { GrowingConditionsSection } from '../components/add-lot-batch/GrowingCon
 import { ActionButtonsSection } from '../components/add-lot-batch/ActionButtonsSection';
 import { CreateBatchRequest } from '@/types';
 import { useCreateBatch } from '@/hooks/useBatches';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const AddLotBatchScreen = () => {
     const navigation = useNavigation();

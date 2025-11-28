@@ -40,8 +40,9 @@ export default function AddBatchScreen() {
     const route = useRoute<AddBatchScreenRouteProp>();
     const preSelectedSeasonId = route.params?.seasonId;
     const preSelectedSeasonName = route.params?.seasonName;
+    const farmId = route.params?.farmId;
 
-    const { data: seasons, isLoading: isLoadingSeasons } = useSeasons();
+    const { data: seasons, isLoading: isLoadingSeasons } = useSeasons(farmId);
 
     if (isLoadingSeasons) {
         return <AddBatchScreenSkeleton />;

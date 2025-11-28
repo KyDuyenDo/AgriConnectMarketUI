@@ -1,5 +1,5 @@
 import apiClient from "@/api/config";
-import { ProductBatch } from "@/types";
+import { ProductBatch, CreateProductBatchResponse } from "@/types";
 
 const BatchService = {
     getAllBySeasonId: async (seasonId: string): Promise<ProductBatch[]> => {
@@ -26,8 +26,8 @@ const BatchService = {
         const response = await apiClient.get<{ data: ProductBatch }>(`/api/product-batches/${batchId}`);
         return response.data.data;
     },
-    create: async (data: FormData): Promise<ProductBatch> => {
-        const response = await apiClient.post<{ data: ProductBatch }>("/api/product-batches", data, {
+    create: async (data: FormData): Promise<CreateProductBatchResponse> => {
+        const response = await apiClient.post<{ data: CreateProductBatchResponse }>("/api/product-batches", data, {
             headers: {
                 "Content-Type": "multipart/form-data",
             },

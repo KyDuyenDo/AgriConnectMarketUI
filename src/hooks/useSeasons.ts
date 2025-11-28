@@ -14,7 +14,7 @@ export function useSeasons(farmId?: string, options: UseSeasonsOptions = {}) {
 
     const query = useQuery({
         queryKey: ['seasons', farmId],
-        queryFn: () => (farmId ? getSeasonsByFarm(farmId) : Promise.resolve([])),
+        queryFn: () => (farmId ? getSeasonsByFarm(farmId) : SeasonService.getAll()),
         enabled: !!farmId,
     });
 
@@ -73,6 +73,7 @@ export function useSeasons(farmId?: string, options: UseSeasonsOptions = {}) {
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createSeason } from '@/api/services/seasonService';
+import SeasonService from '@/services/seasons.service';
 
 export function useCreateSeason() {
     const queryClient = useQueryClient();
