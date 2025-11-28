@@ -10,15 +10,10 @@ interface IntroSectionProps {
 
 export function IntroSection({ userName, userImageUrl, earningsAmount, earningsPeriod }: IntroSectionProps) {
   return (
-    <View style={{
-      backgroundColor: "#FFFFFF",
-      padding: 24,
+    <View className="bg-white rounded-2xl shadow-sm border border-gray-100" style={{
+      backgroundColor: "#fff",
       borderRadius: 16,
-      shadowColor: "#000",
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.08,
-      shadowRadius: 8,
-      elevation: 3,
+      padding: 16,
       gap: 16
     }}>
       <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>

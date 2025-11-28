@@ -28,15 +28,7 @@ export function ReviewsSummary({ averageRating, totalReviews, breakdown }: Revie
 
     return (
         <View
-            className="p-4 rounded-[20px] mx-4 my-2"
-            style={{
-                backgroundColor: '#FFFFFF',
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.08,
-                shadowRadius: 8,
-                elevation: 3
-            }}
+            className="mx-4 mt-4 bg-white rounded-2xl p-5 shadow-sm border border-gray-100"
         >
             <Text className="text-lg font-semibold mb-4" style={{ color: '#1B1F24' }}>
                 Customer Reviews

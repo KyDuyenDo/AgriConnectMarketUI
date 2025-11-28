@@ -8,6 +8,7 @@ import {
     Alert,
     ActivityIndicator,
     Image,
+    StatusBar,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
@@ -44,9 +45,7 @@ export default function AddBatchScreen() {
 
     const { data: seasons, isLoading: isLoadingSeasons } = useSeasons(farmId);
 
-    if (isLoadingSeasons) {
-        return <AddBatchScreenSkeleton />;
-    }
+
     const { mutate: createBatch, isPending } = useCreateBatch();
     const [selectedImages, setSelectedImages] = useState<ImagePicker.ImagePickerAsset[]>([]);
 
@@ -122,239 +121,244 @@ export default function AddBatchScreen() {
         });
     };
 
+    if (isLoadingSeasons) {
+        return <AddBatchScreenSkeleton />;
+    }
+
     return (
-        <SafeAreaView className="flex-1 bg-white">
+        <SafeAreaView className="flex-1 bg-[#F7F8F7]">
+            <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+
             {/* Header */}
-            <View className="flex-row items-center px-4 py-3 border-b border-gray-100">
-                <TouchableOpacity onPress={() => navigation.goBack()} className="mr-3">
-                    <ChevronLeft size={24} color="#374151" />
+            <View className="px-6 py-4 flex-row items-center justify-between z-10 bg-white border-b border-gray-100">
+                <TouchableOpacity
+                    onPress={() => navigation.goBack()}
+                    className="flex-row items-center gap-2"
+                >
+                    <View className="w-5 h-5 items-center justify-center">
+                        <ChevronLeft size={20} color="#4CAF50" />
+                    </View>
+                    <Text className="text-[#4CAF50] font-semibold text-base">Back</Text>
                 </TouchableOpacity>
-                <Text className="text-lg font-bold text-gray-900">Add New Batch</Text>
+
+                <Text className="text-[#2d2d2d] text-xl font-semibold">Add New Batch</Text>
+                <View className="w-10" />
             </View>
 
-            <ScrollView className="flex-1 p-4">
-                {/* Season Selection */}
-                <View className="mb-4">
-                    <Text className="text-sm font-medium text-gray-700 mb-1">
-                        Season
-                    </Text>
-                    {preSelectedSeasonId && preSelectedSeasonName ? (
-                        <View>
-                            <TextInput
-                                className="w-full bg-gray-100 border border-gray-200 rounded-lg px-4 py-3 text-gray-900"
-                                value={preSelectedSeasonName}
-                                editable={false}
+            <ScrollView className="flex-1 p-4" showsVerticalScrollIndicator={false}>
+                <View className="bg-white rounded-2xl p-4 shadow-sm mb-4">
+                    <Text className="text-base font-semibold text-[#2d2d2d] mb-3">Batch Details</Text>
+
+                    {/* Season Selection */}
+                    <View className="mb-4">
+                        <Text className="text-sm font-medium text-[#5c5c5c] mb-2">Season</Text>
+                        {preSelectedSeasonId && preSelectedSeasonName ? (
+                            <View>
+                                <TextInput
+                                    className="bg-white border border-[#e8e8e8] rounded-xl px-4 py-3 text-sm text-[#2d2d2d]"
+                                    value={preSelectedSeasonName}
+                                    editable={false}
+                                />
+                                <Text className="text-xs text-[#5c5c5c] mt-1">
+                                    Pre-selected from season detail
+                                </Text>
+                            </View>
+                        ) : (
+                            <View>
+                                <View className="bg-white border border-[#e8e8e8] rounded-xl">
+                                    <Controller
+                                        control={control}
+                                        name="seasonId"
+                                        render={({ field: { onChange, value } }) => (
+                                            <Picker
+                                                selectedValue={value}
+                                                onValueChange={onChange}
+                                                enabled={!isLoadingSeasons}
+                                            >
+                                                <Picker.Item label="Select a season" value="" />
+                                                {seasons?.map((season) => (
+                                                    <Picker.Item
+                                                        key={season.id}
+                                                        label={season.seasonName}
+                                                        value={season.id}
+                                                    />
+                                                ))}
+                                            </Picker>
+                                        )}
+                                    />
+                                </View>
+                                {errors.seasonId && (
+                                    <Text className="text-red-500 text-xs mt-1">
+                                        {errors.seasonId.message}
+                                    </Text>
+                                )}
+                            </View>
+                        )}
+                    </View>
+
+                    {/* Yield Information */}
+                    <View className="flex-row gap-3 mb-4">
+                        <View className="flex-1">
+                            <Text className="text-sm font-medium text-[#5c5c5c] mb-2">Total Yield</Text>
+                            <Controller
+                                control={control}
+                                name="totalYield"
+                                render={({ field: { onChange, onBlur, value } }) => (
+                                    <TextInput
+                                        className="bg-white border border-[#e8e8e8] rounded-xl px-4 py-3 text-sm text-[#2d2d2d]"
+                                        placeholder="0"
+                                        keyboardType="numeric"
+                                        onBlur={onBlur}
+                                        onChangeText={onChange}
+                                        value={value?.toString()}
+                                    />
+                                )}
                             />
-                            <Text className="text-xs text-gray-500 mt-1">
-                                Pre-selected from season detail
-                            </Text>
+                            {errors.totalYield && (
+                                <Text className="text-red-500 text-xs mt-1">
+                                    {errors.totalYield.message}
+                                </Text>
+                            )}
                         </View>
-                    ) : (
-                        <View>
-                            <View className="bg-gray-50 border border-gray-200 rounded-lg">
+
+                        <View className="flex-1">
+                            <Text className="text-sm font-medium text-[#5c5c5c] mb-2">Available Qty</Text>
+                            <Controller
+                                control={control}
+                                name="availableQuantity"
+                                render={({ field: { onChange, onBlur, value } }) => (
+                                    <TextInput
+                                        className="bg-white border border-[#e8e8e8] rounded-xl px-4 py-3 text-sm text-[#2d2d2d]"
+                                        placeholder="0"
+                                        keyboardType="numeric"
+                                        onBlur={onBlur}
+                                        onChangeText={onChange}
+                                        value={value?.toString()}
+                                    />
+                                )}
+                            />
+                            {errors.availableQuantity && (
+                                <Text className="text-red-500 text-xs mt-1">
+                                    {errors.availableQuantity.message}
+                                </Text>
+                            )}
+                        </View>
+                    </View>
+
+                    {/* Price and Unit */}
+                    <View className="flex-row gap-3 mb-4">
+                        <View className="flex-1">
+                            <Text className="text-sm font-medium text-[#5c5c5c] mb-2">Price</Text>
+                            <Controller
+                                control={control}
+                                name="price"
+                                render={({ field: { onChange, onBlur, value } }) => (
+                                    <TextInput
+                                        className="bg-white border border-[#e8e8e8] rounded-xl px-4 py-3 text-sm text-[#2d2d2d]"
+                                        placeholder="0.00"
+                                        keyboardType="numeric"
+                                        onBlur={onBlur}
+                                        onChangeText={onChange}
+                                        value={value?.toString()}
+                                    />
+                                )}
+                            />
+                            {errors.price && (
+                                <Text className="text-red-500 text-xs mt-1">
+                                    {errors.price.message}
+                                </Text>
+                            )}
+                        </View>
+
+                        <View className="flex-1">
+                            <Text className="text-sm font-medium text-[#5c5c5c] mb-2">Unit</Text>
+                            <View className="bg-white border border-[#e8e8e8] rounded-xl">
                                 <Controller
                                     control={control}
-                                    name="seasonId"
+                                    name="units"
                                     render={({ field: { onChange, value } }) => (
                                         <Picker
                                             selectedValue={value}
                                             onValueChange={onChange}
-                                            enabled={!isLoadingSeasons}
                                         >
-                                            <Picker.Item label="Select a season" value="" />
-                                            {seasons?.map((season) => (
-                                                <Picker.Item
-                                                    key={season.id}
-                                                    label={season.seasonName}
-                                                    value={season.id}
-                                                />
-                                            ))}
+                                            <Picker.Item label="kg" value="kg" />
+                                            <Picker.Item label="lb" value="lb" />
+                                            <Picker.Item label="ton" value="ton" />
+                                            <Picker.Item label="box" value="box" />
                                         </Picker>
                                     )}
                                 />
                             </View>
-                            {errors.seasonId && (
+                            {errors.units && (
                                 <Text className="text-red-500 text-xs mt-1">
-                                    {errors.seasonId.message}
+                                    {errors.units.message}
                                 </Text>
                             )}
                         </View>
-                    )}
-                </View>
+                    </View>
 
-                {/* Batch Details */}
-                <View className="flex-row gap-4 mb-4">
-                    <View className="flex-1">
-                        <Text className="text-sm font-medium text-gray-700 mb-1">
-                            Total Yield
-                        </Text>
+                    {/* Planting Date */}
+                    <View className="mb-4">
+                        <Text className="text-sm font-medium text-[#5c5c5c] mb-2">Planting Date</Text>
                         <Controller
                             control={control}
-                            name="totalYield"
+                            name="plantingDate"
                             render={({ field: { onChange, onBlur, value } }) => (
                                 <TextInput
-                                    className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-gray-900"
-                                    placeholder="0"
-                                    keyboardType="numeric"
+                                    className="bg-white border border-[#e8e8e8] rounded-xl px-4 py-3 text-sm text-[#2d2d2d]"
+                                    placeholder="YYYY-MM-DD"
                                     onBlur={onBlur}
                                     onChangeText={onChange}
-                                    value={value?.toString()}
+                                    value={value}
                                 />
                             )}
                         />
-                        {errors.totalYield && (
+                        {errors.plantingDate && (
                             <Text className="text-red-500 text-xs mt-1">
-                                {errors.totalYield.message}
+                                {errors.plantingDate.message}
                             </Text>
                         )}
                     </View>
 
-                    <View className="flex-1">
-                        <Text className="text-sm font-medium text-gray-700 mb-1">
-                            Available Qty
-                        </Text>
-                        <Controller
-                            control={control}
-                            name="availableQuantity"
-                            render={({ field: { onChange, onBlur, value } }) => (
-                                <TextInput
-                                    className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-gray-900"
-                                    placeholder="0"
-                                    keyboardType="numeric"
-                                    onBlur={onBlur}
-                                    onChangeText={onChange}
-                                    value={value?.toString()}
-                                />
-                            )}
-                        />
-                        {errors.availableQuantity && (
-                            <Text className="text-red-500 text-xs mt-1">
-                                {errors.availableQuantity.message}
-                            </Text>
-                        )}
+                    {/* Batch Images */}
+                    <View className="mb-4">
+                        <Text className="text-sm font-medium text-[#5c5c5c] mb-2">Batch Images</Text>
+                        <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row">
+                            <View className="flex-row gap-3">
+                                {/* Add Photo Button */}
+                                <TouchableOpacity
+                                    onPress={pickImage}
+                                    className="w-24 h-24 bg-gray-50 border-2 border-dashed border-gray-300 rounded-xl justify-center items-center"
+                                >
+                                    <Camera size={24} color="#9CA3AF" />
+                                    <Text className="text-xs text-gray-400 mt-1">Add Photos</Text>
+                                </TouchableOpacity>
+
+                                {/* Selected Images */}
+                                {selectedImages.map((img, index) => (
+                                    <View key={index} className="w-24 h-24 relative">
+                                        <Image
+                                            source={{ uri: img.uri }}
+                                            className="w-full h-full rounded-xl"
+                                        />
+                                        <TouchableOpacity
+                                            onPress={() => removeImage(index)}
+                                            className="absolute -top-2 -right-2 bg-white rounded-full p-1 shadow-sm"
+                                        >
+                                            <X size={16} color="#FF0000" />
+                                        </TouchableOpacity>
+                                    </View>
+                                ))}
+                            </View>
+                        </ScrollView>
                     </View>
-                </View>
-
-                <View className="flex-row gap-4 mb-4">
-                    <View className="flex-1">
-                        <Text className="text-sm font-medium text-gray-700 mb-1">
-                            Price
-                        </Text>
-                        <Controller
-                            control={control}
-                            name="price"
-                            render={({ field: { onChange, onBlur, value } }) => (
-                                <TextInput
-                                    className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-gray-900"
-                                    placeholder="0.00"
-                                    keyboardType="numeric"
-                                    onBlur={onBlur}
-                                    onChangeText={onChange}
-                                    value={value?.toString()}
-                                />
-                            )}
-                        />
-                        {errors.price && (
-                            <Text className="text-red-500 text-xs mt-1">
-                                {errors.price.message}
-                            </Text>
-                        )}
-                    </View>
-
-                    <View className="flex-1">
-                        <Text className="text-sm font-medium text-gray-700 mb-1">
-                            Unit
-                        </Text>
-                        <View className="bg-gray-50 border border-gray-200 rounded-lg">
-                            <Controller
-                                control={control}
-                                name="units"
-                                render={({ field: { onChange, value } }) => (
-                                    <Picker
-                                        selectedValue={value}
-                                        onValueChange={onChange}
-                                    >
-                                        <Picker.Item label="kg" value="kg" />
-                                        <Picker.Item label="lb" value="lb" />
-                                        <Picker.Item label="ton" value="ton" />
-                                        <Picker.Item label="box" value="box" />
-                                    </Picker>
-                                )}
-                            />
-                        </View>
-                        {errors.units && (
-                            <Text className="text-red-500 text-xs mt-1">
-                                {errors.units.message}
-                            </Text>
-                        )}
-                    </View>
-                </View>
-
-                <View className="mb-6">
-                    <Text className="text-sm font-medium text-gray-700 mb-1">
-                        Planting Date
-                    </Text>
-                    <Controller
-                        control={control}
-                        name="plantingDate"
-                        render={({ field: { onChange, onBlur, value } }) => (
-                            <TextInput
-                                className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-gray-900"
-                                placeholder="YYYY-MM-DD"
-                                onBlur={onBlur}
-                                onChangeText={onChange}
-                                value={value}
-                            />
-                        )}
-                    />
-                    {errors.plantingDate && (
-                        <Text className="text-red-500 text-xs mt-1">
-                            {errors.plantingDate.message}
-                        </Text>
-                    )}
-                </View>
-
-                {/* Image Picker Section */}
-                <View className="mb-6">
-                    <Text className="text-sm font-medium text-gray-700 mb-2">
-                        Batch Images
-                    </Text>
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row">
-                        <View className="flex-row gap-3">
-                            {/* Add Photo Button */}
-                            <TouchableOpacity
-                                onPress={pickImage}
-                                className="w-24 h-24 bg-gray-50 border-2 border-dashed border-gray-300 rounded-xl justify-center items-center"
-                            >
-                                <Camera size={24} color="#9CA3AF" />
-                                <Text className="text-xs text-gray-400 mt-1">Add Photos</Text>
-                            </TouchableOpacity>
-
-                            {/* Selected Images */}
-                            {selectedImages.map((img, index) => (
-                                <View key={index} className="w-24 h-24 relative">
-                                    <Image
-                                        source={{ uri: img.uri }}
-                                        className="w-full h-full rounded-xl"
-                                    />
-                                    <TouchableOpacity
-                                        onPress={() => removeImage(index)}
-                                        className="absolute -top-2 -right-2 bg-white rounded-full p-1 shadow-sm"
-                                    >
-                                        <X size={16} color="#FF0000" />
-                                    </TouchableOpacity>
-                                </View>
-                            ))}
-                        </View>
-                    </ScrollView>
                 </View>
 
                 {/* Submit Button */}
                 <TouchableOpacity
                     onPress={handleSubmit(onSubmit)}
                     disabled={isPending}
-                    className={`w-full py-4 rounded-xl items-center ${isPending ? "bg-green-300" : "bg-green-600"
-                        }`}
+                    className={`w-full py-4 rounded-xl items-center mb-8 ${isPending ? "bg-green-300" : "bg-green-600"}`}
                 >
                     {isPending ? (
                         <ActivityIndicator color="white" />

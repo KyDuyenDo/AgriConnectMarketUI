@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Alert, StatusBar } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { ChevronLeft } from 'lucide-react-native';
 import { useForm } from 'react-hook-form';
@@ -64,25 +64,22 @@ const AddLotBatchScreen = () => {
     };
 
     return (
-        <SafeAreaView className="flex-1 bg-[#F9FAF9]">
+        <SafeAreaView className="flex-1 bg-[#F7F8F7]">
+            <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+
             {/* Header */}
-            <View className="bg-white px-6 py-4 flex-row justify-between items-center border-b border-[#F0F0F0]">
+            <View className="px-6 py-4 flex-row items-center justify-between z-10 bg-white border-b border-gray-100">
                 <TouchableOpacity
                     onPress={() => navigation.goBack()}
                     className="flex-row items-center gap-2"
                 >
-                    <View className="w-5 h-5 justify-center items-center">
+                    <View className="w-5 h-5 items-center justify-center">
                         <ChevronLeft size={20} color="#4CAF50" />
                     </View>
-                    <Text className="text-[#4CAF50] text-base font-semibold">Back</Text>
+                    <Text className="text-[#4CAF50] font-semibold text-base">Back</Text>
                 </TouchableOpacity>
 
-                <View className="items-center">
-                    <Text className="text-[#2D2D2D] text-base font-semibold">Add New Lot</Text>
-                    {/* <Text className="text-[#8A8A8A] text-xs">Summer 2024 - Tomatoes</Text> */}
-                </View>
-
-                {/* Spacer to balance the header */}
+                <Text className="text-[#2d2d2d] text-xl font-semibold">Add New Lot</Text>
                 <View className="w-10" />
             </View>
 

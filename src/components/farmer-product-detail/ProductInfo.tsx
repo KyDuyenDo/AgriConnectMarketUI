@@ -1,5 +1,5 @@
-import { View, Text, Pressable } from 'react-native';
-import { Sprout, Minus, Plus } from 'lucide-react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
+import { Sprout, Calendar, Tag, Layers, Package, Scale, ChevronDown, ChevronUp } from 'lucide-react-native';
 import { useState } from 'react';
 
 interface ProductInfoProps {
@@ -8,7 +8,13 @@ interface ProductInfoProps {
     price: string;
     unit: string;
     description: string;
-    initialQuantity?: number;
+    batchCode: string;
+    category: string;
+    season: string;
+    plantingDate: string;
+    harvestDate: string;
+    availableQuantity: number;
+    totalYield: number;
 }
 
 export function ProductInfo({
@@ -17,84 +23,103 @@ export function ProductInfo({
     price,
     unit,
     description,
-    initialQuantity = 2
+    batchCode,
+    category,
+    season,
+    plantingDate,
+    harvestDate,
+    availableQuantity,
+    totalYield
 }: ProductInfoProps) {
-    const [quantity, setQuantity] = useState(initialQuantity);
+    const [expanded, setExpanded] = useState(false);
 
-    const decreaseQuantity = () => {
-        if (quantity > 1) setQuantity(quantity - 1);
-    };
-
-    const increaseQuantity = () => {
-        setQuantity(quantity + 1);
-    };
+    const DetailItem = ({ icon: Icon, label, value }: { icon: any, label: string, value: string }) => (
+        <View className="flex-row items-center w-[48%] mb-4">
+            <View className="w-10 h-10 rounded-full bg-green-50 items-center justify-center mr-3">
+                <Icon size={20} color="#16A34A" />
+            </View>
+            <View className="flex-1">
+                <Text className="text-xs text-gray-500 font-medium mb-0.5">{label}</Text>
+                <Text className="text-sm text-gray-900 font-semibold" numberOfLines={1}>{value}</Text>
+            </View>
+        </View>
+    );
 
     return (
-        <View
-            className="p-4 rounded-[20px] my-0 mx-4 mt-4"
-            style={{
-                backgroundColor: '#FFFFFF',
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.08,
-                shadowRadius: 8,
-                elevation: 3,
-                marginBottom: 8
-            }}
-        >
-            {/* Title and Farm */}
-            <View className="mb-4">
-                <Text className="text-2xl font-semibold mb-2" style={{ color: '#1B1F24' }}>
-                    {name}
-                </Text>
-                <View className="flex-row items-center gap-2">
-                    <View className="w-4 h-4 items-center justify-center">
-                        <Sprout size={16} color="#4CAF50" />
+        <View className="mx-4 mt-4 bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+            {/* Header Section */}
+            <View className="mb-5 border-b border-gray-100 pb-5">
+                <View className="flex-row justify-between items-start mb-2">
+                    <View className="flex-1 mr-4">
+                        <Text className="text-sm font-bold text-green-600 tracking-wide uppercase mb-1">{farm}</Text>
+                        <Text className="text-2xl font-bold text-gray-900 leading-tight">{name}</Text>
                     </View>
-                    <Text className="text-sm" style={{ color: '#6B737A' }}>
-                        {farm}
-                    </Text>
+                    <View className="items-end">
+                        <Text className="text-2xl font-bold text-green-700">${price}</Text>
+                        <Text className="text-xs text-gray-500 font-medium">per {unit}</Text>
+                    </View>
                 </View>
             </View>
 
-            {/* Price and Quantity */}
-            <View className="flex-row justify-between items-center mb-4">
-                <View className="flex-row items-baseline">
-                    <Text className="text-2xl font-bold" style={{ color: '#4CAF50' }}>
-                        ${price}
-                    </Text>
-                    <Text className="text-base" style={{ color: '#6B737A' }}>
-                        /{unit}
-                    </Text>
-                </View>
-
-                <View className="flex-row items-center gap-3">
-                    <Pressable
-                        onPress={decreaseQuantity}
-                        className="w-10 h-10 items-center justify-center rounded-full border active:bg-[#F5F7F5]"
-                        style={{ borderColor: '#E8EAEB' }}
+            {/* Description Section */}
+            <View className="mb-6">
+                <Text className="text-sm font-bold text-gray-900 mb-2">About this product</Text>
+                <Text
+                    className="text-gray-600 leading-6 text-sm"
+                    numberOfLines={expanded ? undefined : 3}
+                >
+                    {description}
+                </Text>
+                {description.length > 150 && (
+                    <TouchableOpacity
+                        onPress={() => setExpanded(!expanded)}
+                        className="flex-row items-center mt-2"
                     >
-                        <Minus size={20} color="#6B737A" />
-                    </Pressable>
-
-                    <Text className="text-lg font-semibold text-center min-w-[32px]" style={{ color: '#1B1F24' }}>
-                        {quantity}
-                    </Text>
-
-                    <Pressable
-                        onPress={increaseQuantity}
-                        className="w-10 h-10 items-center justify-center rounded-full active:bg-[#43A047]"
-                        style={{ backgroundColor: '#4CAF50' }}
-                    >
-                        <Plus size={20} color="#FFFFFF" />
-                    </Pressable>
-                </View>
+                        <Text className="text-green-600 font-medium text-sm mr-1">
+                            {expanded ? 'Show less' : 'Read more'}
+                        </Text>
+                        {expanded ? (
+                            <ChevronUp size={16} color="#16A34A" />
+                        ) : (
+                            <ChevronDown size={16} color="#16A34A" />
+                        )}
+                    </TouchableOpacity>
+                )}
             </View>
 
-            {/* Description */}
-            <Text className="text-base" style={{ color: '#2F3941' }}>
-                {description}
-            </Text>
+            {/* Details Grid */}
+            <View className="flex-row flex-wrap justify-between">
+                <DetailItem
+                    icon={Package}
+                    label="Batch Code"
+                    value={batchCode}
+                />
+                <DetailItem
+                    icon={Tag}
+                    label="Category"
+                    value={category}
+                />
+                <DetailItem
+                    icon={Layers}
+                    label="Season"
+                    value={season}
+                />
+                <DetailItem
+                    icon={Scale}
+                    label="Stock"
+                    value={`${availableQuantity} / ${totalYield} ${unit}`}
+                />
+                <DetailItem
+                    icon={Sprout}
+                    label="Planted"
+                    value={new Date(plantingDate).toLocaleDateString()}
+                />
+                <DetailItem
+                    icon={Calendar}
+                    label="Harvested"
+                    value={new Date(harvestDate).toLocaleDateString()}
+                />
+            </View>
         </View>
     );
 }

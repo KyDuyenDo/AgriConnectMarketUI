@@ -27,11 +27,8 @@ export const CustomerFavoritesScreen = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-[#F9FAF9]">
-      <View className="px-4 py-3 flex-row items-center border-b border-gray-100 bg-white">
-        <TouchableOpacity onPress={() => navigation.goBack()} className="mr-3">
-          <ArrowLeft size={24} color="#1B1F24" />
-        </TouchableOpacity>
-        <Text className="text-lg font-semibold text-[#1B1F24]">My Favorite Farms</Text>
+      <View className="px-4 py-3 flex-row items-center">
+        <Text className="text-[20px] font-semibold">My Favorite Farms</Text>
       </View>
 
       <ScrollView className="flex-1 p-4" contentContainerStyle={{ paddingBottom: 20 }}>
@@ -54,6 +51,7 @@ export const CustomerFavoritesScreen = () => {
               <Text className="text-white font-semibold">Explore Farms</Text>
             </TouchableOpacity>
           </View>
+
         ) : (
           <View className="flex-row flex-wrap justify-between">
             {favoriteFarms?.map((favorite: any) => (

@@ -5,14 +5,14 @@ import { useAuthStore } from "@/stores/auth";
 
 export const getBackendURL = (): string => {
     if (Platform.OS === "web") {
-        return process.env.REACT_APP_API_BASE_URL || "http://192.168.230.90:5170";
+        return process.env.REACT_APP_API_BASE_URL || "http://192.168.1.6:5170";
     }
 
     if (Platform.OS === "ios") {
-        return "http://192.168.230.90:5170";
+        return "http://192.168.1.6:5170";
     }
 
-    return "http://192.168.230.90:5170";
+    return "http://192.168.1.6:5170";
 };
 
 const baseURL = getBackendURL();
@@ -27,7 +27,7 @@ const apiClient = axios.create({
 
 apiClient.interceptors.response.use(
     response => {
-        console.log(JSON.stringify(response, null, 2));
+        console.log(JSON.stringify(response.data, null, 2));
         return response;
     },
     error => {

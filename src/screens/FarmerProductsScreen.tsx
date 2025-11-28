@@ -88,25 +88,24 @@ const BatchCard = ({
   const stockBadge = getStockBadgeStyle(stockStatus)
   const unitColor = getStockUnitColor(stockStatus)
 
+  const productName = batch.season?.product?.productName || "Unknown Product"
+  const categoryName = batch.season?.product?.category?.categoryName || "Uncategorized"
+  const seasonName = batch.season?.seasonName || ""
+
   return (
     <View
-      className="bg-white rounded-2xl overflow-hidden mb-3 border border-gray-100"
+      className="bg-white rounded-2xl shadow-sm border border-gray-100"
       style={{
         width: "48%",
-        elevation: 2,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.05,
-        shadowRadius: 2,
       }}
     >
       {/* Product Image with Overlays */}
       <View className="relative">
         {imageUrl ? (
-          <Image source={{ uri: imageUrl }} className="w-full h-[130px]" style={{ objectFit: "cover" }} />
+          <Image source={{ uri: imageUrl }} className="w-full rounded-t-2xl h-[130px]" style={{ objectFit: "cover" }} />
         ) : (
           <View className="w-full h-[130px] bg-gray-50 items-center justify-center">
-            <Text className="text-gray-400 font-medium text-sm">{batchCode}</Text>
+            <Text className="text-gray-400 font-medium text-sm">{productName}</Text>
           </View>
         )}
 
@@ -115,42 +114,27 @@ const BatchCard = ({
           <Text className={`text-[10px] font-semibold ${stockBadge.text}`}>{stockStatus}</Text>
         </View>
 
-        {/* Star Favorite - Top Left */}
-        <TouchableOpacity
-          onPress={() => {
-            if (batch.season?.farmId) {
-              // @ts-ignore - navigation type issue
-              navigation.navigate("ProductDetailReviews", { batchId: batch.id, farmId: batch.season.farmId })
-            }
-          }}
-          className="absolute top-2 left-2 bg-white/90 rounded-full w-7 h-7 flex items-center justify-center shadow-sm"
-        >
-          <Star
-            size={14}
-            color={batch.isActive !== false ? "#F59E0B" : "#9CA3AF"}
-            fill={batch.isActive !== false ? "#F59E0B" : "none"}
-          />
-        </TouchableOpacity>
+        {/* Category Badge - Top Left (Replaces Star) */}
+        <View className="absolute top-2 left-2 bg-blue-100 py-1 px-2 rounded-full shadow-sm">
+          <Text className="text-[10px] font-semibold text-blue-700" numberOfLines={1}>
+            {categoryName}
+          </Text>
+        </View>
       </View>
 
       {/* Content */}
       <View className="p-3">
-        {/* Batch Code and Menu */}
-        <View className="flex-row justify-between items-start mb-1">
-          <Text className="text-sm font-bold text-gray-900 flex-1 mr-1" numberOfLines={1}>
-            {batchCode}
-          </Text>
-          <TouchableOpacity className="flex items-center justify-center w-5 h-5 -mr-1">
-            <MoreVertical size={16} color="#9CA3AF" />
-          </TouchableOpacity>
-        </View>
+        {/* Product Name */}
+        <Text className="text-sm font-bold text-gray-900 mb-0.5" numberOfLines={1}>
+          {productName}
+        </Text>
 
-        {/* Season */}
-        {batch.season && (
-          <Text className="text-[11px] text-gray-500 mb-2" numberOfLines={1}>
-            {batch.season.seasonName}
+        {/* Batch Code and Menu */}
+        <View className="flex-row justify-start items-center mb-1">
+          <Text className="text-xs text-gray-500 flex-1 mr-1" numberOfLines={1}>
+            {batchCode} • {seasonName}
           </Text>
-        )}
+        </View>
 
         {/* Price and Units */}
         <View className="flex-row justify-between items-end mb-3">

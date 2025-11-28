@@ -83,6 +83,7 @@ export const useHomeData = () => {
                 farmId: farm?.id || "",
                 price: batch.price,
                 unit: batch.units,
+                totalYield: batch.totalYield,
                 availableQuantity: batch.availableQuantity,
                 categoryName: category?.categoryName || "Uncategorized",
                 categoryId: category?.id || "",

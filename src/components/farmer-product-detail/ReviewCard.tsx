@@ -120,17 +120,17 @@ export function ReviewCard({
 
             {/* Reply Button */}
             {!farmerReply && onReply && (
-                <Pressable
-                    onPress={onReply}
-                    className="flex-row items-center gap-2 ml-4"
-                >
-                    <View className="w-4 h-4 items-center justify-center">
-                        <Reply size={16} color="#4CAF50" />
-                    </View>
-                    <Text className="text-sm font-medium" style={{ color: '#4CAF50' }}>
-                        Reply
-                    </Text>
-                </Pressable>
+                <View className="flex-row justify-end mt-2">
+                    <Pressable
+                        onPress={onReply}
+                        className="flex-row items-center gap-2 px-3 py-1.5 rounded-full bg-green-50 active:bg-green-100"
+                    >
+                        <Reply size={14} color="#4CAF50" />
+                        <Text className="text-xs font-medium text-green-600">
+                            Reply
+                        </Text>
+                    </Pressable>
+                </View>
             )}
         </View>
     );

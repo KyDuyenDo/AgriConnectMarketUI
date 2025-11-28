@@ -8,6 +8,7 @@ import {
     Image,
     Alert,
     ActivityIndicator,
+    StatusBar,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
@@ -92,99 +93,109 @@ export default function AddCategoryScreen() {
     };
 
     return (
-        <SafeAreaView className="flex-1 bg-white">
+        <SafeAreaView className="flex-1 bg-[#F7F8F7]">
+            <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+
             {/* Header */}
-            <View className="flex-row items-center px-4 py-3 border-b border-gray-100">
-                <TouchableOpacity onPress={() => navigation.goBack()} className="mr-3">
-                    <ChevronLeft size={24} color="#374151" />
+            <View className="px-6 py-4 flex-row items-center justify-between z-10 bg-white border-b border-gray-100">
+                <TouchableOpacity
+                    onPress={() => navigation.goBack()}
+                    className="flex-row items-center gap-2"
+                >
+                    <View className="w-5 h-5 items-center justify-center">
+                        <ChevronLeft size={20} color="#4CAF50" />
+                    </View>
+                    <Text className="text-[#4CAF50] font-semibold text-base">Back</Text>
                 </TouchableOpacity>
-                <Text className="text-lg font-bold text-gray-900">Add New Category</Text>
+
+                <Text className="text-[#2d2d2d] text-xl font-semibold">Add New Category</Text>
+                <View className="w-10" />
             </View>
 
-            <ScrollView className="flex-1 p-4">
-                {/* Image Picker */}
-                <Text className="text-sm font-medium text-gray-700 mb-2">
-                    Category Image
-                </Text>
-                <TouchableOpacity
-                    onPress={pickImage}
-                    className="w-full h-48 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300 items-center justify-center mb-6 overflow-hidden"
-                >
-                    {image ? (
-                        <>
-                            <Image source={{ uri: image }} className="w-full h-full" />
-                            <TouchableOpacity
-                                onPress={() => setImage(null)}
-                                className="absolute top-2 right-2 bg-black/50 p-1 rounded-full"
-                            >
-                                <X size={20} color="white" />
-                            </TouchableOpacity>
-                        </>
-                    ) : (
-                        <View className="items-center">
-                            <Upload size={32} color="#9CA3AF" />
-                            <Text className="text-gray-400 mt-2">Tap to upload image</Text>
-                        </View>
-                    )}
-                </TouchableOpacity>
+            <ScrollView className="flex-1 p-4" showsVerticalScrollIndicator={false}>
+                <View className="bg-white rounded-2xl p-4 shadow-sm mb-4">
+                    <Text className="text-base font-semibold text-[#2d2d2d] mb-3">Category Details</Text>
 
-                {/* Form Fields */}
-                <View className="mb-4">
-                    <Text className="text-sm font-medium text-gray-700 mb-1">
-                        Category Name
-                    </Text>
-                    <Controller
-                        control={control}
-                        name="CategortName"
-                        render={({ field: { onChange, onBlur, value } }) => (
-                            <TextInput
-                                className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-gray-900"
-                                placeholder="Enter category name"
-                                onBlur={onBlur}
-                                onChangeText={onChange}
-                                value={value}
-                            />
-                        )}
-                    />
-                    {errors.CategortName && (
-                        <Text className="text-red-500 text-xs mt-1">
-                            {errors.CategortName.message}
-                        </Text>
-                    )}
-                </View>
+                    {/* Image Picker */}
+                    <View className="mb-4">
+                        <Text className="text-sm font-medium text-[#5c5c5c] mb-2">Category Image</Text>
+                        <TouchableOpacity
+                            onPress={pickImage}
+                            className="w-full h-48 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300 items-center justify-center overflow-hidden"
+                        >
+                            {image ? (
+                                <>
+                                    <Image source={{ uri: image }} className="w-full h-full" />
+                                    <TouchableOpacity
+                                        onPress={() => setImage(null)}
+                                        className="absolute top-2 right-2 bg-black/50 p-1 rounded-full"
+                                    >
+                                        <X size={20} color="white" />
+                                    </TouchableOpacity>
+                                </>
+                            ) : (
+                                <View className="items-center">
+                                    <Upload size={32} color="#9CA3AF" />
+                                    <Text className="text-gray-400 mt-2">Tap to upload image</Text>
+                                </View>
+                            )}
+                        </TouchableOpacity>
+                    </View>
 
-                <View className="mb-6">
-                    <Text className="text-sm font-medium text-gray-700 mb-1">
-                        Description
-                    </Text>
-                    <Controller
-                        control={control}
-                        name="categoryDesc"
-                        render={({ field: { onChange, onBlur, value } }) => (
-                            <TextInput
-                                className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-gray-900 h-32"
-                                placeholder="Enter category description"
-                                multiline
-                                textAlignVertical="top"
-                                onBlur={onBlur}
-                                onChangeText={onChange}
-                                value={value}
-                            />
+                    {/* Category Name */}
+                    <View className="mb-4">
+                        <Text className="text-sm font-medium text-[#5c5c5c] mb-2">Category Name</Text>
+                        <Controller
+                            control={control}
+                            name="CategortName"
+                            render={({ field: { onChange, onBlur, value } }) => (
+                                <TextInput
+                                    className="bg-white border border-[#e8e8e8] rounded-xl px-4 py-3 text-sm text-[#2d2d2d]"
+                                    placeholder="e.g., Vegetables, Fruits"
+                                    onBlur={onBlur}
+                                    onChangeText={onChange}
+                                    value={value}
+                                />
+                            )}
+                        />
+                        {errors.CategortName && (
+                            <Text className="text-red-500 text-xs mt-1">
+                                {errors.CategortName.message}
+                            </Text>
                         )}
-                    />
-                    {errors.categoryDesc && (
-                        <Text className="text-red-500 text-xs mt-1">
-                            {errors.categoryDesc.message}
-                        </Text>
-                    )}
+                    </View>
+
+                    {/* Description */}
+                    <View className="mb-4">
+                        <Text className="text-sm font-medium text-[#5c5c5c] mb-2">Description</Text>
+                        <Controller
+                            control={control}
+                            name="categoryDesc"
+                            render={({ field: { onChange, onBlur, value } }) => (
+                                <TextInput
+                                    className="bg-white border border-[#e8e8e8] rounded-xl px-4 py-3 text-sm text-[#2d2d2d] h-24"
+                                    placeholder="Describe this category..."
+                                    multiline
+                                    textAlignVertical="top"
+                                    onBlur={onBlur}
+                                    onChangeText={onChange}
+                                    value={value}
+                                />
+                            )}
+                        />
+                        {errors.categoryDesc && (
+                            <Text className="text-red-500 text-xs mt-1">
+                                {errors.categoryDesc.message}
+                            </Text>
+                        )}
+                    </View>
                 </View>
 
                 {/* Submit Button */}
                 <TouchableOpacity
                     onPress={handleSubmit(onSubmit)}
                     disabled={isPending}
-                    className={`w-full py-4 rounded-xl items-center ${isPending ? "bg-green-300" : "bg-green-600"
-                        }`}
+                    className={`w-full py-4 rounded-xl items-center mb-8 ${isPending ? "bg-green-300" : "bg-green-600"}`}
                 >
                     {isPending ? (
                         <ActivityIndicator color="white" />

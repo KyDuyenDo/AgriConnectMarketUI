@@ -321,6 +321,7 @@ export interface UnifiedProduct {
   farmId: string
   price: number
   unit: string
+  totalYield: number
   availableQuantity: number
   categoryName: string
   categoryId: string

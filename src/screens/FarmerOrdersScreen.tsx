@@ -14,6 +14,7 @@ import { useCreateOrder } from "@/hooks/useOrders"
 import { useAuthStore } from "@/stores/auth"
 import { FarmerOrdersScreenSkeleton } from "@/components/skeletons/FarmerOrdersScreenSkeleton"
 import type { Order } from "@/types"
+import { ShoppingCart } from "lucide-react-native"
 
 export function FarmerOrders() {
   const [activeFilter, setActiveFilter] = useState("All Orders")
@@ -73,7 +74,15 @@ export function FarmerOrders() {
           <OrdersList orders={filteredOrders} />
         ) : (
           <View className="items-center justify-center py-12">
-            <Text className="text-gray-500 text-base">No orders found</Text>
+            <View className="px-4 w-full">
+              <View className="bg-white rounded-2xl p-4 shadow-sm shadow-gray-100">
+                <View className="items-center py-8">
+                  <ShoppingCart color="#9ca3af" size={40} />
+                  <Text className="text-sm font-medium text-[#6B737A] mt-3">No orders found</Text>
+                  <Text className="text-xs text-[#9ca3af] mt-1 text-center">Start receiving orders to see them here</Text>
+                </View>
+              </View>
+            </View>
           </View>
         )}
       </ScrollView>

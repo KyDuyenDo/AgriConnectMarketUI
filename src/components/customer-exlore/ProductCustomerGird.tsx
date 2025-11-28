@@ -49,7 +49,7 @@ export const ProductCustomerGrid: React.FC<ProductGridProps> = ({ searchQuery, p
           <View key={product.id} style={{ width: "48%" }}>
             <ProductCard
               product={product}
-              toggleFavorite={() => {}}
+              toggleFavorite={() => { }}
               onPress={() => navigation.navigate("BatchDetails", { batchId: product.id })}
               onAddToCart={() => handleAddToCart(product)}
             />

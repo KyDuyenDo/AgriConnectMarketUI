@@ -100,7 +100,14 @@ export function FarmerProductDetailReviewsScreen({ route, navigation }: Props) {
                     farm={(batch?.season as any)?.farm?.farmName || 'My Farm'}
                     price={batch?.price.toString() || '0'}
                     unit={batch?.units || 'unit'}
-                    description={batch?.season?.seasonDesc || ''}
+                    description={batch?.season?.product?.productDesc || ''}
+                    batchCode={(batch?.batchCode as any)?.value || 'N/A'}
+                    category={batch?.season?.product?.category?.categoryName || 'N/A'}
+                    season={batch?.season?.seasonName || 'N/A'}
+                    plantingDate={batch?.plantingDate || ''}
+                    harvestDate={batch?.harvestDate || ''}
+                    availableQuantity={batch?.availableQuantity || 0}
+                    totalYield={batch?.totalYield || 0}
                 />
 
                 {/* SalesPerformance placeholder or real data if available */}

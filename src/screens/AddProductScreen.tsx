@@ -7,6 +7,7 @@ import {
     ScrollView,
     Alert,
     ActivityIndicator,
+    StatusBar,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
@@ -54,131 +55,138 @@ export default function AddProductScreen() {
     };
 
     return (
-        <SafeAreaView className="flex-1 bg-white">
+        <SafeAreaView className="flex-1 bg-[#F7F8F7]">
+            <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+
             {/* Header */}
-            <View className="flex-row items-center px-4 py-3 border-b border-gray-100">
-                <TouchableOpacity onPress={() => navigation.goBack()} className="mr-3">
-                    <ChevronLeft size={24} color="#374151" />
+            <View className="px-6 py-4 flex-row items-center justify-between z-10 bg-white border-b border-gray-100">
+                <TouchableOpacity
+                    onPress={() => navigation.goBack()}
+                    className="flex-row items-center gap-2"
+                >
+                    <View className="w-5 h-5 items-center justify-center">
+                        <ChevronLeft size={20} color="#4CAF50" />
+                    </View>
+                    <Text className="text-[#4CAF50] font-semibold text-base">Back</Text>
                 </TouchableOpacity>
-                <Text className="text-lg font-bold text-gray-900">Add New Product</Text>
+
+                <Text className="text-[#2d2d2d] text-xl font-semibold">Add New Product</Text>
+                <View className="w-10" />
             </View>
 
-            <ScrollView className="flex-1 p-4">
-                {/* Category Selection */}
-                <View className="mb-4">
-                    <Text className="text-sm font-medium text-gray-700 mb-1">
-                        Category
-                    </Text>
-                    <View className="bg-gray-50 border border-gray-200 rounded-lg">
+            <ScrollView className="flex-1 p-4" showsVerticalScrollIndicator={false}>
+                <View className="bg-white rounded-2xl p-4 shadow-sm mb-4">
+                    <Text className="text-base font-semibold text-[#2d2d2d] mb-3">Product Details</Text>
+
+                    {/* Category Selection */}
+                    <View className="mb-4">
+                        <Text className="text-sm font-medium text-[#5c5c5c] mb-2">Category</Text>
+                        <View className="bg-white border border-[#e8e8e8] rounded-xl">
+                            <Controller
+                                control={control}
+                                name="categoryId"
+                                render={({ field: { onChange, value } }) => (
+                                    <Picker
+                                        selectedValue={value}
+                                        onValueChange={onChange}
+                                        enabled={!isLoadingCategories}
+                                    >
+                                        <Picker.Item label="Select a category" value="" />
+                                        {categories?.map((cat) => (
+                                            <Picker.Item
+                                                key={cat.id}
+                                                label={cat.categoryName}
+                                                value={cat.id}
+                                            />
+                                        ))}
+                                    </Picker>
+                                )}
+                            />
+                        </View>
+                        {errors.categoryId && (
+                            <Text className="text-red-500 text-xs mt-1">
+                                {errors.categoryId.message}
+                            </Text>
+                        )}
+                    </View>
+
+                    {/* Product Name */}
+                    <View className="mb-4">
+                        <Text className="text-sm font-medium text-[#5c5c5c] mb-2">Product Name</Text>
                         <Controller
                             control={control}
-                            name="categoryId"
-                            render={({ field: { onChange, value } }) => (
-                                <Picker
-                                    selectedValue={value}
-                                    onValueChange={onChange}
-                                    enabled={!isLoadingCategories}
-                                >
-                                    <Picker.Item label="Select a category" value="" />
-                                    {categories?.map((cat) => (
-                                        <Picker.Item
-                                            key={cat.id}
-                                            label={cat.categoryName}
-                                            value={cat.id}
-                                        />
-                                    ))}
-                                </Picker>
+                            name="productName"
+                            render={({ field: { onChange, onBlur, value } }) => (
+                                <TextInput
+                                    className="bg-white border border-[#e8e8e8] rounded-xl px-4 py-3 text-sm text-[#2d2d2d]"
+                                    placeholder="e.g., Tomato, Carrot"
+                                    onBlur={onBlur}
+                                    onChangeText={onChange}
+                                    value={value}
+                                />
                             )}
                         />
+                        {errors.productName && (
+                            <Text className="text-red-500 text-xs mt-1">
+                                {errors.productName.message}
+                            </Text>
+                        )}
                     </View>
-                    {errors.categoryId && (
-                        <Text className="text-red-500 text-xs mt-1">
-                            {errors.categoryId.message}
-                        </Text>
-                    )}
-                </View>
 
-                {/* Form Fields */}
-                <View className="mb-4">
-                    <Text className="text-sm font-medium text-gray-700 mb-1">
-                        Product Name
-                    </Text>
-                    <Controller
-                        control={control}
-                        name="productName"
-                        render={({ field: { onChange, onBlur, value } }) => (
-                            <TextInput
-                                className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-gray-900"
-                                placeholder="Enter product name"
-                                onBlur={onBlur}
-                                onChangeText={onChange}
-                                value={value}
-                            />
+                    {/* Product Attribute */}
+                    <View className="mb-4">
+                        <Text className="text-sm font-medium text-[#5c5c5c] mb-2">Attribute</Text>
+                        <Controller
+                            control={control}
+                            name="productAttribute"
+                            render={({ field: { onChange, onBlur, value } }) => (
+                                <TextInput
+                                    className="bg-white border border-[#e8e8e8] rounded-xl px-4 py-3 text-sm text-[#2d2d2d]"
+                                    placeholder="e.g., Organic, Premium"
+                                    onBlur={onBlur}
+                                    onChangeText={onChange}
+                                    value={value}
+                                />
+                            )}
+                        />
+                        {errors.productAttribute && (
+                            <Text className="text-red-500 text-xs mt-1">
+                                {errors.productAttribute.message}
+                            </Text>
                         )}
-                    />
-                    {errors.productName && (
-                        <Text className="text-red-500 text-xs mt-1">
-                            {errors.productName.message}
-                        </Text>
-                    )}
-                </View>
+                    </View>
 
-                <View className="mb-4">
-                    <Text className="text-sm font-medium text-gray-700 mb-1">
-                        Attribute (e.g., Organic, Premium)
-                    </Text>
-                    <Controller
-                        control={control}
-                        name="productAttribute"
-                        render={({ field: { onChange, onBlur, value } }) => (
-                            <TextInput
-                                className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-gray-900"
-                                placeholder="Enter product attribute"
-                                onBlur={onBlur}
-                                onChangeText={onChange}
-                                value={value}
-                            />
+                    {/* Description */}
+                    <View className="mb-4">
+                        <Text className="text-sm font-medium text-[#5c5c5c] mb-2">Description</Text>
+                        <Controller
+                            control={control}
+                            name="productDesc"
+                            render={({ field: { onChange, onBlur, value } }) => (
+                                <TextInput
+                                    className="bg-white border border-[#e8e8e8] rounded-xl px-4 py-3 text-sm text-[#2d2d2d] h-24"
+                                    placeholder="Describe the product..."
+                                    multiline
+                                    textAlignVertical="top"
+                                    onBlur={onBlur}
+                                    onChangeText={onChange}
+                                    value={value}
+                                />
+                            )}
+                        />
+                        {errors.productDesc && (
+                            <Text className="text-red-500 text-xs mt-1">
+                                {errors.productDesc.message}
+                            </Text>
                         )}
-                    />
-                    {errors.productAttribute && (
-                        <Text className="text-red-500 text-xs mt-1">
-                            {errors.productAttribute.message}
-                        </Text>
-                    )}
-                </View>
-
-                <View className="mb-6">
-                    <Text className="text-sm font-medium text-gray-700 mb-1">
-                        Description
-                    </Text>
-                    <Controller
-                        control={control}
-                        name="productDesc"
-                        render={({ field: { onChange, onBlur, value } }) => (
-                            <TextInput
-                                className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-gray-900 h-32"
-                                placeholder="Enter product description"
-                                multiline
-                                textAlignVertical="top"
-                                onBlur={onBlur}
-                                onChangeText={onChange}
-                                value={value}
-                            />
-                        )}
-                    />
-                    {errors.productDesc && (
-                        <Text className="text-red-500 text-xs mt-1">
-                            {errors.productDesc.message}
-                        </Text>
-                    )}
+                    </View>
                 </View>
 
                 {/* Submit Button */}
                 <TouchableOpacity
                     onPress={handleSubmit(onSubmit)}
                     disabled={isPending}
-                    className={`w-full py-4 rounded-xl items-center ${isPending ? "bg-green-300" : "bg-green-600"
-                        }`}
+                    className={`w-full py-4 rounded-xl items-center mb-8 ${isPending ? "bg-green-300" : "bg-green-600"}`}
                 >
                     {isPending ? (
                         <ActivityIndicator color="white" />

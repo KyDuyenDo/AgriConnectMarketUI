@@ -36,7 +36,7 @@ export const CustomerCartScreen: React.FC = () => {
   const defaultAddress = addresses?.find((addr) => addr.isDefault)
 
   // Show skeleton while loading
-  if (isLoading) 
+  if (isLoading)
     return <CustomerCartScreenSkeleton />
 
 
@@ -212,13 +212,6 @@ export const CustomerCartScreen: React.FC = () => {
       <View className="flex-1 bg-[#F9FAF9]">
         <SafeAreaView edges={["top"]} className="bg-[#F9FAF9]">
           <View className="h-[56px] flex-row items-center justify-between px-6">
-            <TouchableOpacity onPress={() => navigation.goBack()} className="flex-row items-center gap-2">
-              <View className="w-5 h-5 items-center justify-center">
-                <ChevronLeft size={20} color="#4CAF50" />
-              </View>
-              <Text className="text-base font-semibold text-[#4CAF50]">Back</Text>
-            </TouchableOpacity>
-
             <Text className="text-[20px] font-semibold text-[#2D2D2D]">Shopping Cart</Text>
 
             <View style={{ width: 80 }} />

@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { View, Text, ScrollView, TouchableOpacity, Alert } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useLoginForm } from "../hooks/useLoginForm"
@@ -14,8 +14,11 @@ import { useAuthStore } from "@/stores/auth"
 import { AuthParamList } from "@/navigation/AuthNavigator"
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { useNavigation } from "@react-navigation/native"
+import AsyncStorage from "@react-native-async-storage/async-storage"
 
 type Nav = NativeStackNavigationProp<AuthParamList>
+
+const REMEMBER_ME_KEY = "auth_remember_me"
 
 export default function LoginScreen() {
   const navigate = useNavigation<Nav>()
@@ -24,12 +27,47 @@ export default function LoginScreen() {
     handleSubmit,
     formState: { errors },
     watch,
+    setValue,
   } = useLoginForm()
   const [rememberMe, setRememberMe] = useState(false)
   const loginStore = useAuthStore((state) => state.login)
   const { mutateAsync: login, isPending: isLoginPending } = useLogin()
 
+  useEffect(() => {
+    const loadCredentials = async () => {
+      try {
+        const storedCredentials = await AsyncStorage.getItem(REMEMBER_ME_KEY)
+        if (storedCredentials) {
+          const { username, password } = JSON.parse(storedCredentials)
+          setValue("username", username)
+          setValue("password", password)
+          setRememberMe(true)
+        }
+      } catch (error) {
+        console.error("Failed to load credentials", error)
+      }
+    }
+    loadCredentials()
+  }, [setValue])
+
   const onSubmit = async (data: any) => {
+    if (rememberMe) {
+      try {
+        await AsyncStorage.setItem(
+          REMEMBER_ME_KEY,
+          JSON.stringify({ username: data.username, password: data.password })
+        )
+      } catch (error) {
+        console.error("Failed to save credentials", error)
+      }
+    } else {
+      try {
+        await AsyncStorage.removeItem(REMEMBER_ME_KEY)
+      } catch (error) {
+        console.error("Failed to remove credentials", error)
+      }
+    }
+
     login({
       Username: data.username,
       Password: data.password,
@@ -41,6 +79,7 @@ export default function LoginScreen() {
         },
         onError: (error) => {
           console.log("Error", error.message || "Login failed. Please try again.")
+          Alert.alert("Login failed", "Account not found")
         }
       }
     )

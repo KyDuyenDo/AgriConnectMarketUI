@@ -11,14 +11,7 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({ userName, profileImage, notificationCount }) => {
   return (
     <View
-      className="flex-row items-center justify-between px-6 py-3.5 h-14 bg-white border-b border-[#E8E8E8]"
-      style={{
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.04,
-        shadowRadius: 2,
-        elevation: 1,
-      }}
+      className="flex-row items-center justify-between px-6 py-3.5 h-14"
     >
       {/* Profile Section */}
       <View className="flex-row items-center">

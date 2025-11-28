@@ -43,28 +43,39 @@ const PriceSection = ({ price, unit, onPress }: { price: string; unit: string; o
 }
 
 export const ProductCard: React.FC<{ product: any; toggleFavorite: (id: string) => void; onPress?: () => void; onAddToCart?: () => void }> = ({ product, toggleFavorite, onPress, onAddToCart }) => {
-    // Determine badge info based on product status
-    const isOutOfStock = product.availableQuantity === 0;
-    const getBadgeInfo = () => {
-        if (isOutOfStock) {
-            return { text: "Out of Stock", bgColor: '#FEF5E7', textColor: '#F39C12' }
-        }
-        return { text: product.categoryName || "Fresh", bgColor: '#C8E6C9', textColor: '#2E7D32' }
-    }
 
-    const badge = getBadgeInfo()
+    console.log("product", product)
+    // Calculate stock status
+    const getStockStatus = (): "In Stock" | "Low Stock" | "Out of Stock" => {
+        if (!product.totalYield || product.totalYield === 0) return "Out of Stock";
+        const percentage = (product.availableQuantity / product.totalYield) * 100;
+        if (percentage === 0) return "Out of Stock";
+        if (percentage < 20) return "Low Stock";
+        return "In Stock";
+    };
+
+    const getStockBadgeStyle = (stock: string) => {
+        switch (stock) {
+            case "In Stock":
+                return { bg: "bg-green-100", text: "text-green-700" };
+            case "Low Stock":
+                return { bg: "bg-orange-100", text: "text-orange-700" };
+            case "Out of Stock":
+                return { bg: "bg-red-100", text: "text-red-700" };
+            default:
+                return { bg: "bg-green-100", text: "text-green-700" };
+        }
+    };
+
+    const stockStatus = getStockStatus();
+    const stockBadge = getStockBadgeStyle(stockStatus);
+    const isOutOfStock = stockStatus === "Out of Stock";
 
     return (
         <Pressable
             onPress={onPress}
-            className="overflow-hidden rounded-2xl mb-3"
+            className="bg-white rounded-2xl shadow-sm border border-gray-100 mb-3"
             style={{
-                backgroundColor: '#FFFFFF',
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.08,
-                shadowRadius: 8,
-                elevation: 3,
                 width: '100%'
             }}
         >
@@ -72,18 +83,20 @@ export const ProductCard: React.FC<{ product: any; toggleFavorite: (id: string) 
             <View className="relative" style={{ height: 120 }}>
                 <Image
                     source={{ uri: product.imageUrl || "https://via.placeholder.com/192" }}
-                    className="w-full h-full"
+                    className="w-full h-full rounded-t-2xl"
                     style={{ resizeMode: 'cover' }}
                 />
 
 
-                {/* Badge */}
-                <View
-                    className="absolute top-2 left-2 px-2 py-1 rounded-full"
-                    style={{ backgroundColor: badge.bgColor }}
-                >
-                    <Text className="text-[8px] font-medium" style={{ color: badge.textColor }}>
-                        {badge.text}
+                {/* Stock Badge - Top Right */}
+                <View className={`absolute top-2 right-2 flex-row items-center py-1 px-2 rounded-full ${stockBadge.bg}`}>
+                    <Text className={`text-[10px] font-semibold ${stockBadge.text}`}>{stockStatus}</Text>
+                </View>
+
+                {/* Category Badge - Top Left */}
+                <View className="absolute top-2 left-2 bg-blue-100 py-1 px-2 rounded-full">
+                    <Text className="text-[10px] font-semibold text-blue-700" numberOfLines={1}>
+                        {product.categoryName || "Fresh"}
                     </Text>
                 </View>
             </View>
@@ -113,9 +126,6 @@ export const ProductCard: React.FC<{ product: any; toggleFavorite: (id: string) 
                     unit={product.unit || "unit"}
                     onPress={isOutOfStock ? undefined : onAddToCart}
                 />
-                {isOutOfStock && (
-                    <Text className="text-[10px] text-red-500 mt-1">Out of Stock</Text>
-                )}
             </View>
         </Pressable>
     )

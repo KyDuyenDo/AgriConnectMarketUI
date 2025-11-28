@@ -16,16 +16,6 @@ const CustomerAllReviewsScreen = ({ route, navigation }: Props) => {
     const [selectedProduct, setSelectedProduct] = useState<string>('');
     const [selectedBatch, setSelectedBatch] = useState<string>('');
 
-    // Fetch all reviews first, then filter locally for better UX (or pass params if backend supports it efficiently)
-    // Since we updated the hook to accept filters, we can use that.
-    // However, for dynamic dropdowns (dependent filters), we need the full list or separate API calls.
-    // Given the requirement "Filter updates the list dynamically" and "Category dropdown -> Product dropdown (dependent)",
-    // it's easier to fetch all reviews and filter client-side if the dataset is not huge.
-    // But the plan said "Implement filtering logic... in getFarmReviews".
-    // Let's try to use the backend filtering for the *list*, but we need unique values for the dropdowns.
-    // Actually, fetching all reviews once and filtering client-side is much smoother for this UI.
-    // Let's stick to client-side filtering for now as it allows us to easily build the dropdown options.
-
     const { data: reviews, isLoading } = useFarmReviews(farmId);
 
     // Extract unique options for filters
@@ -41,7 +31,7 @@ const CustomerAllReviewsScreen = ({ route, navigation }: Props) => {
         if (selectedCategory) {
             filtered = filtered.filter(r => r.categoryName === selectedCategory);
         }
-        const unique = new Set(filtered.map(r => r.batchName)); // batchName is actually product name in DTO mapping
+        const unique = new Set(filtered.map(r => r.batchName));
         return Array.from(unique).filter(Boolean).sort();
     }, [reviews, selectedCategory]);
 
@@ -54,10 +44,6 @@ const CustomerAllReviewsScreen = ({ route, navigation }: Props) => {
         if (selectedProduct) {
             filtered = filtered.filter(r => r.batchName === selectedProduct);
         }
-        // We don't have a distinct "Batch Code" in the flat DTO, maybe use SeasonName or create a composite?
-        // The requirement says "Batch dropdown (dependent on product)".
-        // Let's use SeasonName as a proxy for Batch/Season differentiation if needed, or just skip if not distinct enough.
-        // DTO has `SeasonName`.
         const unique = new Set(filtered.map(r => r.seasonName));
         return Array.from(unique).filter(Boolean).sort();
     }, [reviews, selectedCategory, selectedProduct]);
@@ -87,52 +73,108 @@ const CustomerAllReviewsScreen = ({ route, navigation }: Props) => {
     return (
         <SafeAreaView className="flex-1 bg-[#F9FAF9]">
             {/* Header */}
-            <View className="flex-row items-center px-4 py-3 bg-white border-b border-gray-100">
+            <View className="flex-row items-center px-4 py-3 bg-white border-b border-gray-100 shadow-sm">
                 <TouchableOpacity onPress={() => navigation.goBack()} className="mr-3">
                     <Ionicons name="arrow-back" size={24} color="#374151" />
                 </TouchableOpacity>
                 <Text className="text-lg font-bold text-gray-800">All Reviews</Text>
+                {!isLoading && reviews && (
+                    <Text className="ml-auto text-sm text-gray-500">
+                        {filteredReviews.length} {filteredReviews.length === 1 ? 'review' : 'reviews'}
+                    </Text>
+                )}
             </View>
 
             {/* Filters */}
-            <View className="bg-white px-4 py-3 mb-2">
-                <Text className="text-sm font-semibold text-gray-700 mb-2">Filter Reviews</Text>
+            <View className="bg-white px-4 py-4 mb-2 shadow-sm">
+                <View className="flex-row items-center justify-between mb-3">
+                    <Text className="text-sm font-semibold text-gray-700">Filter Reviews</Text>
+                    {(selectedCategory || selectedProduct || selectedBatch) && (
+                        <TouchableOpacity
+                            onPress={() => {
+                                setSelectedCategory('');
+                                setSelectedProduct('');
+                                setSelectedBatch('');
+                            }}
+                            className="flex-row items-center"
+                        >
+                            <Ionicons name="close-circle" size={16} color="#EF4444" />
+                            <Text className="text-xs text-red-500 ml-1 font-medium">Clear All</Text>
+                        </TouchableOpacity>
+                    )}
+                </View>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row">
                     {/* Category Filter */}
-                    <View className="border border-gray-200 rounded-lg mr-2 bg-gray-50 h-10 justify-center min-w-[120px]">
+                    <View className="border border-gray-300 rounded-xl mr-3 bg-white overflow-hidden shadow-sm">
                         <Picker
                             selectedValue={selectedCategory}
                             onValueChange={handleCategoryChange}
-                            style={{ height: 40, width: 140 }}
+                            style={{
+                                height: 44,
+                                width: 150,
+                            }}
+                            itemStyle={{ fontSize: 14 }}
                         >
-                            <Picker.Item label="All Categories" value="" style={{ fontSize: 12 }} />
-                            {categories.map(c => <Picker.Item key={c} label={c} value={c} style={{ fontSize: 12 }} />)}
+                            <Picker.Item label="All Categories" value="" />
+                            {categories.map(c => (
+                                <Picker.Item
+                                    key={c}
+                                    label={c.length > 20 ? c.substring(0, 20) + '...' : c}
+                                    value={c}
+                                />
+                            ))}
                         </Picker>
                     </View>
 
                     {/* Product Filter */}
-                    <View className="border border-gray-200 rounded-lg mr-2 bg-gray-50 h-10 justify-center min-w-[120px]">
+                    <View
+                        className={`border border-gray-300 rounded-xl mr-3 overflow-hidden shadow-sm ${products.length > 0 ? 'bg-white' : 'bg-gray-100'
+                            }`}
+                    >
                         <Picker
                             selectedValue={selectedProduct}
                             onValueChange={handleProductChange}
                             enabled={products.length > 0}
-                            style={{ height: 40, width: 140 }}
+                            style={{
+                                height: 44,
+                                width: 150,
+                            }}
+                            itemStyle={{ fontSize: 14 }}
                         >
-                            <Picker.Item label="All Products" value="" style={{ fontSize: 12 }} />
-                            {products.map(p => <Picker.Item key={p} label={p} value={p} style={{ fontSize: 12 }} />)}
+                            <Picker.Item label="All Products" value="" />
+                            {products.map(p => (
+                                <Picker.Item
+                                    key={p}
+                                    label={p.length > 20 ? p.substring(0, 20) + '...' : p}
+                                    value={p}
+                                />
+                            ))}
                         </Picker>
                     </View>
 
                     {/* Batch/Season Filter */}
-                    <View className="border border-gray-200 rounded-lg mr-2 bg-gray-50 h-10 justify-center min-w-[120px]">
+                    <View
+                        className={`border border-gray-300 rounded-xl mr-3 overflow-hidden shadow-sm ${batches.length > 0 ? 'bg-white' : 'bg-gray-100'
+                            }`}
+                    >
                         <Picker
                             selectedValue={selectedBatch}
                             onValueChange={setSelectedBatch}
                             enabled={batches.length > 0}
-                            style={{ height: 40, width: 140 }}
+                            style={{
+                                height: 44,
+                                width: 150,
+                            }}
+                            itemStyle={{ fontSize: 14 }}
                         >
-                            <Picker.Item label="All Seasons" value="" style={{ fontSize: 12 }} />
-                            {batches.map(b => <Picker.Item key={b} label={b} value={b} style={{ fontSize: 12 }} />)}
+                            <Picker.Item label="All Seasons" value="" />
+                            {batches.map(b => (
+                                <Picker.Item
+                                    key={b}
+                                    label={b.length > 20 ? b.substring(0, 20) + '...' : b}
+                                    value={b}
+                                />
+                            ))}
                         </Picker>
                     </View>
                 </ScrollView>
@@ -152,7 +194,11 @@ const CustomerAllReviewsScreen = ({ route, navigation }: Props) => {
                     ) : (
                         <View className="items-center justify-center py-10">
                             <Ionicons name="chatbubble-outline" size={48} color="#9CA3AF" />
-                            <Text className="text-gray-500 mt-2">No reviews found matching your filters.</Text>
+                            <Text className="text-gray-500 mt-2 text-center px-4">
+                                {reviews && reviews.length > 0
+                                    ? 'No reviews found matching your filters.'
+                                    : 'No reviews available yet.'}
+                            </Text>
                         </View>
                     )}
                 </ScrollView>

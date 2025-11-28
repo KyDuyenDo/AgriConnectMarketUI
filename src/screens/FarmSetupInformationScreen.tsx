@@ -38,7 +38,7 @@ export function FarmSetupInformationScreen() {
             { label: "Select Province", value: "" },
             ...(Array.isArray(provinces) ? provinces : []).map((p) => ({
                 label: String(p?.name ?? ""),
-                value: String(p?.code ?? "")
+                value: String(p?.name ?? "")
             })),
         ],
         [provinces],
@@ -49,7 +49,7 @@ export function FarmSetupInformationScreen() {
             { label: formData.province ? "Select District" : "Select Province First", value: "" },
             ...(Array.isArray(districts) ? districts : []).map((d) => ({
                 label: String(d?.name ?? ""),
-                value: String(d?.code ?? "")
+                value: String(d?.name ?? "")
             })),
         ],
         [districts, formData.province],
@@ -60,7 +60,7 @@ export function FarmSetupInformationScreen() {
             { label: formData.district ? "Select Ward" : "Select District First", value: "" },
             ...(Array.isArray(wards) ? wards : []).map((w) => ({
                 label: String(w?.name ?? ""),
-                value: String(w?.code ?? "")
+                value: String(w?.name ?? "")
             })),
         ],
         [wards, formData.district],
@@ -146,44 +146,48 @@ export function FarmSetupInformationScreen() {
     }, [handleSubmit, navigation])
 
     const handleProvinceChange = useCallback(
-        (provinceCode: string) => {
-            updateField("province", provinceCode)
+        (provinceName: string) => {
+            updateField("province", provinceName)
             // Clear dependent fields
             updateField("district", "")
             updateField("ward", "")
             clearDistricts()
             clearWards()
-            // Fetch districts for the selected province
-            if (provinceCode) {
-                fetchDistricts(Number(provinceCode))
+
+            // Find province code to fetch districts
+            const selectedProvince = provinces.find(p => p.name === provinceName)
+            if (selectedProvince) {
+                fetchDistricts(selectedProvince.code)
             }
         },
-        [updateField, clearDistricts, clearWards, fetchDistricts],
+        [updateField, clearDistricts, clearWards, fetchDistricts, provinces],
     )
 
     const handleDistrictChange = useCallback(
-        (districtCode: string) => {
-            updateField("district", districtCode)
+        (districtName: string) => {
+            updateField("district", districtName)
             // Clear dependent fields
             updateField("ward", "")
             clearWards()
-            // Fetch wards for the selected district
-            if (districtCode) {
-                fetchWards(Number(districtCode))
+
+            // Find district code to fetch wards
+            const selectedDistrict = districts.find(d => d.name === districtName)
+            if (selectedDistrict) {
+                fetchWards(selectedDistrict.code)
             }
         },
-        [updateField, clearWards, fetchWards],
+        [updateField, clearWards, fetchWards, districts],
     )
 
     const handleWardChange = useCallback(
-        (wardCode: string) => {
-            updateField("ward", wardCode)
+        (wardName: string) => {
+            updateField("ward", wardName)
         },
         [updateField],
     )
 
     return (
-        <SafeAreaView className="flex-1" style={{ backgroundColor: "#F9FAF9" }}>
+        <SafeAreaView className="flex-1" style={{ backgroundColor: "#F7F8F7" }}>
             <Header onBack={handleBack} onSave={handleSave} />
 
             <ScrollView
@@ -193,101 +197,107 @@ export function FarmSetupInformationScreen() {
                 keyboardShouldPersistTaps="handled"
             >
                 {/* Basic Information */}
-                <View className="mb-6 px-4">
-                    <Text className="text-xl font-semibold mb-4" style={{ color: "#1B1F24" }}>
-                        Basic Information
-                    </Text>
+                <View className="mb-4 px-4">
+                    <View className="bg-white rounded-2xl p-4 shadow-sm">
+                        <Text className="text-base font-semibold text-[#2d2d2d] mb-3">
+                            Basic Information
+                        </Text>
 
-                    <FormInput
-                        label="Farm Name"
-                        placeholder="e.g., Green Valley Farm"
-                        value={formData.farmName}
-                        onChangeText={(text) => updateField("farmName", text)}
-                        required
-                    />
+                        <FormInput
+                            label="Farm Name"
+                            placeholder="e.g., Green Valley Farm"
+                            value={formData.farmName}
+                            onChangeText={(text) => updateField("farmName", text)}
+                            required
+                        />
 
-                    <FormInput
-                        label="Batch Code Prefix"
-                        placeholder="e.g., GVF"
-                        value={formData.batchCodePrefix}
-                        onChangeText={(text) => updateField("batchCodePrefix", text)}
-                    />
+                        <FormInput
+                            label="Batch Code Prefix"
+                            placeholder="e.g., GVF"
+                            value={formData.batchCodePrefix}
+                            onChangeText={(text) => updateField("batchCodePrefix", text)}
+                        />
 
-                    <FormTextarea
-                        label="Farm Description"
-                        placeholder="Tell us about your farm, what makes it special..."
-                        value={formData.description}
-                        onChangeText={(text) => updateField("description", text)}
-                        rows={4}
-                    />
+                        <FormTextarea
+                            label="Farm Description"
+                            placeholder="Tell us about your farm, what makes it special..."
+                            value={formData.description}
+                            onChangeText={(text) => updateField("description", text)}
+                            rows={4}
+                        />
 
-                    <FormInput
-                        label="Phone Number"
-                        placeholder="(555) 123-4567"
-                        value={formData.phone}
-                        onChangeText={(text) => updateField("phone", text)}
-                        keyboardType="phone-pad"
-                    />
+                        <FormInput
+                            label="Phone Number"
+                            placeholder="(555) 123-4567"
+                            value={formData.phone}
+                            onChangeText={(text) => updateField("phone", text)}
+                            keyboardType="phone-pad"
+                        />
 
-                    <FormInput
-                        label="Farm Area (in hectares or acres)"
-                        placeholder="e.g., 25"
-                        value={formData.area}
-                        onChangeText={(text) => updateField("area", text)}
-                        keyboardType="numeric"
-                    />
+                        <FormInput
+                            label="Farm Area (in hectares or acres)"
+                            placeholder="e.g., 25"
+                            value={formData.area}
+                            onChangeText={(text) => updateField("area", text)}
+                            keyboardType="numeric"
+                        />
+                    </View>
                 </View>
 
                 {/* Location & Address */}
-                <View className="mb-6 px-4">
-                    <Text className="text-xl font-semibold mb-4" style={{ color: "#1B1F24" }}>
-                        Location & Address
-                    </Text>
+                <View className="mb-4 px-4">
+                    <View className="bg-white rounded-2xl p-4 shadow-sm">
+                        <Text className="text-base font-semibold text-[#2d2d2d] mb-3">
+                            Location & Address
+                        </Text>
 
-                    <FormSelect
-                        label="Province"
-                        value={formData.province}
-                        onChange={handleProvinceChange}
-                        options={provinceOptions}
-                    />
+                        <FormSelect
+                            label="Province"
+                            value={formData.province}
+                            onChange={handleProvinceChange}
+                            options={provinceOptions}
+                        />
 
-                    <FormSelect
-                        label="District"
-                        value={formData.district}
-                        onChange={handleDistrictChange}
-                        options={districtOptions}
-                    />
+                        <FormSelect
+                            label="District"
+                            value={formData.district}
+                            onChange={handleDistrictChange}
+                            options={districtOptions}
+                        />
 
-                    <FormSelect label="Ward" value={formData.ward} onChange={handleWardChange} options={wardOptions} />
+                        <FormSelect label="Ward" value={formData.ward} onChange={handleWardChange} options={wardOptions} />
 
-                    <FormTextarea
-                        label="Detailed address"
-                        placeholder="Street address, building number, etc."
-                        value={formData.detail}
-                        onChangeText={(text) => updateField("detail", text)}
-                        rows={2}
-                    />
+                        <FormTextarea
+                            label="Detailed address"
+                            placeholder="Street address, building number, etc."
+                            value={formData.detail}
+                            onChangeText={(text) => updateField("detail", text)}
+                            rows={2}
+                        />
+                    </View>
                 </View>
 
                 {/* Farm Banner Image */}
-                <View className="mb-6 px-4">
-                    <Text className="text-xl font-semibold mb-4" style={{ color: "#1B1F24" }}>
-                        Farm Banner Image
-                    </Text>
-                    <Text className="text-sm mb-4" style={{ color: "#6B737A" }}>
-                        Upload a banner image to showcase your farm
-                    </Text>
+                <View className="mb-4 px-4">
+                    <View className="bg-white rounded-2xl p-4 shadow-sm">
+                        <Text className="text-base font-semibold text-[#2d2d2d] mb-3">
+                            Farm Banner Image
+                        </Text>
+                        <Text className="text-sm mb-3 text-[#5c5c5c]">
+                            Upload a banner image to showcase your farm
+                        </Text>
 
-                    <ImageUpload onPress={handleChooseImage} />
+                        <ImageUpload onPress={handleChooseImage} />
 
-                    {formData.bannerImage && (
-                        <View className="mt-3">
-                            <ImagePreview
-                                uri={typeof formData.bannerImage === "string" ? formData.bannerImage : formData.bannerImage.uri}
-                                onRemove={() => updateField("bannerImage", null)}
-                            />
-                        </View>
-                    )}
+                        {formData.bannerImage && (
+                            <View className="mt-3">
+                                <ImagePreview
+                                    uri={typeof formData.bannerImage === "string" ? formData.bannerImage : formData.bannerImage.uri}
+                                    onRemove={() => updateField("bannerImage", null)}
+                                />
+                            </View>
+                        )}
+                    </View>
                 </View>
 
                 <ActionButtons onSave={handleSave} onPreview={() => { }} isLoading={isLoading} />
