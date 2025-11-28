@@ -248,6 +248,14 @@ export default CartService;
  * Address type for farm locations
  */
 
+// Allow optional id and raw shape for farm address when available
+export type RawAddress = Address & {
+    id?: string;
+    createdAt?: string;
+    isDefault?: boolean;
+    isDelete?: boolean;
+};
+
 /**
  * Result of shipping calculation
  */
@@ -266,21 +274,38 @@ export const extractFarmAddresses = (cartItems: any[]): Address[] => {
     const seenAddresses = new Set<string>();
 
     for (const item of cartItems) {
-        const farmAddress = item.batch?.season?.farm?.address;
-        console.log("Farm Address", farmAddress)
-        if (farmAddress) {
-            // Create unique key to avoid duplicates
-            const addressKey = `${farmAddress.province}-${farmAddress.district}-${farmAddress.ward}-${farmAddress.detail}`;
+        let farmAddress: any = item.batch?.season?.farm?.address;
 
-            if (!seenAddresses.has(addressKey)) {
-                seenAddresses.add(addressKey);
-                addresses.push({
-                    province: farmAddress.province,
-                    district: farmAddress.district,
-                    ward: farmAddress.ward,
-                    detail: farmAddress.detail,
-                });
+        // The backend might return address as array, object or JSON string. Normalize it.
+        if (!farmAddress) continue;
+
+        if (Array.isArray(farmAddress) && farmAddress.length > 0) {
+            farmAddress = farmAddress[0];
+        }
+
+        if (typeof farmAddress === 'string') {
+            try {
+                farmAddress = JSON.parse(farmAddress);
+            } catch (e) {
+                // leave as string -> skip
+                continue;
             }
+        }
+
+        // Create unique key to avoid duplicates. Prefer id when available.
+        const addressId = farmAddress?.id || '';
+        const addressKey = addressId
+            ? `${addressId}`
+            : `${farmAddress.province || ''}-${farmAddress.district || ''}-${farmAddress.ward || ''}-${farmAddress.detail || ''}`;
+
+        if (!seenAddresses.has(addressKey)) {
+            seenAddresses.add(addressKey);
+            addresses.push({
+                province: farmAddress.province || '',
+                district: farmAddress.district || '',
+                ward: farmAddress.ward || '',
+                detail: farmAddress.detail || '',
+            });
         }
     }
 

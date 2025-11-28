@@ -35,12 +35,12 @@ export const CustomerCartScreen: React.FC = () => {
   const { data: addresses } = useGetAddresses()
   const defaultAddress = addresses?.find((addr) => addr.isDefault)
 
-  useEffect(
-    () => {
-      console.log("Selected items:", Cart)
-    }
-    , [Cart]
-  )
+  // Show skeleton while loading
+  if (isLoading) 
+    return <CustomerCartScreenSkeleton />
+
+
+  const CartItems = Cart?.cartItems || []
 
   // Cart shipping calculation using custom hook
   const {
@@ -63,7 +63,6 @@ export const CustomerCartScreen: React.FC = () => {
   // Show skeleton while loading
   if (isLoading) return <CustomerCartScreenSkeleton />
 
-  const CartItems = Cart?.cartItems || []
 
   const hasCartItems = CartItems.length > 0
 
@@ -308,9 +307,8 @@ export const CustomerCartScreen: React.FC = () => {
 
         {farmAddresses.length > 0 && !calculatingShipping && (
           <View className="mx-4 mt-2 p-3 bg-green-50 rounded-lg">
-            <Text className="text-xs text-green-600">
-              📍 Giao hàng từ: {farmAddresses.map((a) => a.province).join(", ")}
-            </Text>
+            <Text className="text-xs text-green-600">📍 Giao hàng từ:</Text>
+            <Text className="text-xs text-green-600">{farmAddresses.map(a => `${a.detail} (${a.province}/${a.district})`).join(' • ')}</Text>
           </View>
         )}
 
