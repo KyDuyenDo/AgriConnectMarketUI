@@ -1,226 +1,209 @@
-import { useEffect } from "react"
-import { View, Text, StyleSheet, Dimensions } from "react-native"
+import { useEffect, useRef } from "react"
+import { View, Text, StyleSheet, Dimensions, Animated, Easing } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { LinearGradient } from "expo-linear-gradient"
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  withRepeat,
-  Easing,
-  useDerivedValue,
-} from "react-native-reanimated"
 
 const { width, height } = Dimensions.get("window")
 
 export function FreshHarvestSplash() {
-  const logoScale = useSharedValue(0.7)
-  const logoOpacity = useSharedValue(0)
-  const titleOpacity = useSharedValue(0)
-  const subtitleOpacity = useSharedValue(0)
-  const welcomeOpacity = useSharedValue(0)
-  const descOpacity = useSharedValue(0)
-  const dotsOpacity = useSharedValue(1)
-  const dot1Scale = useSharedValue(0.5)
-  const dot2Scale = useSharedValue(0.5)
-  const dot3Scale = useSharedValue(0.5)
-  const footerOpacity = useSharedValue(0)
+  const logoScale = useRef(new Animated.Value(0.7)).current
+  const logoOpacity = useRef(new Animated.Value(0)).current
+  const titleOpacity = useRef(new Animated.Value(0)).current
+  const subtitleOpacity = useRef(new Animated.Value(0)).current
+  const welcomeOpacity = useRef(new Animated.Value(0)).current
+  const descOpacity = useRef(new Animated.Value(0)).current
+  const dotsOpacity = useRef(new Animated.Value(1)).current
+  const dot1Scale = useRef(new Animated.Value(0.5)).current
+  const dot2Scale = useRef(new Animated.Value(0.5)).current
+  const dot3Scale = useRef(new Animated.Value(0.5)).current
+  const footerOpacity = useRef(new Animated.Value(0)).current
 
-  const orbitAngle = useSharedValue(0)
+  const orbitAngle = useRef(new Animated.Value(0)).current
 
   // Floating circle animations
-  const floatCircle1Y = useSharedValue(0)
-  const floatCircle2Y = useSharedValue(0)
-  const floatCircle3Y = useSharedValue(0)
+  const floatCircle1Y = useRef(new Animated.Value(0)).current
+  const floatCircle2Y = useRef(new Animated.Value(0)).current
+  const floatCircle3Y = useRef(new Animated.Value(0)).current
 
-  const icon1Position = useDerivedValue(() => {
-    const orbitRadius = 85
-    const angle = orbitAngle.value
-    const x = orbitRadius * Math.cos(angle)
-    const y = orbitRadius * Math.sin(angle)
-    return { x, y }
+  // Derived values for icon positions using interpolation
+  const icon1TranslateX = orbitAngle.interpolate({
+    inputRange: [0, Math.PI * 2],
+    outputRange: [85, 85],
+    extrapolate: 'extend',
   })
 
-  const icon2Position = useDerivedValue(() => {
-    const orbitRadius = 57
-    const angle = orbitAngle.value + Math.PI // 180° phase difference
-    const x = orbitRadius * Math.cos(angle)
-    const y = orbitRadius * Math.sin(angle)
-    return { x, y }
+  const icon1TranslateY = orbitAngle.interpolate({
+    inputRange: [0, Math.PI / 2, Math.PI, Math.PI * 1.5, Math.PI * 2],
+    outputRange: [0, 85, 0, -85, 0],
+  })
+
+  const icon2TranslateX = orbitAngle.interpolate({
+    inputRange: [0, Math.PI * 2],
+    outputRange: [-57, -57],
+    extrapolate: 'extend',
+  })
+
+  const icon2TranslateY = orbitAngle.interpolate({
+    inputRange: [0, Math.PI / 2, Math.PI, Math.PI * 1.5, Math.PI * 2],
+    outputRange: [0, -57, 0, 57, 0],
   })
 
   useEffect(() => {
-    logoScale.value = withTiming(1, {
-      duration: 800,
-      easing: Easing.out(Easing.cubic),
-    })
-    logoOpacity.value = withTiming(1, {
-      duration: 800,
-      easing: Easing.inOut(Easing.ease),
-    })
+    // Logo animations
+    Animated.parallel([
+      Animated.timing(logoScale, {
+        toValue: 1,
+        duration: 800,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }),
+      Animated.timing(logoOpacity, {
+        toValue: 1,
+        duration: 800,
+        easing: Easing.inOut(Easing.ease),
+        useNativeDriver: true,
+      }),
+    ]).start()
 
+    // Sequential fade-in animations
     setTimeout(() => {
-      titleOpacity.value = withTiming(1, {
+      Animated.timing(titleOpacity, {
+        toValue: 1,
         duration: 500,
         easing: Easing.inOut(Easing.ease),
-      })
+        useNativeDriver: true,
+      }).start()
     }, 300)
 
     setTimeout(() => {
-      subtitleOpacity.value = withTiming(1, {
+      Animated.timing(subtitleOpacity, {
+        toValue: 1,
         duration: 500,
         easing: Easing.inOut(Easing.ease),
-      })
+        useNativeDriver: true,
+      }).start()
     }, 500)
 
     setTimeout(() => {
-      welcomeOpacity.value = withTiming(1, {
-        duration: 500,
-        easing: Easing.inOut(Easing.ease),
-      })
-      descOpacity.value = withTiming(1, {
-        duration: 500,
-        easing: Easing.inOut(Easing.ease),
-      })
+      Animated.parallel([
+        Animated.timing(welcomeOpacity, {
+          toValue: 1,
+          duration: 500,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+        Animated.timing(descOpacity, {
+          toValue: 1,
+          duration: 500,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+      ]).start()
     }, 700)
 
     setTimeout(() => {
-      footerOpacity.value = withTiming(1, {
+      Animated.timing(footerOpacity, {
+        toValue: 1,
         duration: 500,
         easing: Easing.inOut(Easing.ease),
-      })
+        useNativeDriver: true,
+      }).start()
     }, 1000)
 
-    dot1Scale.value = withRepeat(
-      withTiming(1.2, {
+    // Dot scale animations (repeating)
+    Animated.loop(
+      Animated.timing(dot1Scale, {
+        toValue: 1.2,
         duration: 600,
         easing: Easing.inOut(Easing.ease),
-      }),
-      -1,
-      true,
-    )
+        useNativeDriver: true,
+      })
+    ).start()
 
     setTimeout(() => {
-      dot2Scale.value = withRepeat(
-        withTiming(1.2, {
+      Animated.loop(
+        Animated.timing(dot2Scale, {
+          toValue: 1.2,
           duration: 600,
           easing: Easing.inOut(Easing.ease),
-        }),
-        -1,
-        true,
-      )
+          useNativeDriver: true,
+        })
+      ).start()
     }, 150)
 
     setTimeout(() => {
-      dot3Scale.value = withRepeat(
-        withTiming(1.2, {
+      Animated.loop(
+        Animated.timing(dot3Scale, {
+          toValue: 1.2,
           duration: 600,
           easing: Easing.inOut(Easing.ease),
-        }),
-        -1,
-        true,
-      )
+          useNativeDriver: true,
+        })
+      ).start()
     }, 300)
 
-    orbitAngle.value = withRepeat(
-      withTiming(-Math.PI * 2, {
-        duration: 7500, // Full rotation in 7.5 seconds
+    // Orbit animation
+    Animated.loop(
+      Animated.timing(orbitAngle, {
+        toValue: Math.PI * 2,
+        duration: 7500,
         easing: Easing.linear,
-      }),
-      -1,
-      false,
-    )
+        useNativeDriver: true,
+      })
+    ).start()
 
-    floatCircle1Y.value = withRepeat(
-      withTiming(-20, {
-        duration: 4000,
-        easing: Easing.inOut(Easing.sin),
-      }),
-      -1,
-      true,
-    )
+    // Floating circle animations
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(floatCircle1Y, {
+          toValue: -20,
+          duration: 4000,
+          easing: Easing.inOut(Easing.sin),
+          useNativeDriver: true,
+        }),
+        Animated.timing(floatCircle1Y, {
+          toValue: 0,
+          duration: 4000,
+          easing: Easing.inOut(Easing.sin),
+          useNativeDriver: true,
+        }),
+      ])
+    ).start()
 
-    floatCircle2Y.value = withRepeat(
-      withTiming(15, {
-        duration: 4500,
-        easing: Easing.inOut(Easing.sin),
-      }),
-      -1,
-      true,
-    )
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(floatCircle2Y, {
+          toValue: 15,
+          duration: 4500,
+          easing: Easing.inOut(Easing.sin),
+          useNativeDriver: true,
+        }),
+        Animated.timing(floatCircle2Y, {
+          toValue: 0,
+          duration: 4500,
+          easing: Easing.inOut(Easing.sin),
+          useNativeDriver: true,
+        }),
+      ])
+    ).start()
 
-    floatCircle3Y.value = withRepeat(
-      withTiming(-15, {
-        duration: 5000,
-        easing: Easing.inOut(Easing.sin),
-      }),
-      -1,
-      true,
-    )
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(floatCircle3Y, {
+          toValue: -15,
+          duration: 5000,
+          easing: Easing.inOut(Easing.sin),
+          useNativeDriver: true,
+        }),
+        Animated.timing(floatCircle3Y, {
+          toValue: 0,
+          duration: 5000,
+          easing: Easing.inOut(Easing.sin),
+          useNativeDriver: true,
+        }),
+      ])
+    ).start()
   }, [])
-
-  const logoAnimatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: logoScale.value }],
-    opacity: logoOpacity.value,
-  }))
-
-  const titleAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: titleOpacity.value,
-  }))
-
-  const subtitleAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: subtitleOpacity.value,
-  }))
-
-  const welcomeAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: welcomeOpacity.value,
-  }))
-
-  const descAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: descOpacity.value,
-  }))
-
-  const dot1AnimatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: dot1Scale.value }],
-  }))
-
-  const dot2AnimatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: dot2Scale.value }],
-  }))
-
-  const dot3AnimatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: dot3Scale.value }],
-  }))
-
-  const circle1AnimatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: floatCircle1Y.value }],
-  }))
-
-  const circle2AnimatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: floatCircle2Y.value }],
-  }))
-
-  const circle3AnimatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: floatCircle3Y.value }],
-  }))
-
-  const footerAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: footerOpacity.value,
-  }))
-
-  const icon1AnimatedStyle = useAnimatedStyle(() => {
-    const pos = icon1Position.value
-    return {
-      transform: [{ translateX: pos.x }, { translateY: pos.y }],
-    }
-  })
-
-  const icon2AnimatedStyle = useAnimatedStyle(() => {
-    const pos = icon2Position.value
-    return {
-      transform: [{ translateX: pos.x }, { translateY: pos.y }],
-    }
-  })
 
   return (
     <SafeAreaView style={styles.container}>
@@ -230,18 +213,18 @@ export function FreshHarvestSplash() {
         end={{ x: 1, y: 1 }}
         style={styles.gradient}
       >
-        <Animated.View style={[styles.floatingCircle, styles.circle1, circle1AnimatedStyle]} />
-        <Animated.View style={[styles.floatingCircle, styles.circle2, circle2AnimatedStyle]} />
-        <Animated.View style={[styles.floatingCircle, styles.circle3, circle3AnimatedStyle]} />
+        <Animated.View style={[styles.floatingCircle, styles.circle1, { transform: [{ translateY: floatCircle1Y }] }]} />
+        <Animated.View style={[styles.floatingCircle, styles.circle2, { transform: [{ translateY: floatCircle2Y }] }]} />
+        <Animated.View style={[styles.floatingCircle, styles.circle3, { transform: [{ translateY: floatCircle3Y }] }]} />
 
         <View style={styles.content}>
-          <Animated.View style={[styles.logoContainer, logoAnimatedStyle]}>
+          <Animated.View style={[styles.logoContainer, { transform: [{ scale: logoScale }], opacity: logoOpacity }]}>
             <View style={styles.orbitContainer}>
-              <Animated.View style={[styles.orbitIcon, styles.orangeIcon, icon1AnimatedStyle]}>
+              <Animated.View style={[styles.orbitIcon, styles.orangeIcon, { transform: [{ translateX: icon1TranslateX }, { translateY: icon1TranslateY }] }]}>
                 <Text style={styles.orbitIconText}>🍃</Text>
               </Animated.View>
 
-              <Animated.View style={[styles.orbitIcon, styles.lightGreenIcon, icon2AnimatedStyle]}>
+              <Animated.View style={[styles.orbitIcon, styles.lightGreenIcon, { transform: [{ translateX: icon2TranslateX }, { translateY: icon2TranslateY }] }]}>
                 <Text style={[styles.orbitIconText, styles.wheatIconText]}>🌾</Text>
               </Animated.View>
             </View>
@@ -252,19 +235,19 @@ export function FreshHarvestSplash() {
             </View>
           </Animated.View>
 
-          <Animated.View style={titleAnimatedStyle}>
+          <Animated.View style={{ opacity: titleOpacity }}>
             <Text style={styles.title}>FreshHarvest</Text>
           </Animated.View>
 
-          <Animated.View style={subtitleAnimatedStyle}>
+          <Animated.View style={{ opacity: subtitleOpacity }}>
             <Text style={styles.subtitle}>Farm to Table Fresh</Text>
           </Animated.View>
 
-          <Animated.View style={welcomeAnimatedStyle}>
+          <Animated.View style={{ opacity: welcomeOpacity }}>
             <Text style={styles.welcomeHeader}>Welcome to Fresh Living</Text>
           </Animated.View>
 
-          <Animated.View style={descAnimatedStyle}>
+          <Animated.View style={{ opacity: descOpacity }}>
             <Text style={styles.description}>
               Discover the freshest organic produce directly from local farms to your table
             </Text>
@@ -273,14 +256,14 @@ export function FreshHarvestSplash() {
           <View style={styles.loadingContainer}>
             <Text style={styles.loadingText}>Preparing fresh experience...</Text>
             <View style={styles.dotsContainer}>
-              <Animated.View style={[styles.dot, dot1AnimatedStyle]} />
-              <Animated.View style={[styles.dot, dot2AnimatedStyle]} />
-              <Animated.View style={[styles.dot, dot3AnimatedStyle]} />
+              <Animated.View style={[styles.dot, { transform: [{ scale: dot1Scale }] }]} />
+              <Animated.View style={[styles.dot, { transform: [{ scale: dot2Scale }] }]} />
+              <Animated.View style={[styles.dot, { transform: [{ scale: dot3Scale }] }]} />
             </View>
           </View>
         </View>
 
-        <Animated.View style={[styles.footer, footerAnimatedStyle]}>
+        <Animated.View style={[styles.footer, { opacity: footerOpacity }]}>
           <Text style={styles.footerText}>♡ Sustainably grown, locally sourced</Text>
         </Animated.View>
       </LinearGradient>

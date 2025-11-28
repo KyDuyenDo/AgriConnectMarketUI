@@ -10,6 +10,7 @@ import {
 } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { Search, ShoppingCart, SlidersHorizontal, ArrowUpDown } from "lucide-react-native"
+import { useNavigation } from "@react-navigation/native"
 import { ProductCustomerGrid } from "@/components/customer-exlore/ProductCustomerGird"
 import { FeaturedFarmers } from "@/components/customer-exlore/FeaturedFarmers"
 import { CategorySelector } from "@/components/CategorySelector"
@@ -22,6 +23,7 @@ export function ExploreScreen() {
 
     const { farms, categories, unifiedProducts, loading, error } = useHomeData();
 
+    // Filter products based on search and category
     // Filter products based on search and category
     const filteredProducts = useMemo(() => {
         return unifiedProducts.filter(product => {
@@ -36,6 +38,8 @@ export function ExploreScreen() {
     const featuredFarmers = useMemo(() => {
         return farms.slice(0, 3);
     }, [farms]);
+
+    const navigation = useNavigation<any>();
 
     if (loading) {
         return <ExploreScreenSkeleton />
@@ -102,37 +106,41 @@ export function ExploreScreen() {
                         <TextInput
                             value={searchQuery}
                             onChangeText={setSearchQuery}
-                            placeholder="Search fresh produce..."
+                            placeholder="Search fresh produce or farms..."
                             placeholderTextColor="#8A8A8A"
                             className="flex-1 ml-3 text-sm"
                             style={{ color: '#1B1F24' }}
                         />
-                        <Pressable
-                            className="w-8 h-8 items-center justify-center rounded-lg"
-                            style={{ backgroundColor: '#4CAF50' }}
-                        >
-                            <SlidersHorizontal size={16} color="#FFFFFF" />
-                        </Pressable>
                     </View>
                 </View>
 
                 {/* Featured Farmers */}
+                <View className="px-4 mb-2 flex-row justify-between items-center">
+                    <Text className="text-[16px] font-semibold" style={{ color: '#1B1F24' }}>
+                        Featured Farmers
+                    </Text>
+                    <Pressable onPress={() => navigation.navigate("FarmList")}>
+                        <Text className="text-[14px] font-medium" style={{ color: '#4CAF50' }}>
+                            View All
+                        </Text>
+                    </Pressable>
+                </View>
                 <FeaturedFarmers Farmers={featuredFarmers} />
 
                 {/* Categories */}
-                <CategorySelector
-                    categories={categories}
-                    selectedCategory={selectedCategory}
-                    onSelectCategory={setSelectedCategory}
-                />
+                <View>
+                    <CategorySelector
+                        categories={categories}
+                        selectedCategory={selectedCategory}
+                        onSelectCategory={setSelectedCategory}
+                    />
+                </View>
 
-                {/* Products Count & Sort */}
-                <View className="px-4 mb-4 flex-row justify-between items-center">
+                {/* Products Count */}
+                <View className="px-4 mb-4 flex-row justify-between items-center mt-4">
                     <Text className="text-[14px] font-medium" style={{ color: '#2F3941' }}>
                         {filteredProducts.length} products found
                     </Text>
-                    {/* Removed Sort button as per requirements, but keeping layout if needed or just removing it */}
-                    {/* Requirement: Remove the Sort button on the right side. */}
                 </View>
 
                 {/* Products Grid */}

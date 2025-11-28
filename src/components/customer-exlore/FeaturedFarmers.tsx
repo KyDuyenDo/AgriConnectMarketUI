@@ -9,21 +9,15 @@ interface FeaturedFarmersProps {
 
 export const FeaturedFarmers = ({ Farmers }: FeaturedFarmersProps) => {
     return (
-        <View className="px-4 mb-4">
-            <View className="flex-row justify-between items-center mb-3">
-                <Text className="text-[16px] font-semibold" style={{ color: '#1B1F24' }}>
-                    Featured Farmers
-                </Text>
-                <Text className="text-[12px] font-medium" style={{ color: '#4CAF50' }}>
-                    View All
-                </Text>
-            </View>
-            <ScrollView className="py-3 px-1" horizontal={true} showsHorizontalScrollIndicator={false}>
+        <View className="px-4">
+            <ScrollView className="py-3 px-1" horizontal={true} showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingRight: 16 }}>
                 {Farmers.map((farm) => (
-                    <FarmFeatureCard
-                        key={farm.id}
-                        farm={farm}
-                    />
+                    <View key={farm.id} className="mr-4">
+                        <FarmFeatureCard
+                            farm={farm}
+                            style={{ width: 240 }}
+                        />
+                    </View>
                 ))}
             </ScrollView>
         </View>

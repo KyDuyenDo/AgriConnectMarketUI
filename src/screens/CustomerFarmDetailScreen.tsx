@@ -1,10 +1,9 @@
-import { ScrollView, View, Text, Platform } from 'react-native';
+import { ScrollView, View, Text, Platform, Image, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useState } from 'react';
 import { Header } from '@/components/customer-farm-detail/Header';
 import { FarmHero } from '@/components/customer-farm-detail/FarmHero';
 import { FarmProfile } from '@/components/customer-farm-detail/FarmProfile';
-import { StatsGrid } from '@/components/customer-farm-detail/StatsGrid';
 import { FarmProductCard } from '@/components/customer-farm-detail/FarmProductCard';
 import { FarmHistory } from '@/components/customer-farm-detail/FarmHistory';
 import { MeetFarmer } from '@/components/customer-farm-detail/MeetFarmer';
@@ -12,74 +11,32 @@ import { VisitFarmCard } from '@/components/customer-farm-detail/VisitFarmCard';
 import { BottomActions } from '@/components/customer-farm-detail/BottomActions';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { CustomerStackParamList } from '@/navigation/CustomerNavigator';
+import { useBatchesByFarm } from '@/hooks/useBatches';
 import { useFarmById } from '@/hooks/useFarm';
-import { useSeasons } from '@/hooks/useSeasons';
+import { useFarmReviews } from '@/hooks/useFarmReview';
+import { FarmReviewCard } from '@/components/customer-farm-detail/FarmReviewCard';
+import { FarmReviewSummary } from '@/components/customer-farm-detail/FarmReviewSummary';
+import { Ionicons } from '@expo/vector-icons';
 
-const FARM_DATA = {
-    heroImage: 'https://static.paraflowcontent.com/public/resource/image/a4e7e129-956c-46ab-a792-a428a344a9da.jpeg',
-    badge: 'Certified Organic',
-    ownerPhoto: 'https://static.paraflowcontent.com/public/resource/image/28bc4aac-456e-41ab-9764-f5dc27f0f96a.jpeg',
-    farmName: 'Green Valley Farm',
-    ownerName: 'John Smith',
-    sinceYear: '1998',
-    rating: 4.8,
-    reviewCount: 127,
-    distance: '2.3 miles away',
-    address: '1247 Country Road, Valley View',
-    description: 'Family-owned organic farm specializing in seasonal vegetables, herbs, and fruits. We use sustainable farming practices and have been serving the local community for over 25 years.',
-    stats: {
-        products: 47,
-        years: '25+',
-        certification: 'Organic'
-    },
-    history: [
-        { year: '98', title: 'Farm Established', description: 'John started Green Valley Farm with 5 acres of vegetable crops', color: 'green' as const },
-        { year: '05', title: 'Organic Certification', description: 'Achieved USDA Organic certification for sustainable farming', color: 'orange' as const },
-        { year: '15', title: 'Farm Expansion', description: 'Expanded to 50 acres and added greenhouse facilities', color: 'blue' as const }
-    ],
-    farmer: {
-        photo: 'https://static.paraflowcontent.com/public/resource/image/41a9fe11-4761-4234-8760-56a1cffc77a9.jpeg',
-        name: 'John Smith',
-        title: '3rd Generation Farmer',
-        education: 'Agricultural Science, UC Davis',
-        experience: '25+ years experience',
-        quote: '"I believe in working with nature, not against it. Our family has been farming this land for three generations, and we\'re committed to sustainable practices that protect both the environment and provide the freshest produce for our community."'
-    },
-    contact: {
-        hours: 'Mon-Sat: 8:00 AM - 6:00 PM',
-        phone: '(555) 123-4567',
-        email: 'hello@greenvalleyfarm.com'
-    }
-};
-
-const PRODUCTS = [
-    {
-        id: '1',
-        image: 'https://static.paraflowcontent.com/public/resource/image/98990351-fd5d-4029-8d92-27beeacc6537.jpeg',
-        name: 'Organic Apples',
-        price: '$4.50/lb',
-        badge: { label: 'In Stock', color: 'green' as const }
-    },
-    {
-        id: '2',
-        image: 'https://static.paraflowcontent.com/public/resource/image/397b7f8c-5f5e-479a-b8b7-298c2a27d971.jpeg',
-        name: 'Baby Carrots',
-        price: '$3.25/lb',
-        badge: { label: 'Limited', color: 'orange' as const }
-    }
-];
+import { ProductResponse } from '@/types';
+import { Modal, TextInput, Alert } from 'react-native';
+import { useQueryClient } from '@tanstack/react-query';
 
 type Props = NativeStackScreenProps<CustomerStackParamList, 'FarmDetail'>;
 
 export function CustomerFarmDetailScreen({ route, navigation }: Props) {
     const { farmId } = route.params;
     const [isFavorited, setIsFavorited] = useState(false);
-    const { data: farm, isLoading, error } = useFarmById(farmId);
-    const { data: seasons } = useSeasons(farmId);
+    const { data: farm, isLoading: isLoadingFarm, error: farmError } = useFarmById(farmId);
+    const { data: batches, isLoading: isLoadingBatches } = useBatchesByFarm(farmId);
+    const { data: reviews, isLoading: isLoadingReviews } = useFarmReviews(farmId);
 
-    console.log(seasons);
+    const queryClient = useQueryClient();
+
+
+
     // Show loading state
-    if (isLoading) {
+    if (isLoadingFarm || isLoadingBatches) {
         return (
             <SafeAreaView className="flex-1 items-center justify-center" style={{ backgroundColor: '#F9FAF9' }}>
                 <Text className="text-base" style={{ color: '#6B737A' }}>Loading farm details...</Text>
@@ -88,7 +45,7 @@ export function CustomerFarmDetailScreen({ route, navigation }: Props) {
     }
 
     // Show error state
-    if (error || !farm) {
+    if (farmError || !farm) {
         return (
             <SafeAreaView className="flex-1 items-center justify-center" style={{ backgroundColor: '#F9FAF9' }}>
                 <Text className="text-base" style={{ color: '#6B737A' }}>Failed to load farm details</Text>
@@ -96,30 +53,55 @@ export function CustomerFarmDetailScreen({ route, navigation }: Props) {
         );
     }
 
+    // Calculate average rating
+    const averageRating = reviews && reviews.length > 0
+        ? reviews.reduce((acc, review) => acc + review.rate, 0) / reviews.length
+        : 0;
+
     // Map API data to UI format with fallbacks
     const farmData = {
         heroImage: farm.bannerUrl || 'https://via.placeholder.com/400x200',
         badge: farm.isConfirmAsMall ? 'Certified Mall' : 'Local Farm',
-        ownerPhoto: farm.bannerUrl || 'https://via.placeholder.com/60',
+        ownerPhoto: farm.farmer?.profile?.avatarUrl || 'https://via.placeholder.com/60',
         farmName: farm.farmName || 'Unknown Farm',
-        ownerName: 'Farm Owner', // We might need to fetch this from farmer data
+        ownerName: farm.farmer?.profile?.fullname || 'Farm Owner',
         sinceYear: farm.createdAt ? new Date(farm.createdAt).getFullYear().toString() : '2024',
-        rating: 4.5, // TODO: Get from reviews
-        reviewCount: 0, // TODO: Get from reviews
+        rating: averageRating > 0 ? Number(averageRating.toFixed(1)) : 0,
+        reviewCount: reviews?.length || 0,
         distance: '2.3 km', // TODO: Calculate from address
-        address: farm.addressId || 'Address not available',
+        address: farm.address ? `${farm.address.ward}, ${farm.address.district}, ${farm.address.province}` : 'Address not available',
         description: farm.farmDesc || 'A local farm providing fresh produce.',
         stats: {
-            products: 0, // TODO: Get from products count
+            products: batches?.length || 0,
             years: farm.createdAt ? `${new Date().getFullYear() - new Date(farm.createdAt).getFullYear()}+` : '1+',
-            certification: farm.isConfirmAsMall ? 'Mall' : 'Farm'
+            certification: farm.isConfirmAsMall ? 'Mall' : 'Farm',
+            rating: averageRating > 0 ? Number(averageRating.toFixed(1)) : 0
         },
         contact: {
             hours: 'Mon-Sat: 8:00 AM - 6:00 PM',
             phone: farm.phone || 'Not available',
-            email: 'contact@farm.com'
+            email: farm.farmer?.profile?.email || 'contact@farm.com'
         }
     };
+
+    const farmerData = {
+        photo: farm.farmer?.profile?.avatarUrl || 'https://via.placeholder.com/150',
+        name: farm.farmer?.profile?.fullname || 'Farm Owner',
+        title: 'Farm Owner',
+        education: 'Agricultural Expert', // Placeholder
+        experience: `${farmData.stats.years} years experience`,
+        quote: '"Committed to sustainable farming and providing fresh produce for our community."' // Placeholder
+    };
+
+    const renderStatCard = (label: string, value: string | number, icon: keyof typeof Ionicons.glyphMap, color: string) => (
+        <View className="bg-white p-3 rounded-xl shadow-sm border border-gray-100 w-[100px] items-center mr-3">
+            <View className={`w-8 h-8 rounded-full items-center justify-center mb-2`} style={{ backgroundColor: `${color}20` }}>
+                <Ionicons name={icon} size={16} color={color} />
+            </View>
+            <Text className="text-lg font-bold text-gray-800">{value}</Text>
+            <Text className="text-xs text-gray-500 text-center">{label}</Text>
+        </View>
+    );
 
     return (
         <SafeAreaView className="flex-1" style={{ backgroundColor: '#F9FAF9' }}>
@@ -149,54 +131,124 @@ export function CustomerFarmDetailScreen({ route, navigation }: Props) {
                     description={farmData.description}
                 />
 
-                <StatsGrid stats={farmData.stats} />
+                {/* Statistics Overview */}
+                <View className="mt-6 px-4">
+                    <Text className="text-lg font-bold text-gray-900 mb-3">Statistics Overview</Text>
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row">
+                        {renderStatCard('Products', farmData.stats.products, 'leaf', '#4ADE80')}
+                        {renderStatCard('Years', farmData.stats.years, 'time', '#60A5FA')}
+                        {renderStatCard('Rating', farmData.stats.rating, 'star', '#FBBF24')}
+                        {renderStatCard('Type', farmData.stats.certification, 'ribbon', '#F472B6')}
+                    </ScrollView>
+                </View>
 
-                <View className="px-4 mb-4">
-                    <View className="flex-row justify-between items-center mb-4">
-                        <Text className="text-[18px] font-semibold" style={{ color: '#1B1F24' }}>
-                            Available Products
-                        </Text>
-                        <Text className="text-sm font-medium" style={{ color: '#4CAF50' }}>
-                            View All
-                        </Text>
+                {/* Available Products */}
+                <View className="mt-6">
+                    <View className="px-4 flex-row justify-between items-center mb-1">
+                        <Text className="text-lg font-bold text-gray-900">Available Products</Text>
+                        <TouchableOpacity onPress={() => console.log('See all')}>
+                            <Text className="text-green-600 font-medium text-sm">See All</Text>
+                        </TouchableOpacity>
                     </View>
-                    <View className="grid grid-cols-2 gap-3">
-                        {PRODUCTS.map(product => (
-                            <FarmProductCard
-                                key={product.id}
-                                {...product}
-                                onAdd={() => console.log('Add', product.name)}
-                                onPreOrder={() => console.log('Pre-order', product.name)}
-                            />
-                        ))}
+
+                    {batches && batches.length > 0 ? (
+                        <ScrollView
+                            horizontal
+                            showsHorizontalScrollIndicator={false}
+                            contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 8 }}
+                        >
+                            {batches.map(batch => (
+                                <View key={batch.id} className="w-[160px] mr-4">
+                                    <FarmProductCard
+                                        image={batch.imagesUrl?.[0] || 'https://via.placeholder.com/150'}
+                                        name={batch.season?.product?.productName || 'Unknown Product'}
+                                        price={`$${batch.price}/${batch.units}`}
+                                        badge={{
+                                            label: batch.availableQuantity > 0 ? 'In Stock' : 'Out of Stock',
+                                            color: batch.availableQuantity > 0 ? 'green' : 'orange'
+                                        }}
+                                        rating={batch.averageRating || 0}
+                                        reviewCount={batch.reviewCount || 0}
+                                        onAdd={() => console.log('Add', batch.id)}
+
+                                    />
+                                </View>
+                            ))}
+                        </ScrollView>
+                    ) : (
+                        <View className="px-4">
+                            <Text className="text-gray-500 italic">No products available at the moment.</Text>
+                        </View>
+                    )}
+                </View>
+
+
+
+                {/* Farm History */}
+                <View className="mt-4 px-4">
+                    <Text className="text-lg font-bold text-gray-900 mb-3">Farm Information</Text>
+                    <FarmHistory events={farm.history as any || []} />
+                </View>
+
+                <View className="px-4 flex-row justify-between items-center mt-4">
+                    <Text className="text-lg font-bold text-gray-900">Reviews</Text>
+                    <TouchableOpacity onPress={() => navigation.navigate('CustomerAllReviews', { farmId })}>
+                        <Text className="text-green-600 font-medium text-sm">View All</Text>
+                    </TouchableOpacity>
+                </View>
+
+                {/* Customer Reviews */}
+                <View className="mt-2 px-4">
+                    <View className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+                        {/* Summary */}
+                        <FarmReviewSummary
+                            averageRating={averageRating}
+                            totalReviews={reviews?.length || 0}
+                            ratingCounts={{
+                                5: reviews?.filter(r => r.rate === 5).length || 0,
+                                4: reviews?.filter(r => r.rate === 4).length || 0,
+                                3: reviews?.filter(r => r.rate === 3).length || 0,
+                                2: reviews?.filter(r => r.rate === 2).length || 0,
+                                1: reviews?.filter(r => r.rate === 1).length || 0,
+                            }}
+                        />
+
+                        {/* Review List */}
+                        {reviews && reviews.length > 0 ? (
+                            <View>
+                                {reviews.slice(0, 3).map(review => (
+                                    <FarmReviewCard key={review.id} review={review} />
+                                ))}
+                            </View>
+                        ) : (
+                            <View className="py-4 items-center justify-center">
+                                <Text className="text-gray-400 text-center">No reviews yet.</Text>
+                            </View>
+                        )}
                     </View>
                 </View>
 
-                <View className="mb-4 px-4">
-                    <Text className="text-[18px] font-semibold mb-4" style={{ color: '#1B1F24' }}>
-                        Farm History
-                    </Text>
-                    <FarmHistory events={FARM_DATA.history} />
-                </View>
+                {/* Meet the Farmer
+                <View className="mt-6 px-4">
+                    <Text className="text-lg font-bold text-gray-900 mb-3">Meet the Farmer</Text>
+                    <MeetFarmer {...farmerData} />
+                </View> */}
 
-                <View className="mb-4 px-4">
-                    <Text className="text-[18px] font-semibold mb-4" style={{ color: '#1B1F24' }}>
-                        Meet the Farmer
-                    </Text>
-                    <MeetFarmer {...FARM_DATA.farmer} />
+                <View className="mt-6">
+                    <VisitFarmCard
+                        {...farmData.contact}
+                        onGetDirections={() => console.log('Get Directions')}
+                        onCall={() => console.log('Call')}
+                    />
                 </View>
-
-                <VisitFarmCard
-                    {...farmData.contact}
-                    onGetDirections={() => console.log('Get Directions')}
-                    onCall={() => console.log('Call')}
-                />
             </ScrollView>
 
             <BottomActions
                 onMessage={() => console.log('Message')}
                 onViewProducts={() => console.log('View Products')}
             />
+
+
         </SafeAreaView>
     );
 }

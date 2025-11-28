@@ -1,85 +1,83 @@
-import React from "react";
-import { View, Text, Image, TouchableOpacity, Pressable } from "react-native";
-import { MapPin, Star, ChevronRight } from "lucide-react-native";
-import { Farm } from "@/types";
-import { useNavigation } from "@react-navigation/native";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { CustomerStackParamList } from "@/navigation/CustomerNavigator";
+import React from 'react';
+import { View, Text, Image, TouchableOpacity, Pressable } from 'react-native';
+import { Farm } from '@/types';
+import { Heart, Star, MapPin } from 'lucide-react-native';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { CustomerStackParamList } from '@/navigation/CustomerNavigator';
+import { useFavoriteFarms, useToggleFavoriteFarm } from '@/hooks/useFavoriteFarm';
 
-interface FarmTransparencyCardProps {
+interface FarmFeatureCardProps {
     farm: Farm;
+    style?: any;
 }
 
-type NavigationProp = NativeStackNavigationProp<CustomerStackParamList>;
+const FarmFeatureCard = ({ farm, style }: FarmFeatureCardProps) => {
+    const navigation = useNavigation<NativeStackNavigationProp<CustomerStackParamList>>();
+    const { data: favoriteFarms } = useFavoriteFarms();
+    const { mutate: toggleFavorite } = useToggleFavoriteFarm();
 
-const FarmFeatureCard: React.FC<FarmTransparencyCardProps> = ({
-    farm
-}) => {
-    const navigator = useNavigation<NavigationProp>();
+    const isFavorite = favoriteFarms?.some((f: any) => f.id === farm.id) || false;
 
-    // Construct location string
-    const location = farm.address
-        ? `${farm.address.province}, ${farm.address.district}`
-        : "Unknown Location";
+    const handlePress = () => {
+        navigation.navigate('FarmDetail', { farmId: farm.id });
+    };
+
+    const handleToggleFavorite = () => {
+        toggleFavorite({ farmId: farm.id, isFavorite });
+    };
 
     return (
-        <View
-            key={farm.id}
-            className="p-4 mr-3"
-            style={{
-                width: 280,
-                backgroundColor: '#FFFFFF',
-                borderRadius: 16,
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.08,
-                shadowRadius: 8,
-                elevation: 3
-            }}
+        <Pressable
+            onPress={handlePress}
+            className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100"
+            style={[style]}
         >
-            <View className="flex-row items-center mb-3">
+            <View className="relative h-28">
                 <Image
-                    source={{ uri: farm.bannerUrl || "https://via.placeholder.com/150" }}
-                    className="w-12 h-12 rounded-full mr-3"
+                    source={{ uri: farm.bannerUrl || 'https://via.placeholder.com/400x200' }}
+                    className="w-full h-full"
+                    resizeMode="cover"
                 />
-                <View className="flex-1">
-                    <Text className="text-[14px] font-semibold" style={{ color: '#1B1F24' }} numberOfLines={1}>
-                        {farm.farmName}
+                <View className="absolute inset-0 bg-black/5" />
+
+                <TouchableOpacity
+                    onPress={handleToggleFavorite}
+                    className="absolute top-2 right-2 w-7 h-7 bg-white/90 backdrop-blur-sm rounded-full items-center justify-center shadow-sm"
+                >
+                    <Heart
+                        size={14}
+                        fill={isFavorite ? "#EF4444" : "transparent"}
+                        color={isFavorite ? "#EF4444" : "#6B7280"}
+                    />
+                </TouchableOpacity>
+
+                <View className="absolute top-2 left-2 bg-white/90 backdrop-blur-sm px-2 py-0.5 rounded-md shadow-sm">
+                    <Text className="text-[10px] font-semibold text-green-700">
+                        {farm.isConfirmAsMall ? 'Mall' : 'Farm'}
                     </Text>
-                    <View className="flex-row items-center gap-1">
-                        <MapPin size={10} color="#6B737A" />
-                        <Text className="text-[12px]" style={{ color: '#6B737A' }} numberOfLines={1}>
-                            {location}
-                        </Text>
-                    </View>
-                    <View className="flex-row items-center gap-1 mt-1">
-                        <Star size={12} color="#FFB380" fill="#FFB380" />
-                        <Text className="text-[10px]" style={{ color: '#9DA3A8' }}>
-                            4.8 (120 reviews)
-                        </Text>
-                    </View>
                 </View>
             </View>
 
-            <Text className="text-[12px] mb-3" style={{ color: '#6B737A' }} numberOfLines={2}>
-                {farm.farmDesc || "No description available."}
-            </Text>
-
-            <View className="flex-row justify-between items-center">
-                <Text className="text-[12px]" style={{ color: '#6B737A' }}>
-                    View Products
-                </Text>
-                <Pressable
-                    className="py-2 px-4"
-                    style={{ backgroundColor: '#FFF5EB', borderRadius: 12 }}
-                    onPress={() => navigator.navigate('FarmDetail', { farmId: String(farm.id) })}
-                >
-                    <Text className="text-[12px] font-semibold" style={{ color: '#4CAF50' }}>
-                        Visit Farm
+            <View className="p-3">
+                <View className="flex-row justify-between items-start mb-1">
+                    <Text className="text-base font-bold text-gray-900 flex-1 mr-1" numberOfLines={1}>
+                        {farm.farmName}
                     </Text>
-                </Pressable>
+                    <View className="flex-row items-center bg-orange-50 px-1.5 py-0.5 rounded-md ml-2">
+                        <Star size={10} fill="#F59E0B" color="#F59E0B" />
+                        <Text className="text-[10px] font-bold text-orange-700 ml-1">4.8</Text>
+                    </View>
+                </View>
+
+                <View className="flex-row items-center">
+                    <MapPin size={12} color="#9CA3AF" className="mr-1" />
+                    <Text className="text-xs text-gray-500 flex-1" numberOfLines={1}>
+                        {farm.address ? `${farm.address.ward}, ${farm.address.district}` : 'Unknown Location'}
+                    </Text>
+                </View>
             </View>
-        </View>
+        </Pressable>
     );
 };
 

@@ -3,8 +3,6 @@ import { IntroSection } from "@/components/farmer-dashboard/IntroSection"
 import { QuickActionsSection } from "@/components/farmer-dashboard/QuickActionsSection"
 import { QuickAnalystSection } from "@/components/farmer-dashboard/QuickAnalystSection"
 import { RecentOrdersSection } from "@/components/farmer-dashboard/RecentOrdersSection"
-import { TopProductsSection } from "@/components/farmer-dashboard/TopProductsSection"
-import { WeeklySalesSection } from "@/components/farmer-dashboard/WeeklySalesSection"
 import { FarmStackParamList } from "@/navigation/types"
 import { useNavigation } from "@react-navigation/native"
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
@@ -56,17 +54,6 @@ type Nav = NativeStackNavigationProp<FarmStackParamList>
 
 export function FarmDashboard({ dashboardData }: FarmDashboardProps) {
   const navigation = useNavigation<Nav>()
-  const defaultData: DashboardData = {
-    userName: "John",
-    userImageUrl:
-      "https://static.paraflowcontent.com/public/resource/image/a1247aa6-da9d-4a6d-b59f-704283906abd.jpeg",
-    earningsAmount: "$1,250",
-    earningsPeriod: "+15%",
-    activeProductsCount: 47,
-    activeProductsTrend: "+12%",
-    newOrdersCount: 23,
-    newOrdersTrend: "+8%",
-  }
 
   const actions = [
     {
@@ -105,44 +92,7 @@ export function FarmDashboard({ dashboardData }: FarmDashboardProps) {
     },
   ]
 
-  const orders = [
-    {
-      id: 1,
-      name: "Organic Tomatoes",
-      orderNumber: "1234",
-      quantity: "5kg",
-      price: "$25.00",
-      status: "Delivered",
-      statusColor: "#C8E6C9",
-      statusTextColor: "#2E7D32",
-      image: "https://static.paraflowcontent.com/public/resource/image/231b2afb-4130-450d-8c75-a1f278d7e43e.jpeg",
-    },
-    {
-      id: 2,
-      name: "Fresh Lettuce",
-      orderNumber: "1233",
-      quantity: "3kg",
-      price: "$18.00",
-      status: "Processing",
-      statusColor: "#FFE0B2",
-      statusTextColor: "#F57C00",
-      image: "https://static.paraflowcontent.com/public/resource/image/da254509-3494-4cc1-a106-99a72b804334.jpeg",
-    },
-    {
-      id: 3,
-      name: "Fresh Carrots",
-      orderNumber: "1232",
-      quantity: "2kg",
-      price: "$12.00",
-      status: "Delivered",
-      statusColor: "#C8E6C9",
-      statusTextColor: "#2E7D32",
-      image: "https://static.paraflowcontent.com/public/resource/image/8b25a246-a1ec-4af9-b614-3a9a1c646c3a.jpeg",
-    },
-  ]
-
   const { dashboardData: fetchedData, isLoading } = useFarmDashboardData();
-  const data = dashboardData || fetchedData || defaultData;
 
   if (isLoading && !dashboardData) {
     return <FarmDashboardSkeleton />;
@@ -157,20 +107,20 @@ export function FarmDashboard({ dashboardData }: FarmDashboardProps) {
           paddingHorizontal: 16,
           paddingVertical: 16,
           gap: 16,
-          paddingBottom: Platform.OS === "ios" ? 140 : 50,
+          paddingBottom: Platform.OS === "ios" ? 140 : 140,
         }}
       >
         <DashboardHeader />
         <IntroSection
-          userName={data.userName}
-          userImageUrl={data.userImageUrl}
-          earningsAmount={data.earningsAmount}
-          earningsPeriod={data.earningsPeriod}
+          userName={fetchedData?.userName || 'Farmer'}
+          userImageUrl={fetchedData?.userImageUrl || 'https://via.placeholder.com/150'}
+          earningsAmount={fetchedData?.earningsAmount || '$0'}
+          earningsPeriod={fetchedData?.earningsPeriod || '0%'}
         />
 
         <QuickAnalystSection
-          activeProducts={{ count: data.activeProductsCount, trend: data.activeProductsTrend }}
-          newOrders={{ count: data.newOrdersCount, trend: data.newOrdersTrend }}
+          activeProducts={{ count: fetchedData?.activeProductsCount || 0, trend: fetchedData?.activeProductsTrend || '0%' }}
+          newOrders={{ count: fetchedData?.newOrdersCount || 0, trend: fetchedData?.newOrdersTrend || '0%' }}
         />
 
         <QuickActionsSection actions={actions} onPressAction={(link) => {
@@ -178,11 +128,11 @@ export function FarmDashboard({ dashboardData }: FarmDashboardProps) {
             navigation.navigate(link as any)
           }
         }} />
-        <RecentOrdersSection orders={data.recentOrders || []} onPressOrder={(orderId) => {
+        <RecentOrdersSection orders={fetchedData?.recentOrders || []} onPressOrder={(orderId) => {
           navigation.navigate("FarmerOrderDetail", { orderId })
         }} />
-        <TopProductsSection />
-        <WeeklySalesSection />
+        {/* <TopProductsSection />
+        <WeeklySalesSection /> */}
       </ScrollView>
     </SafeAreaView>
   )

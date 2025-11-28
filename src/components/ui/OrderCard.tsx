@@ -1,10 +1,10 @@
 import { FarmStackParamList } from "@/navigation/types"
 import { useNavigation } from "@react-navigation/native"
-import { NativeStackNavigationProp } from "node_modules/@react-navigation/native-stack/lib/typescript/src/types"
+import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { View, Text, Image, TouchableOpacity } from "react-native"
 
-interface Order {
-  id: number
+export interface OrderUI {
+  id: string
   name: string
   orderNumber: string
   quantity: string
@@ -16,7 +16,7 @@ interface Order {
 }
 
 interface OrderCardProps {
-  order: Order,
+  order: OrderUI,
   onPress?: (orderId: string) => void
 }
 

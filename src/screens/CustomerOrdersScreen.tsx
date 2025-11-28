@@ -9,6 +9,8 @@ import { useMyOrders } from '@/hooks/useMyOrders';
 import { formatDate } from '@/utils/date';
 import { CustomerOrdersScreenSkeleton } from '@/components/skeletons/CustomerOrdersScreenSkeleton';
 
+
+
 const FILTERS = ['All Orders', 'Active', 'Delivered', 'Cancelled'] as const;
 type FilterType = (typeof FILTERS)[number];
 
@@ -21,24 +23,39 @@ const mapStatus = (status: string): Order['status'] => {
   return 'pending';
 };
 
-const CustomerOrdersScreen: React.FC = () => {
-  const [filter, setFilter] = useState<FilterType>('All Orders');
-  const navigation = useNavigation()
-  const { data: orders, isLoading } = useMyOrders();
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { CustomerStackParamList } from '@/navigation/CustomerNavigator';
+
+type Props = NativeStackScreenProps<CustomerStackParamList, 'CustomerOrders'>;
+
+const CustomerOrdersScreen: React.FC<Props> = ({ route, navigation }) => {
+  const { initialFilter } = route.params || {};
+  const [filter, setFilter] = useState<FilterType>((initialFilter as FilterType) || 'All Orders');
+
+  const { data: orders, isLoading: isLoadingOrders } = useMyOrders();
+  const isLoading = isLoadingOrders;
 
   const ordersData = useMemo(() => {
     if (!orders) return [];
-    return orders.map((order: any) => ({
-      id: order.id,
-      code: order.orderCode,
-      date: formatDate(order.orderDate),
-      farmName: 'Farm', // Placeholder
-      subtitle: `${order.orderItems?.length || 0} items`,
-      status: mapStatus(order.orderStatus),
-      itemsCount: order.orderItems?.length || 0,
-      total: `$${order.totalPrice}`,
-      estDelivery: 'TBD',
-    } as Order));
+    return orders.map((order: any) => {
+      const firstItem = order.orderItems?.[0];
+      const farm = firstItem?.batch?.season?.farm;
+
+      return {
+        id: order.id,
+        code: order.orderCode,
+        date: formatDate(order.orderDate),
+        farmName: farm?.farmName || 'Unknown Farm',
+        farmId: firstItem?.batch?.season?.farmId,
+        batchId: firstItem?.batch?.id,
+        subtitle: `${order.orderItems?.length || 0} items`,
+        status: mapStatus(order.orderStatus),
+        itemsCount: order.orderItems?.length || 0,
+        total: `$${order.totalPrice}`,
+        estDelivery: 'TBD',
+        images: firstItem?.batch?.imagesUrl || [],
+      } as Order;
+    });
   }, [orders]);
 
   const filteredOrders = useMemo(() => {
@@ -52,7 +69,7 @@ const CustomerOrdersScreen: React.FC = () => {
       return ordersData.filter(o => o.status === 'delivered');
     }
     return ordersData.filter(o => o.status === 'cancelled');
-  }, [filter]);
+  }, [filter, ordersData]);
 
   return (
     <SafeAreaView className="flex-1 bg-[#F9FAF9]">

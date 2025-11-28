@@ -67,9 +67,12 @@ export default function FarmDetailScreen() {
   }
 
   // Existing farmer - display farm data
-  const carouselImages = farm.bannerUrl ? [farm.bannerUrl] : [];
-  const farmLocation = farm.address
-    ? `${farm.address.ward}, ${farm.address.district}, ${farm.address.province}`
+  // Defensive check for bannerUrl
+  const carouselImages = farm?.bannerUrl ? [farm.bannerUrl] : [];
+
+  // Defensive check for address
+  const farmLocation = farm?.address
+    ? `${farm.address.ward || ''}, ${farm.address.district || ''}, ${farm.address.province || ''}`.replace(/^, |, , /g, '')
     : "Location not specified";
 
   return (
@@ -101,11 +104,11 @@ export default function FarmDetailScreen() {
         <View className="p-4">
           {/* Farm Info Card */}
           <FarmInfoCard
-            name={farm.farmName}
+            name={farm?.farmName || "My Farm"}
             location={farmLocation}
-            size={farm.area ? parseFloat(farm.area) : 0}
-            description={farm.farmDesc || "No description provided"}
-            logoUrl={{ uri: farm.bannerUrl || "" }}
+            size={farm?.area ? parseFloat(farm.area) || 0 : 0}
+            description={farm?.farmDesc || "No description provided"}
+            logoUrl={farm?.bannerUrl ? { uri: farm.bannerUrl } : require('../../assets/icon.png')}
             activeSeasons={seasons?.length || 0}
             activeSeasonsStatus={seasons && seasons.length > 0 ? "Active" : "No seasons"}
           />

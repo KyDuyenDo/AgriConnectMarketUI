@@ -11,12 +11,15 @@ import CustomerAddressScreen from "@/screens/CustomerAddressScreen"
 
 export type CustomerStackParamList = {
   MainTabs: undefined
-  CustomerOrders: undefined
+  CustomerOrders: { initialFilter?: string } | undefined
   CustomerOrderDetail: { orderId: string }
   FarmDetail: { farmId: string }
   BatchDetails: { batchId: string }
   PersonalInformation: undefined
   CustomerAddress: undefined
+  FarmList: undefined
+  FarmReview: { farmId: string; batchId: string }
+  CustomerAllReviews: { farmId: string }
 }
 
 const Stack = createNativeStackNavigator<CustomerStackParamList>()
@@ -68,6 +71,21 @@ const CustomerNavigator = () => {
         name="FarmDetail"
         component={CustomerFarmDetailScreen}
         options={{ title: "Farm Detail" }}
+      />
+      <Stack.Screen
+        name="FarmList"
+        component={require("@/screens/FarmListScreen").default}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="FarmReview"
+        component={require("@/screens/FarmReviewScreen").default}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="CustomerAllReviews"
+        component={require("@/screens/CustomerAllReviewsScreen").default}
+        options={{ title: "All Reviews" }}
       />
     </Stack.Navigator>
   )

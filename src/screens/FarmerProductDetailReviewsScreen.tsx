@@ -1,4 +1,4 @@
-import { ScrollView, Platform, View } from 'react-native';
+import { ScrollView, View, Alert, TextInput, TouchableOpacity, Text, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Header } from '@/components/farmer-product-detail/Header';
 import { ProductHero } from '@/components/farmer-product-detail/ProductHero';
@@ -8,106 +8,27 @@ import { ReviewsSummary } from '@/components/farmer-product-detail/ReviewsSummar
 import { ReviewCard } from '@/components/farmer-product-detail/ReviewCard';
 import { FeedbackTimeline } from '@/components/farmer-product-detail/FeedbackTimeline';
 import { BottomActions } from '@/components/farmer-product-detail/BottomActions';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { FarmStackParamList } from '@/navigation/types';
+import { useFarmReviews, useReplyFarmReview } from '@/hooks/useFarmReview';
+import { useBatchById } from '@/hooks/useBatches';
+import { useState } from 'react';
 
-// Mock Data
-const PRODUCT_DATA = {
-    name: 'Premium Vine Tomatoes',
-    farm: 'Sunny Valley Farm',
-    price: '5.99',
-    unit: 'lb',
-    description: 'Fresh, vine-ripened tomatoes grown using sustainable organic practices. Perfect for salads, cooking, or eating fresh off the vine.',
-    image: 'https://static.paraflowcontent.com/public/resource/image/6a5247cd-7c6e-43c4-b7e1-c27021c70c94.jpeg',
-    badges: [
-        { type: 'organic' as const, label: 'Organic' },
-        { type: 'lowStock' as const, label: 'Low Stock' }
-    ]
-};
 
-const SALES_DATA = {
-    unitsSold: 342,
-    unitsTrend: '+12% this week',
-    revenue: '2,048',
-    revenueTrend: '+8% this week',
-    stockRemaining: '23 lbs remaining',
-    stockPercentage: 25
-};
+type Props = NativeStackScreenProps<FarmStackParamList, 'ProductDetailReviews'>;
 
-const REVIEWS_OVERVIEW = {
-    averageRating: 4.8,
-    totalReviews: 28,
-    breakdown: [
-        { stars: 5, count: 21, percentage: 75 },
-        { stars: 4, count: 5, percentage: 20 },
-        { stars: 3, count: 2, percentage: 7 }
-    ]
-};
+export function FarmerProductDetailReviewsScreen({ route, navigation }: Props) {
+    const { batchId, farmId } = route.params;
+    const { data: reviews, isLoading: isLoadingReviews } = useFarmReviews(farmId);
+    const { data: batch, isLoading: isLoadingBatch } = useBatchById(batchId);
+    const { mutate: replyToReview } = useReplyFarmReview();
 
-const REVIEWS = [
-    {
-        id: '1',
-        customerName: 'Sarah M.',
-        customerAvatar: 'https://static.paraflowcontent.com/public/resource/image/43e2b811-703b-46b2-ad83-4b2a9f578d02.jpeg',
-        rating: 5,
-        timestamp: '3 days ago',
-        text: 'Absolutely amazing tomatoes! So fresh and flavorful. You can really taste the difference with organic produce. Will definitely order again!',
-        videoLength: '2:34',
-        farmerReply: {
-            farmName: 'Sunny Valley Farm',
-            farmerAvatar: 'https://static.paraflowcontent.com/public/resource/image/17050963-5787-4f3e-90da-4d33af41fbdb.jpeg',
-            timestamp: '2 days ago',
-            text: 'Thank you so much Sarah! We\'re thrilled you enjoyed them. Fresh harvest every morning! 🍅'
-        }
-    },
-    {
-        id: '2',
-        customerName: 'Mike R.',
-        customerAvatar: 'https://static.paraflowcontent.com/public/resource/image/07e02f4d-2f57-4376-86cd-c3238329b95b.jpeg',
-        rating: 4,
-        timestamp: '1 week ago',
-        text: 'Great quality tomatoes, perfect for my restaurant. Consistent sizing and excellent flavor profile. Fast delivery too!',
-        videoLength: '1:12'
-    },
-    {
-        id: '3',
-        customerName: 'Janet K.',
-        customerAvatar: 'https://static.paraflowcontent.com/public/resource/image/05e422d3-9118-445d-b0fb-cba9e94b1f7d.jpeg',
-        rating: 5,
-        timestamp: '2 weeks ago',
-        text: 'Perfect tomatoes for canning season! Meaty texture and rich flavor. Exactly what I was looking for my grandmother\'s sauce recipe.',
-        videoLength: '0:45',
-        farmerReply: {
-            farmName: 'Sunny Valley Farm',
-            farmerAvatar: 'https://static.paraflowcontent.com/public/resource/image/66f2e63b-cb96-479e-95b2-b3c88d96d0ed.jpeg',
-            timestamp: '2 weeks ago',
-            text: 'So wonderful to hear Janet! Our heirloom varieties are perfect for preserving. Hope your sauce turns out amazing! 👵🍅'
-        }
-    }
-];
+    const [replyModalVisible, setReplyModalVisible] = useState(false);
+    const [selectedReviewId, setSelectedReviewId] = useState<string | null>(null);
+    const [replyText, setReplyText] = useState('');
 
-const TIMELINE_DATA = [
-    {
-        title: '5★ Review from Sarah M.',
-        description: 'Video review with positive feedback',
-        timestamp: '3 days ago',
-        color: 'green' as const
-    },
-    {
-        title: '4★ Review from Mike R.',
-        description: 'Restaurant owner feedback - awaiting response',
-        timestamp: '1 week ago',
-        color: 'orange' as const
-    },
-    {
-        title: '5★ Review from Janet K.',
-        description: 'Canning feedback with farmer response',
-        timestamp: '2 weeks ago',
-        color: 'green' as const
-    }
-];
-
-export function FarmerProductDetailReviewsScreen() {
     const handleBack = () => {
-        console.log('Navigate back');
+        navigation.goBack();
     };
 
     const handleMenu = () => {
@@ -115,16 +36,51 @@ export function FarmerProductDetailReviewsScreen() {
     };
 
     const handleEditProduct = () => {
-        console.log('Edit product');
+        // navigation.navigate('EditProduct', { batchId });
     };
 
     const handleReplyToReviews = () => {
-        console.log('Reply to reviews');
+        // Maybe scroll to reviews section?
     };
 
-    const handleReply = () => {
-        console.log('Reply to individual review');
+    const handleReply = (reviewId: string) => {
+        setSelectedReviewId(reviewId);
+        setReplyText('');
+        setReplyModalVisible(true);
     };
+
+    const submitReply = () => {
+        if (!selectedReviewId || !replyText.trim()) return;
+
+        replyToReview({ reviewId: selectedReviewId, dto: { reply: replyText } }, {
+            onSuccess: () => {
+                Alert.alert('Success', 'Reply submitted successfully');
+                setReplyModalVisible(false);
+            },
+            onError: () => {
+                Alert.alert('Error', 'Failed to submit reply');
+            }
+        });
+    };
+
+    // Filter reviews for this batch
+    const batchReviews = reviews?.filter(r => r.batchId === batchId) || [];
+
+    // Calculate stats
+    const totalReviews = batchReviews.length;
+    const averageRating = totalReviews > 0
+        ? batchReviews.reduce((acc, r) => acc + r.rate, 0) / totalReviews
+        : 0;
+
+    const breakdown = [5, 4, 3, 2, 1].map(star => ({
+        stars: star,
+        count: batchReviews.filter(r => r.rate === star).length,
+        percentage: totalReviews > 0 ? (batchReviews.filter(r => r.rate === star).length / totalReviews) * 100 : 0
+    }));
+
+    if (isLoadingBatch || isLoadingReviews) {
+        return <SafeAreaView className="flex-1 items-center justify-center"><Text>Loading...</Text></SafeAreaView>;
+    }
 
     return (
         <SafeAreaView className="flex-1" style={{ backgroundColor: '#F9FAF9' }}>
@@ -135,50 +91,85 @@ export function FarmerProductDetailReviewsScreen() {
                 contentContainerStyle={{ paddingBottom: 20 }}
             >
                 <ProductHero
-                    image={PRODUCT_DATA.image}
-                    badges={PRODUCT_DATA.badges}
+                    image={batch?.imagesUrl?.[0] || 'https://via.placeholder.com/400'}
+                    badges={[]}
                 />
 
                 <ProductInfo
-                    name={PRODUCT_DATA.name}
-                    farm={PRODUCT_DATA.farm}
-                    price={PRODUCT_DATA.price}
-                    unit={PRODUCT_DATA.unit}
-                    description={PRODUCT_DATA.description}
+                    name={batch?.season?.product?.productName || 'Unknown Product'}
+                    farm={(batch?.season as any)?.farm?.farmName || 'My Farm'}
+                    price={batch?.price.toString() || '0'}
+                    unit={batch?.units || 'unit'}
+                    description={batch?.season?.seasonDesc || ''}
                 />
 
-                <SalesPerformance
-                    unitsSold={SALES_DATA.unitsSold}
-                    unitsTrend={SALES_DATA.unitsTrend}
-                    revenue={SALES_DATA.revenue}
-                    revenueTrend={SALES_DATA.revenueTrend}
-                    stockRemaining={SALES_DATA.stockRemaining}
-                    stockPercentage={SALES_DATA.stockPercentage}
-                />
+                {/* SalesPerformance placeholder or real data if available */}
 
                 <ReviewsSummary
-                    averageRating={REVIEWS_OVERVIEW.averageRating}
-                    totalReviews={REVIEWS_OVERVIEW.totalReviews}
-                    breakdown={REVIEWS_OVERVIEW.breakdown}
+                    averageRating={averageRating}
+                    totalReviews={totalReviews}
+                    breakdown={breakdown}
                 />
 
                 <View className="px-4 py-2">
-                    {REVIEWS.map((review) => (
+                    {batchReviews.map((review) => (
                         <ReviewCard
                             key={review.id}
-                            {...review}
-                            onReply={review.farmerReply ? undefined : handleReply}
+                            id={review.id}
+                            customerName={review.userName}
+                            customerAvatar={review.userAvatar}
+                            rating={review.rate}
+                            timestamp={new Date(review.createdAt).toLocaleDateString()}
+                            text={review.message}
+                            farmerReply={review.reply ? {
+                                farmName: 'My Farm',
+                                farmerAvatar: 'https://via.placeholder.com/40',
+                                timestamp: '',
+                                text: review.reply
+                            } : undefined}
+                            onReply={() => handleReply(review.id)}
                         />
                     ))}
+                    {batchReviews.length === 0 && (
+                        <Text className="text-center text-gray-500 py-4">No reviews yet.</Text>
+                    )}
                 </View>
 
-                <FeedbackTimeline items={TIMELINE_DATA} />
+                {/* FeedbackTimeline placeholder */}
             </ScrollView>
 
             <BottomActions
                 onEditProduct={handleEditProduct}
                 onReplyToReviews={handleReplyToReviews}
             />
+
+            <Modal
+                visible={replyModalVisible}
+                transparent={true}
+                animationType="slide"
+                onRequestClose={() => setReplyModalVisible(false)}
+            >
+                <View className="flex-1 justify-center items-center bg-black/50 px-4">
+                    <View className="bg-white p-4 rounded-lg w-full">
+                        <Text className="text-lg font-bold mb-2">Reply to Review</Text>
+                        <TextInput
+                            className="border border-gray-300 rounded p-2 mb-4 h-24"
+                            multiline
+                            placeholder="Type your reply here..."
+                            value={replyText}
+                            onChangeText={setReplyText}
+                        />
+                        <View className="flex-row justify-end gap-2">
+                            <TouchableOpacity onPress={() => setReplyModalVisible(false)} className="px-4 py-2 bg-gray-200 rounded">
+                                <Text>Cancel</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={submitReply} className="px-4 py-2 bg-green-600 rounded">
+                                <Text className="text-white">Submit</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
         </SafeAreaView>
     );
 }

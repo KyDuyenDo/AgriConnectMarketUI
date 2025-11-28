@@ -3,6 +3,9 @@ import type React from "react"
 import { View, Text, TouchableOpacity } from "react-native"
 import { getStatusColor, getStatusTextColor } from "@/lib/orderHelpers"
 import { formatDate } from "@/utils/date"
+import { useNavigation } from "@react-navigation/native"
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack"
+import type { CustomerStackParamList } from "@/navigation/CustomerNavigator"
 
 interface RecentOrdersCardProps {
   orders: Order[]
@@ -10,6 +13,7 @@ interface RecentOrdersCardProps {
 }
 
 export const RecentOrdersCard: React.FC<RecentOrdersCardProps> = ({ orders, onViewAll }) => {
+  const navigation = useNavigation<NativeStackNavigationProp<CustomerStackParamList>>()
   return (
     <View className="px-4">
       {/* Header */}
@@ -41,7 +45,7 @@ export const RecentOrdersCard: React.FC<RecentOrdersCardProps> = ({ orders, onVi
                 </Text>
               </View>
               {/* Action Button */}
-              <TouchableOpacity className="px-4 py-2 bg-[#F5F7F5] rounded-xl">
+              <TouchableOpacity onPress={() => navigation.navigate('CustomerOrderDetail', { orderId: order.id } as never)} className="px-4 py-2 bg-[#F5F7F5] rounded-xl">
                 <Text className="text-[#4CAF50] font-semibold text-xs text-center">Track</Text>
               </TouchableOpacity>
             </View>

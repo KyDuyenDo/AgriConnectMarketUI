@@ -15,6 +15,22 @@ export const useBatchesBySeason = (seasonId: string) => {
     });
 };
 
+export const useBatchesByFarm = (farmId: string) => {
+    return useQuery<Batch[]>({
+        queryKey: ["batches", "farm", farmId],
+        queryFn: () => BatchService.getBatchesByFarm(farmId),
+        enabled: !!farmId,
+    });
+};
+
+export const useBatchById = (batchId: string) => {
+    return useQuery<Batch>({
+        queryKey: ["batches", batchId],
+        queryFn: () => BatchService.getBatchById(batchId),
+        enabled: !!batchId,
+    });
+};
+
 export const useAllBatches = (accountId?: string, options?: { enabled?: boolean }) => {
     return useQuery<Batch[]>({
         queryKey: accountId ? [...BATCH_QUERY_KEYS.all, accountId] : BATCH_QUERY_KEYS.all,
@@ -58,5 +74,13 @@ export const useDeleteBatch = () => {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: BATCH_QUERY_KEYS.all });
         },
+    });
+};
+
+export const useGetBatchById = (batchId: string) => {
+    return useQuery({
+        queryKey: ["batches", batchId],
+        queryFn: () => BatchService.getBatchById(batchId),
+        enabled: !!batchId,
     });
 };

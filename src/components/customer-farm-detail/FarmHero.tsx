@@ -11,7 +11,7 @@ export function FarmHero({ image, badge }: FarmHeroProps) {
             <Image
                 source={{ uri: image }}
                 className="w-full h-full"
-                style={{ filter: 'brightness(95%)' }}
+                style={{ opacity: 0.95 }}
                 resizeMode="cover"
             />
 

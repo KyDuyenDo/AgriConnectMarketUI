@@ -10,8 +10,6 @@ import { useGetProfile } from "@/hooks/useProfile";
 export function useFarmDashboardData() {
     const { accountId } = useAuthStore();
 
-    const { data: profile } = useGetProfile();
-
     const { data: farm, isLoading: isLoadingFarm } = useQuery({
         queryKey: ["my-farm"],
         queryFn: FarmService.getFarmByMe,
@@ -53,8 +51,8 @@ export function useFarmDashboardData() {
         );
 
         return {
-            userName: profile?.fullname || farm?.farmName || "Farmer",
-            userImageUrl: profile?.avatarUrl || farm?.bannerUrl || "https://via.placeholder.com/150",
+            userName: farm.farmer?.profile?.fullname || farm?.farmName || "Farmer",
+            userImageUrl: farm.farmer?.profile?.avatarUrl || farm?.bannerUrl || "https://via.placeholder.com/150",
             earningsAmount: `$${totalEarnings.toLocaleString()}`,
             earningsPeriod: "",
             activeProductsCount: activeBatches.length,
@@ -86,7 +84,7 @@ export function useFarmDashboardData() {
                 };
             }),
         };
-    }, [farm, orders, batches, profile]);
+    }, [farm, orders, batches]);
 
     return {
         dashboardData,

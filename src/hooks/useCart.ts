@@ -10,7 +10,6 @@ export const useCart = () => {
         queryKey: CART_QUERY_KEYS.cart,
         queryFn: async () => {
             const cart = await CartService.getCart();
-            if (!cart || !cart.cartItems) return cart;
             return cart;
         },
     });

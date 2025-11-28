@@ -32,14 +32,21 @@ export function OrderHeader({ orderNumber, placedDate, status }: OrderHeaderProp
             }}
         >
             <View className="flex-row justify-between items-center">
-                <View>
-                    <Text className="text-2xl font-semibold mb-1" style={{ color: '#1B1F24' }}>
+                <View style={{ maxWidth: '70%' }}>
+                    <Text
+                        className="text-2xl font-semibold mb-1"
+                        style={{ color: '#1B1F24' }}
+                        numberOfLines={1}
+                        ellipsizeMode="tail"
+                    >
                         {orderNumber}
                     </Text>
+
                     <Text className="text-sm" style={{ color: '#6B737A' }}>
                         Placed on {placedDate}
                     </Text>
                 </View>
+
                 <View
                     className="px-3 py-1 rounded-full"
                     style={{ backgroundColor: config.bg }}

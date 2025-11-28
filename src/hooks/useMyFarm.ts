@@ -6,7 +6,7 @@ export function useMyFarm() {
     const { accountId } = useAuthStore();
 
     return useQuery({
-        queryKey: ["my-farm"],
+        queryKey: ["my-farm", accountId],
         queryFn: FarmService.getFarmByMe,
         enabled: !!accountId,
     });

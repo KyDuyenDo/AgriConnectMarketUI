@@ -1,35 +1,35 @@
 import React from "react";
-import { View } from "react-native";
+import { View, Text } from "react-native";
 import ReviewItem from "./ReviewItem";
+import { FarmReviewResponse } from "@/services/farmReviewService";
+import { formatDate } from "@/utils/date";
 
-const reviews = [
-  {
-    name: "Sarah M.",
-    avatar: "https://randomuser.me/api/portraits/women/44.jpg",
-    rating: 5,
-    verified: true,
-    comment:
-      "Amazing tomatoes! So fresh and flavorful. You can really taste the difference from store-bought. Will definitely order again!",
-    date: "2 days ago",
-    helpful: 4,
-  },
-  {
-    name: "Mike T.",
-    avatar: "https://randomuser.me/api/portraits/men/46.jpg",
-    rating: 5,
-    verified: true,
-    comment:
-      "Perfect for making pasta sauce. The blockchain verification gives me confidence in the growing process. Great quality!",
-    date: "5 days ago",
-    helpful: 2,
-  },
-];
+interface ReviewListProps {
+  reviews: FarmReviewResponse[];
+}
 
-const ReviewList = () => {
+const ReviewList: React.FC<ReviewListProps> = ({ reviews }) => {
+  if (!reviews || reviews.length === 0) {
+    return (
+      <View className="py-4 items-center">
+        <Text className="text-gray-400">No reviews yet.</Text>
+      </View>
+    );
+  }
+
   return (
     <View>
-      {reviews.map((item, index) => (
-        <ReviewItem key={index} {...item} />
+      {reviews.map((item) => (
+        <ReviewItem
+          key={item.id}
+          name={item.userName || "Anonymous"}
+          avatar={item.userAvatar || "https://via.placeholder.com/50"}
+          rating={item.rate}
+          verified={true} // Assuming all reviews are verified for now
+          comment={item.message}
+          date={formatDate(item.createdAt)}
+          helpful={0} // Placeholder as backend doesn't support helpful count yet
+        />
       ))}
     </View>
   );

@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { useState, type ReactNode } from "react"
+import { AuthListener } from "@/components/auth/AuthListener"
 
 interface QueryProviderProps {
   children: ReactNode
@@ -25,7 +26,9 @@ export const QueryProvider = ({ children }: QueryProviderProps) => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {children}
+      <AuthListener>
+        {children}
+      </AuthListener>
     </QueryClientProvider>
   )
 }

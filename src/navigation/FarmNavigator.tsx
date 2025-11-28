@@ -89,7 +89,7 @@ export default function FarmNavigator() {
                 component={FarmSetupInformationScreen}
                 options={{ headerShown: false }}
             />
-            <Stack.Screen name="FarmProductDetailReviews"
+            <Stack.Screen name="ProductDetailReviews"
                 component={FarmerProductDetailReviewsScreen}
                 options={{ headerShown: false }}
             />

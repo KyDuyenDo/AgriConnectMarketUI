@@ -1,80 +1,108 @@
-import React, { useEffect, useState } from "react";
-import { View, TouchableOpacity, Text, ActivityIndicator, Image, TextInput, FlatList, Platform } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { Plus, Search, Filter, Star, MoreVertical, Edit, Trash2, Eye } from "lucide-react-native";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { FarmStackParamList } from "@/navigation/types";
-import { useNavigation } from "@react-navigation/native";
-import { useAllBatches } from "@/hooks/useBatches";
-import { Batch } from "@/types";
-import { useAuthStore } from "@/stores/auth";
-import { FarmerProductsScreenSkeleton } from "@/components/skeletons/FarmerProductsScreenSkeleton"
-import { CategorySelector } from "@/components/CategorySelector";
-import { useCategories } from "@/hooks/useCategories";
+"use client"
 
-type Nav = NativeStackNavigationProp<FarmStackParamList>;
+import { useState } from "react"
+import { View, TouchableOpacity, Text, Image, TextInput, FlatList, Platform } from "react-native"
+import { SafeAreaView } from "react-native-safe-area-context"
+import {
+  Plus,
+  Search,
+  Filter,
+  Star,
+  MoreVertical,
+  Edit,
+  Trash2,
+  Eye,
+  FileText,
+  MessageSquare,
+} from "lucide-react-native"
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack"
+import type { FarmStackParamList } from "@/navigation/types"
+import { useNavigation } from "@react-navigation/native"
+import { useAllBatches } from "@/hooks/useBatches"
+import type { Batch } from "@/types"
+import { useAuthStore } from "@/stores/auth"
+import { FarmerProductsScreenSkeleton } from "@/components/skeletons/FarmerProductsScreenSkeleton"
+import { CategorySelector } from "@/components/CategorySelector"
+import { useCategories } from "@/hooks/useCategories"
+
+type Nav = NativeStackNavigationProp<FarmStackParamList>
 
 const getBatchCode = (batch: Batch): string => {
-  if (typeof batch.batchCode === 'string') return batch.batchCode;
-  if (batch.batchCode && typeof batch.batchCode === 'object' && 'value' in batch.batchCode) {
-    return (batch.batchCode as { value: string }).value;
+  if (typeof batch.batchCode === "string") return batch.batchCode
+  if (batch.batchCode && typeof batch.batchCode === "object" && "value" in batch.batchCode) {
+    return (batch.batchCode as { value: string }).value
   }
-  return "Batch";
-};
+  return "Batch"
+}
 
 const getStockStatus = (batch: Batch): "In Stock" | "Low Stock" | "Out of Stock" => {
-  const percentage = (batch.availableQuantity / batch.totalYield) * 100;
-  if (percentage === 0) return "Out of Stock";
-  if (percentage < 20) return "Low Stock";
-  return "In Stock";
-};
+  const percentage = (batch.availableQuantity / batch.totalYield) * 100
+  if (percentage === 0) return "Out of Stock"
+  if (percentage < 20) return "Low Stock"
+  return "In Stock"
+}
 
 const getStockBadgeStyle = (stock: string) => {
   switch (stock) {
     case "In Stock":
-      return { bg: "bg-green-100", text: "text-green-700" };
+      return { bg: "bg-green-100", text: "text-green-700" }
     case "Low Stock":
-      return { bg: "bg-orange-100", text: "text-orange-700" };
+      return { bg: "bg-orange-100", text: "text-orange-700" }
     case "Out of Stock":
-      return { bg: "bg-red-100", text: "text-red-700" };
+      return { bg: "bg-red-100", text: "text-red-700" }
     default:
-      return { bg: "bg-green-100", text: "text-green-700" };
+      return { bg: "bg-green-100", text: "text-green-700" }
   }
-};
+}
 
 const getStockUnitColor = (stock: string) => {
   switch (stock) {
     case "Low Stock":
-      return "text-orange-600";
+      return "text-orange-600"
     case "Out of Stock":
-      return "text-red-600";
+      return "text-red-600"
     default:
-      return "text-gray-500";
+      return "text-gray-500"
   }
-};
+}
 
-const BatchCard = ({ batch, onPress, onEdit, onDelete }: {
-  batch: Batch;
-  onPress: () => void;
-  onEdit?: () => void;
-  onDelete?: () => void;
+const BatchCard = ({
+  batch,
+  onPress,
+  onEdit,
+  onDelete,
+  onLogCareEvent,
+  onViewReviews,
+}: {
+  batch: Batch
+  onPress: () => void
+  onEdit?: () => void
+  onDelete?: () => void
+  onLogCareEvent?: () => void
+  onViewReviews?: () => void
 }) => {
-  const imageUrl = batch.imagesUrl && batch.imagesUrl.length > 0 ? batch.imagesUrl[0] : null;
-  const batchCode = getBatchCode(batch);
-  const stockStatus = getStockStatus(batch);
-  const stockBadge = getStockBadgeStyle(stockStatus);
-  const unitColor = getStockUnitColor(stockStatus);
+  const imageUrl = batch.imagesUrl && batch.imagesUrl.length > 0 ? batch.imagesUrl[0] : null
+  const batchCode = getBatchCode(batch)
+  const stockStatus = getStockStatus(batch)
+  const stockBadge = getStockBadgeStyle(stockStatus)
+  const unitColor = getStockUnitColor(stockStatus)
 
   return (
-    <View className="bg-white rounded-2xl overflow-hidden mb-3 border border-gray-100" style={{ width: '48%', elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 2 }}>
+    <View
+      className="bg-white rounded-2xl overflow-hidden mb-3 border border-gray-100"
+      style={{
+        width: "48%",
+        elevation: 2,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 2,
+      }}
+    >
       {/* Product Image with Overlays */}
       <View className="relative">
         {imageUrl ? (
-          <Image
-            source={{ uri: imageUrl }}
-            className="w-full h-[130px]"
-            style={{ objectFit: "cover" }}
-          />
+          <Image source={{ uri: imageUrl }} className="w-full h-[130px]" style={{ objectFit: "cover" }} />
         ) : (
           <View className="w-full h-[130px] bg-gray-50 items-center justify-center">
             <Text className="text-gray-400 font-medium text-sm">{batchCode}</Text>
@@ -87,8 +115,20 @@ const BatchCard = ({ batch, onPress, onEdit, onDelete }: {
         </View>
 
         {/* Star Favorite - Top Left */}
-        <TouchableOpacity className="absolute top-2 left-2 bg-white/90 rounded-full w-7 h-7 flex items-center justify-center shadow-sm">
-          <Star size={14} color={batch.isActive !== false ? "#F59E0B" : "#9CA3AF"} fill={batch.isActive !== false ? "#F59E0B" : "none"} />
+        <TouchableOpacity
+          onPress={() => {
+            if (batch.season?.farmId) {
+              // @ts-ignore - navigation type issue
+              navigation.navigate("ProductDetailReviews", { batchId: batch.id, farmId: batch.season.farmId })
+            }
+          }}
+          className="absolute top-2 left-2 bg-white/90 rounded-full w-7 h-7 flex items-center justify-center shadow-sm"
+        >
+          <Star
+            size={14}
+            color={batch.isActive !== false ? "#F59E0B" : "#9CA3AF"}
+            fill={batch.isActive !== false ? "#F59E0B" : "none"}
+          />
         </TouchableOpacity>
       </View>
 
@@ -96,7 +136,9 @@ const BatchCard = ({ batch, onPress, onEdit, onDelete }: {
       <View className="p-3">
         {/* Batch Code and Menu */}
         <View className="flex-row justify-between items-start mb-1">
-          <Text className="text-sm font-bold text-gray-900 flex-1 mr-1" numberOfLines={1}>{batchCode}</Text>
+          <Text className="text-sm font-bold text-gray-900 flex-1 mr-1" numberOfLines={1}>
+            {batchCode}
+          </Text>
           <TouchableOpacity className="flex items-center justify-center w-5 h-5 -mr-1">
             <MoreVertical size={16} color="#9CA3AF" />
           </TouchableOpacity>
@@ -111,105 +153,150 @@ const BatchCard = ({ batch, onPress, onEdit, onDelete }: {
 
         {/* Price and Units */}
         <View className="flex-row justify-between items-end mb-3">
-          <Text className="text-base font-bold text-green-600">${batch.price}</Text>
+          <Text className="text-base font-bold text-green-600">${batch.price}/{batch.units}</Text>
           <Text className={`text-[11px] font-medium ${unitColor}`} numberOfLines={1}>
-            {batch.availableQuantity} / {batch.totalYield}
+            {batch.availableQuantity}{batch.units} / {batch.totalYield}{batch.units}
           </Text>
         </View>
 
         {/* Action Buttons */}
-        <View className="flex-row gap-2 pt-2 border-t border-gray-50">
-          <TouchableOpacity
-            onPress={onEdit}
-            className="flex-1 flex items-center justify-center py-1.5 bg-gray-50 rounded-lg active:bg-gray-100">
-            <Edit size={14} color="#4B5563" strokeWidth={1.5} />
-          </TouchableOpacity>
+        <View className="pt-2 border-t border-gray-50">
+          {/* <View className="flex-row gap-2 mb-2">
+            <TouchableOpacity
+              onPress={onEdit}
+              className="flex-1 flex items-center justify-center py-1.5 bg-gray-50 rounded-lg active:bg-gray-100"
+            >
+              <Edit size={14} color="#4B5563" strokeWidth={1.5} />
+            </TouchableOpacity>
 
-          <TouchableOpacity
-            onPress={onDelete}
-            className="flex-1 flex items-center justify-center py-1.5 bg-red-50 rounded-lg active:bg-red-100">
-            <Trash2 size={14} color="#EF4444" strokeWidth={1.5} />
-          </TouchableOpacity>
+            <TouchableOpacity
+              onPress={onDelete}
+              className="flex-1 flex items-center justify-center py-1.5 bg-red-50 rounded-lg active:bg-red-100"
+            >
+              <Trash2 size={14} color="#EF4444" strokeWidth={1.5} />
+            </TouchableOpacity>
 
-          <TouchableOpacity
-            onPress={onPress}
-            className="flex-1 flex items-center justify-center py-1.5 bg-blue-50 rounded-lg active:bg-blue-100">
-            <Eye size={14} color="#3B82F6" strokeWidth={1.5} />
-          </TouchableOpacity>
+            <TouchableOpacity
+              onPress={onPress}
+              className="flex-1 flex items-center justify-center py-1.5 bg-blue-50 rounded-lg active:bg-blue-100"
+            >
+              <Eye size={14} color="#3B82F6" strokeWidth={1.5} />
+            </TouchableOpacity>
+          </View> */}
+
+          <View className="flex-row gap-2">
+            <TouchableOpacity
+              onPress={onLogCareEvent}
+              className="flex-1 flex items-center justify-center py-1.5 bg-amber-50 rounded-lg active:bg-amber-100"
+            >
+              <FileText size={14} color="#B45309" strokeWidth={1.5} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={onViewReviews}
+              className="flex-1 flex items-center justify-center py-1.5 bg-purple-50 rounded-lg active:bg-purple-100"
+            >
+              <MessageSquare size={14} color="#7C3AED" strokeWidth={1.5} />
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
     </View>
-  );
-};
+  )
+}
 
-export const FarmerProductsScreen = () => {
-  const navigation = useNavigation<Nav>();
-  const { accountId } = useAuthStore();
-  const { data: batches, isLoading } = useAllBatches(accountId || undefined, { enabled: !!accountId });
-
-  const { data: categories } = useCategories();
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-
-  if (isLoading) {
-    return <FarmerProductsScreenSkeleton />;
-  }
-
-  const filteredBatches = batches?.filter(b => {
-    const code = getBatchCode(b);
-    const seasonName = b.season?.seasonName || "";
-    const query = searchQuery.toLowerCase();
-    const matchesSearch = (code || "").toLowerCase().includes(query) || seasonName.toLowerCase().includes(query);
-
-    const categoryId = b.season?.product?.categoryId;
-    const matchesCategory = selectedCategory
-      ? (categoryId || "").toLowerCase() === selectedCategory.toLowerCase()
-      : true;
-
-    return matchesSearch && matchesCategory;
-  }) || [];
-
-  const onAddBatch = () => {
-    navigation.navigate("AddLot", {});
-  };
-
-  const handleEdit = (batchId: string) => {
-    console.log("Edit batch:", batchId);
-  };
-
-  const handleDelete = (batchId: string) => {
-    console.log("Delete batch:", batchId);
-  };
-
-  const renderHeader = () => (
-    <View className="pb-2">
-      {/* Search Bar */}
-      <View className="px-4 py-2">
-        <View className="flex-row items-center bg-white border border-gray-200 rounded-xl px-4 py-2.5 shadow-sm">
-          <Search size={20} color="#9CA3AF" />
-          <TextInput
-            className="flex-1 ml-3 text-gray-900 text-base h-full"
-            placeholder="Search batches..."
-            placeholderTextColor="#9CA3AF"
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-          />
-        </View>
-      </View>
-
-      {/* Category Filter */}
-      <View className="py-2">
-        <CategorySelector
-          categories={categories || []}
-          selectedCategory={selectedCategory}
-          onSelectCategory={setSelectedCategory}
+const FarmerProductsHeader = ({
+  searchQuery,
+  setSearchQuery,
+  categories,
+  selectedCategory,
+  setSelectedCategory,
+}: {
+  searchQuery: string
+  setSearchQuery: (text: string) => void
+  categories: any[]
+  selectedCategory: string | null
+  setSelectedCategory: (category: string | null) => void
+}) => (
+  <View className="pb-2">
+    {/* Search Bar */}
+    <View className="px-4 py-2">
+      <View className="flex-row items-center bg-white border border-gray-200 rounded-xl px-4 py-2.5 shadow-sm">
+        <Search size={20} color="#9CA3AF" />
+        <TextInput
+          className="flex-1 ml-3 text-gray-900 text-base h-full"
+          placeholder="Search batches..."
+          placeholderTextColor="#9CA3AF"
+          value={searchQuery}
+          onChangeText={setSearchQuery}
         />
       </View>
     </View>
-  );
+
+    {/* Category Filter */}
+    <View className="py-2">
+      <CategorySelector
+        categories={categories || []}
+        selectedCategory={selectedCategory}
+        onSelectCategory={setSelectedCategory}
+      />
+    </View>
+  </View>
+)
+
+export const FarmerProductsScreen = () => {
+  const navigation = useNavigation<Nav>()
+  const { accountId } = useAuthStore()
+  const { data: batches, isLoading } = useAllBatches(accountId || undefined, { enabled: !!accountId })
+
+  const { data: categories } = useCategories()
+  const [searchQuery, setSearchQuery] = useState("")
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+
+  if (isLoading) {
+    return <FarmerProductsScreenSkeleton />
+  }
+
+  const filteredBatches =
+    batches?.filter((b) => {
+      const code = getBatchCode(b)
+      const seasonName = b.season?.seasonName || ""
+      const query = searchQuery.toLowerCase()
+      const matchesSearch = (code || "").toLowerCase().includes(query) || seasonName.toLowerCase().includes(query)
+
+      const categoryId = b.season?.product?.categoryId
+      const matchesCategory = selectedCategory
+        ? (categoryId || "").toLowerCase() === selectedCategory.toLowerCase()
+        : true
+
+      return matchesSearch && matchesCategory
+    }) || []
+
+  const onAddBatch = () => {
+    navigation.navigate("AddLot", {})
+  }
+
+  const handleEdit = (batchId: string) => {
+    console.log("Edit batch:", batchId)
+  }
+
+  const handleDelete = (batchId: string) => {
+    console.log("Delete batch:", batchId)
+  }
+
+  const handleLogCareEvent = (batch: Batch) => {
+    navigation.navigate("AddCropLog", { batchId: batch.id })
+  }
+
+  const handleViewReviews = (batch: Batch) => {
+    if (batch.season?.farmId) {
+      navigation.navigate("ProductDetailReviews", { batchId: batch.id, farmId: batch.season.farmId })
+    }
+  }
+
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50" edges={['top']}>
+    <SafeAreaView className="flex-1 bg-gray-50" edges={["top"]}>
       {/* Sticky Header Title */}
       <View className="px-6 py-4 bg-white border-b border-gray-100 flex-row justify-between items-center z-10">
         <Text className="text-gray-900 text-xl font-bold">My Batches</Text>
@@ -223,19 +310,31 @@ export const FarmerProductsScreen = () => {
         renderItem={({ item }) => (
           <BatchCard
             batch={item}
-            onPress={() => navigation.navigate("LotDetail", { lotId: item.id })}
-            onEdit={() => handleEdit(item.id)}
+            onPress={() =>
+              navigation.navigate("ProductDetailReviews", { batchId: item.id, farmId: item.season?.farmId || "" })
+            }
+            onEdit={() => navigation.navigate("LotDetail", { lotId: item.id })}
             onDelete={() => handleDelete(item.id)}
+            onLogCareEvent={() => handleLogCareEvent(item)}
+            onViewReviews={() => handleViewReviews(item)}
           />
         )}
         keyExtractor={(item) => item.id}
         numColumns={2}
-        columnWrapperStyle={{ justifyContent: 'space-between', paddingHorizontal: 16 }}
+        columnWrapperStyle={{ justifyContent: "space-between", paddingHorizontal: 16 }}
         contentContainerStyle={{
-          paddingBottom: Platform.OS === 'ios' ? 120 : 120,
-          paddingTop: 8
+          paddingBottom: Platform.OS === "ios" ? 120 : 120,
+          paddingTop: 8,
         }}
-        ListHeaderComponent={renderHeader}
+        ListHeaderComponent={
+          <FarmerProductsHeader
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            categories={categories || []}
+            selectedCategory={selectedCategory}
+            setSelectedCategory={setSelectedCategory}
+          />
+        }
         ListEmptyComponent={
           !isLoading ? (
             <View className="items-center justify-center py-20">
@@ -261,5 +360,5 @@ export const FarmerProductsScreen = () => {
         </TouchableOpacity>
       </View>
     </SafeAreaView>
-  );
-};
+  )
+}

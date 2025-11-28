@@ -10,7 +10,16 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ userName, profileImage, notificationCount }) => {
   return (
-    <View className="flex-row items-center justify-between px-6 py-3.5 h-14">
+    <View
+      className="flex-row items-center justify-between px-6 py-3.5 h-14 bg-white border-b border-[#E8E8E8]"
+      style={{
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.04,
+        shadowRadius: 2,
+        elevation: 1,
+      }}
+    >
       {/* Profile Section */}
       <View className="flex-row items-center">
         <Image
@@ -25,10 +34,10 @@ export const Header: React.FC<HeaderProps> = ({ userName, profileImage, notifica
 
       {/* Actions */}
       <View className="flex-row items-center gap-2">
-        <TouchableOpacity className="w-10 h-10 bg-white border border-[#E8E8E8] rounded-lg items-center justify-center">
+        <TouchableOpacity className="w-10 h-10 bg-[#F5F7F5] border border-[#E8E8E8] rounded-lg items-center justify-center active:bg-[#E8EAEB]">
           <Search size={20} color="#6B737A" />
         </TouchableOpacity>
-        <TouchableOpacity className="w-10 h-10 bg-white border border-[#E8E8E8] rounded-lg items-center justify-center relative">
+        <TouchableOpacity className="w-10 h-10 bg-[#F5F7F5] border border-[#E8E8E8] rounded-lg items-center justify-center active:bg-[#E8EAEB] relative">
           <Bell size={20} color="#6B737A" />
           {notificationCount > 0 && (
             <View className="absolute -top-1 -right-1 bg-[#4CAF50] w-4 h-4 rounded-full items-center justify-center">

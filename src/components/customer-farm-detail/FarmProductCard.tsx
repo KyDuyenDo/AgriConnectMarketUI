@@ -1,13 +1,14 @@
 import { View, Text, Image, Pressable } from 'react-native';
-import { Plus } from 'lucide-react-native';
+import { Plus, Star } from 'lucide-react-native';
 
 interface FarmProductCardProps {
     image: string;
     name: string;
     price: string;
     badge?: { label: string; color: 'green' | 'orange' };
+    rating?: number;
+    reviewCount?: number;
     onAdd?: () => void;
-    onPreOrder?: () => void;
 }
 
 export function FarmProductCard({
@@ -15,8 +16,9 @@ export function FarmProductCard({
     name,
     price,
     badge,
+    rating,
+    reviewCount,
     onAdd,
-    onPreOrder
 }: FarmProductCardProps) {
     const badgeStyle = badge?.color === 'green'
         ? { bg: 'rgba(200, 230, 201, 1)', text: '#2E7D32' }
@@ -56,6 +58,14 @@ export function FarmProductCard({
                 <Text className="text-sm font-semibold mb-1" style={{ color: '#1B1F24' }}>
                     {name}
                 </Text>
+                {rating !== undefined && (
+                    <View className="flex-row items-center mb-2">
+                        <Star size={12} color="#FFB380" fill="#FFB380" />
+                        <Text className="text-[10px] ml-1" style={{ color: '#9DA3A8' }}>
+                            {rating.toFixed(1)} ({reviewCount || 0})
+                        </Text>
+                    </View>
+                )}
                 <View className="flex-row justify-between items-center mb-2">
                     <Text className="text-base font-bold" style={{ color: '#4CAF50' }}>
                         {price}
@@ -68,15 +78,6 @@ export function FarmProductCard({
                         <Plus size={12} color="#FFFFFF" />
                     </Pressable>
                 </View>
-                <Pressable
-                    onPress={onPreOrder}
-                    className="w-full py-2 rounded-[12px] items-center active:bg-[#E8EAEB]"
-                    style={{ backgroundColor: '#F5F7F5' }}
-                >
-                    <Text className="text-xs font-medium" style={{ color: '#4CAF50' }}>
-                        Pre-order
-                    </Text>
-                </Pressable>
             </View>
         </View>
     );
