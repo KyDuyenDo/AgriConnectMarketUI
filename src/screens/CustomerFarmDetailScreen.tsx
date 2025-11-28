@@ -17,6 +17,8 @@ import { useFarmReviews } from '@/hooks/useFarmReview';
 import { FarmReviewCard } from '@/components/customer-farm-detail/FarmReviewCard';
 import { FarmReviewSummary } from '@/components/customer-farm-detail/FarmReviewSummary';
 import { Ionicons } from '@expo/vector-icons';
+import { useFavoritesStore } from '@/stores/favorites';
+import { useToggleFavoriteFarm } from '@/hooks/useFavoriteFarms';
 
 import { ProductResponse } from '@/types';
 import { Modal, TextInput, Alert } from 'react-native';
@@ -26,7 +28,9 @@ type Props = NativeStackScreenProps<CustomerStackParamList, 'FarmDetail'>;
 
 export function CustomerFarmDetailScreen({ route, navigation }: Props) {
     const { farmId } = route.params;
-    const [isFavorited, setIsFavorited] = useState(false);
+    const isFavorited = useFavoritesStore((state) => state.isFavorited);
+    const { mutate: toggleFavorite } = useToggleFavoriteFarm();
+    const isFavorite = isFavorited(farmId);
     const { data: farm, isLoading: isLoadingFarm, error: farmError } = useFarmById(farmId);
     const { data: batches, isLoading: isLoadingBatches } = useBatchesByFarm(farmId);
     const { data: reviews, isLoading: isLoadingReviews } = useFarmReviews(farmId);
@@ -108,8 +112,8 @@ export function CustomerFarmDetailScreen({ route, navigation }: Props) {
             <Header
                 onBack={() => navigation.goBack()}
                 onShare={() => console.log('Share')}
-                onFavorite={() => setIsFavorited(!isFavorited)}
-                isFavorited={isFavorited}
+                onFavorite={() => toggleFavorite(farmId)}
+                isFavorited={isFavorite}
             />
 
             <ScrollView

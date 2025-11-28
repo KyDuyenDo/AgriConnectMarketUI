@@ -17,8 +17,7 @@ export const CustomerFavoritesScreen = () => {
 
   const handleToggleFavorite = async (farmId: string) => {
     try {
-      const isFavorite = favoriteFarmIds.includes(farmId)
-      await toggleFavorite({ farmId, isFavorite })
+      await toggleFavorite(farmId)
     } catch (error: any) {
       Alert.alert("Error", error?.response?.data?.message || "Failed to update favorite")
     }

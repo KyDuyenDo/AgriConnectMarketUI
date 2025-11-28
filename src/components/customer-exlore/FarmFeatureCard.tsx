@@ -5,7 +5,8 @@ import { Heart, Star, MapPin } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { CustomerStackParamList } from '@/navigation/CustomerNavigator';
-import { useFavoriteFarms, useToggleFavoriteFarm } from '@/hooks/useFavoriteFarm';
+import { useFavoriteFarms, useToggleFavoriteFarm } from '@/hooks/useFavoriteFarms';
+import { useFavoritesStore } from '@/stores/favorites';
 
 interface FarmFeatureCardProps {
     farm: Farm;
@@ -16,15 +17,16 @@ const FarmFeatureCard = ({ farm, style }: FarmFeatureCardProps) => {
     const navigation = useNavigation<NativeStackNavigationProp<CustomerStackParamList>>();
     const { data: favoriteFarms } = useFavoriteFarms();
     const { mutate: toggleFavorite } = useToggleFavoriteFarm();
+    const isFavorited = useFavoritesStore((state) => state.isFavorited);
 
-    const isFavorite = favoriteFarms?.some((f: any) => f.id === farm.id) || false;
+    const isFavorite = isFavorited(farm.id);
 
     const handlePress = () => {
         navigation.navigate('FarmDetail', { farmId: farm.id });
     };
 
     const handleToggleFavorite = () => {
-        toggleFavorite({ farmId: farm.id, isFavorite });
+        toggleFavorite(farm.id);
     };
 
     return (

@@ -6,13 +6,8 @@ export const favoriteFarmService = {
         return response.data.value;
     },
 
-    addFavoriteFarm: async (farmId: string) => {
-        const response = await apiClient.post('/api/favorite-farms', { farmId });
-        return response.data;
-    },
-
-    removeFavoriteFarm: async (farmId: string) => {
-        const response = await apiClient.delete('/api/favorite-farms', { data: { farmId } });
+    toggleFavoriteFarm: async (farmId: string) => {
+        const response = await apiClient.post('/api/favorite-farms/toggle', { farmId });
         return response.data;
     },
 };

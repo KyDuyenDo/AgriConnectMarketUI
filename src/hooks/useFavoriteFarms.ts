@@ -18,25 +18,36 @@ export const useFavoriteFarms = () => {
 
 export const useToggleFavoriteFarm = () => {
   const queryClient = useQueryClient()
+  const isFavorited = useFavoritesStore((state) => state.isFavorited)
   const addFavorite = useFavoritesStore((state) => state.addFavorite)
   const removeFavorite = useFavoritesStore((state) => state.removeFavorite)
 
   return useMutation({
-    mutationFn: async ({ farmId, isFavorite }: { farmId: string; isFavorite: boolean }) => {
-      if (isFavorite) {
-        await favoriteFarmService.removeFavoriteFarm(farmId)
-      } else {
-        await favoriteFarmService.addFavoriteFarm(farmId)
-      }
+    mutationFn: async (farmId: string) => {
+      return await favoriteFarmService.toggleFavoriteFarm(farmId)
     },
-    onSuccess: (_, { farmId, isFavorite }) => {
-      if (isFavorite) {
+    onMutate: async (farmId: string) => {
+      // Optimistically update the UI
+      const wasFavorited = isFavorited(farmId)
+      if (wasFavorited) {
         removeFavorite(farmId)
       } else {
         addFavorite(farmId)
       }
-      // Invalidate query to refresh data
+    },
+    onSuccess: () => {
+      // Invalidate query to refresh data from server
       queryClient.invalidateQueries({ queryKey: ["favorite-farms"] })
+    },
+    onError: (error, farmId) => {
+      // Revert optimistic update on error
+      const wasFavorited = isFavorited(farmId)
+      if (wasFavorited) {
+        removeFavorite(farmId)
+      } else {
+        addFavorite(farmId)
+      }
+      console.error("Failed to toggle favorite:", error)
     },
   })
 }
