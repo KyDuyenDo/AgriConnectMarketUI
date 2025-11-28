@@ -26,12 +26,11 @@ export default function LoginScreen() {
     watch,
   } = useLoginForm()
   const [rememberMe, setRememberMe] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
   const loginStore = useAuthStore((state) => state.login)
-  const login = useLogin()
+  const { mutateAsync: login, isPending: isLoginPending } = useLogin()
 
   const onSubmit = async (data: any) => {
-    login.mutateAsync({
+    login({
       Username: data.username,
       Password: data.password,
     },
@@ -101,7 +100,7 @@ export default function LoginScreen() {
               </View>
 
               {/* Sign In Button */}
-              <SignInButton isLoading={isLoading} onPress={handleSubmit(onSubmit)} />
+              <SignInButton isLoading={isLoginPending} onPress={handleSubmit(onSubmit)} />
             </View>
           </View>
 
