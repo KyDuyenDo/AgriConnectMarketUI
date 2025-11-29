@@ -78,15 +78,15 @@ export function OrderItems({ items, subtotal, serviceFee, total }: OrderItemsPro
             <View className="border-t pt-4" style={{ borderColor: '#E8EAEB' }}>
                 <View className="flex-row justify-between items-center mb-2">
                     <Text className="text-sm" style={{ color: '#6B737A' }}>Subtotal</Text>
-                    <Text className="text-sm" style={{ color: '#1B1F24' }}>${subtotal}</Text>
+                    <Text className="text-sm" style={{ color: '#1B1F24' }}>{subtotal} VNĐ</Text>
                 </View>
                 <View className="flex-row justify-between items-center mb-2">
                     <Text className="text-sm" style={{ color: '#6B737A' }}>Service Fee</Text>
-                    <Text className="text-sm" style={{ color: '#1B1F24' }}>${serviceFee}</Text>
+                    <Text className="text-sm" style={{ color: '#1B1F24' }}>{serviceFee} VNĐ</Text>
                 </View>
                 <View className="border-t pt-2 flex-row justify-between items-center" style={{ borderColor: '#E8EAEB' }}>
                     <Text className="text-lg font-semibold" style={{ color: '#1B1F24' }}>Total</Text>
-                    <Text className="text-lg font-bold" style={{ color: '#4CAF50' }}>${total}</Text>
+                    <Text className="text-lg font-bold" style={{ color: '#4CAF50' }}>{total} VNĐ</Text>
                 </View>
             </View>
         </View>

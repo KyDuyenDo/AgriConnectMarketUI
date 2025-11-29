@@ -16,45 +16,16 @@ const CareEventService = {
     return response.data.data
   },
 
+  // Get all event types
+  getAllEventTypes: async (): Promise<CareEventType[]> => {
+    const response = await apiClient.get<{ data: CareEventType[] }>("api/event-types")
+    return response.data.data
+  },
+
+  // Get care events by batch
   getCareEventsByBatch: async (batchId: string): Promise<CareEvent[]> => {
     const response = await apiClient.get<{ data: CareEvent[] }>(`/api/care-events/batch/${batchId}`)
     return response.data.data
-  },
-
-  getCareEventById: async (careEventId: string): Promise<CareEvent> => {
-    const response = await apiClient.get<{ data: CareEvent }>(`/api/care-events/${careEventId}`)
-    return response.data.data
-  },
-
-  // Get all event types
-  getEventTypes: async (): Promise<CareEventType[]> => {
-    const response = await apiClient.get<{ data: CareEventType[] }>("/api/care-event-types")
-    return response.data.data
-  },
-
-  getAllEventTypes: async (): Promise<CareEventType[]> => {
-    const response = await apiClient.get<{ data: CareEventType[] }>("/api/care-event-types")
-    return response.data.data
-  },
-
-  // Get single event type by ID
-  getEventTypeById: async (eventId: string): Promise<CareEventType> => {
-    const response = await apiClient.get<{ data: CareEventType }>(`/api/event-types/${eventId}`)
-    return response.data.data
-  },
-
-  // Create new event type
-  createEventType: async (data: {
-    typeName: string
-    typeDesc: string
-  }): Promise<CareEventType> => {
-    const response = await apiClient.post<{ data: CareEventType }>("/api/event-types", data)
-    return response.data.data
-  },
-
-  // Delete event type
-  deleteEventType: async (eventId: string): Promise<void> => {
-    await apiClient.delete(`/api/event-types/${eventId}`)
   },
 }
 

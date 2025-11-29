@@ -138,9 +138,9 @@ const BatchCard = ({
 
         {/* Price and Units */}
         <View className="flex-row justify-between items-end mb-3">
-          <Text className="text-base font-bold text-green-600">${batch.price}/{batch.units}</Text>
+          <Text className="text-base font-bold text-green-600">{batch.price}VNĐ/{batch.units}</Text>
           <Text className={`text-[11px] font-medium ${unitColor}`} numberOfLines={1}>
-            {batch.availableQuantity}{batch.units} / {batch.totalYield}{batch.units}
+            {batch.availableQuantity} {batch.units}
           </Text>
         </View>
 

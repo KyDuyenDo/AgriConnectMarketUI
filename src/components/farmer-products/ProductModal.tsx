@@ -106,7 +106,7 @@ export default function ProductModal({ form, setFormValues, lot, season, handleS
                                 Price per unit
                             </Text>
                             <View className="flex-row items-center border border-gray-300 rounded-lg p-3">
-                                <Text className="text-gray-500 mr-2">$</Text>
+                                <Text className="text-gray-500 mr-2">VNĐ</Text>
                                 <TextInput
                                     className="flex-1 text-base p-0"
                                     placeholder="0.00"

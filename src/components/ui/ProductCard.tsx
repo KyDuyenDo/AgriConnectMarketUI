@@ -29,7 +29,7 @@ const PriceSection = ({ price, unit, onPress }: { price: string; unit: string; o
     return (
         <View className="flex-row items-center justify-between">
             <Text className="text-[14px] font-bold" style={{ color: '#4CAF50' }}>
-                ${price}/{unit}
+                {price} VNĐ/{unit}
             </Text>
             <TouchableOpacity
                 className="w-6 h-6 rounded-full items-center justify-center"

@@ -252,7 +252,7 @@ export const CustomerBatchDetailScreen: React.FC = () => {
               <ShieldCheck size={18} color="#FF8C42" />
               <Text className="text-[#FF8C42] text-xs font-medium">Blockchain Verified</Text>
             </View>
-            <VerifiedProcessCard />
+            <VerifiedProcessCard batchId={batchId} />
           </View>
 
           <View>

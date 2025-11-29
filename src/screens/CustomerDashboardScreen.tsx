@@ -30,7 +30,7 @@ export const CustomerDashboardScreen: React.FC = () => {
       id: item.id,
       name: item.batch?.season?.product?.productName || "Unknown Product",
       quantity: `${item.quantity} ${item.batch?.units || "units"}`,
-      price: `$${item.itemPrice.toFixed(2)}`,
+      price: `${item.itemPrice.toFixed(2)} VNĐ`,
       image: item.batch?.imagesUrl?.[0] || "https://via.placeholder.com/40",
     })) || []
 

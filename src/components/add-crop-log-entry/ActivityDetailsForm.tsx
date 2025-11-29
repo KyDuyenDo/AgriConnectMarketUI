@@ -6,6 +6,7 @@ import { View, Text, TextInput, TouchableOpacity, Modal, FlatList, ActivityIndic
 import { Calendar, ChevronDown, X } from "lucide-react-native"
 import { useEventTypes } from "@/hooks/useCareEvents"
 import DateTimePicker from "@react-native-community/datetimepicker"
+import { getEventIconAndColor } from "@/constants/care-event-icons"
 
 export const ActivityDetailsForm: React.FC<{
   onActivityTypeSelect: (typeId: string, typeName: string) => void
@@ -87,7 +88,7 @@ export const ActivityDetailsForm: React.FC<{
           onRequestClose={() => setShowActivityModal(false)}
         >
           <View className="flex-1 bg-black/50 justify-end">
-            <View className="bg-white rounded-t-3xl p-4">
+            <View className="bg-white rounded-t-3xl p-4" style={{ maxHeight: '70%' }}>
               <View className="flex-row justify-between items-center mb-4">
                 <Text className="text-lg font-semibold text-[#2D2D2D]">Select Activity Type</Text>
                 <TouchableOpacity onPress={() => setShowActivityModal(false)}>
@@ -101,19 +102,26 @@ export const ActivityDetailsForm: React.FC<{
                 <FlatList
                   data={eventTypes}
                   keyExtractor={(item) => item.id}
-                  renderItem={({ item }) => (
-                    <TouchableOpacity
-                      onPress={() => handleActivitySelect(item.id, item.eventTypeName)}
-                      className="bg-[#F9FAF9] border border-[#E8E8E8] rounded-xl p-4 mb-3 flex-row justify-between items-center"
-                    >
-                      <View>
-                        <Text className="text-base font-semibold text-[#2D2D2D]">{item.eventTypeName}</Text>
-                        <Text className="text-xs text-[#8A8A8A] mt-1">{item.eventTypeDesc}</Text>
-                      </View>
-                      {selectedActivityType === item.id && <View className="w-5 h-5 bg-[#4CAF50] rounded-full" />}
-                    </TouchableOpacity>
-                  )}
-                  scrollEnabled={false}
+                  renderItem={({ item }) => {
+                    const { Icon, iconColor, bg } = getEventIconAndColor(item.eventTypeName);
+                    return (
+                      <TouchableOpacity
+                        onPress={() => handleActivitySelect(item.id, item.eventTypeName)}
+                        className="bg-[#F9FAF9] border border-[#E8E8E8] rounded-xl p-4 mb-3 flex-row justify-between items-center"
+                      >
+                        <View className="flex-row items-center flex-1">
+                          <View className="w-10 h-10 rounded-full items-center justify-center mr-3" style={{ backgroundColor: bg }}>
+                            <Icon size={20} color={iconColor} />
+                          </View>
+                          <View className="flex-1">
+                            <Text className="text-base font-semibold text-[#2D2D2D]">{item.eventTypeName}</Text>
+                            <Text className="text-xs text-[#8A8A8A] mt-1">{item.eventTypeDesc}</Text>
+                          </View>
+                        </View>
+                        {selectedActivityType === item.id && <View className="w-5 h-5 bg-[#4CAF50] rounded-full" />}
+                      </TouchableOpacity>
+                    );
+                  }}
                 />
               )}
             </View>

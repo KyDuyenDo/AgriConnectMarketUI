@@ -123,7 +123,7 @@ export function CartItem({
 
             <View className="items-end">
               <Text className="text-[12px] text-[#8A8A8A]">{unitPrice}</Text>
-              <Text className="text-[14px] font-semibold text-[#4CAF50]">${total}</Text>
+              <Text className="text-[14px] font-semibold text-[#4CAF50]">{total} VNĐ</Text>
             </View>
           </View>
         </View>

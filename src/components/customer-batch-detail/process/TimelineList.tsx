@@ -1,53 +1,75 @@
 import React from "react";
-import { View } from "react-native";
+import { View, Text, ActivityIndicator } from "react-native";
 import TimelineItem from "./TimelineItem";
-import { Leaf, Droplet, Sprout, Scissors } from "lucide-react-native";
+import { useCareEventsByBatch } from "@/hooks/useCareEvents";
+import { formatDate } from "@/utils/date";
+import { getEventIconAndColor } from "@/constants/care-event-icons";
 
-const processSteps = [
-  {
-    icon: Leaf,
-    color: "#C8E6C9",
-    iconColor: "#4CAF50",
-    title: "Seeds Planted",
-    date: "March 15, 2024 • 8:00 AM",
-    description: "Organic heirloom tomato seeds planted in greenhouse",
-  },
-  {
-    icon: Droplet,
-    color: "#EBF5FB",
-    iconColor: "#2C7BE5",
-    title: "Regular Watering",
-    date: "March 16 – July 20 • Daily",
-    description: "Drip irrigation system, 2.3 gallons per day",
-  },
-  {
-    icon: Sprout,
-    color: "#FEF5E7",
-    iconColor: "#F57C00",
-    title: "Transplanted to Field",
-    date: "April 20, 2024 • 6:00 AM",
-    description: "Moved to outdoor field section B-12",
-  },
-  {
-    icon: Scissors,
-    color: "#FFF5EB",
-    iconColor: "#4CAF50",
-    title: "Harvested",
-    date: "Today, July 21 • 6:00 AM",
-    description: "Hand-picked at peak ripeness, 45 lbs total yield",
-  },
-];
+interface TimelineListProps {
+  batchId?: string;
+}
 
-const TimelineList = () => {
+const TimelineList = ({ batchId }: TimelineListProps) => {
+  const { data: events, isLoading } = useCareEventsByBatch(batchId || '');
+
+  if (isLoading) {
+    return (
+      <View className="py-4">
+        <ActivityIndicator size="small" color="#4CAF50" />
+      </View>
+    );
+  }
+
+  if (!events || events.length === 0) {
+    return (
+      <View className="py-4">
+        <Text className="text-gray-500 text-sm italic">No verified process steps recorded.</Text>
+      </View>
+    );
+  }
+
+  // Sort events by date ascending (oldest first) for process timeline
+  const sortedEvents = [...events].sort((a, b) =>
+    new Date(a.occurredAt).getTime() - new Date(b.occurredAt).getTime()
+  );
+
   return (
     <View>
-      {processSteps.map((step, index) => (
-        <TimelineItem
-          key={index}
-          {...step}
-          isLast={index === processSteps.length - 1}
-        />
-      ))}
+      {sortedEvents.map((event, index) => {
+        const eventTypeName = event.eventType?.eventTypeName || 'Unknown';
+        const { Icon, bg, iconColor } = getEventIconAndColor(eventTypeName);
+
+        // Parse payload
+        let description = '';
+        try {
+          const parsed = typeof event.payload === 'string' ? JSON.parse(event.payload) : event.payload;
+          if (typeof parsed === 'object' && parsed !== null) {
+            description = parsed.notes || parsed.description || parsed.details || '';
+          } else if (typeof parsed === 'string') {
+            description = parsed;
+          }
+        } catch (e) {
+          description = event.payload || '';
+        }
+
+        // Fallback to event type description if payload description is empty
+        if (!description && event.eventType?.eventTypeDesc) {
+          description = event.eventType.eventTypeDesc;
+        }
+
+        return (
+          <TimelineItem
+            key={event.id}
+            icon={Icon}
+            color={bg} // Use bg for icon background consistency
+            iconColor={iconColor}
+            title={eventTypeName}
+            date={formatDate(event.occurredAt)}
+            description={description}
+            isLast={index === sortedEvents.length - 1}
+          />
+        );
+      })}
     </View>
   );
 };

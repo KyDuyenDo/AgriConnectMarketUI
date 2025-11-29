@@ -3,11 +3,11 @@ import { View, Text, TouchableOpacity } from "react-native";
 import { ShieldCheck, ExternalLink } from "lucide-react-native";
 import TimelineList from "./TimelineList";
 
-const VerifiedProcessCard = () => {
+const VerifiedProcessCard = ({ batchId }: { batchId?: string }) => {
   return (
     <View className="bg-white rounded-3xl p-4 shadow shadow-gray-200 mt-3">
       {/* Timeline */}
-      <TimelineList />
+      <TimelineList batchId={batchId} />
 
       {/* Footer link */}
       <TouchableOpacity className="flex-row items-center gap-2 mt-2">

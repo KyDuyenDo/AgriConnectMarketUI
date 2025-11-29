@@ -69,7 +69,7 @@ export const LotDetailScreen = () => {
                 />
                 <View className="h-4" />
                 <AddLogEntryButton onPress={onAddLogEntry} />
-                <ActivityTimeline />
+                <ActivityTimeline batchId={lotId} />
                 <LotManagementGrid />
             </ScrollView>
         </SafeAreaView>

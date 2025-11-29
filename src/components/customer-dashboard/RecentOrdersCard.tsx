@@ -42,7 +42,7 @@ export const RecentOrdersCard: React.FC<RecentOrdersCardProps> = ({ orders, onVi
                   <View>
                     <Text className="text-sm font-medium text-[#2F3941] mb-0.5">Farm</Text>
                     <Text className="text-xs text-[#6B737A]">
-                      {order.orderItems?.length || 0} items • ${order.totalPrice}
+                      {order.orderItems?.length || 0} items • {order.totalPrice} VNĐ
                     </Text>
                   </View>
                   {/* Action Button */}

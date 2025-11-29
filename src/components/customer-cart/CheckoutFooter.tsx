@@ -13,7 +13,7 @@ export default function CheckoutFooter({ total, onProceed }: Props) {
         {/* Total Amount */}
         <View>
           <Text className="text-gray-600 text-sm">Tổng thanh toán</Text>
-          <Text className="text-2xl font-bold text-green-600">${total.toFixed(2)}</Text>
+          <Text className="text-2xl font-bold text-green-600">{total.toFixed(2)} VNĐ</Text>
         </View>
 
         {/* Proceed Button */}

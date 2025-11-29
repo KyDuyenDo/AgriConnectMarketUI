@@ -32,7 +32,7 @@ const LotCard = ({
 
                     <View className="flex-row items-center">
                         <Package size={14} color="#8a8a8a" />
-                        <Text className="ml-2 text-xs text-[#5c5c5c]">${batch.price}/{batch.units}</Text>
+                        <Text className="ml-2 text-xs text-[#5c5c5c]">{batch.price}/{batch.units}</Text>
                     </View>
                 </View>
             </View>
