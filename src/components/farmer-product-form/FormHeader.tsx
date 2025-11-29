@@ -12,8 +12,6 @@ export function FormHeader({ title, onBack }: FormHeaderProps) {
             className="bg-white"
             style={{ backgroundColor: '#FFF8F0' }}
         >
-            <View style={{ height: 0 }} />
-
             <View
                 className="flex-row justify-between items-center h-14 px-6"
                 style={{ backgroundColor: '#FFFFFF' }}

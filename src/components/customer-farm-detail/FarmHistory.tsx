@@ -23,7 +23,7 @@ export function FarmHistory({ events }: FarmHistoryProps) {
 
     return (
         <View
-            className="p-4 rounded-[20px] mx-4 mb-4"
+            className="p-4 rounded-[20px] mb-4"
             style={{
                 backgroundColor: '#FFFFFF',
                 shadowColor: '#000',

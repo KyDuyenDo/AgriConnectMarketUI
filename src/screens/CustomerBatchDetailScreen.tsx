@@ -173,12 +173,6 @@ export const CustomerBatchDetailScreen: React.FC = () => {
           </View>
 
           <View className="flex-row items-center gap-2">
-            <TouchableOpacity className="w-10 h-10 bg-white rounded-xl border border-[#E8EAEB] justify-center items-center shadow-sm">
-              <Share size={20} color="#5C5C5C" />
-            </TouchableOpacity>
-            <TouchableOpacity className="w-10 h-10 bg-white rounded-xl border border-[#E8EAEB] justify-center items-center shadow-sm">
-              <Heart size={20} color="#FF8C42" />
-            </TouchableOpacity>
           </View>
         </View>
       </View>
@@ -211,7 +205,7 @@ export const CustomerBatchDetailScreen: React.FC = () => {
 
         <View className="px-4 pt-4 gap-4">
           <FarmInformationCard
-            id={batch.id}
+            id={batch.batchCode.value}
             name={batch.season?.product?.productName || "Product Name"}
             variety={batch.season?.product?.productDesc || "No description available"}
             farmName={farmName}

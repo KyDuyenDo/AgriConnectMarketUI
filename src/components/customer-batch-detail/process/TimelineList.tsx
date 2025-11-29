@@ -1,17 +1,15 @@
 import React from "react";
 import { View, Text, ActivityIndicator } from "react-native";
 import TimelineItem from "./TimelineItem";
-import { useCareEventsByBatch } from "@/hooks/useCareEvents";
 import { formatDate } from "@/utils/date";
 import { getEventIconAndColor } from "@/constants/care-event-icons";
 
 interface TimelineListProps {
-  batchId?: string;
+  events: any[];
+  isLoading?: boolean;
 }
 
-const TimelineList = ({ batchId }: TimelineListProps) => {
-  const { data: events, isLoading } = useCareEventsByBatch(batchId || '');
-
+const TimelineList = ({ events, isLoading }: TimelineListProps) => {
   if (isLoading) {
     return (
       <View className="py-4">

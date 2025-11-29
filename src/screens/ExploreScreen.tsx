@@ -63,26 +63,6 @@ export function ExploreScreen() {
                 <Text className="text-[20px] font-semibold" style={{ color: '#1B1F24' }}>
                     Explore Products
                 </Text>
-                <View className="flex-row items-center gap-2">
-                    <Pressable
-                        className="w-10 h-10 items-center justify-center rounded-lg"
-                        style={{ backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E8EAEB' }}
-                    >
-                        <Search size={24} color="#6B737A" />
-                    </Pressable>
-                    <Pressable
-                        className="w-10 h-10 items-center justify-center rounded-lg relative"
-                        style={{ backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E8EAEB' }}
-                    >
-                        <ShoppingCart size={24} color="#6B737A" />
-                        <View
-                            className="absolute -top-1 -right-1 w-4 h-4 rounded-full items-center justify-center"
-                            style={{ backgroundColor: '#4CAF50' }}
-                        >
-                            <Text className="text-[10px] font-semibold" style={{ color: '#FFFFFF' }}>0</Text>
-                        </View>
-                    </Pressable>
-                </View>
             </View>
 
             <ScrollView

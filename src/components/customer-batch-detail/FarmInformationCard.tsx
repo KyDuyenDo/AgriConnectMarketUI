@@ -64,7 +64,7 @@ const FarmInformationCard: React.FC<FarmInformationCardProps> = ({
       <View className="flex-row gap-4">
         <View className="flex-1">
           <Text className="text-[#8A8A8A] text-xs mb-1">Harvest Date</Text>
-          <Text className="text-[#2D2D2D] text-sm font-medium">Today, 6:00 AM</Text>
+          <Text className="text-[#2D2D2D] text-sm font-medium">{harvestDate}</Text>
         </View>
         <View className="flex-1">
           <Text className="text-[#8A8A8A] text-xs mb-1">Total Yield</Text>

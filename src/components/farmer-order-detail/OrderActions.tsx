@@ -98,7 +98,6 @@ export function OrderActions({
                     </Pressable>
                 </View>
             </View>
-            <View style={{ height: 0 }} />
         </View>
     );
 }

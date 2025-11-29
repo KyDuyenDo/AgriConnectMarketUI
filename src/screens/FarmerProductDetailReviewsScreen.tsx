@@ -57,8 +57,8 @@ export function FarmerProductDetailReviewsScreen({ route, navigation }: Props) {
                 Alert.alert('Success', 'Reply submitted successfully');
                 setReplyModalVisible(false);
             },
-            onError: () => {
-                Alert.alert('Error', 'Failed to submit reply');
+            onError: (error) => {
+                Alert.alert('Error', error?.message || 'Failed to submit reply');
             }
         });
     };

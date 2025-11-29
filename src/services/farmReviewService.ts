@@ -57,6 +57,7 @@ export const farmReviewService = {
     },
 
     replyToReview: async (reviewId: string, dto: ReplyFarmReviewDto) => {
+        console.log(reviewId, dto);
         const response = await apiClient.put<Result<string>>(`/api/farmreviews/${reviewId}/reply`, dto);
         return response.data;
     },

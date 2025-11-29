@@ -1,6 +1,6 @@
 import { ScrollView, View, Text, Platform, Image, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Header } from '@/components/customer-farm-detail/Header';
 import { FarmHero } from '@/components/customer-farm-detail/FarmHero';
 import { FarmProfile } from '@/components/customer-farm-detail/FarmProfile';
@@ -18,7 +18,7 @@ import { FarmReviewCard } from '@/components/customer-farm-detail/FarmReviewCard
 import { FarmReviewSummary } from '@/components/customer-farm-detail/FarmReviewSummary';
 import { Ionicons } from '@expo/vector-icons';
 import { useFavoritesStore } from '@/stores/favorites';
-import { useToggleFavoriteFarm } from '@/hooks/useFavoriteFarms';
+import { useFavoriteFarms, useToggleFavoriteFarm } from '@/hooks/useFavoriteFarms';
 
 import { ProductResponse } from '@/types';
 import { Modal, TextInput, Alert } from 'react-native';
@@ -28,16 +28,13 @@ type Props = NativeStackScreenProps<CustomerStackParamList, 'FarmDetail'>;
 
 export function CustomerFarmDetailScreen({ route, navigation }: Props) {
     const { farmId } = route.params;
-    const isFavorited = useFavoritesStore((state) => state.isFavorited);
+    const { data: favoriteFarms, isLoading: isLoadingFavoriteFarms } = useFavoriteFarms();
+    const isFavorited = useFavoritesStore((state) => state.isFavorited(farmId));
+    const [isCertificateVisible, setIsCertificateVisible] = useState(false);
     const { mutate: toggleFavorite } = useToggleFavoriteFarm();
-    const isFavorite = isFavorited(farmId);
     const { data: farm, isLoading: isLoadingFarm, error: farmError } = useFarmById(farmId);
     const { data: batches, isLoading: isLoadingBatches } = useBatchesByFarm(farmId);
     const { data: reviews, isLoading: isLoadingReviews } = useFarmReviews(farmId);
-
-    const queryClient = useQueryClient();
-
-
 
     // Show loading state
     if (isLoadingFarm || isLoadingBatches) {
@@ -113,7 +110,7 @@ export function CustomerFarmDetailScreen({ route, navigation }: Props) {
                 onBack={() => navigation.goBack()}
                 onShare={() => console.log('Share')}
                 onFavorite={() => toggleFavorite(farmId)}
-                isFavorited={isFavorite}
+                isFavorited={isFavorited}
             />
 
             <ScrollView
@@ -191,6 +188,21 @@ export function CustomerFarmDetailScreen({ route, navigation }: Props) {
                 {/* Farm History */}
                 <View className="mt-4 px-4">
                     <Text className="text-lg font-bold text-gray-900 mb-3">Farm Information</Text>
+                    {farm.certificateUrl && (
+                        <TouchableOpacity
+                            onPress={() => setIsCertificateVisible(true)}
+                            className="flex-row items-center bg-green-50 p-3 rounded-xl border border-green-100 mb-4"
+                        >
+                            <View className="bg-green-100 p-2 rounded-full mr-3">
+                                <Ionicons name="ribbon-outline" size={20} color="#16A34A" />
+                            </View>
+                            <View className="flex-1">
+                                <Text className="text-green-800 font-semibold">Verified Certificate</Text>
+                                <Text className="text-green-600 text-xs">View official farm documentation</Text>
+                            </View>
+                            <Ionicons name="chevron-forward" size={20} color="#16A34A" />
+                        </TouchableOpacity>
+                    )}
                     <FarmHistory events={farm.history as any || []} />
                 </View>
 
@@ -200,6 +212,33 @@ export function CustomerFarmDetailScreen({ route, navigation }: Props) {
                         <Text className="text-green-600 font-medium text-sm">View All</Text>
                     </TouchableOpacity>
                 </View>
+
+                {/* Certificate Modal */}
+                <Modal
+                    visible={isCertificateVisible}
+                    transparent={true}
+                    onRequestClose={() => setIsCertificateVisible(false)}
+                    animationType="fade"
+                >
+                    <View className="flex-1 bg-black/90 justify-center items-center p-4">
+                        <TouchableOpacity
+                            onPress={() => setIsCertificateVisible(false)}
+                            className="absolute top-12 right-4 z-10 bg-white/20 p-2 rounded-full"
+                        >
+                            <Ionicons name="close" size={24} color="white" />
+                        </TouchableOpacity>
+
+                        {farm.certificateUrl ? (
+                            <Image
+                                source={{ uri: farm.certificateUrl }}
+                                className="w-full h-[80%] rounded-lg"
+                                resizeMode="contain"
+                            />
+                        ) : (
+                            <Text className="text-white text-lg">No certificate available</Text>
+                        )}
+                    </View>
+                </Modal>
 
                 {/* Customer Reviews */}
                 <View className="mt-2 px-4">

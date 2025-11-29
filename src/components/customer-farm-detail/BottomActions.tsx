@@ -38,7 +38,6 @@ export function BottomActions({ onMessage, onViewProducts }: BottomActionsProps)
                     </Pressable>
                 </View>
             </View>
-            <View style={{ height: 0 }} /> {/* Safe area bottom */}
         </View>
     );
 }

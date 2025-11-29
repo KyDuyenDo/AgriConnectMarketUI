@@ -58,7 +58,7 @@ export interface Batch {
   id: string
 
   // batchCode can be an object or a plain string (hybrid data source)
-  batchCode: { value: string } | string
+  batchCode: { value: string }
 
   totalYield: number
   availableQuantity: number

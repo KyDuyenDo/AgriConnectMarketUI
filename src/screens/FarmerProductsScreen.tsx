@@ -287,9 +287,6 @@ export const FarmerProductsScreen = () => {
       {/* Sticky Header Title */}
       <View className="px-6 py-4 bg-white border-b border-gray-100 flex-row justify-between items-center z-10">
         <Text className="text-gray-900 text-xl font-bold">My Batches</Text>
-        <TouchableOpacity className="bg-gray-50 p-2 rounded-full">
-          <Filter size={20} color="#4B5563" />
-        </TouchableOpacity>
       </View>
 
       <View className="flex-1">
