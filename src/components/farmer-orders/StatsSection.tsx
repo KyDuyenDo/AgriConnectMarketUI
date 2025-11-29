@@ -53,7 +53,7 @@ export function StatsSection({ ordersToday, pendingOrders, weeklyRevenue, avgOrd
                 </View>
               </View>
               <Text className="text-yellow-950 text-2xl font-bold -mt-1">
-                {weeklyRevenue.toLocaleString()} VNĐ
+                {new Intl.NumberFormat('vi-VN').format(weeklyRevenue)} VNĐ
               </Text>
               <Text className="text-yellow-600 text-xs font-medium">Weekly Revenue</Text>
             </View>
@@ -66,7 +66,7 @@ export function StatsSection({ ordersToday, pendingOrders, weeklyRevenue, avgOrd
                 </View>
               </View>
               <Text className="text-blue-950 text-2xl font-bold -mt-1">
-                {avgOrderValue.toLocaleString()} VNĐ
+                {new Intl.NumberFormat('vi-VN').format(avgOrderValue)} VNĐ
               </Text>
               <Text className="text-blue-600 text-xs font-medium">Avg Order Value</Text>
             </View>

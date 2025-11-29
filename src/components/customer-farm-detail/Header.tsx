@@ -20,7 +20,6 @@ export function Header({ onBack, onShare, onFavorite, isFavorited }: HeaderProps
         elevation: 1,
       }}
     >
-      <View style={{ height: 0 }} /> {/* Safe area top placeholder */}
       <View className="flex-row justify-between items-center h-14 px-4">
         <Pressable onPress={onBack} className="flex-row items-center gap-2 -ml-2 active:opacity-70">
           <View className="w-8 h-8 items-center justify-center">
@@ -34,14 +33,6 @@ export function Header({ onBack, onShare, onFavorite, isFavorited }: HeaderProps
         </View>
 
         <View className="flex-row items-center gap-2">
-          <Pressable
-            onPress={onShare}
-            className="w-10 h-10 items-center justify-center rounded-full active:bg-[#E8EAEB]"
-            style={{ backgroundColor: "#F5F7F5" }}
-          >
-            <Share size={20} color="#6B737A" />
-          </Pressable>
-
           <Pressable
             onPress={onFavorite}
             className="w-10 h-10 items-center justify-center rounded-full active:bg-[#E8EAEB]"

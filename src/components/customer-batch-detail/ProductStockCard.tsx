@@ -47,7 +47,7 @@ const ProductStockCard: React.FC<ProductStockCardProps> = ({
         {/* Price and Availability Header */}
         <View className="flex-row justify-between items-center mb-3">
           <View className="flex-row items-baseline">
-            <Text className="text-2xl font-semibold text-[#2D2D2D]">{pricePerLb.toFixed(2)} VNĐ</Text>
+            <Text className="text-2xl font-semibold text-[#2D2D2D]">{new Intl.NumberFormat('vi-VN').format(pricePerLb)} VNĐ</Text>
             <Text className="text-[#8A8A8A] text-sm ml-1">/{unit}</Text>
           </View>
 

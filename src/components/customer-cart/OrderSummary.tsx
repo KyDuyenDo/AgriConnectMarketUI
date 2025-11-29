@@ -29,28 +29,28 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
 
         <View className="flex-row justify-between items-center mb-3">
           <Text className="text-sm text-[#5C5C5C]">Subtotal ({itemCount} items)</Text>
-          <Text className="text-sm font-medium text-[#2D2D2D]">{subtotal.toFixed(2)} VNĐ</Text>
+          <Text className="text-sm font-medium text-[#2D2D2D]">{new Intl.NumberFormat('vi-VN').format(subtotal)} VNĐ</Text>
         </View>
 
         <View className="flex-row justify-between items-center mb-3">
           <Text className="text-sm text-[#5C5C5C]">Delivery Fee</Text>
-          <Text className="text-sm font-medium text-[#2D2D2D]">{deliveryFee.toFixed(2)} VNĐ</Text>
+          <Text className="text-sm font-medium text-[#2D2D2D]">{new Intl.NumberFormat('vi-VN').format(deliveryFee)} VNĐ</Text>
         </View>
 
         <View className="flex-row justify-between items-center mb-3">
           <Text className="text-sm text-[#5C5C5C]">Discount ({discountLabel})</Text>
-          <Text className="text-sm font-medium text-[#2E7D32]">-${discountAmount.toFixed(2)}</Text>
+          <Text className="text-sm font-medium text-[#2E7D32]">-{new Intl.NumberFormat('vi-VN').format(discountAmount)} VNĐ</Text>
         </View>
 
         <View className="flex-row justify-between items-center mb-3">
           <Text className="text-sm text-[#5C5C5C]">Tax</Text>
-          <Text className="text-sm font-medium text-[#2D2D2D]">{tax.toFixed(2)} VNĐ</Text>
+          <Text className="text-sm font-medium text-[#2D2D2D]">{new Intl.NumberFormat('vi-VN').format(tax)} VNĐ</Text>
         </View>
 
         <View className="border-t border-[#F0F0F0] pt-3">
           <View className="flex-row justify-between items-center">
             <Text className="text-base font-semibold text-[#2D2D2D]">Total</Text>
-            <Text className="text-xl font-bold text-[#4CAF50]">{total.toFixed(2)} VNĐ</Text>
+            <Text className="text-xl font-bold text-[#4CAF50]">{new Intl.NumberFormat('vi-VN').format(total)} VNĐ</Text>
           </View>
           <Text className="mt-1 text-xs text-[#2E7D32]">{savedMessage}</Text>
         </View>

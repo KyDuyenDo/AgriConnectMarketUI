@@ -65,10 +65,10 @@ export function OrderItems({ items, subtotal, serviceFee, total }: OrderItemsPro
                         </View>
                         <View className="text-right">
                             <Text className="text-base font-semibold" style={{ color: '#1B1F24' }}>
-                                ${item.total}
+                                {new Intl.NumberFormat('vi-VN').format(Number(item.total) || 0)} VNĐ
                             </Text>
                             <Text className="text-sm" style={{ color: '#6B737A' }}>
-                                ${item.unitPrice}
+                                {new Intl.NumberFormat('vi-VN').format(Number(item.unitPrice) || 0)} VNĐ
                             </Text>
                         </View>
                     </View>
@@ -78,15 +78,15 @@ export function OrderItems({ items, subtotal, serviceFee, total }: OrderItemsPro
             <View className="border-t pt-4" style={{ borderColor: '#E8EAEB' }}>
                 <View className="flex-row justify-between items-center mb-2">
                     <Text className="text-sm" style={{ color: '#6B737A' }}>Subtotal</Text>
-                    <Text className="text-sm" style={{ color: '#1B1F24' }}>{subtotal} VNĐ</Text>
+                    <Text className="text-sm" style={{ color: '#1B1F24' }}>{new Intl.NumberFormat('vi-VN').format(Number(subtotal) || 0)} VNĐ</Text>
                 </View>
                 <View className="flex-row justify-between items-center mb-2">
                     <Text className="text-sm" style={{ color: '#6B737A' }}>Service Fee</Text>
-                    <Text className="text-sm" style={{ color: '#1B1F24' }}>{serviceFee} VNĐ</Text>
+                    <Text className="text-sm" style={{ color: '#1B1F24' }}>{new Intl.NumberFormat('vi-VN').format(Number(serviceFee) || 0)} VNĐ</Text>
                 </View>
                 <View className="border-t pt-2 flex-row justify-between items-center" style={{ borderColor: '#E8EAEB' }}>
                     <Text className="text-lg font-semibold" style={{ color: '#1B1F24' }}>Total</Text>
-                    <Text className="text-lg font-bold" style={{ color: '#4CAF50' }}>{total} VNĐ</Text>
+                    <Text className="text-lg font-bold" style={{ color: '#4CAF50' }}>{new Intl.NumberFormat('vi-VN').format(Number(total) || 0)} VNĐ</Text>
                 </View>
             </View>
         </View>

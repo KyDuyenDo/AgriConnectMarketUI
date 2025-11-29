@@ -29,7 +29,7 @@ const PriceSection = ({ price, unit, onPress }: { price: string; unit: string; o
     return (
         <View className="flex-row items-center justify-between">
             <Text className="text-[14px] font-bold" style={{ color: '#4CAF50' }}>
-                {price} VNĐ/{unit}
+                {price} Đ/{unit}
             </Text>
             <TouchableOpacity
                 className="w-6 h-6 rounded-full items-center justify-center"
@@ -122,7 +122,7 @@ export const ProductCard: React.FC<{ product: any; toggleFavorite: (id: string) 
 
                 {/* Price and Add Button */}
                 <PriceSection
-                    price={product.price?.toString() || "0"}
+                    price={new Intl.NumberFormat('vi-VN').format(Number(product.price) || 0)}
                     unit={product.unit || "unit"}
                     onPress={isOutOfStock ? undefined : onAddToCart}
                 />

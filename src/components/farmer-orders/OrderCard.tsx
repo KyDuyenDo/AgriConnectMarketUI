@@ -59,7 +59,7 @@ export function OrderCard({ order }: OrderCardProps) {
             <Text className="text-[#2D2D2D] font-semibold text-sm">{order.orderCode}</Text>
             <Text className="text-[#5C5C5C] text-xs">{order.customer?.fullname || "Customer"}</Text>
           </View>
-          <Text className="text-base font-bold text-[#2D2D2D]">{order.totalPrice} VNĐ</Text>
+          <Text className="text-base font-bold text-[#2D2D2D]">{new Intl.NumberFormat('vi-VN').format(order.totalPrice)} VNĐ</Text>
         </View>
 
         <OrderProducts products={order.orderItems || []} additionalProducts={additionalProducts} />

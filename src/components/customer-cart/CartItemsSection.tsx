@@ -44,7 +44,7 @@ export default function CartItemsSection({
             <View className="bg-blue-50 px-3 py-1.5 rounded-full flex-row items-center gap-1.5">
               <Truck size={14} color="#3B82F6" />
               <Text className="text-xs font-semibold text-blue-600">
-                {isCalculatingShipping ? "..." : `$${shippingFee.toFixed(2)}`}
+                {isCalculatingShipping ? "..." : `${new Intl.NumberFormat('vi-VN').format(shippingFee)} VNĐ`}
               </Text>
             </View>
           )}
@@ -63,8 +63,8 @@ export default function CartItemsSection({
             }}
             harvestInfo={""}
             quantity={item.quantity}
-            unitPrice={item.price}
-            total={(Number.parseFloat(item.price) * item.quantity).toFixed(2)}
+            unitPrice={new Intl.NumberFormat('vi-VN').format(Number.parseFloat(item.price))}
+            total={new Intl.NumberFormat('vi-VN').format(Number.parseFloat(item.price) * item.quantity)}
             unit={item.unit}
             maxQuantity={100}
             isSelected={selectedItems.includes(item.id)}

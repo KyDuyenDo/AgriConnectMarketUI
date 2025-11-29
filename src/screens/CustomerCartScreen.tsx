@@ -325,7 +325,7 @@ export const CustomerCartScreen: React.FC = () => {
           discountAmount={discountAmount}
           tax={tax}
           total={total}
-          savedMessage={discountAmount > 0 ? `You saved $${discountAmount.toFixed(2)} with promo code!` : ""}
+          savedMessage={discountAmount > 0 ? `You saved ${new Intl.NumberFormat('vi-VN').format(discountAmount)} VNĐ with promo code!` : ""}
         />
 
         {calculatingShipping && (
