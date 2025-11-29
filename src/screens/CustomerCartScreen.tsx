@@ -47,6 +47,7 @@ export const CustomerCartScreen: React.FC = () => {
     shippingFee,
     isCalculating: calculatingShipping,
     farmAddresses,
+    shippingFeesByFarm,
   } = useCartShipping({
     cartItems: Cart?.cartItems || [],
     selectedItemIds: selectedItems,
@@ -88,6 +89,15 @@ export const CustomerCartScreen: React.FC = () => {
       numRatings: 0,
     }
   })
+
+  // Group items by farm
+  const groupedItems = CartItemSelects.reduce((acc: any, item: any) => {
+    if (!acc[item.farm]) {
+      acc[item.farm] = []
+    }
+    acc[item.farm].push(item)
+    return acc
+  }, {})
 
   const handleQuantityChange = async (itemId: string, newQuantity: number) => {
     try {
@@ -137,27 +147,41 @@ export const CustomerCartScreen: React.FC = () => {
     try {
       const itemsToOrder = CartItemSelects.filter((item: any) => selectedItems.includes(item.id))
 
-      const orderItems = itemsToOrder.map((item: any) => ({
-        batchId: item.batch,
-        quantity: item.quantity,
-      }))
+      // Group selected items by farm for order creation
+      const selectedItemsByFarm = itemsToOrder.reduce((acc: any, item: any) => {
+        if (!acc[item.farm]) {
+          acc[item.farm] = []
+        }
+        acc[item.farm].push(item)
+        return acc
+      }, {})
 
-      const shippingFee = itemsToOrder.length > 0 ? 3.99 : 0
+      const orderPromises = Object.entries(selectedItemsByFarm).map(async ([farmName, items]: [string, any]) => {
+        const orderItems = items.map((item: any) => ({
+          batchId: item.batch,
+          quantity: item.quantity,
+        }))
 
-      const payload = {
-        customerId: userId,
-        shippingFee: shippingFee,
-        orderItems: orderItems,
-        addressId: defaultAddress?.id || addresses?.[0]?.id,
-      }
+        // Get shipping fee for this farm, default to 3.99 if not found
+        const farmShippingFee = shippingFeesByFarm[farmName] !== undefined ? shippingFeesByFarm[farmName] : 3.99
 
-      const newOrder = await createOrder(payload)
+        const payload = {
+          customerId: userId,
+          shippingFee: farmShippingFee,
+          orderItems: orderItems,
+          addressId: defaultAddress?.id || addresses?.[0]?.id,
+        }
+
+        return createOrder(payload)
+      })
+
+      await Promise.all(orderPromises)
 
       await Promise.all(selectedItems.map((id) => removeFromCart(id)))
 
       setSelectedItems([])
 
-      Alert.alert("Success", "Order created successfully!", [
+      Alert.alert("Success", "Orders created successfully!", [
         { text: "OK", onPress: () => navigation.navigate("CustomerOrders" as never) },
       ])
     } catch (error: any) {
@@ -264,16 +288,28 @@ export const CustomerCartScreen: React.FC = () => {
           paddingBottom: 130,
         }}
       >
-        <CartItemsSection
-          items={CartItemSelects}
-          selectedItems={selectedItems}
-          onSelectItem={(id) =>
-            setSelectedItems((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]))
-          }
-          onDelete={handleDelete}
-          onQuantityChange={handleQuantityChange}
-          hideQuantityControls={false}
-        />
+        {Object.entries(groupedItems).map(([farmName, items]: [string, any]) => {
+          const farmFee = shippingFeesByFarm[farmName] !== undefined ? shippingFeesByFarm[farmName] : 0;
+          const isFarmSelected = items.some((item: any) => selectedItems.includes(item.id));
+
+          return (
+            <View key={farmName}>
+              <CartItemsSection
+                items={items}
+                selectedItems={selectedItems}
+                onSelectItem={(id) =>
+                  setSelectedItems((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]))
+                }
+                onDelete={handleDelete}
+                onQuantityChange={handleQuantityChange}
+                hideQuantityControls={false}
+                farmName={farmName}
+                shippingFee={isFarmSelected ? farmFee : undefined}
+                isCalculatingShipping={calculatingShipping}
+              />
+            </View>
+          )
+        })}
 
         <DeliveryOptionsCard
           defaultAddress={defaultAddress}
@@ -294,19 +330,12 @@ export const CustomerCartScreen: React.FC = () => {
 
         {calculatingShipping && (
           <View className="mx-4 mt-2 p-3 bg-blue-50 rounded-lg">
-            <Text className="text-sm text-blue-600">Đang tính phí vận chuyển từ {farmAddresses.length} farm...</Text>
-          </View>
-        )}
-
-        {farmAddresses.length > 0 && !calculatingShipping && (
-          <View className="mx-4 mt-2 p-3 bg-green-50 rounded-lg">
-            <Text className="text-xs text-green-600">📍 Giao hàng từ:</Text>
-            <Text className="text-xs text-green-600">{farmAddresses.map(a => `${a.detail} (${a.province}/${a.district})`).join(' • ')}</Text>
+            <Text className="text-sm text-blue-600">Calculating shipping from {farmAddresses.length} farms...</Text>
           </View>
         )}
 
         <CartActionsSection onProceed={handleProceed} />
       </ScrollView>
-    </View>
+    </View >
   )
 }

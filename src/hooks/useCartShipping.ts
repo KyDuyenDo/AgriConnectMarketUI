@@ -23,9 +23,10 @@ export const useCartShipping = ({
     cartItems,
     selectedItemIds,
     customerAddress,
-}: UseCartShippingParams): UseCartShippingReturn => {
+}: UseCartShippingParams): UseCartShippingReturn & { shippingFeesByFarm: Record<string, number> } => {
     const [shippingFee, setShippingFee] = useState<number>(0);
     const [farmAddresses, setFarmAddresses] = useState<Address[]>([]);
+    const [shippingFeesByFarm, setShippingFeesByFarm] = useState<Record<string, number>>({});
 
     const { calculate: calculateGHTKFee, loading: isCalculating, error } = useCalculateGHTKShipping();
 
@@ -49,6 +50,7 @@ export const useCartShipping = ({
         if (!customerAddress || selectedItems.length === 0) {
             setShippingFee(0);
             setFarmAddresses([]);
+            setShippingFeesByFarm({});
             return;
         }
 
@@ -62,11 +64,12 @@ export const useCartShipping = ({
             if (addresses.length === 0) {
                 console.warn('⚠️ No farm addresses found');
                 setShippingFee(3.99); // Default fallback
+                setShippingFeesByFarm({});
                 return;
             }
 
             let totalFeeVND = 0;
-            let successfulCalculations = 0;
+            const newShippingFeesByFarm: Record<string, number> = {};
 
             // Calculate fee for each farm address
             for (const farmAddress of addresses) {
@@ -82,17 +85,27 @@ export const useCartShipping = ({
 
                 if (farmItems.length === 0) continue;
 
+                // Use farm name or ID as key for the fee map. 
+                // Ideally we should use Farm ID, but here we are grouping by address.
+                // Let's use the first item's farm name as a key for now, or we can use the address string.
+                // Better yet, let's try to get the Farm ID if possible, but the extraction logic is address based.
+                // Let's use the farm name from the first item of this group as the key, assuming 1 farm per address for now, 
+                // or just map by Farm Name if that's how we group in UI.
+                const farmName = farmItems[0]?.batch?.season?.farm?.farmName || "Unknown Farm";
+
                 // Calculate metrics for this farm's shipment
                 const farmWeight = farmItems.reduce((sum, item) => sum + (item.quantity * 500), 0);
                 const farmSubtotalUSD = farmItems.reduce((sum, item) => sum + (item.itemPrice * item.quantity), 0);
                 const farmValueVND = Math.round(farmSubtotalUSD * 24000);
 
-                console.log(`📦 Calculating GHTK fee for farm in ${farmAddress.province}:`, {
+                console.log(`📦 Calculating GHTK fee for farm ${farmName} in ${farmAddress.province}:`, {
                     to: customerAddress.province,
                     items: farmItems.length,
                     weight: farmWeight,
                     valueVND: farmValueVND
                 });
+
+                let farmFeeVND = 0;
 
                 try {
                     // Call GHTK API for this farm
@@ -108,14 +121,21 @@ export const useCartShipping = ({
                     });
 
                     if (result?.fee?.fee) {
-                        console.log(`✅ Fee for farm ${farmAddress.province}: ${result.fee.fee} VND`);
-                        totalFeeVND += result.fee.fee;
-                        successfulCalculations++;
+                        console.log(`✅ Fee for farm ${farmName}: ${result.fee.fee} VND`);
+                        farmFeeVND = result.fee.fee;
+                    } else {
+                        farmFeeVND = 30000; // Fallback per farm
                     }
                 } catch (innerErr) {
-                    console.error(`❌ Failed to calculate for farm in ${farmAddress.province}:`, innerErr);
-                    totalFeeVND += 30000;
+                    console.error(`❌ Failed to calculate for farm ${farmName}:`, innerErr);
+                    farmFeeVND = 30000;
                 }
+
+                totalFeeVND += farmFeeVND;
+
+                // Convert to USD for the map
+                const farmFeeUSD = Math.round((farmFeeVND / 24000) * 100) / 100;
+                newShippingFeesByFarm[farmName] = farmFeeUSD;
             }
 
             if (totalFeeVND > 0) {
@@ -126,9 +146,12 @@ export const useCartShipping = ({
                 setShippingFee(3.99);
             }
 
+            setShippingFeesByFarm(newShippingFeesByFarm);
+
         } catch (err) {
             console.error('❌ Global calculation error:', err);
             setShippingFee(3.99);
+            setShippingFeesByFarm({});
         } finally {
             isCalculatingRef.current = false;
         }
@@ -157,6 +180,7 @@ export const useCartShipping = ({
         if (!calculationKey) {
             setShippingFee(0);
             setFarmAddresses([]);
+            setShippingFeesByFarm({});
             return;
         }
 
@@ -174,5 +198,6 @@ export const useCartShipping = ({
         isCalculating,
         farmAddresses,
         error,
+        shippingFeesByFarm,
     };
 };
