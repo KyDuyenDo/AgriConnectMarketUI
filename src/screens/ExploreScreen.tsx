@@ -9,7 +9,7 @@ import {
     ActivityIndicator,
 } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
-import { Search, ShoppingCart, SlidersHorizontal, ArrowUpDown } from "lucide-react-native"
+import { Search, ShoppingCart, SlidersHorizontal, ArrowUpDown, ScanLine } from "lucide-react-native"
 import { useNavigation } from "@react-navigation/native"
 import { ProductCustomerGrid } from "@/components/customer-exlore/ProductCustomerGird"
 import { FeaturedFarmers } from "@/components/customer-exlore/FeaturedFarmers"
@@ -91,6 +91,9 @@ export function ExploreScreen() {
                             className="flex-1 ml-3 text-sm"
                             style={{ color: '#1B1F24' }}
                         />
+                        <Pressable onPress={() => navigation.navigate("ScanScreen")}>
+                            <ScanLine size={20} color="#8A8A8A" />
+                        </Pressable>
                     </View>
                 </View>
 
