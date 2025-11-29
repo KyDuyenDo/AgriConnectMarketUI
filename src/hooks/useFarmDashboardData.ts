@@ -57,7 +57,7 @@ export function useFarmDashboardData() {
         );
 
         return {
-            earningsAmount: `$${totalEarnings.toLocaleString()}`,
+            earningsAmount: `${totalEarnings.toLocaleString()} VNĐ`,
             earningsPeriod: "",
             activeProductsCount: activeBatches.length,
             activeProductsTrend: "",
@@ -97,7 +97,7 @@ export function useFarmDashboardData() {
                             ? order.orderCode.substring(0, 20) + "..."
                             : order.orderCode,
                     quantity: `${totalQuantity} ${batch?.units}`,
-                    price: `$${order.totalPrice}`,
+                    price: `${order.totalPrice} VNĐ`,
                     status: order.orderStatus,
                     statusColor: getStatusColor(order.orderStatus),
                     statusTextColor: getStatusTextColor(order.orderStatus),
