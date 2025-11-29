@@ -3,8 +3,8 @@ import axios from "axios"
 
 // GHTK API configuration
 const GHTK_BASE_URL = "https://services.giaohangtietkiem.vn/services/address"
-// TODO: Get token from GHTK dashboard
-const GHTK_TOKEN = "YOUR_GHTK_TOKEN_HERE"
+// TODO: Get token from GHTK dashboard  
+const GHTK_TOKEN = process.env.GHKT_TOKEN || ""
 
 export interface GHTKProvince {
     id: string

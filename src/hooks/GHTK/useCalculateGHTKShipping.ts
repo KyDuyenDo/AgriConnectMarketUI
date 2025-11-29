@@ -4,7 +4,7 @@ import axios from 'axios';
 // GHTK API configuration
 const GHTK_BASE_URL = "https://services.giaohangtietkiem.vn/services/shipment/fee";
 // TODO: Get token from GHTK dashboard  
-const GHTK_TOKEN = "YOUR_GHTK_TOKEN_HERE";
+const GHTK_TOKEN = process.env.GHTK_TOKEN || "35I5Lo9xbij1VpgTrLjirubyolFjx7zAJ120Q4S";
 
 interface GHTKFeePayload {
     pick_province: string;      // Tỉnh/thành lấy hàng
@@ -33,7 +33,7 @@ interface GHTKFeeResponse {
     };
 }
 
-export function useCalculateGHTKShipping() {
+export const useCalculateGHTKShipping = () => {
     const [loading, setLoading] = useState(false);
     const [feeResult, setFeeResult] = useState<GHTKFeeResponse | null>(null);
     const [error, setError] = useState<any>(null);

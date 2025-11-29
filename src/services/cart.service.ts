@@ -99,6 +99,7 @@ export interface Farm {
 }
 
 export interface Address {
+    farmId?: string;
     province: string;
     district: string;
     ward: string;
@@ -301,6 +302,7 @@ export const extractFarmAddresses = (cartItems: any[]): Address[] => {
         if (!seenAddresses.has(addressKey)) {
             seenAddresses.add(addressKey);
             addresses.push({
+                farmId : item.batch?.season?.farmId,
                 province: farmAddress.province || '',
                 district: farmAddress.district || '',
                 ward: farmAddress.ward || '',

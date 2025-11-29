@@ -48,6 +48,7 @@ export const CustomerCartScreen: React.FC = () => {
     isCalculating: calculatingShipping,
     farmAddresses,
     shippingFeesByFarm,
+    shippingFeesByFarmId
   } = useCartShipping({
     cartItems: Cart?.cartItems || [],
     selectedItemIds: selectedItems,
@@ -63,7 +64,7 @@ export const CustomerCartScreen: React.FC = () => {
 
   // Show skeleton while loading
   if (isLoading) return <CustomerCartScreenSkeleton />
-
+  console.log("shippingFee", shippingFeesByFarmId)
 
   const hasCartItems = CartItems.length > 0
 
@@ -78,6 +79,7 @@ export const CustomerCartScreen: React.FC = () => {
       id: item.id,
       name: productName,
       farm: farmName,
+      farmId: batchData?.season?.farmId,
       price: `${item.itemPrice}`,
       unit: unit,
       image: imageUrl,
@@ -286,11 +288,24 @@ export const CustomerCartScreen: React.FC = () => {
         contentContainerStyle={{
           paddingTop: 16,
           paddingBottom: 130,
+          // contentContainerStyle end
         }}
       >
         {Object.entries(groupedItems).map(([farmName, items]: [string, any]) => {
-          const farmFee = shippingFeesByFarm[farmName] !== undefined ? shippingFeesByFarm[farmName] : 0;
           const isFarmSelected = items.some((item: any) => selectedItems.includes(item.id));
+
+          // Get farmId from the first item
+          const farmId = items[0]?.farmId;
+
+          // Find fee in shippingFeesByFarmId (which is in VND)
+          const feeObj = shippingFeesByFarmId.find(f => f.farmId === farmId);
+          const feeVND = feeObj ? feeObj.fee : 0;
+
+          // Convert to USD for display (assuming 24000 VND = 1 USD)
+          const feeUSD = Math.round((feeVND / 24000) * 100) / 100;
+
+          // Show fee if calculated, otherwise 0
+          const displayFee = feeUSD;
 
           return (
             <View key={farmName}>
@@ -304,7 +319,7 @@ export const CustomerCartScreen: React.FC = () => {
                 onQuantityChange={handleQuantityChange}
                 hideQuantityControls={false}
                 farmName={farmName}
-                shippingFee={isFarmSelected ? farmFee : undefined}
+                shippingFee={displayFee}
                 isCalculatingShipping={calculatingShipping}
               />
             </View>
@@ -328,14 +343,16 @@ export const CustomerCartScreen: React.FC = () => {
           savedMessage={discountAmount > 0 ? `You saved $${discountAmount.toFixed(2)} with promo code!` : ""}
         />
 
-        {calculatingShipping && (
-          <View className="mx-4 mt-2 p-3 bg-blue-50 rounded-lg">
-            <Text className="text-sm text-blue-600">Calculating shipping from {farmAddresses.length} farms...</Text>
-          </View>
-        )}
+        {
+          calculatingShipping && (
+            <View className="mx-4 mt-2 p-3 bg-blue-50 rounded-lg">
+              <Text className="text-sm text-blue-600">Calculating shipping from {farmAddresses.length} farms...</Text>
+            </View>
+          )
+        }
 
         <CartActionsSection onProceed={handleProceed} />
-      </ScrollView>
+      </ScrollView >
     </View >
   )
 }
