@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -59,16 +59,16 @@ const CustomerAllReviewsScreen = ({ route, navigation }: Props) => {
         });
     }, [reviews, selectedCategory, selectedProduct, selectedBatch]);
 
-    const handleCategoryChange = (itemValue: string) => {
+    const handleCategoryChange = useCallback((itemValue: string) => {
         setSelectedCategory(itemValue);
         setSelectedProduct('');
         setSelectedBatch('');
-    };
+    }, []);
 
-    const handleProductChange = (itemValue: string) => {
+    const handleProductChange = useCallback((itemValue: string) => {
         setSelectedProduct(itemValue);
         setSelectedBatch('');
-    };
+    }, []);
 
     return (
         <SafeAreaView className="flex-1 bg-[#F9FAF9]">

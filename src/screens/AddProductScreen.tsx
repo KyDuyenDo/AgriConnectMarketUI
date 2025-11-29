@@ -87,7 +87,7 @@ export default function AddProductScreen() {
                                 name="categoryId"
                                 render={({ field: { onChange, value } }) => (
                                     <Picker
-                                        selectedValue={value}
+                                        selectedValue={value || ""}
                                         onValueChange={onChange}
                                         enabled={!isLoadingCategories}
                                     >

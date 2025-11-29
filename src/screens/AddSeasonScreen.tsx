@@ -115,50 +115,52 @@ export default function AddSeasonScreen() {
                     <Text className="text-base font-semibold text-[#2d2d2d] mb-3">Season Details</Text>
 
                     {/* Category Selection */}
+                    {/* Category Selection */}
                     <View className="mb-4">
                         <Text className="text-sm font-medium text-[#5c5c5c] mb-2">Category</Text>
-                        <View className="bg-white border border-[#e8e8e8] rounded-xl">
-                            <Controller
-                                control={control}
-                                name="categoryId"
-                                render={({ field: { onChange, value } }) => (
+                        <Controller
+                            control={control}
+                            name="categoryId"
+                            render={({ field: { onChange, value } }) => (
+                                <View className="bg-white border border-[#e8e8e8] rounded-xl overflow-hidden">
                                     <Picker
                                         selectedValue={value}
                                         onValueChange={onChange}
-                                        enabled={!isLoadingCategories}
+                                        style={{ height: 50 }}
                                     >
-                                        <Picker.Item label="Select Category" value="" />
-                                        {categories?.map((cat) => (
-                                            <Picker.Item key={cat.id} label={cat.categoryName} value={cat.id} />
+                                        <Picker.Item label="Select Category" value="" color="#9CA3AF" />
+                                        {categories?.map((cat: any) => (
+                                            <Picker.Item key={cat.id} label={cat.name} value={cat.id} />
                                         ))}
                                     </Picker>
-                                )}
-                            />
-                        </View>
+                                </View>
+                            )}
+                        />
                         {errors.categoryId && <Text className="text-red-500 text-xs mt-1">{errors.categoryId.message}</Text>}
                     </View>
 
                     {/* Product Selection */}
                     <View className="mb-4">
                         <Text className="text-sm font-medium text-[#5c5c5c] mb-2">Product</Text>
-                        <View className="bg-white border border-[#e8e8e8] rounded-xl">
-                            <Controller
-                                control={control}
-                                name="productId"
-                                render={({ field: { onChange, value } }) => (
+                        <Controller
+                            control={control}
+                            name="productId"
+                            render={({ field: { onChange, value } }) => (
+                                <View className="bg-white border border-[#e8e8e8] rounded-xl overflow-hidden">
                                     <Picker
                                         selectedValue={value}
                                         onValueChange={onChange}
-                                        enabled={!!selectedCategory && !isLoadingProducts}
+                                        style={{ height: 50 }}
+                                        enabled={!!selectedCategory}
                                     >
-                                        <Picker.Item label="Select Product" value="" />
-                                        {products?.map((prod) => (
-                                            <Picker.Item key={prod.id} label={prod.productName} value={prod.id} />
+                                        <Picker.Item label="Select Product" value="" color="#9CA3AF" />
+                                        {products?.map((prod: any) => (
+                                            <Picker.Item key={prod.id} label={prod.name} value={prod.id} />
                                         ))}
                                     </Picker>
-                                )}
-                            />
-                        </View>
+                                </View>
+                            )}
+                        />
                         {errors.productId && <Text className="text-red-500 text-xs mt-1">{errors.productId.message}</Text>}
                     </View>
 
@@ -238,12 +240,13 @@ export default function AddSeasonScreen() {
                             )}
                         />
                     </View>
-                </View>
+                </View >
 
                 {/* Submit Button */}
-                <TouchableOpacity
+                < TouchableOpacity
                     onPress={handleSubmit(onSubmit)}
-                    disabled={isPending || isLoadingFarm || !farmId}
+                    disabled={isPending || isLoadingFarm || !farmId
+                    }
                     className={`w-full py-4 rounded-xl items-center mb-8 ${isPending || isLoadingFarm || !farmId ? "bg-green-300" : "bg-green-600"}`}
                 >
                     {isPending || isLoadingFarm ? (
@@ -253,8 +256,8 @@ export default function AddSeasonScreen() {
                             {!farmId ? "No Farm Found" : "Create Season"}
                         </Text>
                     )}
-                </TouchableOpacity>
-            </ScrollView>
-        </SafeAreaView>
+                </TouchableOpacity >
+            </ScrollView >
+        </SafeAreaView >
     );
 }

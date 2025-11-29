@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from "react"
+import { useDebounce } from "@/hooks/useDebounce"
 import {
     ScrollView,
     View,
@@ -19,20 +20,20 @@ import { ExploreScreenSkeleton } from "@/components/skeletons/ExploreScreenSkele
 
 export function ExploreScreen() {
     const [searchQuery, setSearchQuery] = useState("")
+    const debouncedSearchQuery = useDebounce(searchQuery, 300)
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
 
     const { farms, categories, unifiedProducts, loading, error } = useHomeData();
 
     // Filter products based on search and category
-    // Filter products based on search and category
     const filteredProducts = useMemo(() => {
         return unifiedProducts.filter(product => {
-            const matchesSearch = product.productName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                product.farmName.toLowerCase().includes(searchQuery.toLowerCase());
+            const matchesSearch = product.productName.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
+                product.farmName.toLowerCase().includes(debouncedSearchQuery.toLowerCase());
             const matchesCategory = selectedCategory ? product.categoryId === selectedCategory : true;
             return matchesSearch && matchesCategory;
         });
-    }, [unifiedProducts, searchQuery, selectedCategory]);
+    }, [unifiedProducts, debouncedSearchQuery, selectedCategory]);
 
     // Featured Farmers (Top 3)
     const featuredFarmers = useMemo(() => {

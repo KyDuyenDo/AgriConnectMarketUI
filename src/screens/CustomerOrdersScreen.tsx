@@ -1,6 +1,6 @@
 // CustomerOrdersScreen.tsx
 import React, { useMemo, useState } from 'react';
-import { View, Text, Pressable, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, Pressable, ScrollView, TouchableOpacity, ActivityIndicator, FlatList } from 'react-native';
 import OrderCard, { Order } from '../components/customer-orders/OrderCard';
 import { Search, Filter, ChevronLeft, ShoppingBagIcon } from 'lucide-react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -127,28 +127,24 @@ const CustomerOrdersScreen: React.FC<Props> = ({ route, navigation }) => {
         </ScrollView>
       </View>
 
-      <ScrollView
-        className="flex-1 px-4"
-        contentContainerStyle={{ paddingBottom: 24 }}
+      <FlatList
+        data={filteredOrders}
+        renderItem={({ item }) => <OrderCard order={item} />}
+        keyExtractor={item => item.id}
+        contentContainerStyle={{ paddingBottom: 24, paddingHorizontal: 16 }}
         showsVerticalScrollIndicator={false}
-      >
-        {isLoading ? (
-          <CustomerOrdersScreenSkeleton />
-        ) : (
-          filteredOrders.map(order => (
-            <OrderCard key={order.id} order={order} />
-          ))
-        )}
-        {!isLoading && filteredOrders.length === 0 && (
-          <View className="bg-white rounded-2xl p-4 shadow-sm shadow-gray-100">
-            <View className="items-center py-8">
-              <ShoppingBagIcon color="#9ca3af" size={40} />
-              <Text className="text-sm font-medium text-[#6B737A] mt-3">No orders found</Text>
-              <Text className="text-xs text-[#9ca3af] mt-1 text-center">You have no orders yet</Text>
+        ListEmptyComponent={
+          !isLoading ? (
+            <View className="bg-white rounded-2xl p-4 shadow-sm shadow-gray-100">
+              <View className="items-center py-8">
+                <ShoppingBagIcon color="#9ca3af" size={40} />
+                <Text className="text-sm font-medium text-[#6B737A] mt-3">No orders found</Text>
+                <Text className="text-xs text-[#9ca3af] mt-1 text-center">You have no orders yet</Text>
+              </View>
             </View>
-          </View>
-        )}
-      </ScrollView>
+          ) : <CustomerOrdersScreenSkeleton />
+        }
+      />
     </SafeAreaView>
   );
 };

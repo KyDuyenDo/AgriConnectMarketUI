@@ -171,7 +171,7 @@ export default function AddBatchScreen() {
                                         name="seasonId"
                                         render={({ field: { onChange, value } }) => (
                                             <Picker
-                                                selectedValue={value}
+                                                selectedValue={value || ""}
                                                 onValueChange={onChange}
                                                 enabled={!isLoadingSeasons}
                                             >
@@ -278,7 +278,7 @@ export default function AddBatchScreen() {
                                     name="units"
                                     render={({ field: { onChange, value } }) => (
                                         <Picker
-                                            selectedValue={value}
+                                            selectedValue={value || ""}
                                             onValueChange={onChange}
                                         >
                                             <Picker.Item label="kg" value="kg" />

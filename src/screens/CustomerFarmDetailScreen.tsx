@@ -1,6 +1,6 @@
 import { ScrollView, View, Text, Platform, Image, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import { Header } from '@/components/customer-farm-detail/Header';
 import { FarmHero } from '@/components/customer-farm-detail/FarmHero';
 import { FarmProfile } from '@/components/customer-farm-detail/FarmProfile';
@@ -36,6 +36,87 @@ export function CustomerFarmDetailScreen({ route, navigation }: Props) {
     const { data: batches, isLoading: isLoadingBatches } = useBatchesByFarm(farmId);
     const { data: reviews, isLoading: isLoadingReviews } = useFarmReviews(farmId);
 
+
+
+    // Calculate average rating
+    const averageRating = useMemo(() => reviews && reviews.length > 0
+        ? reviews.reduce((acc, review) => acc + review.rate, 0) / reviews.length
+        : 0, [reviews]);
+
+    // Map API data to UI format with fallbacks
+    const farmData = useMemo(() => {
+        if (!farm) return {
+            heroImage: 'https://via.placeholder.com/400x200',
+            badge: 'Local Farm',
+            ownerPhoto: 'https://via.placeholder.com/60',
+            farmName: 'Unknown Farm',
+            ownerName: 'Farm Owner',
+            sinceYear: '2024',
+            rating: 0,
+            reviewCount: 0,
+            distance: '',
+            address: '',
+            description: '',
+            stats: { products: 0, years: '1+', certification: 'Farm', rating: 0 },
+            contact: { hours: '', phone: '', email: '' }
+        };
+
+        return {
+            heroImage: farm.bannerUrl || 'https://via.placeholder.com/400x200',
+            badge: farm.isConfirmAsMall ? 'Certified Mall' : 'Local Farm',
+            ownerPhoto: farm.farmer?.profile?.avatarUrl || 'https://via.placeholder.com/60',
+            farmName: farm.farmName || 'Unknown Farm',
+            ownerName: farm.farmer?.profile?.fullname || 'Farm Owner',
+            sinceYear: farm.createdAt ? new Date(farm.createdAt).getFullYear().toString() : '2024',
+            rating: averageRating > 0 ? Number(averageRating.toFixed(1)) : 0,
+            reviewCount: reviews?.length || 0,
+            distance: '2.3 km', // TODO: Calculate from address
+            address: farm.address ? `${farm.address.ward}, ${farm.address.district}, ${farm.address.province}` : 'Address not available',
+            description: farm.farmDesc || 'A local farm providing fresh produce.',
+            stats: {
+                products: batches?.length || 0,
+                years: farm.createdAt ? `${new Date().getFullYear() - new Date(farm.createdAt).getFullYear()}+` : '1+',
+                certification: farm.isConfirmAsMall ? 'Mall' : 'Farm',
+                rating: averageRating > 0 ? Number(averageRating.toFixed(1)) : 0
+            },
+            contact: {
+                hours: 'Mon-Sat: 8:00 AM - 6:00 PM',
+                phone: farm.phone || 'Not available',
+                email: farm.farmer?.profile?.email || 'contact@farm.com'
+            }
+        };
+    }, [farm, batches, reviews, averageRating]);
+
+    const farmerData = useMemo(() => {
+        if (!farm) return {
+            photo: 'https://via.placeholder.com/150',
+            name: 'Farm Owner',
+            title: 'Farm Owner',
+            education: '',
+            experience: '',
+            quote: ''
+        };
+
+        return {
+            photo: farm.farmer?.profile?.avatarUrl || 'https://via.placeholder.com/150',
+            name: farm.farmer?.profile?.fullname || 'Farm Owner',
+            title: 'Farm Owner',
+            education: 'Agricultural Expert', // Placeholder
+            experience: `${farmData.stats.years} years experience`,
+            quote: '"Committed to sustainable farming and providing fresh produce for our community."' // Placeholder
+        };
+    }, [farm, farmData.stats.years]);
+
+    const renderStatCard = useCallback((label: string, value: string | number, icon: keyof typeof Ionicons.glyphMap, color: string) => (
+        <View key={label} className="bg-white p-3 rounded-xl shadow-sm border border-gray-100 w-[100px] items-center mr-3">
+            <View className={`w-8 h-8 rounded-full items-center justify-center mb-2`} style={{ backgroundColor: `${color}20` }}>
+                <Ionicons name={icon} size={16} color={color} />
+            </View>
+            <Text className="text-lg font-bold text-gray-800">{value}</Text>
+            <Text className="text-xs text-gray-500 text-center">{label}</Text>
+        </View>
+    ), []);
+
     // Show loading state
     if (isLoadingFarm || isLoadingBatches) {
         return (
@@ -46,6 +127,7 @@ export function CustomerFarmDetailScreen({ route, navigation }: Props) {
     }
 
     // Show error state
+    // Show error state
     if (farmError || !farm) {
         return (
             <SafeAreaView className="flex-1 items-center justify-center" style={{ backgroundColor: '#F9FAF9' }}>
@@ -53,56 +135,6 @@ export function CustomerFarmDetailScreen({ route, navigation }: Props) {
             </SafeAreaView>
         );
     }
-
-    // Calculate average rating
-    const averageRating = reviews && reviews.length > 0
-        ? reviews.reduce((acc, review) => acc + review.rate, 0) / reviews.length
-        : 0;
-
-    // Map API data to UI format with fallbacks
-    const farmData = {
-        heroImage: farm.bannerUrl || 'https://via.placeholder.com/400x200',
-        badge: farm.isConfirmAsMall ? 'Certified Mall' : 'Local Farm',
-        ownerPhoto: farm.farmer?.profile?.avatarUrl || 'https://via.placeholder.com/60',
-        farmName: farm.farmName || 'Unknown Farm',
-        ownerName: farm.farmer?.profile?.fullname || 'Farm Owner',
-        sinceYear: farm.createdAt ? new Date(farm.createdAt).getFullYear().toString() : '2024',
-        rating: averageRating > 0 ? Number(averageRating.toFixed(1)) : 0,
-        reviewCount: reviews?.length || 0,
-        distance: '2.3 km', // TODO: Calculate from address
-        address: farm.address ? `${farm.address.ward}, ${farm.address.district}, ${farm.address.province}` : 'Address not available',
-        description: farm.farmDesc || 'A local farm providing fresh produce.',
-        stats: {
-            products: batches?.length || 0,
-            years: farm.createdAt ? `${new Date().getFullYear() - new Date(farm.createdAt).getFullYear()}+` : '1+',
-            certification: farm.isConfirmAsMall ? 'Mall' : 'Farm',
-            rating: averageRating > 0 ? Number(averageRating.toFixed(1)) : 0
-        },
-        contact: {
-            hours: 'Mon-Sat: 8:00 AM - 6:00 PM',
-            phone: farm.phone || 'Not available',
-            email: farm.farmer?.profile?.email || 'contact@farm.com'
-        }
-    };
-
-    const farmerData = {
-        photo: farm.farmer?.profile?.avatarUrl || 'https://via.placeholder.com/150',
-        name: farm.farmer?.profile?.fullname || 'Farm Owner',
-        title: 'Farm Owner',
-        education: 'Agricultural Expert', // Placeholder
-        experience: `${farmData.stats.years} years experience`,
-        quote: '"Committed to sustainable farming and providing fresh produce for our community."' // Placeholder
-    };
-
-    const renderStatCard = (label: string, value: string | number, icon: keyof typeof Ionicons.glyphMap, color: string) => (
-        <View className="bg-white p-3 rounded-xl shadow-sm border border-gray-100 w-[100px] items-center mr-3">
-            <View className={`w-8 h-8 rounded-full items-center justify-center mb-2`} style={{ backgroundColor: `${color}20` }}>
-                <Ionicons name={icon} size={16} color={color} />
-            </View>
-            <Text className="text-lg font-bold text-gray-800">{value}</Text>
-            <Text className="text-xs text-gray-500 text-center">{label}</Text>
-        </View>
-    );
 
     return (
         <SafeAreaView className="flex-1" style={{ backgroundColor: '#F9FAF9' }}>
@@ -292,6 +324,6 @@ export function CustomerFarmDetailScreen({ route, navigation }: Props) {
             />
 
 
-        </SafeAreaView>
+        </SafeAreaView >
     );
 }

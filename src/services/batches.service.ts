@@ -2,28 +2,28 @@ import apiClient from "@/api/config";
 import { ProductBatch, CreateProductBatchResponse } from "@/types";
 
 const BatchService = {
-    getAllBySeasonId: async (seasonId: string): Promise<ProductBatch[]> => {
-        const response = await apiClient.get<{ data: ProductBatch[] }>(`/api/product-batches/season/${seasonId}`);
+    getAllBySeasonId: async (seasonId: string, signal?: AbortSignal): Promise<ProductBatch[]> => {
+        const response = await apiClient.get<{ data: ProductBatch[] }>(`/api/product-batches/season/${seasonId}`, { signal });
         return response.data.data;
     },
-    getAll: async (accountId?: string): Promise<ProductBatch[]> => {
+    getAll: async (accountId?: string, signal?: AbortSignal): Promise<ProductBatch[]> => {
         const url = accountId
             ? `/api/product-batches/farmer/${accountId}`
             : `/api/product-batches`;
         console.log("url", url)
-        const response = await apiClient.get<{ success: boolean, message: string, data: ProductBatch[] }>(url);
+        const response = await apiClient.get<{ success: boolean, message: string, data: ProductBatch[] }>(url, { signal });
         return response.data.data;
     },
-    getBatchesByFarmer: async (accountId: string): Promise<ProductBatch[]> => {
-        const response = await apiClient.get<{ data: ProductBatch[] }>(`/api/product-batches/farmer/${accountId}`);
+    getBatchesByFarmer: async (accountId: string, signal?: AbortSignal): Promise<ProductBatch[]> => {
+        const response = await apiClient.get<{ data: ProductBatch[] }>(`/api/product-batches/farmer/${accountId}`, { signal });
         return response.data.data;
     },
-    getBatchesByFarm: async (farmId: string): Promise<ProductBatch[]> => {
-        const response = await apiClient.get<{ data: ProductBatch[] }>(`/api/product-batches/farm/${farmId}`);
+    getBatchesByFarm: async (farmId: string, signal?: AbortSignal): Promise<ProductBatch[]> => {
+        const response = await apiClient.get<{ data: ProductBatch[] }>(`/api/product-batches/farm/${farmId}`, { signal });
         return response.data.data;
     },
-    getBatchById: async (batchId: string): Promise<ProductBatch> => {
-        const response = await apiClient.get<{ data: ProductBatch }>(`/api/product-batches/${batchId}`);
+    getBatchById: async (batchId: string, signal?: AbortSignal): Promise<ProductBatch> => {
+        const response = await apiClient.get<{ data: ProductBatch }>(`/api/product-batches/${batchId}`, { signal });
         return response.data.data;
     },
     create: async (data: FormData): Promise<CreateProductBatchResponse> => {

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
+import { useDebounce } from "@/hooks/useDebounce";
 import {
     View,
     Text,
@@ -20,6 +21,7 @@ import FarmFeatureCard from "@/components/customer-exlore/FarmFeatureCard";
 export default function FarmListScreen() {
     const navigation = useNavigation<NativeStackNavigationProp<CustomerStackParamList>>();
     const [searchQuery, setSearchQuery] = useState("");
+    const debouncedSearchQuery = useDebounce(searchQuery, 300);
     const [farms, setFarms] = useState<Farm[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -44,11 +46,11 @@ export default function FarmListScreen() {
     };
 
     const filteredFarms = useMemo(() => {
-        if (!searchQuery) return farms;
+        if (!debouncedSearchQuery) return farms;
         return farms.filter(farm =>
-            farm.farmName.toLowerCase().includes(searchQuery.toLowerCase())
+            farm.farmName.toLowerCase().includes(debouncedSearchQuery.toLowerCase())
         );
-    }, [farms, searchQuery]);
+    }, [farms, debouncedSearchQuery]);
 
     const renderFarmItem = ({ item }: { item: Farm }) => (
         <FarmFeatureCard farm={item} />

@@ -12,7 +12,7 @@ interface UseSeasonsOptions {
 export function useSeasons(farmId?: string, options: UseSeasonsOptions = {}) {
     const { search, sortBy, sortOrder = 'desc' } = options;
 
-    const query = useQuery({
+    const query = useQuery<Season[], Error>({
         queryKey: ['seasons', farmId],
         queryFn: () => (farmId ? getSeasonsByFarm(farmId) : SeasonService.getAll()),
         enabled: !!farmId,

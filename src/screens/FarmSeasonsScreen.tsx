@@ -1,5 +1,6 @@
-import { useState, useCallback } from "react"
-import { View, Text, ScrollView, StatusBar, TouchableOpacity, RefreshControl } from "react-native"
+import { useState, useCallback, useMemo } from "react"
+import { View, Text, ScrollView, StatusBar, TouchableOpacity, RefreshControl, FlatList } from "react-native"
+import { useDebounce } from "@/hooks/useDebounce"
 import { useNavigation, useRoute, type RouteProp, useFocusEffect } from "@react-navigation/native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { ArrowLeft, ChevronLeft, Plus } from "lucide-react-native"
@@ -23,6 +24,7 @@ export default function FarmSeasonsScreen() {
     const { farmId } = route.params
 
     const [search, setSearch] = useState("")
+    const debouncedSearch = useDebounce(search, 300)
     const [sortBy, setSortBy] = useState<string>("date")
 
     const {
@@ -31,7 +33,7 @@ export default function FarmSeasonsScreen() {
         refetch: refetchSeasons,
         seasons: filteredSeasons,
     } = useSeasons(farmId, {
-        search,
+        search: debouncedSearch,
         sortBy: sortBy as any,
     })
 
@@ -45,6 +47,20 @@ export default function FarmSeasonsScreen() {
         enabled: !!farmId,
     })
 
+    // Pre-calculate batch stats
+    const batchStats = useMemo(() => {
+        if (!allBatches) return {};
+        const stats: Record<string, { count: number; yield: number }> = {};
+        allBatches.forEach((b: any) => {
+            if (!stats[b.seasonId]) {
+                stats[b.seasonId] = { count: 0, yield: 0 };
+            }
+            stats[b.seasonId].count++;
+            stats[b.seasonId].yield += (b.totalYield || 0);
+        });
+        return stats;
+    }, [allBatches]);
+
     const onRefresh = useCallback(() => {
         refetchSeasons()
         refetchBatches()
@@ -56,9 +72,9 @@ export default function FarmSeasonsScreen() {
         }, [onRefresh]),
     )
 
-    const onPressSeason = (seasonId: string) => {
+    const onPressSeason = useCallback((seasonId: string) => {
         navigation.navigate("SeasonDetail", { seasonId })
-    }
+    }, [navigation])
 
     const sortOptions = [
         { label: "Newest Date", value: "date" },
@@ -70,6 +86,23 @@ export default function FarmSeasonsScreen() {
     const isLoading = isLoadingSeasons || isLoadingBatches
     const displaySeasons = filteredSeasons || []
     const hasSeasons = displaySeasons.length > 0
+
+    const renderSeasonItem = useCallback(({ item: season }: { item: any }) => {
+        const stats = batchStats[season.id] || { count: 0, yield: 0 };
+        const productName = season.product?.productName
+        const category = season.product?.category?.categoryName
+
+        return (
+            <SeasonCard
+                season={season}
+                onPress={() => onPressSeason(season.id)}
+                totalBatch={stats.count}
+                totalYield={stats.yield}
+                productName={productName}
+                category={category}
+            />
+        )
+    }, [batchStats, onPressSeason]);
 
     return isLoading ? (
         <FarmSeasonsScreenSkeleton />
@@ -133,33 +166,14 @@ export default function FarmSeasonsScreen() {
                     </View>
                 </ScrollView>
             ) : (
-                <ScrollView
-                    showsVerticalScrollIndicator={false}
+                <FlatList
+                    data={displaySeasons}
+                    renderItem={renderSeasonItem}
+                    keyExtractor={(item) => item.id}
                     contentContainerStyle={{ padding: 16, paddingBottom: 80 }}
                     refreshControl={<RefreshControl refreshing={isLoading} onRefresh={onRefresh} colors={["#16a34a"]} />}
-                >
-                    <View>
-                        {displaySeasons.map((season) => {
-                            const seasonBatches = allBatches?.filter((b: any) => b.seasonId === season.id) || []
-                            const totalBatch = seasonBatches.length
-                            const totalYield = seasonBatches.reduce((sum: number, b: any) => sum + (b.totalYield || 0), 0)
-                            const productName = season.product?.productName
-                            const category = season.product?.category?.categoryName
-
-                            return (
-                                <SeasonCard
-                                    key={season.id}
-                                    season={season}
-                                    onPress={() => onPressSeason(season.id)}
-                                    totalBatch={totalBatch}
-                                    totalYield={totalYield}
-                                    productName={productName}
-                                    category={category}
-                                />
-                            )
-                        })}
-                    </View>
-                </ScrollView>
+                    showsVerticalScrollIndicator={false}
+                />
             )}
         </SafeAreaView>
     )

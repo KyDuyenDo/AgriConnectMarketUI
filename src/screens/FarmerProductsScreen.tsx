@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useMemo, useCallback } from "react"
+import { useDebounce } from "@/hooks/useDebounce"
 import { View, TouchableOpacity, Text, Image, TextInput, FlatList, Platform } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import {
@@ -238,17 +239,16 @@ export const FarmerProductsScreen = () => {
   const farmId = farmer?.id
   const { data: categories } = useCategories()
   const [searchQuery, setSearchQuery] = useState("")
+  const debouncedSearchQuery = useDebounce(searchQuery, 300)
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
 
-  if (isLoading || isLoadingFarmer) {
-    return <FarmerProductsScreenSkeleton />
-  }
 
-  const filteredBatches =
-    batches?.filter((b) => {
+
+  const filteredBatches = useMemo(() => {
+    return batches?.filter((b) => {
       const code = getBatchCode(b)
       const seasonName = b.season?.seasonName || ""
-      const query = searchQuery.toLowerCase()
+      const query = debouncedSearchQuery.toLowerCase()
       const matchesSearch = (code || "").toLowerCase().includes(query) || seasonName.toLowerCase().includes(query)
 
       const categoryId = b.season?.product?.categoryId
@@ -258,29 +258,42 @@ export const FarmerProductsScreen = () => {
 
       return matchesSearch && matchesCategory
     }) || []
+  }, [batches, debouncedSearchQuery, selectedCategory])
 
-  const onAddBatch = () => {
+  const onAddBatch = useCallback(() => {
     navigation.navigate("AddLot", { farmId })
-  }
+  }, [navigation, farmId])
 
-  const handleEdit = (batchId: string) => {
-    console.log("Edit batch:", batchId)
-  }
-
-  const handleDelete = (batchId: string) => {
+  const handleDelete = useCallback((batchId: string) => {
     console.log("Delete batch:", batchId)
-  }
+  }, [])
 
-  const handleLogCareEvent = (batch: Batch) => {
+  const handleLogCareEvent = useCallback((batch: Batch) => {
     navigation.navigate("AddCropLog", { batchId: batch.id })
-  }
+  }, [navigation])
 
-  const handleViewReviews = (batch: Batch) => {
+  const handleViewReviews = useCallback((batch: Batch) => {
     if (batch.season?.farmId) {
       navigation.navigate("ProductDetailReviews", { batchId: batch.id, farmId: batch.season.farmId })
     }
-  }
+  }, [navigation])
 
+  const renderItem = useCallback(({ item }: { item: Batch }) => (
+    <BatchCard
+      batch={item}
+      onPress={() =>
+        navigation.navigate("ProductDetailReviews", { batchId: item.id, farmId: item.season?.farmId || "" })
+      }
+      onEdit={() => navigation.navigate("LotDetail", { lotId: item.id })}
+      onDelete={() => handleDelete(item.id)}
+      onLogCareEvent={() => handleLogCareEvent(item)}
+      onViewReviews={() => handleViewReviews(item)}
+    />
+  ), [navigation, handleDelete, handleLogCareEvent, handleViewReviews])
+
+  if (isLoading || isLoadingFarmer) {
+    return <FarmerProductsScreenSkeleton />
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50" edges={["top"]}>
@@ -292,18 +305,7 @@ export const FarmerProductsScreen = () => {
       <View className="flex-1">
         <FlatList
           data={filteredBatches}
-          renderItem={({ item }) => (
-            <BatchCard
-              batch={item}
-              onPress={() =>
-                navigation.navigate("ProductDetailReviews", { batchId: item.id, farmId: item.season?.farmId || "" })
-              }
-              onEdit={() => navigation.navigate("LotDetail", { lotId: item.id })}
-              onDelete={() => handleDelete(item.id)}
-              onLogCareEvent={() => handleLogCareEvent(item)}
-              onViewReviews={() => handleViewReviews(item)}
-            />
-          )}
+          renderItem={renderItem}
           keyExtractor={(item) => item.id}
           numColumns={2}
           columnWrapperStyle={{ justifyContent: "space-between", paddingHorizontal: 16 }}

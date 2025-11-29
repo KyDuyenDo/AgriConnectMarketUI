@@ -26,7 +26,7 @@ export const ProductsPage: React.FC = () => {
           onSearchChange={setSearchQuery}
         />
       </View>
-      <ProductGrid searchQuery={searchQuery} />
+      <ProductGrid searchQuery={searchQuery} products={[]} />
     </View>
   )
 }

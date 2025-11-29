@@ -1,15 +1,8 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Dimensions } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { StyleSheet, View, Text, TouchableOpacity, Dimensions, Animated, Easing } from 'react-native';
 import { Camera, useCameraDevice, useCodeScanner, useCameraPermission } from 'react-native-vision-camera';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
-import Animated, {
-    useSharedValue,
-    useAnimatedStyle,
-    withRepeat,
-    withTiming,
-    Easing
-} from 'react-native-reanimated';
 
 const { width, height } = Dimensions.get('window');
 const SCAN_FRAME_SIZE = 250;
@@ -26,7 +19,7 @@ const QRScanner: React.FC<QRScannerProps> = ({ onScanned, onClose }) => {
     const [isScanned, setIsScanned] = useState(false);
 
     // Animation for scan line
-    const scanLineY = useSharedValue(0);
+    const scanLineY = useRef(new Animated.Value(0)).current;
 
     useEffect(() => {
         if (!hasPermission) {
@@ -35,15 +28,26 @@ const QRScanner: React.FC<QRScannerProps> = ({ onScanned, onClose }) => {
     }, [hasPermission, requestPermission]);
 
     useEffect(() => {
-        scanLineY.value = withRepeat(
-            withTiming(SCAN_FRAME_SIZE, {
-                duration: 2000,
-                easing: Easing.linear,
-            }),
-            -1,
-            true
-        );
-    }, []);
+        const startAnimation = () => {
+            Animated.loop(
+                Animated.sequence([
+                    Animated.timing(scanLineY, {
+                        toValue: SCAN_FRAME_SIZE,
+                        duration: 2000,
+                        easing: Easing.linear,
+                        useNativeDriver: true,
+                    }),
+                    Animated.timing(scanLineY, {
+                        toValue: 0,
+                        duration: 0,
+                        useNativeDriver: true,
+                    })
+                ])
+            ).start();
+        };
+
+        startAnimation();
+    }, [scanLineY]);
 
     const codeScanner = useCodeScanner({
         codeTypes: ['qr', 'ean-13'],
@@ -55,10 +59,6 @@ const QRScanner: React.FC<QRScannerProps> = ({ onScanned, onClose }) => {
             }
         },
     });
-
-    const animatedLineStyle = useAnimatedStyle(() => ({
-        transform: [{ translateY: scanLineY.value }],
-    }));
 
     if (!hasPermission) {
         return (
@@ -103,7 +103,12 @@ const QRScanner: React.FC<QRScannerProps> = ({ onScanned, onClose }) => {
                         <View style={[styles.corner, styles.bottomRight]} />
 
                         {/* Animated Scan Line */}
-                        <Animated.View style={[styles.scanLine, animatedLineStyle]} />
+                        <Animated.View
+                            style={[
+                                styles.scanLine,
+                                { transform: [{ translateY: scanLineY }] }
+                            ]}
+                        />
                     </View>
                     <View style={styles.overlaySide} />
                 </View>
@@ -248,3 +253,4 @@ const styles = StyleSheet.create({
 });
 
 export default QRScanner;
+

@@ -10,7 +10,7 @@ const BATCH_QUERY_KEYS = {
 export const useBatchesBySeason = (seasonId: string) => {
     return useQuery<Batch[]>({
         queryKey: BATCH_QUERY_KEYS.bySeason(seasonId),
-        queryFn: () => BatchService.getAllBySeasonId(seasonId),
+        queryFn: ({ signal }) => BatchService.getAllBySeasonId(seasonId, signal),
         enabled: !!seasonId,
     });
 };
@@ -18,7 +18,7 @@ export const useBatchesBySeason = (seasonId: string) => {
 export const useBatchesByFarm = (farmId: string) => {
     return useQuery<Batch[]>({
         queryKey: ["batches", "farm", farmId],
-        queryFn: () => BatchService.getBatchesByFarm(farmId),
+        queryFn: ({ signal }) => BatchService.getBatchesByFarm(farmId, signal),
         enabled: !!farmId,
     });
 };
@@ -26,7 +26,7 @@ export const useBatchesByFarm = (farmId: string) => {
 export const useBatchById = (batchId: string) => {
     return useQuery<Batch>({
         queryKey: ["batches", batchId],
-        queryFn: () => BatchService.getBatchById(batchId),
+        queryFn: ({ signal }) => BatchService.getBatchById(batchId, signal),
         enabled: !!batchId,
     });
 };
@@ -34,7 +34,7 @@ export const useBatchById = (batchId: string) => {
 export const useAllBatches = (accountId?: string, options?: { enabled?: boolean }) => {
     return useQuery<Batch[]>({
         queryKey: accountId ? [...BATCH_QUERY_KEYS.all, accountId] : BATCH_QUERY_KEYS.all,
-        queryFn: () => BatchService.getAll(accountId),
+        queryFn: ({ signal }) => BatchService.getAll(accountId, signal),
         enabled: options?.enabled ?? true,
     });
 };
@@ -80,7 +80,7 @@ export const useDeleteBatch = () => {
 export const useGetBatchById = (batchId: string) => {
     return useQuery({
         queryKey: ["batches", batchId],
-        queryFn: () => BatchService.getBatchById(batchId),
+        queryFn: ({ signal }) => BatchService.getBatchById(batchId, signal),
         enabled: !!batchId,
     });
 };

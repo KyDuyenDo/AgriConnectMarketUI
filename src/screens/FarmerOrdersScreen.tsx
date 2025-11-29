@@ -2,11 +2,11 @@
 
 import { FilterTabs } from "@/components/farmer-orders/FilterTabs"
 import { OrdersHeader } from "@/components/farmer-orders/OrdersHeader"
-import { OrdersList } from "@/components/farmer-orders/OrdersList"
+import { OrderCard } from "@/components/farmer-orders/OrderCard"
 import { StatsSection } from "@/components/farmer-orders/StatsSection"
 import { BottomNavigation } from "@/components/farmer-orders/BottomNavigation"
-import { useState, useCallback } from "react"
-import { View, ScrollView, Platform, Text, Alert } from "react-native"
+import { useState, useCallback, useMemo } from "react"
+import { View, ScrollView, Platform, Text, Alert, FlatList } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useFarmerOrders } from "@/hooks/useFarmerOrders"
 import { useMyFarm } from "@/hooks/useMyFarm"
@@ -25,67 +25,73 @@ export function FarmerOrders() {
 
   const isLoading = isLoadingFarm || isLoadingOrders
 
-  const filteredOrders =
+  const filteredOrders = useMemo(() =>
     orders?.filter((order: Order) => {
       if (activeFilter === "All Orders") return true
       return order.orderStatus.toLowerCase() === activeFilter.toLowerCase()
-    }) || []
+    }) || [], [orders, activeFilter])
 
-  const now = new Date()
-  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()
-  const oneWeekAgo = todayStart - 7 * 24 * 60 * 60 * 1000
+  const { ordersToday, pendingOrders, weeklyRevenue, avgOrderValue } = useMemo(() => {
+    const now = new Date()
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()
+    const oneWeekAgo = todayStart - 7 * 24 * 60 * 60 * 1000
 
-  const ordersToday = orders?.filter((o: Order) => new Date(o.createdAt || 0).getTime() >= todayStart).length || 0
-  const pendingOrders = orders?.filter((o: Order) => ["Pending", "Processing"].includes(o.orderStatus)).length || 0
+    const ordersToday = orders?.filter((o: Order) => new Date(o.createdAt || 0).getTime() >= todayStart).length || 0
+    const pendingOrders = orders?.filter((o: Order) => ["Pending", "Processing"].includes(o.orderStatus)).length || 0
 
-  const completedOrders = orders?.filter((o: Order) => ["Delivered", "Completed"].includes(o.orderStatus)) || []
-  const weeklyRevenue = completedOrders
-    .filter((o: Order) => new Date(o.createdAt || 0).getTime() >= oneWeekAgo)
-    .reduce((sum: number, o: Order) => sum + (o.totalPrice || 0), 0)
+    const completedOrders = orders?.filter((o: Order) => ["Delivered", "Completed"].includes(o.orderStatus)) || []
+    const weeklyRevenue = completedOrders
+      .filter((o: Order) => new Date(o.createdAt || 0).getTime() >= oneWeekAgo)
+      .reduce((sum: number, o: Order) => sum + (o.totalPrice || 0), 0)
 
-  const avgOrderValue =
-    completedOrders.length > 0
-      ? completedOrders.reduce((sum: number, o: Order) => sum + (o.totalPrice || 0), 0) / completedOrders.length
-      : 0
+    const avgOrderValue =
+      completedOrders.length > 0
+        ? completedOrders.reduce((sum: number, o: Order) => sum + (o.totalPrice || 0), 0) / completedOrders.length
+        : 0
+
+    return { ordersToday, pendingOrders, weeklyRevenue, avgOrderValue }
+  }, [orders])
 
   return (
     <SafeAreaView className="flex-1 bg-[#F9FAF9]">
       <OrdersHeader />
 
-      <ScrollView
-        className="flex-1"
-        showsVerticalScrollIndicator={false}
+      <FlatList
+        data={filteredOrders}
+        renderItem={({ item }) => <OrderCard order={item} />}
+        keyExtractor={(item) => item.id}
         contentContainerStyle={{
           paddingTop: 16,
           paddingBottom: Platform.OS === "ios" ? 140 : 80,
         }}
-      >
-        <StatsSection
-          ordersToday={ordersToday}
-          pendingOrders={pendingOrders}
-          weeklyRevenue={weeklyRevenue}
-          avgOrderValue={Math.round(avgOrderValue)}
-        />
-        <FilterTabs activeFilter={activeFilter} onFilterChange={setActiveFilter} />
-        {isLoading ? (
-          <FarmerOrdersScreenSkeleton />
-
-        ) : filteredOrders.length > 0 ? (
-          <OrdersList orders={filteredOrders} />
-        ) : (
-          <View className="items-center justify-center py-12">
-            <View className="px-4 w-full">
-              <View className="bg-white rounded-2xl p-4 shadow-sm shadow-gray-100">
-                <View className="items-center py-8">
-                  <ShoppingCart color="#9ca3af" size={40} />
-                  <Text className="text-sm font-medium text-[#6B737A] mt-3">No orders found</Text>
-                  <Text className="text-xs text-[#9ca3af] mt-1 text-center">Start receiving orders to see them here</Text>
+        ListHeaderComponent={
+          <>
+            <StatsSection
+              ordersToday={ordersToday}
+              pendingOrders={pendingOrders}
+              weeklyRevenue={weeklyRevenue}
+              avgOrderValue={Math.round(avgOrderValue)}
+            />
+            <FilterTabs activeFilter={activeFilter} onFilterChange={setActiveFilter} />
+          </>
+        }
+        ListEmptyComponent={
+          !isLoading ? (
+            <View className="items-center justify-center py-12">
+              <View className="px-4 w-full">
+                <View className="bg-white rounded-2xl p-4 shadow-sm shadow-gray-100">
+                  <View className="items-center py-8">
+                    <ShoppingCart color="#9ca3af" size={40} />
+                    <Text className="text-sm font-medium text-[#6B737A] mt-3">No orders found</Text>
+                    <Text className="text-xs text-[#9ca3af] mt-1 text-center">Start receiving orders to see them here</Text>
+                  </View>
                 </View>
               </View>
             </View>
-          </View>
-        )}
-      </ScrollView>
+          ) : <FarmerOrdersScreenSkeleton />
+        }
+        showsVerticalScrollIndicator={false}
+      />
 
       <BottomNavigation />
 
