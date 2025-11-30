@@ -67,14 +67,14 @@ export const CustomerBatchDetailScreen: React.FC = () => {
   const farmImage = farm?.bannerUrl || "https://via.placeholder.com/50"
 
   const handleAddToCart = (quantity: number) => {
-    if (!cart?.id) {
+    if (!cart?.cartId) {
       Alert.alert("Error", "Cart not initialized or user not logged in.")
       return
     }
 
     addToCartMutation.mutate(
       {
-        cartId: cart.id,
+        cartId: cart.cartId,
         batchId: batch.id,
         quantity: quantity,
       },
@@ -91,7 +91,7 @@ export const CustomerBatchDetailScreen: React.FC = () => {
   }
 
   const handleBuyNow = async (quantity: number) => {
-    if (!cart?.id) {
+    if (!cart?.cartId) {
       Alert.alert("Error", "Cart not initialized or user not logged in.")
       return
     }
@@ -120,7 +120,7 @@ export const CustomerBatchDetailScreen: React.FC = () => {
       await new Promise<void>((resolve, reject) => {
         addToCartMutation.mutate(
           {
-            cartId: cart.id,
+            cartId: cart.cartId,
             batchId: batch.id,
             quantity: quantity,
           },
