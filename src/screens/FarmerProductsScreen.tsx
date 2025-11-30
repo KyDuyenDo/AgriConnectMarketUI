@@ -15,11 +15,12 @@ import {
   Eye,
   FileText,
   MessageSquare,
+  DollarSign,
 } from "lucide-react-native"
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import type { FarmStackParamList } from "@/navigation/types"
 import { useNavigation } from "@react-navigation/native"
-import { useAllBatches } from "@/hooks/useBatches"
+import { useAllBatches, useUpdateBatch } from "@/hooks/useBatches"
 import type { Batch } from "@/types"
 import { useAuthStore } from "@/stores/auth"
 import { FarmerProductsScreenSkeleton } from "@/components/skeletons/FarmerProductsScreenSkeleton"
@@ -75,6 +76,7 @@ const BatchCard = ({
   onDelete,
   onLogCareEvent,
   onViewReviews,
+  onToggleStatus,
 }: {
   batch: Batch
   onPress: () => void
@@ -82,6 +84,7 @@ const BatchCard = ({
   onDelete?: () => void
   onLogCareEvent?: () => void
   onViewReviews?: () => void
+  onToggleStatus?: () => void
 }) => {
   const imageUrl = batch.imagesUrl && batch.imagesUrl.length > 0 ? batch.imagesUrl[0] : null
   const batchCode = getBatchCode(batch)
@@ -92,6 +95,8 @@ const BatchCard = ({
   const productName = batch.season?.product?.productName || "Unknown Product"
   const categoryName = batch.season?.product?.category?.categoryName || "Uncategorized"
   const seasonName = batch.season?.seasonName || ""
+
+  const isSelling = batch.isActive
 
   return (
     <View
@@ -113,6 +118,13 @@ const BatchCard = ({
         {/* Stock Badge - Top Right */}
         <View className={`absolute top-2 right-2 flex-row items-center py-1 px-2 rounded-full ${stockBadge.bg}`}>
           <Text className={`text-[10px] font-semibold ${stockBadge.text}`}>{stockStatus}</Text>
+        </View>
+
+        {/* Selling Status Badge - Top Left (Below Category) */}
+        <View className={`absolute bottom-2 right-2 flex-row items-center py-1 px-2 rounded-full ${isSelling ? "bg-blue-100" : "bg-gray-200"}`}>
+          <Text className={`text-[10px] font-semibold ${isSelling ? "text-blue-700" : "text-gray-600"}`}>
+            {isSelling ? "Selling" : "Not Selling"}
+          </Text>
         </View>
 
         {/* Category Badge - Top Left (Replaces Star) */}
@@ -147,28 +159,6 @@ const BatchCard = ({
 
         {/* Action Buttons */}
         <View className="pt-2 border-t border-gray-50">
-          {/* <View className="flex-row gap-2 mb-2">
-            <TouchableOpacity
-              onPress={onEdit}
-              className="flex-1 flex items-center justify-center py-1.5 bg-gray-50 rounded-lg active:bg-gray-100"
-            >
-              <Edit size={14} color="#4B5563" strokeWidth={1.5} />
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={onDelete}
-              className="flex-1 flex items-center justify-center py-1.5 bg-red-50 rounded-lg active:bg-red-100"
-            >
-              <Trash2 size={14} color="#EF4444" strokeWidth={1.5} />
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={onPress}
-              className="flex-1 flex items-center justify-center py-1.5 bg-blue-50 rounded-lg active:bg-blue-100"
-            >
-              <Eye size={14} color="#3B82F6" strokeWidth={1.5} />
-            </TouchableOpacity>
-          </View> */}
 
           <View className="flex-row gap-2">
             <TouchableOpacity
@@ -183,6 +173,12 @@ const BatchCard = ({
               className="flex-1 flex items-center justify-center py-1.5 bg-purple-50 rounded-lg active:bg-purple-100"
             >
               <MessageSquare size={14} color="#7C3AED" strokeWidth={1.5} />
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={onToggleStatus}
+              className={`flex-1 flex items-center justify-center py-1.5 rounded-lg ${isSelling ? "bg-red-50" : "bg-green-50"}`}
+            >
+              <DollarSign size={14} color={isSelling ? "#EF4444" : "#10B981"} strokeWidth={1.5} />
             </TouchableOpacity>
           </View>
         </View>
@@ -278,18 +274,32 @@ export const FarmerProductsScreen = () => {
     }
   }, [navigation])
 
+  const { mutateAsync: updateBatch } = useUpdateBatch()
+
+  const handleToggleStatus = useCallback(async (batch: Batch) => {
+    try {
+      await updateBatch({
+        id: batch.id,
+        data: { isActive: !batch.isActive }
+      })
+    } catch (error) {
+      console.error("Failed to update status:", error)
+    }
+  }, [updateBatch])
+
   const renderItem = useCallback(({ item }: { item: Batch }) => (
     <BatchCard
       batch={item}
       onPress={() =>
-        navigation.navigate("ProductDetailReviews", { batchId: item.id, farmId: item.season?.farmId || "" })
+        navigation.navigate("LotDetail", { lotId: item.id })
       }
       onEdit={() => navigation.navigate("LotDetail", { lotId: item.id })}
       onDelete={() => handleDelete(item.id)}
       onLogCareEvent={() => handleLogCareEvent(item)}
       onViewReviews={() => handleViewReviews(item)}
+      onToggleStatus={() => handleToggleStatus(item)}
     />
-  ), [navigation, handleDelete, handleLogCareEvent, handleViewReviews])
+  ), [navigation, handleDelete, handleLogCareEvent, handleViewReviews, handleToggleStatus])
 
   if (isLoading || isLoadingFarmer) {
     return <FarmerProductsScreenSkeleton />
