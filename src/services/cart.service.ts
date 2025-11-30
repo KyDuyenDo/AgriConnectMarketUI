@@ -13,8 +13,12 @@ export interface ResponseCart {
     success: boolean;
     message: string;
     data: {
-        isSuccess: boolean;
-        value: CartValue;
+        cartId: string;
+        totalPrice: number;
+        fullname: string;
+        email: string;
+        phone: string;
+        cartItems: CartFarmGroup[];
     };
 }
 
@@ -22,8 +26,15 @@ export interface CartValue {
     customerId: string;
     totalPrice: number;
     customer: Customer;
-    cartItems: CartItem[];
-    id: string;
+    cartItems: CartFarmGroup[];
+    cartId: string;
+}
+
+export interface CartFarmGroup {
+    farmId: string;
+    farmName: string;
+    farmAddress: Address;
+    items: CartItem[];
 }
 
 export interface Customer {
@@ -36,14 +47,20 @@ export interface Customer {
     id: string;
 }
 
-export interface CartItem {
-    cartId: string;
-    batchId: string;
+export type CartItem = {
+    itemId: string;
+    batchCode: string;
+    batchImageUrls: string[];
+    productName: string;
+    categoryName: string;
+    seasonName: string;
+    batchPrice: number;
     quantity: number;
+    units: string;
     itemPrice: number;
-    batch: Batch;
-    id: string;
-}
+    seasonStatus: string;
+};
+
 
 export interface Batch {
     batchCode: {
@@ -171,10 +188,10 @@ export const CartService = {
      */
     getCart: async () => {
         try {
-            const res = await apiClient.get<{ data: { isSuccess: boolean, value: CartValue } }>(`${BASE_URL}/me`);
+            const res = await apiClient.get<ResponseCart>(`${BASE_URL}/me`);
             // Backend returns: { success: true, data: { isSuccess: true, value: { ... } } }
-            if (res.data?.data?.isSuccess) {
-                return res.data.data.value;
+            if (res.data?.success) {
+                return res.data.data;
             }
             return null;
         } catch (error: any) {
@@ -266,15 +283,19 @@ export interface ShippingCalculationResult {
 
 /**
  * Extract all farm addresses from cart items
- * @param cartItems - Array of cart items with batch/season/farm data
+ * @param cartGroups - Array of cart farm groups
  * @returns Array of unique farm addresses
  */
-export const extractFarmAddresses = (cartItems: any[]): Address[] => {
+export const extractFarmAddresses = (cartGroups: CartFarmGroup[]): Address[] => {
     const addresses: Address[] = [];
     const seenAddresses = new Set<string>();
 
-    for (const item of cartItems) {
-        let farmAddress: any = item.batch?.season?.farm?.address;
+    for (const group of cartGroups) {
+        // Assuming all items in a group share the same farm address, check the first item
+        if (!group.items || group.items.length === 0) continue;
+
+        const firstItem = group.items[0];
+        let farmAddress: any = group.farmAddress;
 
         // The backend might return address as array, object or JSON string. Normalize it.
         if (!farmAddress) continue;
@@ -336,22 +357,22 @@ export const calculateShippingFee = async (
 
 /**
  * Calculate total shipping fee for all cart items
- * @param cartItems - Cart items with farm addresses
+ * @param cartGroups - Cart groups with farm addresses
  * @param customerAddress - Customer delivery address
  * @returns Shipping calculation result with addresses and total fee
  */
 export const calculateTotalShipping = async (
-    cartItems: CartItem[],
+    cartGroups: CartFarmGroup[],
     customerAddress: Address
 ): Promise<ShippingCalculationResult> => {
-    const farmAddresses = extractFarmAddresses(cartItems);
+    const farmAddresses = extractFarmAddresses(cartGroups);
     let totalShippingFee = 0;
 
     // Calculate shipping fee for each unique farm address
     for (const farmAddress of farmAddresses) {
-        // Calculate total weight for items from this farm
-        const itemsFromFarm = cartItems.filter(item => {
-            const addr = item.batch?.season?.farm?.address;
+        // Find group matching this address
+        const group = cartGroups.find(g => {
+            const addr = g.farmAddress;
             return addr &&
                 addr.province === farmAddress.province &&
                 addr.district === farmAddress.district &&
@@ -359,7 +380,9 @@ export const calculateTotalShipping = async (
                 addr.detail === farmAddress.detail;
         });
 
-        const totalWeight = itemsFromFarm.reduce((sum, item) => {
+        if (!group) continue;
+
+        const totalWeight = group.items.reduce((sum, item) => {
             // Assume 500g per item, adjust as needed
             return sum + (item.quantity * 500);
         }, 0);

@@ -6,6 +6,8 @@ import { ScrollView, View, Text, TouchableOpacity } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { ChevronLeft, ShoppingCart as ShoppingCartIcon } from "lucide-react-native"
 import { useNavigation } from "@react-navigation/native"
+import { NativeStackNavigationProp } from "@react-navigation/native-stack"
+import { CustomerStackParamList } from "@/navigation/CustomerNavigator"
 
 import CartItemsSection from "@/components/customer-cart/CartItemsSection"
 import DeliveryOptionsCard from "@/components/customer-cart/DeliveryOptionsCard"
@@ -18,10 +20,9 @@ import { CustomerCartScreenSkeleton } from "@/components/skeletons/CustomerCartS
 import { useCreateOrder } from "@/hooks/useOrders"
 import { useAuthStore } from "@/stores/auth"
 import { useGetAddresses } from "@/hooks/useAddress"
-import { useCartShipping } from "@/hooks/useCartShipping"
 
 export const CustomerCartScreen: React.FC = () => {
-  const navigation = useNavigation()
+  const navigation = useNavigation<NativeStackNavigationProp<CustomerStackParamList>>()
   const [selectedItems, setSelectedItems] = useState<any[]>([])
   const { data: Cart, isLoading } = useCart()
   const { handleDelete } = useHandleAddToCart()
@@ -40,72 +41,33 @@ export const CustomerCartScreen: React.FC = () => {
     return <CustomerCartScreenSkeleton />
 
 
-  const CartItems = Cart?.cartItems || []
+  const cartGroups = Cart?.cartItems || []
 
-  // Cart shipping calculation using custom hook
-  const {
-    shippingFee,
-    isCalculating: calculatingShipping,
-    farmAddresses,
-    shippingFeesByFarm,
-  } = useCartShipping({
-    cartItems: Cart?.cartItems || [],
-    selectedItemIds: selectedItems,
-    customerAddress: defaultAddress
-      ? {
-        province: defaultAddress.province,
-        district: defaultAddress.district,
-        ward: defaultAddress.ward,
-        detail: defaultAddress.detail,
-      }
-      : null,
-  })
+
 
   // Show skeleton while loading
   if (isLoading) return <CustomerCartScreenSkeleton />
 
+  const hasCartItems = cartGroups.length > 0
 
-  const hasCartItems = CartItems.length > 0
 
-  const CartItemSelects = CartItems.map((item: any) => {
-    const batchData = item.batch
-    const productName = batchData?.season?.product?.productName || "Loading..."
-    const farmName = batchData?.season?.farm?.farmName || "Unknown Farm"
-    const imageUrl = batchData?.imagesUrl?.[0] || "https://via.placeholder.com/150"
-    const unit = batchData?.units || "unit"
-
-    return {
-      id: item.id,
-      name: productName,
-      farm: farmName,
-      price: `${item.itemPrice}`,
-      unit: unit,
-      image: imageUrl,
-      quantity: item.quantity,
-      status: "In Stock",
-      batch: item.batchId,
-      isFavorite: false,
-      rating: 0,
-      numRatings: 0,
-    }
-  })
-
-  // Group items by farm
-  const groupedItems = CartItemSelects.reduce((acc: any, item: any) => {
-    if (!acc[item.farm]) {
-      acc[item.farm] = []
-    }
-    acc[item.farm].push(item)
-    return acc
-  }, {})
 
   const handleQuantityChange = async (itemId: string, newQuantity: number) => {
     try {
-      const item = CartItems.find((ci: any) => ci.id === itemId)
+      // Find item across all groups
+      let item: any = null;
+      for (const group of cartGroups) {
+        const found = group.items.find((i) => i.itemId === itemId);
+        if (found) {
+          item = found;
+          break;
+        }
+      }
+
       if (!item) return
 
       await updateCartItem({
-        cartId: Cart?.id || "",
+        cartId: Cart?.cartId || "",
         data: {
           batchId: item.batchId,
           quantity: newQuantity,
@@ -119,75 +81,13 @@ export const CustomerCartScreen: React.FC = () => {
     }
   }
 
-  const handleProceed = async () => {
+  const handleProceed = () => {
     if (selectedItems.length === 0) {
       Alert.alert("No items selected", "Please select items to proceed.")
       return
     }
 
-    if (!userId) {
-      Alert.alert("Error", "User not found. Please login again.")
-      return
-    }
-
-    if (!addresses || addresses.length === 0) {
-      Alert.alert("Address Required", "You need to set up an address before checkout.", [
-        {
-          text: "Cancel",
-          style: "cancel",
-        },
-        {
-          text: "Add Address",
-          onPress: () => navigation.navigate("CustomerAddress" as never),
-        },
-      ])
-      return
-    }
-
-    try {
-      const itemsToOrder = CartItemSelects.filter((item: any) => selectedItems.includes(item.id))
-
-      // Group selected items by farm for order creation
-      const selectedItemsByFarm = itemsToOrder.reduce((acc: any, item: any) => {
-        if (!acc[item.farm]) {
-          acc[item.farm] = []
-        }
-        acc[item.farm].push(item)
-        return acc
-      }, {})
-
-      const orderPromises = Object.entries(selectedItemsByFarm).map(async ([farmName, items]: [string, any]) => {
-        const orderItems = items.map((item: any) => ({
-          batchId: item.batch,
-          quantity: item.quantity,
-        }))
-
-        // Get shipping fee for this farm, default to 3.99 if not found
-        const farmShippingFee = shippingFeesByFarm[farmName] !== undefined ? shippingFeesByFarm[farmName] : 3.99
-
-        const payload = {
-          customerId: userId,
-          shippingFee: farmShippingFee,
-          orderItems: orderItems,
-          addressId: defaultAddress?.id || addresses?.[0]?.id,
-        }
-
-        return createOrder(payload)
-      })
-
-      await Promise.all(orderPromises)
-
-      await Promise.all(selectedItems.map((id) => removeFromCart(id)))
-
-      setSelectedItems([])
-
-      Alert.alert("Success", "Orders created successfully!", [
-        { text: "OK", onPress: () => navigation.navigate("CustomerOrders" as never) },
-      ])
-    } catch (error: any) {
-      console.error("Order creation failed:", error)
-      Alert.alert("Error", error?.response?.data?.message || "Failed to create order.")
-    }
+    navigation.navigate("CustomerCheckout", { selectedItems })
   }
 
   const handleClearAll = () => {
@@ -213,23 +113,18 @@ export const CustomerCartScreen: React.FC = () => {
     ])
   }
 
-  const selectedCartItems = CartItemSelects.filter((item: any) => selectedItems.includes(item.id))
+  // Calculate totals
+  const allUiItems = cartGroups.flatMap(g => g.items);
+  const selectedCartItems = allUiItems.filter((item) => selectedItems.includes(item.itemId));
 
-  const subtotal = selectedCartItems.reduce((sum: number, item: any) => {
-    const itemPrice = Number.parseFloat(item.price) || 0
+  const subtotal = selectedCartItems.reduce((sum, item) => {
+    const itemPrice = item.itemPrice || 0
     const itemQuantity = item.quantity || 0
     return sum + itemPrice * itemQuantity
   }, 0)
 
   const itemCount = selectedCartItems.length
-  const deliveryFee = calculatingShipping ? 0 : shippingFee
-
-  const tax = subtotal * 0.1
-
-  const discountPercentage = 0
-  const discountAmount = subtotal * discountPercentage
-
-  const total = subtotal + deliveryFee + tax - discountAmount
+  const total = subtotal
 
   if (!hasCartItems) {
     return (
@@ -288,9 +183,30 @@ export const CustomerCartScreen: React.FC = () => {
           paddingBottom: 130,
         }}
       >
-        {Object.entries(groupedItems).map(([farmName, items]: [string, any]) => {
-          const farmFee = shippingFeesByFarm[farmName] !== undefined ? shippingFeesByFarm[farmName] : 0;
-          const isFarmSelected = items.some((item: any) => selectedItems.includes(item.id));
+        {cartGroups.map((group) => {
+          const farmName = group.farmName;
+          const items = group.items.map((item) => {
+            const productName = item.productName || "Loading..."
+            const imageUrl = item.batchImageUrls?.[0] || "https://via.placeholder.com/150"
+            const unit = item.units || "unit"
+
+            return {
+              id: item.itemId,
+              name: productName,
+              farm: group.farmName,
+              price: `${item.itemPrice}`,
+              unit: unit,
+              image: imageUrl,
+              quantity: item.quantity,
+              status: "In Stock",
+              batch: item.batchCode,
+              isFavorite: false,
+              rating: 0,
+              numRatings: 0,
+            }
+          });
+
+          const isFarmSelected = items.some((item) => selectedItems.includes(item.id));
 
           return (
             <View key={farmName}>
@@ -304,38 +220,31 @@ export const CustomerCartScreen: React.FC = () => {
                 onQuantityChange={handleQuantityChange}
                 hideQuantityControls={false}
                 farmName={farmName}
-                shippingFee={isFarmSelected ? farmFee : undefined}
-                isCalculatingShipping={calculatingShipping}
+                shippingFee={undefined}
+                isCalculatingShipping={false}
               />
             </View>
           )
         })}
-
-        <DeliveryOptionsCard
-          defaultAddress={defaultAddress}
-          customer={Cart?.customer}
-          onChangeAddress={() => navigation.navigate("CustomerAddress" as never)}
-        />
-
-        <OrderSummary
-          subtotal={subtotal}
-          itemCount={itemCount}
-          deliveryFee={deliveryFee}
-          discountLabel="FRESH20"
-          discountAmount={discountAmount}
-          tax={tax}
-          total={total}
-          savedMessage={discountAmount > 0 ? `You saved ${new Intl.NumberFormat('vi-VN').format(discountAmount)} VNĐ with promo code!` : ""}
-        />
-
-        {calculatingShipping && (
-          <View className="mx-4 mt-2 p-3 bg-blue-50 rounded-lg">
-            <Text className="text-sm text-blue-600">Calculating shipping from {farmAddresses.length} farms...</Text>
-          </View>
-        )}
-
-        <CartActionsSection onProceed={handleProceed} />
       </ScrollView>
+
+      {/* Bottom Action Bar */}
+      <View className="absolute bottom-[55px] left-0 right-0 bg-white border-t border-gray-100 p-4 shadow-lg">
+        <SafeAreaView edges={["bottom"]}>
+          <View className="flex-row items-center justify-between mb-4">
+            <Text className="text-gray-500">Subtotal</Text>
+            <Text className="text-xl font-bold text-[#4CAF50]">
+              {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(subtotal)}
+            </Text>
+          </View>
+          <TouchableOpacity
+            className="w-full bg-[#4CAF50] py-4 rounded-xl items-center"
+            onPress={handleProceed}
+          >
+            <Text className="text-white font-bold text-lg">Checkout ({selectedItems.length})</Text>
+          </TouchableOpacity>
+        </SafeAreaView>
+      </View>
     </View >
   )
 }

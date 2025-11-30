@@ -22,6 +22,7 @@ export type CustomerStackParamList = {
   FarmReview: { farmId: string; batchId: string }
   CustomerAllReviews: { farmId: string }
   ScanScreen: undefined
+  CustomerCheckout: { selectedItems: string[] }
 }
 
 const Stack = createNativeStackNavigator<CustomerStackParamList>()
@@ -92,6 +93,11 @@ const CustomerNavigator = () => {
       <Stack.Screen
         name="ScanScreen"
         component={ScanScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="CustomerCheckout"
+        component={require("@/screens/CustomerCheckoutScreen").default}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>

@@ -20,15 +20,20 @@ export function FormSelect({ label, value, onChange, options, disabled, placehol
             <View
                 className="relative rounded-xl overflow-hidden"
             >
-                {placeholder && <Picker.Item label={placeholder} value="" />}
-                {options.map(opt => (
-                    <Picker.Item key={opt.value} label={opt.label} value={opt.value} />
-                ))}
-            </Picker>
-            <View className="absolute right-3 top-1/2 pointer-events-none" style={{ transform: [{ translateY: -10 }] }}>
-                <ChevronDown size={20} color="#8A8A8A" />
+                <Picker
+                    selectedValue={value}
+                    onValueChange={onChange}
+                    enabled={!disabled}
+                >
+                    {placeholder && <Picker.Item label={placeholder} value="" />}
+                    {options.map(opt => (
+                        <Picker.Item key={opt.value} label={opt.label} value={opt.value} />
+                    ))}
+                </Picker>
+                <View className="absolute right-3 top-1/2 pointer-events-none" style={{ transform: [{ translateY: -10 }] }}>
+                    <ChevronDown size={20} color="#8A8A8A" />
+                </View>
             </View>
-        </View>
         </View >
     );
 }

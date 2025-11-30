@@ -130,7 +130,7 @@ export default function AddSeasonScreen() {
                                     >
                                         <Picker.Item label="Select Category" value="" color="#9CA3AF" />
                                         {categories?.map((cat: any) => (
-                                            <Picker.Item key={cat.id} label={cat.name} value={cat.id} />
+                                            <Picker.Item key={cat.id} label={cat.categoryName} value={cat.id} />
                                         ))}
                                     </Picker>
                                 </View>
@@ -155,7 +155,7 @@ export default function AddSeasonScreen() {
                                     >
                                         <Picker.Item label="Select Product" value="" color="#9CA3AF" />
                                         {products?.map((prod: any) => (
-                                            <Picker.Item key={prod.id} label={prod.name} value={prod.id} />
+                                            <Picker.Item key={prod.id} label={prod.productName} value={prod.id} />
                                         ))}
                                     </Picker>
                                 </View>

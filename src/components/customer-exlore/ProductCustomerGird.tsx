@@ -20,14 +20,15 @@ export const ProductCustomerGrid: React.FC<ProductGridProps> = ({ searchQuery, p
   const addToCartMutation = useAddToCart()
 
   const handleAddToCart = (product: UnifiedProduct) => {
-    if (!cart?.id) {
+    console.log("cart", cart)
+    if (!cart?.cartId) {
       Alert.alert("Error", "Cart not initialized or user not logged in.")
       return
     }
 
     addToCartMutation.mutate(
       {
-        cartId: cart.id,
+        cartId: cart.cartId,
         batchId: product.id,
         quantity: DEFAULT_CART_QUANTITY, // Fixed default quantity
       },

@@ -12,7 +12,6 @@ interface Address {
 }
 
 interface Customer {
-  id: string
   fullname: string
   phone: string
   email?: string
@@ -72,7 +71,7 @@ export default function DeliveryOptionsCard({
             </View>
           </View>
           <TouchableOpacity className="w-8 h-8 items-center justify-center"
-          onPress={onChangeAddress}
+            onPress={onChangeAddress}
           >
             <ChevronRight size={18} color="#8A8A8A" />
           </TouchableOpacity>

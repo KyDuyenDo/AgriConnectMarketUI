@@ -25,16 +25,18 @@ export const CustomerDashboardScreen: React.FC = () => {
   // Unified loading state
   const isLoading = isProfileLoading || isCartLoading || isOrdersLoading || isFavoritesLoading
 
-  const cartItems =
-    cart?.cartItems?.map((item: any) => ({
-      id: item.id,
-      name: item.batch?.season?.product?.productName || "Unknown Product",
-      quantity: `${item.quantity} ${item.batch?.units || "units"}`,
-      price: `${new Intl.NumberFormat('vi-VN').format(item.itemPrice)} VNĐ`,
-      image: item.batch?.imagesUrl?.[0] || "https://via.placeholder.com/40",
-    })) || []
+  const allCartItems = cart?.cartItems?.flatMap((group: any) => group.items) || []
 
-  const cartItemsCount = cart?.cartItems?.length || 0
+  const cartItems =
+    allCartItems.map((item: any) => ({
+      id: item.itemId,
+      name: item.productName || "Unknown Product",
+      quantity: `${item.quantity} ${item.units || "units"}`,
+      price: `${new Intl.NumberFormat('vi-VN').format(item.itemPrice)} VNĐ`,
+      image: item.batchImageUrls?.[0] || "https://via.placeholder.com/40",
+    }))
+
+  const cartItemsCount = allCartItems.length
   const cartTotalValue = cart?.totalPrice || 0
   const cartTotal = `${new Intl.NumberFormat('vi-VN').format(cartTotalValue)} VNĐ`
   const hasCartItems = cartItemsCount > 0

@@ -1,9 +1,9 @@
 import { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { useCalculateGHTKShipping } from './GHTK/useCalculateGHTKShipping';
-import { extractFarmAddresses, CartItem, Address } from '@/services/cart.service';
+import { extractFarmAddresses, CartItem, Address, CartFarmGroup } from '@/services/cart.service';
 
 interface UseCartShippingParams {
-    cartItems: CartItem[];
+    cartItems: CartFarmGroup[];
     selectedItemIds: string[];
     customerAddress?: Address | null;
 }
@@ -33,9 +33,12 @@ export const useCartShipping = ({
     // Track calculation state
     const isCalculatingRef = useRef(false);
 
-    // Memoize selected items
-    const selectedItems = useMemo(() => {
-        return cartItems.filter(item => selectedItemIds.includes(item.id));
+    // Memoize selected items groups
+    const selectedGroups = useMemo(() => {
+        return cartItems.map(group => ({
+            ...group,
+            items: group.items.filter(item => selectedItemIds.includes(item.id))
+        })).filter(group => group.items.length > 0);
     }, [cartItems, selectedItemIds]);
 
     // Memoize calculation function with useCallback
@@ -47,7 +50,7 @@ export const useCartShipping = ({
         }
 
         // Reset if no data
-        if (!customerAddress || selectedItems.length === 0) {
+        if (!customerAddress || selectedGroups.length === 0) {
             setShippingFee(0);
             setFarmAddresses([]);
             setShippingFeesByFarm({});
@@ -58,7 +61,7 @@ export const useCartShipping = ({
 
         try {
             // Extract farm addresses
-            const addresses = extractFarmAddresses(selectedItems);
+            const addresses = extractFarmAddresses(selectedGroups);
             setFarmAddresses(addresses);
 
             if (addresses.length === 0) {
@@ -73,15 +76,21 @@ export const useCartShipping = ({
 
             // Calculate fee for each farm address
             for (const farmAddress of addresses) {
-                // Filter items belonging to this farm
-                const farmItems = selectedItems.filter(item => {
-                    const addr = item.batch?.season?.farm?.address;
-                    return addr &&
+                // Filter items belonging to this farm address across all groups
+                // (Though typically one group = one farm = one address)
+                const farmItems: CartItem[] = [];
+
+                for (const group of selectedGroups) {
+                    const firstItem = group.items[0];
+                    const addr = firstItem?.batch?.season?.farm?.address;
+                    if (addr &&
                         addr.province === farmAddress.province &&
                         addr.district === farmAddress.district &&
                         addr.ward === farmAddress.ward &&
-                        addr.detail === farmAddress.detail;
-                });
+                        addr.detail === farmAddress.detail) {
+                        farmItems.push(...group.items);
+                    }
+                }
 
                 if (farmItems.length === 0) continue;
 
@@ -155,16 +164,18 @@ export const useCartShipping = ({
         } finally {
             isCalculatingRef.current = false;
         }
-    }, [selectedItems, customerAddress, calculateGHTKFee]); // ← Dependencies here
+    }, [selectedGroups, customerAddress, calculateGHTKFee]); // ← Dependencies here
 
     // Create stable calculation trigger key
     const calculationKey = useMemo(() => {
-        const itemsKey = selectedItems.map(i => `${i.id}-${i.quantity}`).sort().join('|');
+        // Flatten items for key generation
+        const allItems = selectedGroups.flatMap(g => g.items);
+        const itemsKey = allItems.map(i => `${i.id}-${i.quantity}`).sort().join('|');
         const addressKey = customerAddress
             ? `${customerAddress.province}:${customerAddress.district}:${customerAddress.ward}`
             : '';
         return itemsKey && addressKey ? `${itemsKey}__${addressKey}` : '';
-    }, [selectedItems, customerAddress]);
+    }, [selectedGroups, customerAddress]);
 
     // Track previous key to prevent duplicate calculations
     const prevKeyRef = useRef<string>('');
