@@ -1,24 +1,70 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import QRScanner from '../../components/QRScanner';
 import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { CustomerStackParamList } from '@/navigation/CustomerNavigator';
+import CareEventService from '@/services/care-events.service';
+
+type ScanScreenNavigationProp = NativeStackNavigationProp<CustomerStackParamList, 'ScanScreen'>;
 
 const ScanScreen = () => {
-    const navigation = useNavigation();
+    const navigation = useNavigation<ScanScreenNavigationProp>();
     const [scannedData, setScannedData] = useState<string | null>(null);
     const [isScanning, setIsScanning] = useState(true);
+    const [processing, setProcessing] = useState(false);
 
-    const handleScan = (data: string) => {
-        if (!isScanning) return;
+    const handleScan = async (data: string) => {
+        if (!isScanning || processing) return;
         setIsScanning(false);
         setScannedData(data);
+        setProcessing(true);
         console.log("Scanned Data:", data);
+
+        try {
+            // Extract batchId from URL
+            // Expected format: http://localhost:3000/verify?batchId=111
+            const batchIdMatch = data.match(/[?&]batchId=([^&#]*)/);
+            const batchId = batchIdMatch ? batchIdMatch[1] : null;
+
+            if (batchId) {
+                // Verify if batch exists or has events (optional, but good for UX)
+                // For now, we'll just navigate and let the detail screen fetch data
+                // Or we can fetch here to ensure it's valid.
+                // The requirement says: "if careEvent can be found then navigate to that screen, otherwise leave a message not found."
+
+                const events = await CareEventService.getCareEventsByBatch(batchId);
+
+                if (events && events.length > 0) {
+                    navigation.navigate('CareEventDetail', { batchId });
+                    // Reset scanning state after navigation (optional, depending on UX preference)
+                    // But usually we want to be ready to scan again when coming back.
+                    // For now, we leave it as is, user can press "Scan Again" if they come back.
+                } else {
+                    Alert.alert("Not Found", "No care events found for this batch.", [
+                        { text: "OK", onPress: handleScanAgain }
+                    ]);
+                }
+            } else {
+                Alert.alert("Invalid QR Code", "The scanned QR code does not contain a valid batch ID.", [
+                    { text: "OK", onPress: handleScanAgain }
+                ]);
+            }
+        } catch (error) {
+            console.error("Error processing scan:", error);
+            Alert.alert("Error", "An error occurred while processing the scanned data.", [
+                { text: "OK", onPress: handleScanAgain }
+            ]);
+        } finally {
+            setProcessing(false);
+        }
     };
 
     const handleScanAgain = () => {
         setScannedData(null);
         setIsScanning(true);
+        setProcessing(false);
     };
 
     return (
@@ -30,25 +76,17 @@ const ScanScreen = () => {
                 />
             ) : (
                 <View style={styles.resultContainer}>
-                    <Text style={styles.resultTitle}>Scan Result</Text>
-                    <Text style={styles.resultText}>{scannedData}</Text>
-                    <TouchableOpacity style={styles.scanAgainButton} onPress={handleScanAgain}>
-                        <Text style={styles.scanAgainText}>Scan Again</Text>
-                    </TouchableOpacity>
-                </View>
-            )}
-
-            {scannedData && !isScanning && (
-                <View style={styles.popup}>
-                    <View style={styles.popupContent}>
-                        <Text style={styles.popupTitle}>Scanned Data Available</Text>
-                        <Text style={styles.popupText} numberOfLines={2}>{scannedData}</Text>
-                        <View style={styles.popupActions}>
-                            <TouchableOpacity style={styles.popupScanButton} onPress={handleScanAgain}>
-                                <Text style={styles.popupScanButtonText}>Scan Again</Text>
+                    {processing ? (
+                        <ActivityIndicator size="large" color="#007AFF" />
+                    ) : (
+                        <>
+                            <Text style={styles.resultTitle}>Scan Result</Text>
+                            <Text style={styles.resultText}>{scannedData}</Text>
+                            <TouchableOpacity style={styles.scanAgainButton} onPress={handleScanAgain}>
+                                <Text style={styles.scanAgainText}>Scan Again</Text>
                             </TouchableOpacity>
-                        </View>
-                    </View>
+                        </>
+                    )}
                 </View>
             )}
         </View>
@@ -90,52 +128,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: '600',
     },
-    popup: {
-        position: 'absolute',
-        top: 50, // Adjust based on safe area or header height
-        left: 20,
-        right: 20,
-        backgroundColor: 'white',
-        borderRadius: 12,
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-        elevation: 5,
-        zIndex: 1000,
-    },
-    popupContent: {
-        padding: 16,
-    },
-    popupTitle: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        color: '#333',
-        marginBottom: 8,
-    },
-    popupText: {
-        fontSize: 14,
-        color: '#666',
-        marginBottom: 16,
-    },
-    popupActions: {
-        flexDirection: 'row',
-        justifyContent: 'flex-end',
-    },
-    popupScanButton: {
-        backgroundColor: '#E8F2FF',
-        paddingHorizontal: 16,
-        paddingVertical: 8,
-        borderRadius: 20,
-    },
-    popupScanButtonText: {
-        color: '#007AFF',
-        fontSize: 14,
-        fontWeight: '600',
-    },
 });
 
 export default ScanScreen;
+

@@ -5,14 +5,14 @@ import { useAuthStore } from "@/stores/auth";
 
 export const getBackendURL = (): string => {
     if (Platform.OS === "web") {
-        return process.env.REACT_APP_API_BASE_URL || "http://192.168.1.6:5170";
+        return process.env.REACT_APP_API_BASE_URL || "https://attractionally-ungraceful-miranda.ngrok-free.dev";
     }
 
     if (Platform.OS === "ios") {
-        return "http://192.168.1.6:5170";
+        return "https://attractionally-ungraceful-miranda.ngrok-free.dev";
     }
 
-    return "http://192.168.1.6:5170";
+    return "https://attractionally-ungraceful-miranda.ngrok-free.dev";
 };
 
 const baseURL = getBackendURL();
