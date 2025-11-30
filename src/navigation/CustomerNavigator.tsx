@@ -8,7 +8,7 @@ import { CustomerBatchDetailScreen } from "@/screens/CustomerBatchDetailScreen"
 import PersonalInformationScreen from "@/screens/PersonalInformationScreen"
 import { CustomerFarmDetailScreen } from "@/screens/CustomerFarmDetailScreen"
 import CustomerAddressScreen from "@/screens/CustomerAddressScreen"
-import ScanScreen from "@/screens/ScanProduct/ScanScreen"
+
 
 export type CustomerStackParamList = {
   MainTabs: undefined
@@ -21,7 +21,6 @@ export type CustomerStackParamList = {
   FarmList: undefined
   FarmReview: { farmId: string; batchId: string }
   CustomerAllReviews: { farmId: string }
-  ScanScreen: undefined
   CustomerCheckout: { selectedItems: string[] }
 }
 
@@ -89,11 +88,6 @@ const CustomerNavigator = () => {
         name="CustomerAllReviews"
         component={require("@/screens/CustomerAllReviewsScreen").default}
         options={{ title: "All Reviews" }}
-      />
-      <Stack.Screen
-        name="ScanScreen"
-        component={ScanScreen}
-        options={{ headerShown: false }}
       />
       <Stack.Screen
         name="CustomerCheckout"

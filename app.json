@@ -9,16 +9,7 @@
     "experiments": {
       "tsconfigPaths": true
     },
-    "plugins": [
-      [
-        "react-native-vision-camera",
-        {
-          "cameraPermissionText": "$(PRODUCT_NAME) needs access to your Camera.",
-          "enableMicrophonePermission": true,
-          "microphonePermissionText": "$(PRODUCT_NAME) needs access to your Microphone."
-        }
-      ]
-    ],
+    "plugins": [],
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -31,14 +22,24 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      },
+      "bundleIdentifier": "com.anonymous.AgriConnectMarket"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.anonymous.AgriConnectMarket"
+      "package": "com.anonymous.AgriConnectMarket",
+      "permissions": []
+    },
+    "extra": {
+      "eas": {
+        "projectId": "a295cf08-baaf-46fe-8982-0e220a27f57e"
+      }
     }
   }
 }

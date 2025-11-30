@@ -91,7 +91,7 @@ export function FarmerProductDetailReviewsScreen({ route, navigation }: Props) {
                 contentContainerStyle={{ paddingBottom: 20 }}
             >
                 <ProductHero
-                    image={batch?.imagesUrl?.[0] || 'https://via.placeholder.com/400'}
+                    image={batch?.imageUrls?.[0] || 'https://via.placeholder.com/400'}
                     badges={[]}
                 />
 
