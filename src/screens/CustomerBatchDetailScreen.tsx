@@ -27,7 +27,7 @@ import { useFarmReviews } from "@/hooks/useFarmReview"
 export const CustomerBatchDetailScreen: React.FC = () => {
   const insets = useSafeAreaInsets()
   const route = useRoute<any>()
-  const navigation = useNavigation()
+  const navigation = useNavigation<any>()
   const { batchId } = route.params || {}
   const { data: batch, isLoading } = useBatchDetail(batchId)
 
@@ -101,57 +101,29 @@ export const CustomerBatchDetailScreen: React.FC = () => {
       return
     }
 
-    // Check if user has a default address
-    const defaultAddress = addresses?.find(addr => addr.isDefault)
-    if (!defaultAddress) {
-      Alert.alert(
-        "No Address",
-        "Please add a delivery address before placing an order.",
-        [
-          { text: "Cancel", style: "cancel" },
-          { text: "Add Address", onPress: () => navigation.navigate("CustomerAddress" as never) },
-        ]
-      )
-      return
-    }
-
     try {
-      // First, add the item to cart
-      await new Promise<void>((resolve, reject) => {
-        addToCartMutation.mutate(
-          {
-            cartId: cart.cartId,
-            batchId: batch.id,
-            quantity: quantity,
-          },
-          {
-            onSuccess: () => resolve(),
-            onError: (error) => reject(error),
-          },
-        )
+      // Add item to cart and get the result
+      const addedItem = await addToCartMutation.mutateAsync({
+        cartId: cart.cartId,
+        batchId: batch.id,
+        quantity: quantity,
       })
 
-      // Then create order with only this item (bypass regular cart)
-      const payload = {
-        customerId: userId,
-        addressId: defaultAddress.id,
-        shippingFee: 0,
-        orderItems: [
-          {
-            batchId: batch.id,
-            quantity: quantity,
-          },
-        ],
+      if (addedItem && ((addedItem as any).id || (addedItem as any).itemId)) {
+        // Navigate to checkout with the specific item selected
+        // Backend returns entity with 'id', frontend interface might expect 'itemId'
+        const cartItemId = (addedItem as any).id || (addedItem as any).itemId;
+
+        navigation.navigate("CustomerCheckout" as never, {
+          selectedItems: [cartItemId]
+        } as never)
+      } else {
+        throw new Error("Failed to retrieve cart item ID")
       }
 
-      const newOrder = await createOrder(payload)
-
-      Alert.alert("Success", "Order created successfully!", [
-        { text: "OK", onPress: () => navigation.navigate("CustomerOrders" as never) },
-      ])
     } catch (error: any) {
       console.error("Buy Now failed:", error)
-      Alert.alert("Error", error?.response?.data?.message || "Failed to create order.")
+      Alert.alert("Error", error?.response?.data?.message || "Failed to process buy now request.")
     }
   }
 

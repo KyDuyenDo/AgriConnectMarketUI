@@ -37,7 +37,7 @@ export const CustomerCheckoutScreen: React.FC = () => {
     // Filter groups to only include selected items
     const checkoutGroups = cartGroups.map(group => ({
         ...group,
-        items: group.items.filter(item => selectedItems.includes(item.id))
+        items: group.items.filter(item => selectedItems.includes(item.itemId))
     })).filter(group => group.items.length > 0)
 
     // Cart shipping calculation using custom hook
@@ -160,17 +160,17 @@ export const CustomerCheckoutScreen: React.FC = () => {
                         <View key={group.farmId} className="mb-4">
                             <Text className="text-sm font-medium text-gray-500 mb-2">{group.farmName}</Text>
                             {group.items.map((item) => (
-                                <View key={item.id} className="flex-row items-center mb-3">
+                                <View key={item.itemId} className="flex-row items-center mb-3">
                                     <Image
-                                        source={{ uri: item.batch?.imagesUrl?.[0] || "https://via.placeholder.com/50" }}
+                                        source={{ uri: item.batchImageUrls?.[0] || "https://via.placeholder.com/50" }}
                                         className="w-12 h-12 rounded-lg bg-gray-100"
                                     />
                                     <View className="flex-1 ml-3">
                                         <Text className="text-sm font-medium text-[#2D2D2D]" numberOfLines={1}>
-                                            {item.batch?.product?.productName || "Product"}
+                                            {item.productName || "Product"}
                                         </Text>
                                         <Text className="text-xs text-gray-500">
-                                            {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.itemPrice)} x {item.quantity} {item.batch?.units}
+                                            {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.itemPrice)} x {item.quantity} {item.units}
                                         </Text>
                                     </View>
                                     <Text className="text-sm font-semibold text-[#4CAF50]">

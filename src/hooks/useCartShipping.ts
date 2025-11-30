@@ -37,7 +37,7 @@ export const useCartShipping = ({
     const selectedGroups = useMemo(() => {
         return cartItems.map(group => ({
             ...group,
-            items: group.items.filter(item => selectedItemIds.includes(item.id))
+            items: group.items.filter(item => selectedItemIds.includes(item.itemId))
         })).filter(group => group.items.length > 0);
     }, [cartItems, selectedItemIds]);
 
@@ -66,7 +66,7 @@ export const useCartShipping = ({
 
             if (addresses.length === 0) {
                 console.warn('⚠️ No farm addresses found');
-                setShippingFee(3.99); // Default fallback
+                setShippingFee(30000); // Default fallback 30k VND
                 setShippingFeesByFarm({});
                 return;
             }
@@ -77,12 +77,10 @@ export const useCartShipping = ({
             // Calculate fee for each farm address
             for (const farmAddress of addresses) {
                 // Filter items belonging to this farm address across all groups
-                // (Though typically one group = one farm = one address)
                 const farmItems: CartItem[] = [];
 
                 for (const group of selectedGroups) {
-                    const firstItem = group.items[0];
-                    const addr = firstItem?.batch?.season?.farm?.address;
+                    const addr = group.farmAddress;
                     if (addr &&
                         addr.province === farmAddress.province &&
                         addr.district === farmAddress.district &&
@@ -94,18 +92,21 @@ export const useCartShipping = ({
 
                 if (farmItems.length === 0) continue;
 
-                // Use farm name or ID as key for the fee map. 
-                // Ideally we should use Farm ID, but here we are grouping by address.
-                // Let's use the first item's farm name as a key for now, or we can use the address string.
-                // Better yet, let's try to get the Farm ID if possible, but the extraction logic is address based.
-                // Let's use the farm name from the first item of this group as the key, assuming 1 farm per address for now, 
-                // or just map by Farm Name if that's how we group in UI.
-                const farmName = farmItems[0]?.batch?.season?.farm?.farmName || "Unknown Farm";
+                const matchedGroup = selectedGroups.find(g => {
+                    const addr = g.farmAddress;
+                    return addr &&
+                        addr.province === farmAddress.province &&
+                        addr.district === farmAddress.district &&
+                        addr.ward === farmAddress.ward &&
+                        addr.detail === farmAddress.detail;
+                });
+
+                const farmName = matchedGroup?.farmName || "Unknown Farm";
 
                 // Calculate metrics for this farm's shipment
                 const farmWeight = farmItems.reduce((sum, item) => sum + (item.quantity * 500), 0);
-                const farmSubtotalUSD = farmItems.reduce((sum, item) => sum + (item.itemPrice * item.quantity), 0);
-                const farmValueVND = Math.round(farmSubtotalUSD * 24000);
+                const farmSubtotalVND = farmItems.reduce((sum, item) => sum + (item.itemPrice * item.quantity), 0);
+                const farmValueVND = farmSubtotalVND;
 
                 console.log(`📦 Calculating GHTK fee for farm ${farmName} in ${farmAddress.province}:`, {
                     to: customerAddress.province,
@@ -142,24 +143,21 @@ export const useCartShipping = ({
 
                 totalFeeVND += farmFeeVND;
 
-                // Convert to USD for the map
-                const farmFeeUSD = Math.round((farmFeeVND / 24000) * 100) / 100;
-                newShippingFeesByFarm[farmName] = farmFeeUSD;
+                newShippingFeesByFarm[farmName] = farmFeeVND;
             }
 
             if (totalFeeVND > 0) {
-                const totalFeeUSD = Math.round((totalFeeVND / 24000) * 100) / 100; // round to 2 decimals
-                console.log(`💰 Total Shipping Fee: ${totalFeeVND} VND = $${totalFeeUSD.toFixed(2)}`);
-                setShippingFee(totalFeeUSD);
+                console.log(`💰 Total Shipping Fee: ${totalFeeVND} VND`);
+                setShippingFee(totalFeeVND);
             } else {
-                setShippingFee(3.99);
+                setShippingFee(30000);
             }
 
             setShippingFeesByFarm(newShippingFeesByFarm);
 
         } catch (err) {
             console.error('❌ Global calculation error:', err);
-            setShippingFee(3.99);
+            setShippingFee(30000);
             setShippingFeesByFarm({});
         } finally {
             isCalculatingRef.current = false;
@@ -170,7 +168,7 @@ export const useCartShipping = ({
     const calculationKey = useMemo(() => {
         // Flatten items for key generation
         const allItems = selectedGroups.flatMap(g => g.items);
-        const itemsKey = allItems.map(i => `${i.id}-${i.quantity}`).sort().join('|');
+        const itemsKey = allItems.map(i => `${i.itemId}-${i.quantity}`).sort().join('|');
         const addressKey = customerAddress
             ? `${customerAddress.province}:${customerAddress.district}:${customerAddress.ward}`
             : '';

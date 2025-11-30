@@ -49,6 +49,7 @@ export interface Customer {
 
 export type CartItem = {
     itemId: string;
+    batchId: string;
     batchCode: string;
     batchImageUrls: string[];
     productName: string;
