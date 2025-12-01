@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import QRScanner from '../../components/QRScanner';
+
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { CustomerStackParamList } from '@/navigation/CustomerNavigator';
 import CareEventService from '@/services/care-events.service';
+import QRScanner from '@/components/QRScanner';
 
 type ScanScreenNavigationProp = NativeStackNavigationProp<CustomerStackParamList, 'ScanScreen'>;
 
@@ -131,4 +132,3 @@ const styles = StyleSheet.create({
 });
 
 export default ScanScreen;
-

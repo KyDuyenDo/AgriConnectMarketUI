@@ -36,14 +36,10 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.anonymous.AgriConnectMarket",
-<<<<<<< HEAD
-      "permissions": []
-=======
       "permissions": [
         "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO"
       ]
->>>>>>> fad7cd8df0e573103b77f4c4fdf18bcc767f9581
     },
     "extra": {
       "eas": {
