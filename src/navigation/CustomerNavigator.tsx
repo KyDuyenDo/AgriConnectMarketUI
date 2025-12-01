@@ -9,6 +9,8 @@ import PersonalInformationScreen from "@/screens/PersonalInformationScreen"
 import { CustomerFarmDetailScreen } from "@/screens/CustomerFarmDetailScreen"
 import CustomerAddressScreen from "@/screens/CustomerAddressScreen"
 
+import ScanScreen from "@/screens/ScanProduct/ScanScreen"
+import CareEventDetailScreen from "@/screens/CareEventDetailScreen"
 
 export type CustomerStackParamList = {
   MainTabs: undefined
@@ -22,6 +24,7 @@ export type CustomerStackParamList = {
   FarmReview: { farmId: string; batchId: string }
   CustomerAllReviews: { farmId: string }
   CustomerCheckout: { selectedItems: string[] }
+  CareEventDetail: { batchId: string }
 }
 
 const Stack = createNativeStackNavigator<CustomerStackParamList>()
@@ -93,6 +96,11 @@ const CustomerNavigator = () => {
         name="CustomerCheckout"
         component={require("@/screens/CustomerCheckoutScreen").default}
         options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="CareEventDetail"
+        component={CareEventDetailScreen}
+        options={{ title: "Care Events" }}
       />
     </Stack.Navigator>
   )
