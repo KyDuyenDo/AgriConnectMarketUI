@@ -62,7 +62,7 @@ export function FarmerOrderDetailScreen() {
     };
 
     const items = order.orderItems?.map(item => ({
-        image: item.batch?.imagesUrl?.[0] || 'https://via.placeholder.com/150',
+        image: item.batch?.imageUrls?.[0] || 'https://via.placeholder.com/150',
         name: item.batch?.season?.product?.productName || 'Product',
         quantity: `${item.quantity} ${item.batch?.units || 'units'}`,
         unitPrice: `${item.unitPrice}/${item.batch?.units || 'unit'}`,
