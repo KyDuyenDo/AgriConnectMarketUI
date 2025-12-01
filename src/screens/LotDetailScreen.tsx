@@ -10,6 +10,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { FarmStackParamList } from '@/navigation/types';
 import { useNavigation, RouteProp, useRoute } from '@react-navigation/native';
 import { useBatchDetail } from '@/hooks/useProductBatches';
+import { useSeason } from '@/hooks/useSeason';
 
 type Nav = NativeStackNavigationProp<FarmStackParamList>
 
@@ -20,6 +21,9 @@ export const LotDetailScreen = () => {
     const { lotId } = route.params || {};
 
     const { data: batch, isLoading, error } = useBatchDetail(lotId);
+
+    // Fetch detailed season/product info using the hook
+    const { season, product, category } = useSeason(batch?.seasonId || '');
 
     const onAddLogEntry = () => {
         navigation.navigate('AddCropLog' as any);
@@ -42,14 +46,15 @@ export const LotDetailScreen = () => {
     }
 
     const batchCodeStr = typeof batch.batchCode === 'string' ? batch.batchCode : batch.batchCode?.value || 'N/A';
-    const productName = batch.season?.product?.productName || 'Product';
+    const productName = product?.productName || batch.season?.product?.productName || 'Product';
+    const seasonName = season?.seasonName || batch.season?.seasonName || '';
 
     return (
         <SafeAreaView className="flex-1 bg-[#F9FAF9]" edges={['top']}>
             <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
             <LotHeader
                 batchCode={batchCodeStr}
-                subtitle={`${new Date(batch.plantingDate).getFullYear()} - ${productName}`}
+                subtitle={`${new Date(batch.plantingDate).getFullYear()} - ${productName} (${seasonName})`}
             />
             <ScrollView
                 className="flex-1"
@@ -62,6 +67,7 @@ export const LotDetailScreen = () => {
                     quantity={batch.availableQuantity}
                     units={batch.units}
                     plantingDate={batch.plantingDate}
+                    category={category?.categoryName || batch.season?.product?.category?.categoryName}
                     // Mock/Missing data handling
                     location="Field A, North Section"
                     linkedProducts={0}

@@ -8,6 +8,7 @@ interface LotInfoCardProps {
     quantity: number;
     units: string;
     plantingDate: string;
+    category?: string; // Added category prop
     location?: string; // Not in API yet, keep optional or mock
     linkedProducts?: number; // Not in API yet
     notes?: string; // Not in API yet
@@ -19,6 +20,7 @@ export const LotInfoCard = ({
     quantity,
     units,
     plantingDate,
+    category,
     location = "Field A, North Section",
     linkedProducts = 0,
     notes = "No notes available."
@@ -41,6 +43,7 @@ export const LotInfoCard = ({
                         <DetailItem icon={Calendar} text={`Harvest: ${harvestDate ? new Date(harvestDate).toLocaleDateString() : 'Pending'}`} />
                         <DetailItem icon={Scale} text={`Quantity: ${quantity} ${units}`} />
                         <DetailItem icon={Sprout} text={`Planted: ${new Date(plantingDate).toLocaleDateString()}`} />
+                        {category && <DetailItem icon={Package} text={`Category: ${category}`} />}
                         <DetailItem icon={MapPin} text={`Location: ${location}`} />
                         <DetailItem icon={Package} text={`Linked Products: ${linkedProducts}`} />
                     </View>

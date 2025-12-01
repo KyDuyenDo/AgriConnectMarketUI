@@ -21,6 +21,11 @@ export const getProfile = async (): Promise<Profile> => {
     return response.data.data;
 };
 
+export const getProfileById = async (id: string): Promise<Profile> => {
+    const response = await apiClient.get(`/api/profiles/${id}`);
+    return response.data.data;
+};
+
 export const updateProfile = async (id: string, data: UpdateProfileData): Promise<Profile> => {
     const response = await apiClient.put(`/api/profiles/${id}`, data);
     return response.data;

@@ -27,6 +27,7 @@ import { FarmerProductsScreenSkeleton } from "@/components/skeletons/FarmerProdu
 import { CategorySelector } from "@/components/CategorySelector"
 import { useCategories } from "@/hooks/useCategories"
 import { useFarmByMe } from "@/hooks/useFarm"
+import { useSeason } from "@/hooks/useSeason"
 
 type Nav = NativeStackNavigationProp<FarmStackParamList>
 
@@ -71,6 +72,7 @@ const getStockUnitColor = (stock: string) => {
 
 const BatchCard = ({
   batch,
+  categories,
   onPress,
   onEdit,
   onDelete,
@@ -79,6 +81,7 @@ const BatchCard = ({
   onToggleStatus,
 }: {
   batch: Batch
+  categories?: any[]
   onPress: () => void
   onEdit?: () => void
   onDelete?: () => void
@@ -92,9 +95,23 @@ const BatchCard = ({
   const stockBadge = getStockBadgeStyle(stockStatus)
   const unitColor = getStockUnitColor(stockStatus)
 
-  const productName = batch.season?.product?.productName || "Unknown Product"
-  const categoryName = batch.season?.product?.category?.categoryName || "Uncategorized"
-  const seasonName = batch.season?.seasonName || ""
+  // Fetch detailed season/product info using the hook
+  const { season, product, category, isLoading } = useSeason(batch.seasonId || '');
+
+  const productName = product?.productName || batch.season?.product?.productName || "Unknown Product"
+
+  // Resolve category name: try fetched category, then batch data, then lookup in categories list
+  let categoryName = category?.categoryName || batch.season?.product?.category?.categoryName;
+  if (!categoryName && categories && (product?.categoryId || batch.season?.product?.categoryId)) {
+    const targetCategoryId = product?.categoryId || batch.season?.product?.categoryId;
+    const foundCategory = categories.find(c => c.id === targetCategoryId);
+    if (foundCategory) {
+      categoryName = foundCategory.categoryName;
+    }
+  }
+  categoryName = categoryName || "Uncategorized";
+
+  const seasonName = season?.seasonName || batch.season?.seasonName || ""
 
   const isSelling = batch.isActive
 
@@ -111,7 +128,7 @@ const BatchCard = ({
           <Image source={{ uri: imageUrl }} className="w-full rounded-t-2xl h-[130px]" style={{ objectFit: "cover" }} />
         ) : (
           <View className="w-full h-[130px] bg-gray-50 items-center justify-center">
-            <Text className="text-gray-400 font-medium text-sm">{productName}</Text>
+            <Text className="text-gray-400 font-medium text-sm">{isLoading ? "Loading..." : productName}</Text>
           </View>
         )}
 
@@ -269,10 +286,13 @@ export const FarmerProductsScreen = () => {
   }, [navigation])
 
   const handleViewReviews = useCallback((batch: Batch) => {
-    if (batch.season?.farmId) {
-      navigation.navigate("ProductDetailReviews", { batchId: batch.id, farmId: batch.season.farmId })
+    const targetFarmId = batch.season?.farmId || farmId;
+    if (targetFarmId) {
+      navigation.navigate("ProductDetailReviews", { batchId: batch.id, farmId: targetFarmId })
+    } else {
+      console.warn("Cannot navigate to reviews: farmId is missing");
     }
-  }, [navigation])
+  }, [navigation, farmId])
 
   const { mutateAsync: updateBatch } = useUpdateBatch()
 
@@ -290,6 +310,7 @@ export const FarmerProductsScreen = () => {
   const renderItem = useCallback(({ item }: { item: Batch }) => (
     <BatchCard
       batch={item}
+      categories={categories}
       onPress={() =>
         navigation.navigate("LotDetail", { lotId: item.id })
       }
@@ -299,7 +320,7 @@ export const FarmerProductsScreen = () => {
       onViewReviews={() => handleViewReviews(item)}
       onToggleStatus={() => handleToggleStatus(item)}
     />
-  ), [navigation, handleDelete, handleLogCareEvent, handleViewReviews, handleToggleStatus])
+  ), [navigation, handleDelete, handleLogCareEvent, handleViewReviews, handleToggleStatus, categories])
 
   if (isLoading || isLoadingFarmer) {
     return <FarmerProductsScreenSkeleton />

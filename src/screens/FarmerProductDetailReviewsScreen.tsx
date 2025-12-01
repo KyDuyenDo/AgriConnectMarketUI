@@ -15,6 +15,8 @@ import { useBatchById } from '@/hooks/useBatches';
 import { useState } from 'react';
 
 
+import { useSeason } from '@/hooks/useSeason';
+
 type Props = NativeStackScreenProps<FarmStackParamList, 'ProductDetailReviews'>;
 
 export function FarmerProductDetailReviewsScreen({ route, navigation }: Props) {
@@ -22,6 +24,9 @@ export function FarmerProductDetailReviewsScreen({ route, navigation }: Props) {
     const { data: reviews, isLoading: isLoadingReviews } = useFarmReviews(farmId);
     const { data: batch, isLoading: isLoadingBatch } = useBatchById(batchId);
     const { mutate: replyToReview } = useReplyFarmReview();
+
+    // Fetch detailed season/product info using the hook
+    const { season, product, category } = useSeason(batch?.seasonId || '');
 
     const [replyModalVisible, setReplyModalVisible] = useState(false);
     const [selectedReviewId, setSelectedReviewId] = useState<string | null>(null);
@@ -96,14 +101,14 @@ export function FarmerProductDetailReviewsScreen({ route, navigation }: Props) {
                 />
 
                 <ProductInfo
-                    name={batch?.season?.product?.productName || 'Unknown Product'}
+                    name={product?.productName || batch?.season?.product?.productName || 'Unknown Product'}
                     farm={(batch?.season as any)?.farm?.farmName || 'My Farm'}
                     price={batch?.price.toString() || '0'}
                     unit={batch?.units || 'unit'}
-                    description={batch?.season?.product?.productDesc || ''}
+                    description={product?.productDesc || batch?.season?.product?.productDesc || ''}
                     batchCode={(batch?.batchCode as any)?.value || 'N/A'}
-                    category={batch?.season?.product?.category?.categoryName || 'N/A'}
-                    season={batch?.season?.seasonName || 'N/A'}
+                    category={category?.categoryName || batch?.season?.product?.category?.categoryName || 'N/A'}
+                    season={season?.seasonName || batch?.season?.seasonName || 'N/A'}
                     plantingDate={batch?.plantingDate || ''}
                     harvestDate={batch?.harvestDate || ''}
                     availableQuantity={batch?.availableQuantity || 0}

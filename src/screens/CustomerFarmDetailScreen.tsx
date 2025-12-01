@@ -24,6 +24,8 @@ import { ProductResponse } from '@/types';
 import { Modal, TextInput, Alert } from 'react-native';
 import { useQueryClient } from '@tanstack/react-query';
 
+import { useProfileById } from '@/hooks/useProfile';
+
 type Props = NativeStackScreenProps<CustomerStackParamList, 'FarmDetail'>;
 
 export function CustomerFarmDetailScreen({ route, navigation }: Props) {
@@ -33,6 +35,10 @@ export function CustomerFarmDetailScreen({ route, navigation }: Props) {
     const [isCertificateVisible, setIsCertificateVisible] = useState(false);
     const { mutate: toggleFavorite } = useToggleFavoriteFarm();
     const { data: farm, isLoading: isLoadingFarm, error: farmError } = useFarmById(farmId);
+
+    // Fetch farmer profile separately
+    const { data: farmerProfile, isLoading: isLoadingProfile } = useProfileById(farm?.farmerId || '');
+
     const { data: batches, isLoading: isLoadingBatches } = useBatchesByFarm(farmId);
     const { data: reviews, isLoading: isLoadingReviews } = useFarmReviews(farmId);
 
@@ -64,9 +70,9 @@ export function CustomerFarmDetailScreen({ route, navigation }: Props) {
         return {
             heroImage: farm.bannerUrl || 'https://via.placeholder.com/400x200',
             badge: farm.isConfirmAsMall ? 'Certified Mall' : 'Local Farm',
-            ownerPhoto: farm.farmer?.profile?.avatarUrl || 'https://via.placeholder.com/60',
+            ownerPhoto: farmerProfile?.avatarUrl || 'https://via.placeholder.com/60',
             farmName: farm.farmName || 'Unknown Farm',
-            ownerName: farm.farmer?.profile?.fullname || 'Farm Owner',
+            ownerName: farmerProfile?.fullname || 'Farm Owner',
             sinceYear: farm.createdAt ? new Date(farm.createdAt).getFullYear().toString() : '2024',
             rating: averageRating > 0 ? Number(averageRating.toFixed(1)) : 0,
             reviewCount: reviews?.length || 0,
@@ -82,10 +88,10 @@ export function CustomerFarmDetailScreen({ route, navigation }: Props) {
             contact: {
                 hours: 'Mon-Sat: 8:00 AM - 6:00 PM',
                 phone: farm.phone || 'Not available',
-                email: farm.farmer?.profile?.email || 'contact@farm.com'
+                email: farmerProfile?.email || 'contact@farm.com'
             }
         };
-    }, [farm, batches, reviews, averageRating]);
+    }, [farm, batches, reviews, averageRating, farmerProfile]);
 
     const farmerData = useMemo(() => {
         if (!farm) return {
@@ -98,14 +104,14 @@ export function CustomerFarmDetailScreen({ route, navigation }: Props) {
         };
 
         return {
-            photo: farm.farmer?.profile?.avatarUrl || 'https://via.placeholder.com/150',
-            name: farm.farmer?.profile?.fullname || 'Farm Owner',
+            photo: farmerProfile?.avatarUrl || 'https://via.placeholder.com/150',
+            name: farmerProfile?.fullname || 'Farm Owner',
             title: 'Farm Owner',
             education: 'Agricultural Expert', // Placeholder
             experience: `${farmData.stats.years} years experience`,
             quote: '"Committed to sustainable farming and providing fresh produce for our community."' // Placeholder
         };
-    }, [farm, farmData.stats.years]);
+    }, [farm, farmData.stats.years, farmerProfile]);
 
     const renderStatCard = useCallback((label: string, value: string | number, icon: keyof typeof Ionicons.glyphMap, color: string) => (
         <View key={label} className="bg-white p-3 rounded-xl shadow-sm border border-gray-100 w-[100px] items-center mr-3">
@@ -193,7 +199,7 @@ export function CustomerFarmDetailScreen({ route, navigation }: Props) {
                             {batches.map(batch => (
                                 <View key={batch.id} className="w-[160px] mr-4">
                                     <FarmProductCard
-                                        image={batch.imagesUrl?.[0] || 'https://via.placeholder.com/150'}
+                                        image={batch.imageUrls?.[0] || 'https://via.placeholder.com/150'}
                                         name={batch.season?.product?.productName || 'Unknown Product'}
                                         price={`$${batch.price}/${batch.units}`}
                                         badge={{

@@ -54,10 +54,11 @@ export function FarmerOrderDetailScreen() {
     const customer = {
         name: order.customer?.fullname || 'Guest',
         photo: order.customer?.avatarUrl || 'https://via.placeholder.com/150',
-        memberSince: 'Member', // Placeholder
+        memberSince: order.customer?.createdAt ? `Member since ${new Date(order.customer.createdAt).getFullYear()}` : 'Member',
         email: order.customer?.email || 'No email',
         phone: order.customer?.phone || 'No phone',
-        address: [order.customer?.address?.detail || '', `${order.customer?.address?.district || ''}, ${order.customer?.address?.province || ''}`].filter(Boolean)
+        // Address is not present in the customer object in the provided API response
+        address: []
     };
 
     const items = order.orderItems?.map(item => ({
