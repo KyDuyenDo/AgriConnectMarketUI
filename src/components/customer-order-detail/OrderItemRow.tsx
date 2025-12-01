@@ -1,26 +1,27 @@
 import React from 'react';
 import { Star } from "lucide-react-native";
 import { View, Text, TouchableOpacity, Image } from "react-native";
-import { OrderItemDisplay } from '@/types';
+import { OrderItem } from '@/types';
+import { useBatchById } from '@/hooks/useBatches';
 
 
 export const OrderItemRow: React.FC<{
-  item: OrderItemDisplay;
+  item: OrderItem;
   showDivider: boolean;
-  onReview?: (item: OrderItemDisplay) => void;
+  onReview?: (item: OrderItem) => void;
   isReviewed?: boolean;
 }> = ({ item, showDivider, onReview, isReviewed }) => {
   const tagBg =
-    item.tag === 'Fresh Today' ? '#E3F0FF' : '#E6F7EA';
+    item.batch?.season?.product?.category?.categoryName === 'Fresh Today' ? '#E3F0FF' : '#E6F7EA';
   const tagColor =
-    item.tag === 'Fresh Today' ? '#4C6FFF' : '#32C373';
-
+    item.batch?.season?.product?.category?.categoryName === 'Fresh Today' ? '#4C6FFF' : '#32C373';
+  const { data: batch } = useBatchById(item.batchId);
   return (
     <>
       <View className="flex-row items-start py-3">
-        {item.imageUrl ? (
+        {batch?.imageUrls?.[0] ? (
           <Image
-            source={{ uri: item.imageUrl }}
+            source={{ uri: batch?.imageUrls?.[0] }}
             className="mr-3 h-16 w-16 rounded-2xl bg-[#FFE2E2]"
             resizeMode="cover"
           />
@@ -29,48 +30,50 @@ export const OrderItemRow: React.FC<{
         )}
         <View className="flex-1">
           <Text className="text-[14px] font-semibold text-[#111827]">
-            {item.name}
+            {batch?.season?.product?.productName}
           </Text>
-          {item.productAttribute && (
+          {batch?.season?.product?.productAttribute && (
             <Text className="text-[12px] text-[#6B737A]">
-              {item.productAttribute}
+              {batch?.season?.product?.productAttribute}
             </Text>
           )}
-          {item.productDesc && (
+          {batch?.season?.product?.productDesc && (
             <Text className="text-[12px] text-[#9A9FA8] italic" numberOfLines={2}>
-              {item.productDesc}
+              {batch?.season?.product?.productDesc}
             </Text>
           )}
-          {item.batchCode && (
+          {batch?.batchCode && (
             <Text className="mt-1 text-[10px] text-[#9A9FA8]">
-              Batch: {item.batchCode}
+              Batch: {batch?.batchCode.value}
             </Text>
           )}
-          <Text className="mt-1 text-[12px] text-[#9A9FA8]">
-            {item.qtyLabel}
-          </Text>
-          {item.tag && (
+          {batch?.season?.product?.category?.categoryName && (
             <View
               className="mt-1 self-start rounded-full px-2 py-0.5"
               style={{ backgroundColor: tagBg }}>
               <Text
                 className="text-[10px] font-semibold"
                 style={{ color: tagColor }}>
-                {item.tag}
+                {batch?.season?.product?.category?.categoryName}
               </Text>
             </View>
           )}
         </View>
 
         <View className="items-end">
-          <Text className="text-[14px] font-semibold text-[#111827]">
-            {item.price}
+          <Text className="text-[12px] text-[#9A9FA8]">
+            {new Intl.NumberFormat('vi-VN').format(batch?.price || 0)} đ
           </Text>
-          {item.subTotal !== undefined && (
-            <Text className="text-[12px] font-medium text-[#4CAF50]">
-              Total: ${item.subTotal}
+          <View className="flex-row items-center gap-2">
+            {item?.subTotal !== undefined && (
+              <Text className="text-[12px] font-medium text-[#4CAF50]">
+                Total: {new Intl.NumberFormat('vi-VN').format(item.subTotal || 0)} đ
+              </Text>
+            )}
+            <Text className="text-[12px] text-[#9A9FA8]">
+              / {item?.quantity} {batch?.units}
             </Text>
-          )}
+          </View>
 
           {isReviewed ? (
             <View className="mt-2 flex-row items-center bg-gray-100 px-2 py-1 rounded-full">

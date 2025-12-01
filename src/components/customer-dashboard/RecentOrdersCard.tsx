@@ -40,7 +40,9 @@ export const RecentOrdersCard: React.FC<RecentOrdersCardProps> = ({ orders, onVi
                 <View className="flex flex-row justify-between items-center">
                   {/* Farm and Items */}
                   <View>
-                    <Text className="text-sm font-medium text-[#2F3941] mb-0.5">Farm</Text>
+                    <Text className="text-sm font-medium text-[#2F3941] mb-0.5">
+                      {order.orderItems?.[0]?.batch?.season?.farm?.farmName || 'Unknown Farm'}
+                    </Text>
                     <Text className="text-xs text-[#6B737A]">
                       {order.orderItems?.length || 0} items • {new Intl.NumberFormat('vi-VN').format(order.totalPrice)} VNĐ
                     </Text>

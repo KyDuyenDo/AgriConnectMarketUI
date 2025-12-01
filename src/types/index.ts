@@ -80,6 +80,7 @@ export interface Batch {
     createdAt: string
     farmId: string
     productId: string
+    farm?: Farm
 
     product: {
       productName: string

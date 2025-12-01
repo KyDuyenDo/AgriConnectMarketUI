@@ -60,6 +60,7 @@ export interface Season {
     productId: string
 
     product?: Product
+    farm?: any // Added farm property to match API response
 
     // Danh sách batch thuộc season
     productBatches?: SeasonProductBatch[]
