@@ -13,6 +13,7 @@ import { FarmStackParamList } from '@/navigation/types';
 import { useFarmReviews, useReplyFarmReview } from '@/hooks/useFarmReview';
 import { useBatchById } from '@/hooks/useBatches';
 import { useState } from 'react';
+import { FarmerProductDetailReviewsScreenSkeleton } from '@/components/skeletons/FarmerProductDetailReviewsScreenSkeleton';
 
 
 import { useSeason } from '@/hooks/useSeason';
@@ -84,7 +85,7 @@ export function FarmerProductDetailReviewsScreen({ route, navigation }: Props) {
     }));
 
     if (isLoadingBatch || isLoadingReviews) {
-        return <SafeAreaView className="flex-1 items-center justify-center"><Text>Loading...</Text></SafeAreaView>;
+        return <FarmerProductDetailReviewsScreenSkeleton />;
     }
 
     return (
@@ -182,6 +183,6 @@ export function FarmerProductDetailReviewsScreen({ route, navigation }: Props) {
                     </View>
                 </View>
             </Modal>
-        </SafeAreaView>
+        </SafeAreaView >
     );
 }
