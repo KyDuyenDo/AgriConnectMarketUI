@@ -87,7 +87,7 @@ export const useHomeData = () => {
                 availableQuantity: batch.availableQuantity,
                 categoryName: category?.categoryName || "Uncategorized",
                 categoryId: category?.id || "",
-                imageUrl: batch.imagesUrl && batch.imagesUrl.length > 0 ? batch.imagesUrl[0] : (category?.illustrativeImageUrl || ""),
+                imageUrl: batch.imageUrls && batch.imageUrls.length > 0 ? batch.imageUrls[0] : (category?.illustrativeImageUrl || ""),
                 rating: batch.averageRating || 0,
                 reviewCount: batch.reviewCount || 0,
                 location: farm?.address?.province || "Unknown Location"
