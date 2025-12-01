@@ -124,7 +124,7 @@ export const CustomerCheckoutScreen: React.FC = () => {
     }
 
     return (
-        <View className="flex-1 bg-[#F9FAF9]">
+        <View className="flex-1 bg-[#F9FAF9] pb-16">
             <SafeAreaView edges={["top"]} className="bg-[#F9FAF9]">
                 <View className="h-[56px] flex-row items-center justify-between px-6">
                     <TouchableOpacity onPress={() => navigation.goBack()} className="flex-row items-center gap-2">
@@ -141,7 +141,7 @@ export const CustomerCheckoutScreen: React.FC = () => {
             <ScrollView
                 style={{ flex: 1 }}
                 showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ paddingTop: 16, paddingBottom: 130 }}
+                contentContainerStyle={{ paddingTop: 16, gap: 16, paddingBottom: 130 }}
             >
                 <DeliveryOptionsCard
                     defaultAddress={defaultAddress}
@@ -154,7 +154,7 @@ export const CustomerCheckoutScreen: React.FC = () => {
                 />
 
                 {/* Selected Items Summary */}
-                <View className="mx-4 mt-4 bg-white rounded-xl p-4 shadow-sm">
+                <View className="mx-4 bg-white rounded-xl p-4 shadow-sm">
                     <Text className="text-lg font-semibold mb-3">Order Items</Text>
                     {checkoutGroups.map((group) => (
                         <View key={group.farmId} className="mb-4">

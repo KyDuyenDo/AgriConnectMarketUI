@@ -31,7 +31,7 @@ export default function DeliveryOptionsCard({
   const [selectedDelivery, setSelectedDelivery] = useState("express")
 
   return (
-    <View className="px-4 mb-4">
+    <View className="px-4">
       <View className="bg-white p-4 rounded-2xl shadow-sm">
         <Text className="text-base font-semibold text-[#2D2D2D] mb-4">Delivery Information</Text>
 
