@@ -34,7 +34,6 @@ export function OrderCard({ order }: OrderCardProps) {
   }
 
   const status = getStatus(order.orderStatus)
-  const additionalProducts = (order.orderItems?.length || 0) > 3 ? (order.orderItems?.length || 0) - 3 : 0
 
   const { mutate: updateStatus } = useUpdateOrderStatus()
 
@@ -44,7 +43,7 @@ export function OrderCard({ order }: OrderCardProps) {
 
   return (
     <TouchableOpacity onPress={handlePress} activeOpacity={0.9}>
-      <View className={`bg-white rounded-2xl p-4 mb-3 ${leftBorder}`}>
+      <View className={`bg-white rounded-2xl mx-4 p-4 mb-3 ${leftBorder}`}>
         {/* Header */}
         <View className="flex-row justify-between items-start mb-3">
           <View className="flex-row items-center gap-2">
@@ -57,12 +56,20 @@ export function OrderCard({ order }: OrderCardProps) {
         <View className="flex-row justify-between items-center mb-3">
           <View>
             <Text className="text-[#2D2D2D] font-semibold text-sm">{order.orderCode}</Text>
-            <Text className="text-[#5C5C5C] text-xs">{order.customer?.fullname || "Customer"}</Text>
+            <Text className="text-[#5C5C5C] text-xs">Customer: {order.customer?.fullname || "Customer"}</Text>
           </View>
           <Text className="text-base font-bold text-[#2D2D2D]">{new Intl.NumberFormat('vi-VN').format(order.totalPrice)} VNĐ</Text>
         </View>
 
-        <OrderProducts products={order.orderItems || []} additionalProducts={additionalProducts} />
+        {
+          order.orderItems?.map((item, idx) => {
+            return (
+              <View key={idx} className="flex-row gap-3 mb-2">
+                <OrderProducts products={item} />
+              </View>
+            )
+          })
+        }
 
         {/* <OrderMetadata
           message={order.message}
