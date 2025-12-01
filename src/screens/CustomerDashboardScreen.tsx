@@ -32,13 +32,13 @@ export const CustomerDashboardScreen: React.FC = () => {
       id: item.itemId,
       name: item.productName || "Unknown Product",
       quantity: `${item.quantity} ${item.units || "units"}`,
-      price: `${new Intl.NumberFormat('vi-VN').format(item.itemPrice)} VNĐ`,
+      price: `${new Intl.NumberFormat('vi-VN').format(item.itemPrice)} đ`,
       image: item.batchImageUrls?.[0] || "https://via.placeholder.com/40",
     }))
 
   const cartItemsCount = allCartItems.length
   const cartTotalValue = cart?.totalPrice || 0
-  const cartTotal = `${new Intl.NumberFormat('vi-VN').format(cartTotalValue)} VNĐ`
+  const cartTotal = `${new Intl.NumberFormat('vi-VN').format(cartTotalValue)} đ`
   const hasCartItems = cartItemsCount > 0
 
   const favoriteProducts = (favoriteFarms || []).map((favorite: any) => ({

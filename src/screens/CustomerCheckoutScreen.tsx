@@ -190,7 +190,7 @@ export const CustomerCheckoutScreen: React.FC = () => {
                     discountAmount={discountAmount}
                     tax={tax}
                     total={total}
-                    savedMessage={discountAmount > 0 ? `You saved ${new Intl.NumberFormat('vi-VN').format(discountAmount)} VNĐ!` : ""}
+                    savedMessage={discountAmount > 0 ? `You saved ${new Intl.NumberFormat('vi-VN').format(discountAmount)} đ!` : ""}
                 />
 
                 {calculatingShipping && (

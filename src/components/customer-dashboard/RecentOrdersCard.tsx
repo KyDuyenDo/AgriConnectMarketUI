@@ -44,7 +44,7 @@ export const RecentOrdersCard: React.FC<RecentOrdersCardProps> = ({ orders, onVi
                       {order.orderItems?.[0]?.batch?.season?.farm?.farmName || 'Unknown Farm'}
                     </Text>
                     <Text className="text-xs text-[#6B737A]">
-                      {order.orderItems?.length || 0} items • {new Intl.NumberFormat('vi-VN').format(order.totalPrice)} VNĐ
+                      {order.orderItems?.length || 0} items • {new Intl.NumberFormat('vi-VN').format(order.totalPrice)} đ
                     </Text>
                   </View>
                   {/* Action Button */}

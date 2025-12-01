@@ -57,7 +57,7 @@ export function useFarmDashboardData() {
         );
 
         return {
-            earningsAmount: `${totalEarnings.toLocaleString()} VNĐ`,
+            earningsAmount: `${totalEarnings.toLocaleString()} đ`,
             earningsPeriod: "",
             activeProductsCount: activeBatches.length,
             activeProductsTrend: "",
