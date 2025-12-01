@@ -25,3 +25,12 @@ export const updateProfile = async (id: string, data: UpdateProfileData): Promis
     const response = await apiClient.put(`/api/profiles/${id}`, data);
     return response.data;
 };
+
+export const updateAvatar = async (id: string, formData: FormData): Promise<Profile> => {
+    const response = await apiClient.patch(`/api/profiles/${id}`, formData, {
+        headers: {
+            "Content-Type": "multipart/form-data",
+        },
+    });
+    return response.data;
+};

@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
     getProfile,
     updateProfile,
+    updateAvatar,
     UpdateProfileData,
     Profile
 } from "@/api/profile";
@@ -23,6 +24,18 @@ export const useUpdateProfile = () => {
     return useMutation({
         mutationFn: ({ id, data }: { id: string; data: UpdateProfileData }) =>
             updateProfile(id, data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: PROFILE_QUERY_KEYS.me });
+        },
+    });
+};
+
+export const useUpdateAvatar = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: ({ id, formData }: { id: string; formData: FormData }) =>
+            updateAvatar(id, formData),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: PROFILE_QUERY_KEYS.me });
         },

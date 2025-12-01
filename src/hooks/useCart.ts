@@ -37,7 +37,46 @@ export const useUpdateCartItem = () => {
         mutationFn: ({ cartId, data }: { cartId: string; data: UpdateCartItemRequest }) =>
             CartService.updateItem(cartId, data),
 
-        onSuccess: () => {
+        onMutate: async ({ data }) => {
+            // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
+            await queryClient.cancelQueries({ queryKey: CART_QUERY_KEYS.cart });
+
+            // Snapshot the previous value
+            const previousCart = queryClient.getQueryData(CART_QUERY_KEYS.cart);
+
+            // Optimistically update to the new value
+            queryClient.setQueryData(CART_QUERY_KEYS.cart, (old: any) => {
+                if (!old) return old;
+
+                const newCart = { ...old };
+
+                // Deep clone cartItems to avoid mutating state directly
+                newCart.cartItems = newCart.cartItems.map((group: any) => ({
+                    ...group,
+                    items: group.items.map((item: any) => {
+                        if (item.batchId === data.batchId) {
+                            return { ...item, quantity: data.quantity };
+                        }
+                        return item;
+                    }),
+                }));
+
+                return newCart;
+            });
+
+            // Return a context object with the snapshotted value
+            return { previousCart };
+        },
+
+        onError: (err, newTodo, context) => {
+            // If the mutation fails, use the context returned from onMutate to roll back
+            if (context?.previousCart) {
+                queryClient.setQueryData(CART_QUERY_KEYS.cart, context.previousCart);
+            }
+        },
+
+        onSettled: () => {
+            // Always refetch after error or success:
             queryClient.invalidateQueries({ queryKey: CART_QUERY_KEYS.cart });
         },
     });
