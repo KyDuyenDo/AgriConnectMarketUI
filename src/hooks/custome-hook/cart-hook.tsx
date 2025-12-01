@@ -10,7 +10,7 @@ export const useHandleAddToCart = () => {
     const { mutate: removeFromCart, isPending: isDeleting } = useRemoveFromCart();
 
     const handleAddToCart = (batchId: string) => {
-        if (!cart?.id) {
+        if (!cart?.cartItems) {
             console.error("❌ Không tìm thấy giỏ hàng");
             Alert.alert("Error", "Cart not found or user not logged in.");
             return;
@@ -21,11 +21,11 @@ export const useHandleAddToCart = () => {
             return;
         }
 
-        console.log("🛒 Thêm vào giỏ hàng:", { cartId: cart.id, batchId });
+        console.log("🛒 Thêm vào giỏ hàng:", { cartId: cart.cartId, batchId });
 
         addToCart(
             {
-                cartId: cart.id,
+                cartId: cart.cartId,
                 batchId: batchId,
                 quantity: 1
             },
@@ -65,6 +65,6 @@ export const useHandleAddToCart = () => {
         handleDelete,
         isPending,
         isDeleting,
-        cartId: cart?.id
+        cartId: cart?.cartId
     };
 };
