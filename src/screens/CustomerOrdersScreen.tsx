@@ -31,11 +31,11 @@ import { useBatchDetail } from '@/hooks/useProductBatches';
 const FetchedOrderCard = ({ order }: { order: Order }) => {
   const { data: batch } = useBatchDetail(order.batchId || '');
 
-  const displayOrder: Order = {
+  const displayOrder: Order = useMemo(() => ({
     ...order,
     farmName: batch?.season?.farm?.farmName || order.farmName,
     images: batch?.imageUrls && batch.imageUrls.length > 0 ? batch.imageUrls : order.images,
-  };
+  }), [order, batch]);
 
   return <OrderCard order={displayOrder} />;
 };

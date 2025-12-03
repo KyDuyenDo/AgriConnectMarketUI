@@ -28,7 +28,7 @@ const ScanScreen = () => {
             // Expected format: http://localhost:3000/verify?batchId=111
             const batchIdMatch = data.match(/[?&]batchId=([^&#]*)/);
             const batchId = batchIdMatch ? batchIdMatch[1] : null;
-
+            console.log("Batch ID:", batchId);
             if (batchId) {
                 // Verify if batch exists or has events (optional, but good for UX)
                 // For now, we'll just navigate and let the detail screen fetch data
