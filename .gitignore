@@ -18,6 +18,7 @@ web-build/
 .gitignore
 
 ios
+android
 
 # macOS
 .DS_Store
