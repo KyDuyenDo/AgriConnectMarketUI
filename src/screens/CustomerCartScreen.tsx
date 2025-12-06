@@ -66,6 +66,12 @@ export const CustomerCartScreen: React.FC = () => {
 
       if (!item) return
 
+      if (!item.batchId) {
+        console.error("Item missing batchId:", item);
+        Alert.alert("Error", "Unable to update item. Please refresh your cart.");
+        return;
+      }
+
       await updateCartItem({
         cartId: Cart?.cartId || "",
         data: {
