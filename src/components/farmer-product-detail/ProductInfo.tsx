@@ -55,7 +55,7 @@ export function ProductInfo({
                         <Text className="text-2xl font-bold text-gray-900 leading-tight">{name}</Text>
                     </View>
                     <View className="items-end">
-                        <Text className="text-2xl font-bold text-green-700">{new Intl.NumberFormat('vi-VN').format(Number(price) || 0)} VNĐ</Text>
+                        <Text className="text-2xl font-bold text-green-700">{new Intl.NumberFormat('vi-VN').format(Number(price) || 0)} đ</Text>
                         <Text className="text-xs text-gray-500 font-medium">per {unit}</Text>
                     </View>
                 </View>

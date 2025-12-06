@@ -44,7 +44,7 @@ export function OrderCard({ order, onPress }: OrderCardProps) {
         </Text>
       </View>
       <View style={{ alignItems: "flex-end", gap: 6 }}>
-        <Text style={{ fontWeight: "600", color: "#2D2D2D", fontSize: 14 }}>{order.price}</Text>
+        <Text style={{ fontWeight: "600", color: "#2D2D2D", fontSize: 14 }}>{new Intl.NumberFormat('vi-VN').format(Number(order.price) || 0)} đ</Text>
         <View
           style={{
             backgroundColor: order.statusColor,

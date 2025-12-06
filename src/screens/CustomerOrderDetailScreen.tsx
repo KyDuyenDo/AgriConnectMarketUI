@@ -30,10 +30,9 @@ import { useFarmById } from '@/hooks/useFarm';
 import { useGetAddresses } from '@/hooks/useAddress';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ReviewModal } from '@/components/ReviewModal';
-import { OrderItemDisplay } from '@/types';
+import { OrderItem, OrderItemDisplay } from '@/types';
 import { useAuthStore } from '@/stores/auth';
 import { useCreateFarmReview } from '@/hooks/useFarmReview';
-
 
 const CustomerOrderDetailScreen: React.FC = () => {
   const route = useRoute<any>();
@@ -49,7 +48,7 @@ const CustomerOrderDetailScreen: React.FC = () => {
   // Review State
   const [isReviewModalVisible, setIsReviewModalVisible] = useState(false);
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
-  const [selectedItemForReview, setSelectedItemForReview] = useState<OrderItemDisplay | null>(null);
+  const [selectedItemForReview, setSelectedItemForReview] = useState<OrderItem | null>(null);
 
 
   // Get farmerId from the first order item's batch
@@ -61,7 +60,7 @@ const CustomerOrderDetailScreen: React.FC = () => {
 
   const defaultAddress = addresses?.find(addr => addr.isDefault);
 
-  const handleReviewPress = (item: OrderItemDisplay) => {
+  const handleReviewPress = (item: OrderItem) => {
     setSelectedItemForReview(item);
     setIsReviewModalVisible(true);
   };
@@ -71,8 +70,8 @@ const CustomerOrderDetailScreen: React.FC = () => {
 
     setIsSubmittingReview(true);
     createReview({
-      farmId: selectedItemForReview.farmId,
-      batchId: selectedItemForReview.batchId,
+      farmId: selectedItemForReview.batch?.season?.farmId || '',
+      batchId: selectedItemForReview.batch?.id || '',
       rate: rating,
       message,
     }, {
@@ -140,20 +139,7 @@ const CustomerOrderDetailScreen: React.FC = () => {
     }
   ];
 
-  const orderItems = order.orderItems?.map((item: any) => ({
-    id: item.id,
-    name: item.batch?.season?.product?.productName || 'Product',
-    productAttribute: item.batch?.season?.product?.productAttribute,
-    productDesc: item.batch?.season?.product?.productDesc,
-    batchCode: item.batch?.batchCode?.value,
-    subTotal: item.subTotal,
-    farmId: item.batch?.season?.farmId,
-    batchId: item.batch?.id,
-    price: `$${item.unitPrice}`,
-    qtyLabel: `${item.quantity} ${item.batch?.units || 'units'}`,
-    tag: 'Organic', // Placeholder
-    imageUrl: item.batch?.imagesUrl?.[0] || null,
-  })) || [];
+  const orderItems = order.orderItems || [];
 
   // Extract farm information from farmData hook
   const farmName = farmData?.farmName || 'Farm';
@@ -166,7 +152,7 @@ const CustomerOrderDetailScreen: React.FC = () => {
     <SafeAreaView className="flex-1 bg-[#F4F5F9]">
       <TouchableOpacity
         onPress={() => navigation.goBack()}
-        className="flex-row items-center gap-2"
+        className="flex-row items-center gap-2 px-4 py-2"
       >
         <View className="w-5 h-5 items-center justify-center">
           <ChevronLeft size={20} color="#4CAF50" />
@@ -284,16 +270,16 @@ const CustomerOrderDetailScreen: React.FC = () => {
               Payment Summary
             </Text>
 
-            <SummaryRow label="Subtotal" value={`$${order.totalPrice}`} />
-            <SummaryRow label="Delivery Fee" value={`$${order.shippingFee || 0}`} />
-            <SummaryRow label="Service Fee" value="$0.00" />
-            <SummaryRow label="Tax" value="$0.00" />
+            <SummaryRow label="Subtotal" value={new Intl.NumberFormat('vi-VN').format(order.totalPrice) + 'đ'} />
+            <SummaryRow label="Delivery Fee" value={new Intl.NumberFormat('vi-VN').format(order.shippingFee || 0) + 'đ'} />
+            <SummaryRow label="Service Fee" value={new Intl.NumberFormat('vi-VN').format(0) + 'đ'} />
+            <SummaryRow label="Tax" value={new Intl.NumberFormat('vi-VN').format(0) + 'đ'} />
 
             <View className="my-2 h-[1px] bg-[#F0F2F5]" />
 
             <SummaryRow
               label="Total"
-              value={`$${(order.totalPrice + (order.shippingFee || 0)).toFixed(2)}`}
+              value={new Intl.NumberFormat('vi-VN').format(order.totalPrice + (order.shippingFee || 0)) + 'đ'}
               highlight
             />
 
@@ -310,40 +296,9 @@ const CustomerOrderDetailScreen: React.FC = () => {
         </View>
       </ScrollView>
 
-      {/* Bottom actions */}
-      <View className="absolute bottom-0 left-0 right-0 bg-[#F4F5F9] pb-6 pt-3">
-        <View className="mx-4 mb-3">
-          <TouchableOpacity
-            activeOpacity={0.9}
-            className="items-center justify-center rounded-full bg-[#32C373] py-3">
-            <Text className="text-[15px] font-bold text-white">
-              Reorder Items
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        <View className="mx-4 flex-row">
-          <TouchableOpacity
-            activeOpacity={0.9}
-            className="flex-1 items-center justify-center rounded-full bg-[#FFB02E] py-3">
-            <Text className="text-[14px] font-semibold text-white">
-              Track Delivery
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            activeOpacity={0.9}
-            className="ml-3 flex-1 items-center justify-center rounded-full bg-white py-3">
-            <Text className="text-[14px] font-semibold text-[#32C373]">
-              Get Help
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-
       {/* Cancel Button for Pending Orders */}
       {order.orderStatus === 'Pending' && (
-        <View className="absolute bottom-24 left-4 right-4">
+        <View className='absolute bottom-[56px] left-0 right-0 bg-white px-4 py-4 shadow-sm border-t border-gray-100'>
           <TouchableOpacity
             onPress={handleCancel}
             disabled={isCancelling}
@@ -365,7 +320,7 @@ const CustomerOrderDetailScreen: React.FC = () => {
         onClose={() => setIsReviewModalVisible(false)}
         onSubmit={handleSubmitReview}
         isSubmitting={isSubmittingReview}
-        productName={selectedItemForReview?.name}
+        productName={selectedItemForReview?.batch?.season?.product?.productName}
       />
     </SafeAreaView>
   );

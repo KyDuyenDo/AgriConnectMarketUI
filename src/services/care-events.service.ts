@@ -24,7 +24,8 @@ const CareEventService = {
 
   // Get care events by batch
   getCareEventsByBatch: async (batchId: string): Promise<CareEvent[]> => {
-    const response = await apiClient.get<{ data: CareEvent[] }>(`/api/care-events/batch/${batchId}`)
+    // GET/api/product-batches/{batchId}/care-events
+    const response = await apiClient.get<{ data: CareEvent[] }>(`/api/product-batches/${batchId}/care-events`)
     return response.data.data
   },
 }

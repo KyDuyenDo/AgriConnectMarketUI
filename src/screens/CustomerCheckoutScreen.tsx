@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { ScrollView, View, Text, TouchableOpacity, Alert, Image } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { ChevronLeft } from "lucide-react-native"
@@ -15,11 +15,16 @@ import { useAuthStore } from "@/stores/auth"
 import { useGetAddresses } from "@/hooks/useAddress"
 import { useCartShipping } from "@/hooks/useCartShipping"
 import { CustomerStackParamList } from "@/navigation/CustomerNavigator"
+import { paymentService } from "@/api/services/payment.service"
+import { CreditCard, Banknote } from "lucide-react-native"
+
+import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 
 type CheckoutScreenRouteProp = RouteProp<CustomerStackParamList, "CustomerCheckout">
+type CheckoutScreenNavigationProp = NativeStackNavigationProp<CustomerStackParamList>
 
 export const CustomerCheckoutScreen: React.FC = () => {
-    const navigation = useNavigation()
+    const navigation = useNavigation<CheckoutScreenNavigationProp>()
     const route = useRoute<CheckoutScreenRouteProp>()
     const { selectedItems } = route.params
 
@@ -27,6 +32,7 @@ export const CustomerCheckoutScreen: React.FC = () => {
     const { mutateAsync: createOrder, isPending: isCreatingOrder } = useCreateOrder()
     const { mutateAsync: removeFromCart } = useRemoveFromCart()
     const { userId } = useAuthStore()
+    const [paymentMethod, setPaymentMethod] = useState<'COD' | 'ONLINE'>('COD')
 
     // Address data
     const { data: addresses } = useGetAddresses()
@@ -35,10 +41,20 @@ export const CustomerCheckoutScreen: React.FC = () => {
     const cartGroups = Cart?.cartItems || []
 
     // Filter groups to only include selected items
-    const checkoutGroups = cartGroups.map(group => ({
-        ...group,
-        items: group.items.filter(item => selectedItems.includes(item.itemId))
-    })).filter(group => group.items.length > 0)
+    const checkoutGroups = useMemo(() => {
+        return cartGroups.map(group => ({
+            ...group,
+            items: group.items.filter(item => selectedItems.includes(item.itemId))
+        })).filter(group => group.items.length > 0)
+    }, [cartGroups, selectedItems])
+
+    // Memoize shipping address to prevent infinite loops in useCartShipping
+    const shippingAddress = useMemo(() => defaultAddress ? {
+        province: defaultAddress.province,
+        district: defaultAddress.district,
+        ward: defaultAddress.ward,
+        detail: defaultAddress.detail,
+    } : null, [defaultAddress])
 
     // Cart shipping calculation using custom hook
     const {
@@ -48,14 +64,7 @@ export const CustomerCheckoutScreen: React.FC = () => {
     } = useCartShipping({
         cartItems: checkoutGroups, // Only calculate for selected items
         selectedItemIds: selectedItems,
-        customerAddress: defaultAddress
-            ? {
-                province: defaultAddress.province,
-                district: defaultAddress.district,
-                ward: defaultAddress.ward,
-                detail: defaultAddress.detail,
-            }
-            : null,
+        customerAddress: shippingAddress,
     })
 
     // Calculate totals
@@ -99,16 +108,26 @@ export const CustomerCheckoutScreen: React.FC = () => {
                 shippingFee: shippingFee,
                 orderItems: orderItems,
                 addressId: defaultAddress?.id || addresses?.[0]?.id,
+                paymentMethod: paymentMethod === 'COD' ? 'Cash on Delivery' : 'Bank Transfer (VNPay)'
             }
 
-            await createOrder(payload)
+            const order = await createOrder(payload)
+            console.log("Order created:", order)
 
-            // Remove items from cart after successful order
+            // Remove items from cart after successful order creation
             await Promise.all(selectedItems.map((id) => removeFromCart(id)))
 
-            Alert.alert("Success", "Order created successfully!", [
-                { text: "OK", onPress: () => navigation.navigate("CustomerOrders" as never) },
-            ])
+            if (paymentMethod === 'ONLINE') {
+                // VNPay Flow
+                const { paymentUrl } = await paymentService.createPaymentUrl(order.orderId)
+                navigation.navigate('PaymentWebView', { paymentUrl } as never)
+            } else {
+                // COD Flow
+                Alert.alert("Success", "Order created successfully!", [
+                    { text: "OK", onPress: () => navigation.navigate("CustomerOrders" as never) },
+                ])
+            }
+
         } catch (error: any) {
             console.error("Order creation failed:", error)
             Alert.alert("Error", error?.response?.data?.message || "Failed to create order.")
@@ -124,7 +143,7 @@ export const CustomerCheckoutScreen: React.FC = () => {
     }
 
     return (
-        <View className="flex-1 bg-[#F9FAF9]">
+        <View className="flex-1 bg-[#F9FAF9] pb-16">
             <SafeAreaView edges={["top"]} className="bg-[#F9FAF9]">
                 <View className="h-[56px] flex-row items-center justify-between px-6">
                     <TouchableOpacity onPress={() => navigation.goBack()} className="flex-row items-center gap-2">
@@ -141,7 +160,7 @@ export const CustomerCheckoutScreen: React.FC = () => {
             <ScrollView
                 style={{ flex: 1 }}
                 showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ paddingTop: 16, paddingBottom: 130 }}
+                contentContainerStyle={{ paddingTop: 16, gap: 16, paddingBottom: 130 }}
             >
                 <DeliveryOptionsCard
                     defaultAddress={defaultAddress}
@@ -153,8 +172,45 @@ export const CustomerCheckoutScreen: React.FC = () => {
                     onChangeAddress={() => navigation.navigate("CustomerAddress" as never)}
                 />
 
+                {/* Payment Method Selection */}
+                <View className="mx-4 bg-white rounded-xl p-4 shadow-sm">
+                    <Text className="text-lg font-semibold mb-3">Payment Method</Text>
+
+                    <TouchableOpacity
+                        className={`flex-row items-center p-3 rounded-lg border mb-3 ${paymentMethod === 'COD' ? 'border-[#4CAF50] bg-green-50' : 'border-gray-200'}`}
+                        onPress={() => setPaymentMethod('COD')}
+                    >
+                        <Banknote size={24} color={paymentMethod === 'COD' ? '#4CAF50' : '#666'} />
+                        <View className="ml-3">
+                            <Text className={`font-semibold ${paymentMethod === 'COD' ? 'text-[#4CAF50]' : 'text-gray-700'}`}>
+                                Cash on Delivery (COD)
+                            </Text>
+                            <Text className="text-xs text-gray-500">Pay when you receive the order</Text>
+                        </View>
+                        <View className={`ml-auto w-5 h-5 rounded-full border items-center justify-center ${paymentMethod === 'COD' ? 'border-[#4CAF50]' : 'border-gray-300'}`}>
+                            {paymentMethod === 'COD' && <View className="w-3 h-3 rounded-full bg-[#4CAF50]" />}
+                        </View>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        className={`flex-row items-center p-3 rounded-lg border ${paymentMethod === 'ONLINE' ? 'border-[#4CAF50] bg-green-50' : 'border-gray-200'}`}
+                        onPress={() => setPaymentMethod('ONLINE')}
+                    >
+                        <CreditCard size={24} color={paymentMethod === 'ONLINE' ? '#4CAF50' : '#666'} />
+                        <View className="ml-3">
+                            <Text className={`font-semibold ${paymentMethod === 'ONLINE' ? 'text-[#4CAF50]' : 'text-gray-700'}`}>
+                                VNPay (Online Payment)
+                            </Text>
+                            <Text className="text-xs text-gray-500">Pay securely via VNPay gateway</Text>
+                        </View>
+                        <View className={`ml-auto w-5 h-5 rounded-full border items-center justify-center ${paymentMethod === 'ONLINE' ? 'border-[#4CAF50]' : 'border-gray-300'}`}>
+                            {paymentMethod === 'ONLINE' && <View className="w-3 h-3 rounded-full bg-[#4CAF50]" />}
+                        </View>
+                    </TouchableOpacity>
+                </View>
+
                 {/* Selected Items Summary */}
-                <View className="mx-4 mt-4 bg-white rounded-xl p-4 shadow-sm">
+                <View className="mx-4 bg-white rounded-xl p-4 shadow-sm">
                     <Text className="text-lg font-semibold mb-3">Order Items</Text>
                     {checkoutGroups.map((group) => (
                         <View key={group.farmId} className="mb-4">
@@ -190,7 +246,7 @@ export const CustomerCheckoutScreen: React.FC = () => {
                     discountAmount={discountAmount}
                     tax={tax}
                     total={total}
-                    savedMessage={discountAmount > 0 ? `You saved ${new Intl.NumberFormat('vi-VN').format(discountAmount)} VNĐ!` : ""}
+                    savedMessage={discountAmount > 0 ? `You saved ${new Intl.NumberFormat('vi-VN').format(discountAmount)} đ!` : ""}
                 />
 
                 {calculatingShipping && (

@@ -44,7 +44,7 @@ export default function CartItemsSection({
             <View className="bg-blue-50 px-3 py-1.5 rounded-full flex-row items-center gap-1.5">
               <Truck size={14} color="#3B82F6" />
               <Text className="text-xs font-semibold text-blue-600">
-                {isCalculatingShipping ? "..." : `${new Intl.NumberFormat('vi-VN').format(shippingFee)} VNĐ`}
+                {isCalculatingShipping ? "..." : `${new Intl.NumberFormat('vi-VN').format(shippingFee)} đ`}
               </Text>
             </View>
           )}

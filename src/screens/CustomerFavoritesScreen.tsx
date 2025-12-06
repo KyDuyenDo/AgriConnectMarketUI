@@ -8,6 +8,7 @@ import FarmFeatureCard from "@/components/customer-exlore/FarmFeatureCard"
 import { ArrowLeft, Heart, Loader } from "lucide-react-native"
 import { Alert } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
+import { CustomerFavoritesScreenSkeleton } from "@/components/skeletons/CustomerFavoritesScreenSkeleton"
 
 export const CustomerFavoritesScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<CustomerStackParamList>>()
@@ -25,6 +26,10 @@ export const CustomerFavoritesScreen = () => {
 
   const hasNoFavorites = !isLoading && (!favoriteFarms || favoriteFarms.length === 0)
 
+  if (isLoading) {
+    return <CustomerFavoritesScreenSkeleton />
+  }
+
   return (
     <SafeAreaView className="flex-1 bg-[#F9FAF9]">
       <View className="px-4 py-3 flex-row items-center">
@@ -32,12 +37,7 @@ export const CustomerFavoritesScreen = () => {
       </View>
 
       <ScrollView className="flex-1 p-4" contentContainerStyle={{ paddingBottom: 20 }}>
-        {isLoading ? (
-          <View className="flex-1 items-center justify-center mt-10">
-            <Loader size={32} color="#4CAF50" />
-            <Text className="text-center text-gray-500 mt-4">Loading favorites...</Text>
-          </View>
-        ) : hasNoFavorites ? (
+        {hasNoFavorites ? (
           <View className="flex-1 items-center justify-center mt-20">
             <Heart size={60} color="#9ca3af" />
             <Text className="text-gray-600 text-base font-medium mt-6">No favorite farms yet.</Text>

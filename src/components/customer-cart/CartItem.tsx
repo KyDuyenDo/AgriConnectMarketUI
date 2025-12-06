@@ -108,7 +108,7 @@ export function CartItem({
         <View className="flex-row justify-between items-center w-full mt-1">
           {/* Price Stack */}
           <View className="items-end">
-            <Text className="text-[15px] font-bold text-[#4CAF50]">{total} VNĐ</Text>
+            <Text className="text-[15px] font-bold text-[#4CAF50]">{total} đ</Text>
           </View>
           {/* Quantity Controls */}
           <View className="flex-row items-center gap-2">

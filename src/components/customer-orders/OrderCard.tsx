@@ -18,6 +18,7 @@ export type Order = {
   code: string;
   date: string;
   farmName: string;
+  farmBanner: string;
   subtitle: string;
   status: OrderStatus;
   total: string;
@@ -65,12 +66,6 @@ const OrderCard: React.FC<{ order: Order }> = ({ order }) => {
     };
   })();
 
-  const farmImages: Record<string, string> = {
-    'Sunny Acres Farm': 'https://static.paraflowcontent.com/public/resource/image/024123c5-1f93-477b-87c4-62a76ea18338.jpeg',
-    'Green Valley Farm': 'https://static.paraflowcontent.com/public/resource/image/f2186fd3-92fe-4fb6-a880-b69703dfa528.jpeg',
-    'Fresh Fields Farm': 'https://static.paraflowcontent.com/public/resource/image/8a657d62-2d16-41cd-a3ee-e6ff858b310e.jpeg',
-    'Mountain View Farm': 'https://static.paraflowcontent.com/public/resource/image/7fcc0591-30c8-4560-afda-6cffef4c0010.jpeg',
-  };
 
   return (
     <View
@@ -114,7 +109,7 @@ const OrderCard: React.FC<{ order: Order }> = ({ order }) => {
       {/* Farm info */}
       < View className="flex-row items-center mb-3" >
         <Image
-          source={{ uri: farmImages[order.farmName] }}
+          source={{ uri: order.farmBanner }}
           className="w-10 h-10 rounded-lg mr-3"
           resizeMode="cover"
         />
@@ -203,7 +198,7 @@ const OrderCard: React.FC<{ order: Order }> = ({ order }) => {
         </View>
 
         <Text className="text-[16px] font-bold text-[#4CAF50]">
-          {order.total}
+          {new Intl.NumberFormat('vi-VN').format(Number(order.total || 0))} đ
         </Text>
       </View >
 

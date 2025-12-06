@@ -1,5 +1,5 @@
 // CustomerOrdersScreen.tsx
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { View, Text, Pressable, ScrollView, TouchableOpacity, ActivityIndicator, FlatList } from 'react-native';
 import OrderCard, { Order } from '../components/customer-orders/OrderCard';
 import { Search, Filter, ChevronLeft, ShoppingBagIcon } from 'lucide-react-native';
@@ -26,6 +26,20 @@ const mapStatus = (status: string): Order['status'] => {
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { CustomerStackParamList } from '@/navigation/CustomerNavigator';
 
+import { useBatchDetail } from '@/hooks/useProductBatches';
+
+const FetchedOrderCard = ({ order }: { order: Order }) => {
+  const { data: batch } = useBatchDetail(order.batchId || '');
+
+  const displayOrder: Order = useMemo(() => ({
+    ...order,
+    farmName: batch?.season?.farm?.farmName || order.farmName,
+    images: batch?.imageUrls && batch.imageUrls.length > 0 ? batch.imageUrls : order.images,
+  }), [order, batch]);
+
+  return <OrderCard order={displayOrder} />;
+};
+
 type Props = NativeStackScreenProps<CustomerStackParamList, 'CustomerOrders'>;
 
 const CustomerOrdersScreen: React.FC<Props> = ({ route, navigation }) => {
@@ -46,12 +60,13 @@ const CustomerOrdersScreen: React.FC<Props> = ({ route, navigation }) => {
         code: order.orderCode,
         date: formatDate(order.orderDate),
         farmName: farm?.farmName || 'Unknown Farm',
+        farmBanner: farm?.bannerUrl || '',
         farmId: firstItem?.batch?.season?.farmId,
         batchId: firstItem?.batch?.id,
         subtitle: `${order.orderItems?.length || 0} items`,
         status: mapStatus(order.orderStatus),
         itemsCount: order.orderItems?.length || 0,
-        total: `$${order.totalPrice}`,
+        total: order.totalPrice,
         estDelivery: 'TBD',
         images: firstItem?.batch?.imagesUrl || [],
       } as Order;
@@ -129,7 +144,7 @@ const CustomerOrdersScreen: React.FC<Props> = ({ route, navigation }) => {
 
       <FlatList
         data={filteredOrders}
-        renderItem={({ item }) => <OrderCard order={item} />}
+        renderItem={({ item }) => <FetchedOrderCard order={item} />}
         keyExtractor={item => item.id}
         contentContainerStyle={{ paddingBottom: 24, paddingHorizontal: 16 }}
         showsVerticalScrollIndicator={false}
