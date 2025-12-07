@@ -21,7 +21,7 @@ export function FarmerOrderDetailScreen() {
     const route = useRoute<any>();
     const navigation = useNavigation();
     const { orderId } = route.params;
-    const { data: order, isLoading } = useOrderDetail(orderId);
+    const { data: order, isLoading, isError, error, refetch } = useOrderDetail(orderId);
     const { mutate: updateStatus } = useUpdateOrderStatus();
     const { mutate: cancelOrder } = useCancelOrder();
     const queryClient = useQueryClient();
@@ -37,16 +37,42 @@ export function FarmerOrderDetailScreen() {
 
     const onRefresh = useCallback(async () => {
         setRefreshing(true);
-        await queryClient.invalidateQueries({ queryKey: ['order', orderId] });
+        await Promise.all([
+            queryClient.invalidateQueries({ queryKey: ['order', orderId] }),
+            refetch()
+        ]);
         setRefreshing(false);
-    }, [queryClient, orderId]);
+    }, [queryClient, orderId, refetch]);
 
     if (isLoading && !refreshing) {
         return <FarmerOrderDetailScreenSkeleton />;
     }
 
+    if (isError) {
+        return (
+            <SafeAreaView className="flex-1 items-center justify-center bg-[#F9FAF9]">
+                <Text className="text-red-500 mb-4">Failed to load order details.</Text>
+                <Text className="text-gray-500 mb-8 px-4 text-center">{(error as any)?.message || "Unknown error"}</Text>
+                <View className="bg-green-500 px-6 py-3 rounded-lg">
+                    <Text className="text-white font-bold" onPress={() => refetch()}>Retry</Text>
+                </View>
+                <View className="mt-4">
+                    <Text className="text-blue-500" onPress={() => navigation.goBack()}>Go Back</Text>
+                </View>
+            </SafeAreaView>
+        );
+    }
+
     if (!order) {
-        return <FarmerOrderDetailScreenSkeleton />;
+        return (
+            <SafeAreaView className="flex-1 items-center justify-center bg-[#F9FAF9]">
+                <Text className="text-gray-500">Order not found.</Text>
+                <Text className="text-gray-400 text-xs mt-2">ID: {orderId}</Text>
+                <View className="mt-4">
+                    <Text className="text-blue-500" onPress={() => navigation.goBack()}>Go Back</Text>
+                </View>
+            </SafeAreaView>
+        );
     }
 
     const timeline = [

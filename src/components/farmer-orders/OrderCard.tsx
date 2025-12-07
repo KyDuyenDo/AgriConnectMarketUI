@@ -10,7 +10,7 @@ import { formatDate } from "@/utils/date"
 import { useUpdateOrderStatus, useCancelOrder } from "@/hooks/useOrders"
 
 interface OrderCardProps {
-  order: Order
+  order: any
 }
 
 export function OrderCard({ order }: OrderCardProps) {
@@ -18,7 +18,7 @@ export function OrderCard({ order }: OrderCardProps) {
   const leftBorder = order.orderStatus === "urgent" ? "border-l-4 border-[#D32F2F]" : ""
 
   const handlePress = () => {
-    navigation.navigate("FarmerOrderDetail", { orderId: order.orderId })
+    navigation.navigate("FarmerOrderDetail", { orderId: order.id })
   }
 
   // Map backend status to UI status
@@ -69,7 +69,7 @@ export function OrderCard({ order }: OrderCardProps) {
         </View>
 
         {
-          order.orderItems?.map((item, idx) => {
+          order.orderItems?.map((item: any, idx: number) => {
             return (
               <View key={idx} className="flex-row gap-3 mb-2">
                 <OrderProducts products={item} />

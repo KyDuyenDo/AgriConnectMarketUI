@@ -95,7 +95,7 @@ const FarmStatisticsScreen = () => {
                     {revenueData.length > 0 ? (
                         <LineChart
                             data={formatRevenueData()}
-                            width={screenWidth - 32}
+                            width={screenWidth - 64}
                             height={220}
                             chartConfig={{
                                 backgroundColor: "#ffffff",
