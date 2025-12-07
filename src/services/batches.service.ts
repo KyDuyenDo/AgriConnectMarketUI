@@ -1,5 +1,5 @@
 import apiClient from "@/api/config";
-import { ProductBatch, CreateProductBatchResponse } from "@/types";
+import { ProductBatch, CreateProductBatchResponse, Batch } from "@/types";
 
 const BatchService = {
     getAllBySeasonId: async (seasonId: string, signal?: AbortSignal): Promise<ProductBatch[]> => {
@@ -26,8 +26,8 @@ const BatchService = {
         const response = await apiClient.get<{ data: ProductBatch[] }>(`/api/product-batches/farm/${farmId}/pre-orders`, { signal });
         return response.data.data;
     },
-    getBatchById: async (batchId: string, signal?: AbortSignal): Promise<ProductBatch> => {
-        const response = await apiClient.get<{ data: ProductBatch }>(`/api/product-batches/${batchId}`, { signal });
+    getBatchById: async (batchId: string, signal?: AbortSignal): Promise<Batch> => {
+        const response = await apiClient.get<{ data: Batch }>(`/api/product-batches/${batchId}`, { signal });
         return response.data.data;
     },
     create: async (data: FormData): Promise<CreateProductBatchResponse> => {
@@ -46,6 +46,16 @@ const BatchService = {
 
     delete: async (id: string): Promise<void> => {
         await apiClient.delete(`/api/product-batches/${id}`);
+    },
+
+    harvest: async (batchId: string, totalYield: number): Promise<ProductBatch> => {
+        const response = await apiClient.patch<{ data: ProductBatch }>(`/api/product-batches/${batchId}/harvest`, { totalYield });
+        return response.data.data;
+    },
+
+    sell: async (batchId: string, data: { availableQuantity: number, price: number }): Promise<ProductBatch> => {
+        const response = await apiClient.patch<{ data: ProductBatch }>(`/api/product-batches/${batchId}/sell`, data);
+        return response.data.data;
     }
 };
 

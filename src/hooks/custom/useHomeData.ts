@@ -5,7 +5,7 @@ import CategoryService from '@/services/categories.service';
 import ProductService from '@/services/products.service';
 import SeasonService from '@/services/seasons.service';
 import BatchService from '@/services/batches.service';
-import { UnifiedProduct, Farm } from '@/types';
+import { UnifiedProduct, Farm, SellingBatch } from '@/types';
 import { useQuery } from '@tanstack/react-query';
 import { FARM_QUERY_KEYS } from '../useFarm';
 import { CATEGORY_QUERY_KEYS } from '../useCategories';
@@ -67,37 +67,70 @@ export const useHomeData = () => {
     const error = farmsError || categoriesError || productsError || seasonsError || batchesError;
 
     const unifiedProducts: UnifiedProduct[] = useMemo(() => {
-        if (!batches.length || !seasons.length || !products.length || !farms.length) return [];
+        if (!batches.length) return [];
 
         return batches.map(batch => {
-            const season = seasons.find(s => s.id === batch.seasonId);
+            // Check if it is SellingBatch (has 'product' property as string name)
+            if ('product' in batch && typeof (batch as any).product === 'string') {
+                const sBatch = batch as SellingBatch;
+
+                // Try to find matches for IDs
+                // Match Farm
+                const farm = farms.find(f => f.farmName === sBatch.farm);
+
+                // Match Product to get Category
+                const product = products.find(p => p.productName.trim().toLowerCase() === sBatch.product.trim().toLowerCase());
+                const category = product ? categories.find(c => c.id === product.categoryId) : null;
+
+                return {
+                    id: sBatch.id,
+                    batchCode: sBatch.batchCode,
+                    productName: sBatch.product,
+                    farmName: sBatch.farm,
+                    farmId: farm?.id || "",
+                    price: sBatch.price,
+                    unit: sBatch.units,
+                    totalYield: sBatch.totalYield,
+                    availableQuantity: sBatch.avaibleQuantity, // Using the field from JSON (with typo)
+                    categoryName: category?.categoryName || "Uncategorized",
+                    categoryId: category?.id || "",
+                    imageUrl: sBatch.imageUrls && sBatch.imageUrls.length > 0 ? sBatch.imageUrls[0] : (category?.illustrativeImageUrl || ""),
+                    rating: 0,
+                    reviewCount: 0,
+                    location: farm?.address?.province || "Unknown Location"
+                };
+            }
+
+            // Existing logic for Batch (ProductBatch/Batch)
+            const b = batch as import('@/types').Batch;
+            const season = seasons.find(s => s.id === b.seasonId);
             const product = season ? products.find(p => p.id === season.productId) : null;
             const farm = season ? farms.find(f => f.id === season.farmId) : null;
             const category = product ? categories.find(c => c.id === product.categoryId) : null;
 
             // Resolve batch code
             let batchCodeStr = "N/A";
-            if (typeof batch.batchCode === 'string') {
-                batchCodeStr = batch.batchCode;
-            } else if (batch.batchCode && typeof batch.batchCode === 'object' && 'value' in batch.batchCode) {
-                batchCodeStr = (batch.batchCode as any).value;
+            if (typeof b.batchCode === 'string') {
+                batchCodeStr = b.batchCode;
+            } else if (b.batchCode && typeof b.batchCode === 'object' && 'value' in b.batchCode) {
+                batchCodeStr = (b.batchCode as any).value;
             }
 
             return {
-                id: batch.id,
+                id: b.id,
                 batchCode: batchCodeStr,
                 productName: product?.productName || "Unknown Product",
                 farmName: farm?.farmName || "Unknown Farm",
                 farmId: farm?.id || "",
-                price: batch.price,
-                unit: batch.units,
-                totalYield: batch.totalYield,
-                availableQuantity: batch.availableQuantity,
+                price: b.price,
+                unit: b.units,
+                totalYield: b.totalYield,
+                availableQuantity: b.availableQuantity,
                 categoryName: category?.categoryName || "Uncategorized",
                 categoryId: category?.id || "",
-                imageUrl: batch.imageUrls && batch.imageUrls.length > 0 ? batch.imageUrls[0] : (category?.illustrativeImageUrl || ""),
-                rating: batch.averageRating || 0,
-                reviewCount: batch.reviewCount || 0,
+                imageUrl: b.imageUrls && b.imageUrls.length > 0 ? b.imageUrls[0] : (category?.illustrativeImageUrl || ""),
+                rating: b.averageRating || 0,
+                reviewCount: b.reviewCount || 0,
                 location: farm?.address?.province || "Unknown Location"
             };
         });

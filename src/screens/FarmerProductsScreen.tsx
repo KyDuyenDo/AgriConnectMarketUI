@@ -20,11 +20,12 @@ import {
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import type { FarmStackParamList } from "@/navigation/types"
 import { useNavigation } from "@react-navigation/native"
-import { useAllBatches, useUpdateBatch } from "@/hooks/useBatches"
+import { useAllBatches, useUpdateBatch, useSellBatch } from "@/hooks/useBatches"
 import type { Batch } from "@/types"
 import { useAuthStore } from "@/stores/auth"
 import { FarmerProductsScreenSkeleton } from "@/components/skeletons/FarmerProductsScreenSkeleton"
 import { CategorySelector } from "@/components/CategorySelector"
+import { BatchActionModal } from "@/components/modals/BatchActionModal"
 import { useCategories } from "@/hooks/useCategories"
 import { useFarmByMe } from "@/hooks/useFarm"
 import { useSeason } from "@/hooks/useSeason"
@@ -117,11 +118,13 @@ const BatchCard = ({
   const isSelling = batch.isActive
 
   return (
-    <View
+    <TouchableOpacity
       className="bg-white rounded-2xl shadow-sm border border-gray-100"
       style={{
         width: "48%",
       }}
+      onPress={onPress}
+      activeOpacity={0.7}
     >
       {/* Product Image with Overlays */}
       <View className="relative">
@@ -201,7 +204,7 @@ const BatchCard = ({
           </View>
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   )
 }
 
@@ -247,7 +250,8 @@ const FarmerProductsHeader = ({
 export const FarmerProductsScreen = () => {
   const navigation = useNavigation<Nav>()
   const { accountId } = useAuthStore()
-  const { data: batches, isLoading } = useAllBatches(accountId || undefined, { enabled: !!accountId })
+  const { data: batchesData, isLoading } = useAllBatches(accountId || undefined, { enabled: !!accountId })
+  const batches = batchesData as Batch[] | undefined
   const { data: farmer, isLoading: isLoadingFarmer } = useFarmByMe()
   const queryClient = useQueryClient()
   const [refreshing, setRefreshing] = useState(false)
@@ -306,6 +310,33 @@ export const FarmerProductsScreen = () => {
   }, [navigation, farmId])
 
   const { mutateAsync: updateBatch } = useUpdateBatch()
+  const { mutateAsync: sellBatch } = useSellBatch()
+
+  const [modalVisible, setModalVisible] = useState(false)
+  const [selectedBatch, setSelectedBatch] = useState<Batch | undefined>(undefined)
+
+  const handleSellPress = useCallback((batch: Batch) => {
+    setSelectedBatch(batch)
+    setModalVisible(true)
+  }, [])
+
+  const handleModalSubmit = async (data: { totalYield?: number; availableQuantity?: number; price?: number }) => {
+    if (!selectedBatch) return
+
+    try {
+      if (data.availableQuantity !== undefined && data.price !== undefined) {
+        await sellBatch({
+          id: selectedBatch.id,
+          data: {
+            availableQuantity: data.availableQuantity,
+            price: data.price
+          }
+        })
+      }
+    } catch (error) {
+      console.error("Failed to sell batch:", error)
+    }
+  }
 
   const handleToggleStatus = useCallback(async (batch: Batch) => {
     try {
@@ -329,9 +360,10 @@ export const FarmerProductsScreen = () => {
       onDelete={() => handleDelete(item.id)}
       onLogCareEvent={() => handleLogCareEvent(item)}
       onViewReviews={() => handleViewReviews(item)}
-      onToggleStatus={() => handleToggleStatus(item)}
+      onViewReviews={() => handleViewReviews(item)}
+      onToggleStatus={() => handleSellPress(item)}
     />
-  ), [navigation, handleDelete, handleLogCareEvent, handleViewReviews, handleToggleStatus, categories])
+  ), [navigation, handleDelete, handleLogCareEvent, handleViewReviews, handleSellPress, categories])
 
   if ((isLoading || isLoadingFarmer) && !refreshing) {
     return <FarmerProductsScreenSkeleton />
@@ -392,6 +424,17 @@ export const FarmerProductsScreen = () => {
           </TouchableOpacity>
         </View>
       </View>
-    </SafeAreaView>
+      <BatchActionModal
+        isVisible={modalVisible}
+        onClose={() => {
+          setModalVisible(false)
+          setSelectedBatch(undefined)
+        }}
+        mode="sell"
+        batch={selectedBatch}
+        onSubmit={handleModalSubmit}
+        units={selectedBatch?.units || 'kg'}
+      />
+    </SafeAreaView >
   )
 }

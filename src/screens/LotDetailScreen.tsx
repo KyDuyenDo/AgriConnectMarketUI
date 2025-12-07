@@ -11,6 +11,10 @@ import { FarmStackParamList } from '@/navigation/types';
 import { useNavigation, RouteProp, useRoute } from '@react-navigation/native';
 import { useBatchDetail } from '@/hooks/useProductBatches';
 import { useSeason } from '@/hooks/useSeason';
+import { BatchActionModal } from '@/components/modals/BatchActionModal';
+import BatchService from '@/services/batches.service';
+import { useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
 
 type Nav = NativeStackNavigationProp<FarmStackParamList>
 
@@ -21,6 +25,9 @@ export const LotDetailScreen = () => {
     const { lotId } = route.params || {};
 
     const { data: batch, isLoading, error } = useBatchDetail(lotId);
+    const queryClient = useQueryClient();
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [modalMode, setModalMode] = useState<'harvest' | 'sell'>('sell');
 
     // Fetch detailed season/product info using the hook
     const { season, product, category } = useSeason(batch?.seasonId || '');
@@ -28,6 +35,35 @@ export const LotDetailScreen = () => {
     const onAddLogEntry = () => {
         navigation.navigate('AddCropLog' as any);
     }
+
+    const handleHarvest = () => {
+        setModalMode('harvest');
+        setIsModalVisible(true);
+    };
+
+    const handleSell = () => {
+        setModalMode('sell');
+        setIsModalVisible(true);
+    };
+
+    const handleActionSubmit = async (data: any) => {
+        if (!batch) return;
+        try {
+            if (modalMode === 'sell') {
+                await BatchService.sell(batch.id, {
+                    availableQuantity: data.availableQuantity,
+                    price: data.price
+                });
+            } else {
+                await BatchService.harvest(batch.id, data.totalYield);
+            }
+            // Invalidate queries to refresh the list
+            queryClient.invalidateQueries({ queryKey: ['batch', lotId] });
+            queryClient.invalidateQueries({ queryKey: ['batches'] });
+        } catch (error) {
+            console.error('Failed to update batch:', error);
+        }
+    };
 
     if (isLoading) {
         return (
@@ -76,8 +112,18 @@ export const LotDetailScreen = () => {
                 <View className="h-4" />
                 <AddLogEntryButton onPress={onAddLogEntry} />
                 <ActivityTimeline batchId={lotId} />
-                <LotManagementGrid />
+                <LotManagementGrid onHarvest={handleHarvest} onSell={handleSell} />
             </ScrollView>
+            {batch && (
+                <BatchActionModal
+                    isVisible={isModalVisible}
+                    onClose={() => setIsModalVisible(false)}
+                    mode={modalMode}
+                    batch={batch}
+                    onSubmit={handleActionSubmit}
+                    units={batch.units}
+                />
+            )}
         </SafeAreaView>
     );
 };
