@@ -3,11 +3,15 @@ import { favoriteFarmService } from "@/services/favoriteFarmService"
 import { useFavoritesStore } from "@/stores/favorites"
 import type { Farm } from "@/types"
 
+export const FAVORITES_QUERY_KEYS = {
+  all: ["favorite-farms"] as const,
+}
+
 export const useFavoriteFarms = () => {
   const setFavorites = useFavoritesStore((state) => state.setFavorites)
 
   return useQuery({
-    queryKey: ["favorite-farms"],
+    queryKey: FAVORITES_QUERY_KEYS.all,
     queryFn: async () => {
       const farms = await favoriteFarmService.getMyFavoriteFarms()
       setFavorites(farms.map((farm: Farm) => farm.id))
@@ -37,7 +41,7 @@ export const useToggleFavoriteFarm = () => {
     },
     onSuccess: () => {
       // Invalidate query to refresh data from server
-      queryClient.invalidateQueries({ queryKey: ["favorite-farms"] })
+      queryClient.invalidateQueries({ queryKey: FAVORITES_QUERY_KEYS.all })
     },
     onError: (error, farmId) => {
       // Revert optimistic update on error

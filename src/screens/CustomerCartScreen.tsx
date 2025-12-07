@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { useEffect, useState } from "react"
-import { ScrollView, View, Text, TouchableOpacity } from "react-native"
+import { ScrollView, View, Text, TouchableOpacity, RefreshControl } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { ChevronLeft, ShoppingCart as ShoppingCartIcon } from "lucide-react-native"
 import { useNavigation } from "@react-navigation/native"
@@ -13,13 +13,15 @@ import CartItemsSection from "@/components/customer-cart/CartItemsSection"
 import DeliveryOptionsCard from "@/components/customer-cart/DeliveryOptionsCard"
 import { OrderSummary } from "@/components/customer-cart/OrderSummary"
 import CartActionsSection from "@/components/customer-cart/CartActionsSection"
-import { useCart, useClearCart, useUpdateCartItem, useRemoveFromCart } from "@/hooks/useCart"
+import { useCart, useClearCart, useUpdateCartItem, useRemoveFromCart, CART_QUERY_KEYS } from "@/hooks/useCart"
 import { useHandleAddToCart } from "@/hooks/custome-hook/cart-hook"
 import { Alert } from "react-native"
 import { CustomerCartScreenSkeleton } from "@/components/skeletons/CustomerCartScreenSkeleton"
 import { useCreateOrder } from "@/hooks/useOrders"
 import { useAuthStore } from "@/stores/auth"
-import { useGetAddresses } from "@/hooks/useAddress"
+import { useGetAddresses, ADDRESS_QUERY_KEYS } from "@/hooks/useAddress"
+import { useCallback } from "react"
+import { useQueryClient } from "@tanstack/react-query"
 
 export const CustomerCartScreen: React.FC = () => {
   const navigation = useNavigation<NativeStackNavigationProp<CustomerStackParamList>>()
@@ -31,13 +33,24 @@ export const CustomerCartScreen: React.FC = () => {
   const { mutateAsync: removeFromCart } = useRemoveFromCart()
   const { mutateAsync: updateCartItem } = useUpdateCartItem()
   const { userId } = useAuthStore()
+  const queryClient = useQueryClient()
+  const [refreshing, setRefreshing] = useState(false)
 
   // Address data
   const { data: addresses } = useGetAddresses()
   const defaultAddress = addresses?.find((addr) => addr.isDefault)
 
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true)
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: CART_QUERY_KEYS.cart }),
+      queryClient.invalidateQueries({ queryKey: ADDRESS_QUERY_KEYS.all }),
+    ])
+    setRefreshing(false)
+  }, [queryClient])
+
   // Show skeleton while loading
-  if (isLoading)
+  if (isLoading && !refreshing)
     return <CustomerCartScreenSkeleton />
 
 
@@ -46,7 +59,7 @@ export const CustomerCartScreen: React.FC = () => {
 
 
   // Show skeleton while loading
-  if (isLoading) return <CustomerCartScreenSkeleton />
+  if (isLoading && !refreshing) return <CustomerCartScreenSkeleton />
 
   const hasCartItems = cartGroups.length > 0
 
@@ -143,7 +156,12 @@ export const CustomerCartScreen: React.FC = () => {
           </View>
         </SafeAreaView>
 
-        <View className="flex-1 items-center justify-center px-6">
+        <ScrollView
+          contentContainerStyle={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 24 }}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={["#4CAF50"]} tintColor="#4CAF50" />
+          }
+        >
           <ShoppingCartIcon size={60} color="#9ca3af" />
           <Text className="text-lg font-semibold text-[#2D2D2D] mt-6 text-center">Your cart is empty</Text>
           <Text className="text-sm text-[#6B737A] mt-2 text-center">
@@ -156,7 +174,7 @@ export const CustomerCartScreen: React.FC = () => {
           >
             <Text className="text-white font-semibold text-sm">Continue Shopping</Text>
           </TouchableOpacity>
-        </View>
+        </ScrollView>
       </View>
     )
   }
@@ -188,6 +206,9 @@ export const CustomerCartScreen: React.FC = () => {
           paddingTop: 16,
           paddingBottom: 130,
         }}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={["#4CAF50"]} tintColor="#4CAF50" />
+        }
       >
         {cartGroups.map((group) => {
           const farmName = group.farmName;

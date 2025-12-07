@@ -34,6 +34,10 @@ import { OrderItem, OrderItemDisplay } from '@/types';
 import { useAuthStore } from '@/stores/auth';
 import { useCreateFarmReview } from '@/hooks/useFarmReview';
 
+import { useQueryClient } from '@tanstack/react-query';
+import { RefreshControl } from 'react-native';
+import { useCallback } from 'react';
+
 const CustomerOrderDetailScreen: React.FC = () => {
   const route = useRoute<any>();
   const { orderId } = route.params || {};
@@ -41,6 +45,8 @@ const CustomerOrderDetailScreen: React.FC = () => {
   const { mutate: cancelOrder, isPending: isCancelling } = useCancelOrder();
   const { mutate: createReview, isPending } = useCreateFarmReview();
   const navigation = useNavigation();
+  const queryClient = useQueryClient();
+  const [refreshing, setRefreshing] = useState(false);
 
   const customerId = order?.customerId;
   const { userId } = useAuthStore();
@@ -59,6 +65,16 @@ const CustomerOrderDetailScreen: React.FC = () => {
   const { data: addresses, isLoading: isAddressLoading } = useGetAddresses();
 
   const defaultAddress = addresses?.find(addr => addr.isDefault);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['order', orderId] }),
+      queryClient.invalidateQueries({ queryKey: ['farm', farmerId] }),
+      queryClient.invalidateQueries({ queryKey: ['addresses'] }),
+    ]);
+    setRefreshing(false);
+  }, [queryClient, orderId, farmerId]);
 
   const handleReviewPress = (item: OrderItem) => {
     setSelectedItemForReview(item);
@@ -112,7 +128,7 @@ const CustomerOrderDetailScreen: React.FC = () => {
     );
   };
 
-  if (isLoading || isFarmLoading || isAddressLoading) {
+  if ((isLoading || isFarmLoading || isAddressLoading) && !refreshing) {
     return <CustomerOrderDetailSkeleton />;
   }
 
@@ -161,7 +177,11 @@ const CustomerOrderDetailScreen: React.FC = () => {
       </TouchableOpacity>
       <ScrollView
         className="flex-1"
-        contentContainerStyle={{ paddingBottom: 120 }}>
+        contentContainerStyle={{ paddingBottom: 120 }}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#4CAF50']} tintColor="#4CAF50" />
+        }
+      >
         {/* Timeline Card */}
         <View className="mx-4 mt-4 rounded-[22px] bg-white p-4 shadow-sm">
           <View className="mb-3 flex-row items-center">

@@ -2,17 +2,11 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import ProductService from "@/services/products.service";
 import { Product, ProductResponse } from "@/types";
 
-
-
-// Query Keys chuẩn
-const PRODUCT_QUERY_KEYS = {
+export const PRODUCT_QUERY_KEYS = {
     all: ["products"] as const,
     detail: (id: string) => ["products", id] as const,
 };
 
-// ======================================================
-// 1️⃣ GET ALL PRODUCTS
-// ======================================================
 // ======================================================
 // 1️⃣ GET ALL PRODUCTS
 // ======================================================

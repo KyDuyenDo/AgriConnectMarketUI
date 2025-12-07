@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react"
+import React, { useState, useMemo, useEffect, useCallback } from "react"
 import { useDebounce } from "@/hooks/useDebounce"
 import {
     ScrollView,
@@ -8,6 +8,7 @@ import {
     Platform,
     TextInput,
     ActivityIndicator,
+    RefreshControl,
 } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { Search, ShoppingCart, SlidersHorizontal, ArrowUpDown, ScanLine } from "lucide-react-native"
@@ -17,13 +18,33 @@ import { FeaturedFarmers } from "@/components/customer-exlore/FeaturedFarmers"
 import { CategorySelector } from "@/components/CategorySelector"
 import { useHomeData } from "@/hooks/custom/useHomeData"
 import { ExploreScreenSkeleton } from "@/components/skeletons/ExploreScreenSkeleton"
+import { useQueryClient } from "@tanstack/react-query"
+import { FARM_QUERY_KEYS } from "@/hooks/useFarm"
+import { CATEGORY_QUERY_KEYS } from "@/hooks/useCategories"
+import { PRODUCT_QUERY_KEYS } from "@/hooks/useProducts"
+import { SEASON_QUERY_KEYS } from "@/hooks/useSeasons"
+import { BATCH_QUERY_KEYS } from "@/hooks/useBatches"
 
 export function ExploreScreen() {
     const [searchQuery, setSearchQuery] = useState("")
     const debouncedSearchQuery = useDebounce(searchQuery, 300)
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+    const queryClient = useQueryClient()
+    const [refreshing, setRefreshing] = useState(false)
 
     const { farms, categories, unifiedProducts, loading, error } = useHomeData();
+
+    const onRefresh = useCallback(async () => {
+        setRefreshing(true)
+        await Promise.all([
+            queryClient.invalidateQueries({ queryKey: FARM_QUERY_KEYS.all() }),
+            queryClient.invalidateQueries({ queryKey: CATEGORY_QUERY_KEYS.all }),
+            queryClient.invalidateQueries({ queryKey: PRODUCT_QUERY_KEYS.all }),
+            queryClient.invalidateQueries({ queryKey: SEASON_QUERY_KEYS.all() }),
+            queryClient.invalidateQueries({ queryKey: BATCH_QUERY_KEYS.all }),
+        ])
+        setRefreshing(false)
+    }, [queryClient])
 
     // Filter products based on search and category
     const filteredProducts = useMemo(() => {
@@ -42,7 +63,7 @@ export function ExploreScreen() {
 
     const navigation = useNavigation<any>();
 
-    if (loading) {
+    if (loading && !refreshing) {
         return <ExploreScreenSkeleton />
     }
 
@@ -70,6 +91,9 @@ export function ExploreScreen() {
                 className="pt-4"
                 contentContainerStyle={{ paddingBottom: Platform.OS === "ios" ? 100 : 80 }}
                 showsVerticalScrollIndicator={false}
+                refreshControl={
+                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={["#4CAF50"]} tintColor="#4CAF50" />
+                }
             >
                 {/* Search Bar */}
                 <View className="px-4 mb-4">

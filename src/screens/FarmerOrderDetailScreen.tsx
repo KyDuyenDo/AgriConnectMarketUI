@@ -1,4 +1,4 @@
-import { ScrollView, Platform, View, Text, ActivityIndicator } from 'react-native';
+import { ScrollView, Platform, View, Text, ActivityIndicator, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Header } from '@/components/farmer-order-detail/Header';
 import { OrderHeader } from '@/components/farmer-order-detail/OrderHeader';
@@ -10,6 +10,8 @@ import { OrderActions } from '@/components/farmer-order-detail/OrderActions';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { useOrderDetail, useUpdateOrderStatus, useCancelOrder } from '@/hooks/useOrders';
 import { formatDate } from '@/utils/date';
+import { useState, useCallback } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { FarmerOrderDetailScreenSkeleton } from '@/components/skeletons/FarmerOrderDetailScreenSkeleton';
 
@@ -22,6 +24,8 @@ export function FarmerOrderDetailScreen() {
     const { data: order, isLoading } = useOrderDetail(orderId);
     const { mutate: updateStatus } = useUpdateOrderStatus();
     const { mutate: cancelOrder } = useCancelOrder();
+    const queryClient = useQueryClient();
+    const [refreshing, setRefreshing] = useState(false);
 
     const handleUpdateStatus = (status: string) => {
         updateStatus({ orderId, status });
@@ -31,7 +35,17 @@ export function FarmerOrderDetailScreen() {
         cancelOrder(orderId);
     };
 
-    if (isLoading || !order) {
+    const onRefresh = useCallback(async () => {
+        setRefreshing(true);
+        await queryClient.invalidateQueries({ queryKey: ['order', orderId] });
+        setRefreshing(false);
+    }, [queryClient, orderId]);
+
+    if (isLoading && !refreshing) {
+        return <FarmerOrderDetailScreenSkeleton />;
+    }
+
+    if (!order) {
         return <FarmerOrderDetailScreenSkeleton />;
     }
 
@@ -75,6 +89,9 @@ export function FarmerOrderDetailScreen() {
                 showsVerticalScrollIndicator={false}
                 className="pt-4"
                 contentContainerStyle={{ paddingBottom: 30 }}
+                refreshControl={
+                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#4CAF50']} tintColor="#4CAF50" />
+                }
             >
                 <OrderHeader
                     orderNumber={order.orderCode}

@@ -9,7 +9,7 @@ const BatchService = {
     getAll: async (accountId?: string, signal?: AbortSignal): Promise<ProductBatch[]> => {
         const url = accountId
             ? `/api/product-batches/farmer/${accountId}`
-            : `/api/product-batches`;
+            : `/api/product-batches/selling`;
         console.log("url", url)
         const response = await apiClient.get<{ success: boolean, message: string, data: ProductBatch[] }>(url, { signal });
         return response.data.data;

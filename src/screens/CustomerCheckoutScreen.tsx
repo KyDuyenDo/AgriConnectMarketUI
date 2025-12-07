@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { useState, useMemo, useCallback } from "react"
-import { ScrollView, View, Text, TouchableOpacity, Alert, Image } from "react-native"
+import { ScrollView, View, Text, TouchableOpacity, Alert, Image, RefreshControl } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { ChevronLeft } from "lucide-react-native"
 import { useNavigation, useRoute, RouteProp, useFocusEffect } from "@react-navigation/native"
@@ -17,6 +17,7 @@ import { useCartShipping } from "@/hooks/useCartShipping"
 import { CustomerStackParamList } from "@/navigation/CustomerNavigator"
 import { paymentService } from "@/api/services/payment.service"
 import { CreditCard, Banknote } from "lucide-react-native"
+import { useQueryClient } from "@tanstack/react-query"
 
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 
@@ -33,12 +34,23 @@ export const CustomerCheckoutScreen: React.FC = () => {
     const { mutateAsync: removeFromCart } = useRemoveFromCart()
     const { userId } = useAuthStore()
     const [paymentMethod, setPaymentMethod] = useState<'COD' | 'ONLINE'>('COD')
+    const queryClient = useQueryClient()
+    const [refreshing, setRefreshing] = useState(false)
 
     // Address data
     const { data: addresses } = useGetAddresses()
     const defaultAddress = addresses?.find((addr) => addr.isDefault)
 
     const cartGroups = Cart?.cartItems || []
+
+    const onRefresh = useCallback(async () => {
+        setRefreshing(true)
+        await Promise.all([
+            queryClient.invalidateQueries({ queryKey: ["cart"] }),
+            queryClient.invalidateQueries({ queryKey: ["addresses"] }),
+        ])
+        setRefreshing(false)
+    }, [queryClient])
 
     // Filter groups to only include selected items
     const checkoutGroups = useMemo(() => {
@@ -159,7 +171,7 @@ export const CustomerCheckoutScreen: React.FC = () => {
         }
     }
 
-    if (isLoading) {
+    if (isLoading && !refreshing) {
         return (
             <View className="flex-1 items-center justify-center bg-[#F9FAF9]">
                 <Text>Loading checkout...</Text>
@@ -186,6 +198,9 @@ export const CustomerCheckoutScreen: React.FC = () => {
                 style={{ flex: 1 }}
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{ paddingTop: 16, gap: 16, paddingBottom: 130 }}
+                refreshControl={
+                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={["#4CAF50"]} tintColor="#4CAF50" />
+                }
             >
                 <DeliveryOptionsCard
                     defaultAddress={defaultAddress}

@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useCallback } from "react"
 import { useDebounce } from "@/hooks/useDebounce"
-import { View, TouchableOpacity, Text, Image, TextInput, FlatList, Platform } from "react-native"
+import { View, TouchableOpacity, Text, Image, TextInput, FlatList, Platform, RefreshControl } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import {
   Plus,
@@ -28,6 +28,7 @@ import { CategorySelector } from "@/components/CategorySelector"
 import { useCategories } from "@/hooks/useCategories"
 import { useFarmByMe } from "@/hooks/useFarm"
 import { useSeason } from "@/hooks/useSeason"
+import { useQueryClient } from "@tanstack/react-query"
 
 type Nav = NativeStackNavigationProp<FarmStackParamList>
 
@@ -248,6 +249,8 @@ export const FarmerProductsScreen = () => {
   const { accountId } = useAuthStore()
   const { data: batches, isLoading } = useAllBatches(accountId || undefined, { enabled: !!accountId })
   const { data: farmer, isLoading: isLoadingFarmer } = useFarmByMe()
+  const queryClient = useQueryClient()
+  const [refreshing, setRefreshing] = useState(false)
 
   const farmId = farmer?.id
   const { data: categories } = useCategories()
@@ -255,7 +258,15 @@ export const FarmerProductsScreen = () => {
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
 
-
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true)
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ["batches", accountId] }),
+      queryClient.invalidateQueries({ queryKey: ["farm-by-me"] }),
+      queryClient.invalidateQueries({ queryKey: ["categories"] }),
+    ])
+    setRefreshing(false)
+  }, [queryClient, accountId])
 
   const filteredBatches = useMemo(() => {
     return batches?.filter((b) => {
@@ -322,7 +333,7 @@ export const FarmerProductsScreen = () => {
     />
   ), [navigation, handleDelete, handleLogCareEvent, handleViewReviews, handleToggleStatus, categories])
 
-  if (isLoading || isLoadingFarmer) {
+  if ((isLoading || isLoadingFarmer) && !refreshing) {
     return <FarmerProductsScreenSkeleton />
   }
 
@@ -365,6 +376,9 @@ export const FarmerProductsScreen = () => {
             ) : null
           }
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={["#4CAF50"]} tintColor="#4CAF50" />
+          }
         />
 
         {/* Floating Action Button */}

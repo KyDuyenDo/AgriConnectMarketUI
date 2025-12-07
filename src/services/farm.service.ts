@@ -1,6 +1,6 @@
 import apiClient from "@/api/config";
 import { Farm } from "@/types";
-import { FarmQuery, FarmResponse, CreateFarmResponse, UpdateFarmResponse } from "@/types/farm";
+import { FarmQuery, FarmResponse, CreateFarmResponse, UpdateFarmResponse, RevenueStatistic, TopCustomerStats, BestSellingProductStats } from "@/types/farm";
 
 const FarmService = {
     getFarmByMe: async (): Promise<Farm> => {
@@ -53,6 +53,22 @@ const FarmService = {
 
     getFarmById: async (farmId: string): Promise<Farm> => {
         const response = await apiClient.get<{ success: boolean; message: string; data: Farm }>(`/api/farms/${farmId}`);
+        return response.data.data;
+    },
+    getFarmRevenue: async (farmId: string, year: number): Promise<RevenueStatistic[]> => {
+        const response = await apiClient.get<{ success: boolean; data: RevenueStatistic[] }>(`/api/farms/${farmId}/revenue`, {
+            params: { year },
+        });
+        return response.data.data;
+    },
+
+    getTopCustomers: async (farmId: string): Promise<TopCustomerStats[]> => {
+        const response = await apiClient.get<{ success: boolean; data: TopCustomerStats[] }>(`/api/farms/${farmId}/top-customers`);
+        return response.data.data;
+    },
+
+    getTopProducts: async (farmId: string): Promise<BestSellingProductStats[]> => {
+        const response = await apiClient.get<{ success: boolean; data: BestSellingProductStats[] }>(`/api/farms/${farmId}/top-products`);
         return response.data.data;
     },
 };

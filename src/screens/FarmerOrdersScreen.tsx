@@ -6,7 +6,7 @@ import { OrderCard } from "@/components/farmer-orders/OrderCard"
 import { StatsSection } from "@/components/farmer-orders/StatsSection"
 import { BottomNavigation } from "@/components/farmer-orders/BottomNavigation"
 import { useState, useCallback, useMemo } from "react"
-import { View, ScrollView, Platform, Text, Alert, FlatList, TouchableOpacity } from "react-native"
+import { View, ScrollView, Platform, Text, Alert, FlatList, TouchableOpacity, RefreshControl } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useFarmerOrders } from "@/hooks/useFarmerOrders"
 import { useMyFarm } from "@/hooks/useMyFarm"
@@ -15,12 +15,15 @@ import { useAuthStore } from "@/stores/auth"
 import { FarmerOrdersScreenSkeleton } from "@/components/skeletons/FarmerOrdersScreenSkeleton"
 import type { Order } from "@/types"
 import { ShoppingCart } from "lucide-react-native"
+import { useQueryClient } from "@tanstack/react-query"
 
 import { useFarmPreOrders } from "@/hooks/useOrders"
 
 export function FarmerOrders() {
   const [activeFilter, setActiveFilter] = useState("All Orders")
   const [activeTab, setActiveTab] = useState<'Orders' | 'PreOrders'>('Orders')
+  const queryClient = useQueryClient()
+  const [refreshing, setRefreshing] = useState(false)
 
   const { data: farm, isLoading: isLoadingFarm } = useMyFarm()
   const { data: orders, isLoading: isLoadingOrders } = useFarmerOrders(farm?.id)
@@ -29,6 +32,16 @@ export function FarmerOrders() {
   const isLoading = isLoadingFarm || (activeTab === 'Orders' ? isLoadingOrders : isLoadingPreOrders)
 
   const currentOrders = activeTab === 'Orders' ? orders : preOrders
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true)
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ["farmer-orders", farm?.id] }),
+      queryClient.invalidateQueries({ queryKey: ["farm-preorders", farm?.id] }),
+      queryClient.invalidateQueries({ queryKey: ["farm-by-me"] }),
+    ])
+    setRefreshing(false)
+  }, [queryClient, farm?.id])
 
   const filteredOrders = useMemo(() =>
     currentOrders?.filter((order: Order) => {
@@ -80,13 +93,13 @@ export function FarmerOrders() {
       <FlatList
         data={filteredOrders}
         renderItem={({ item }) => <OrderCard order={item} />}
-        keyExtractor={(item) => item.orderId}
+        keyExtractor={(item, index) => `${item.orderId}-${index}`}
         contentContainerStyle={{
           paddingTop: 16,
           paddingBottom: Platform.OS === "ios" ? 140 : 80,
         }}
         ListHeaderComponent={
-          <>
+          <View>
             <StatsSection
               ordersToday={ordersToday}
               pendingOrders={pendingOrders}
@@ -94,7 +107,7 @@ export function FarmerOrders() {
               avgOrderValue={Math.round(avgOrderValue)}
             />
             <FilterTabs activeFilter={activeFilter} onFilterChange={setActiveFilter} />
-          </>
+          </View>
         }
         ListEmptyComponent={
           !isLoading ? (
@@ -112,6 +125,9 @@ export function FarmerOrders() {
           ) : <FarmerOrdersScreenSkeleton />
         }
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={["#4CAF50"]} tintColor="#4CAF50" />
+        }
       />
 
       <BottomNavigation />

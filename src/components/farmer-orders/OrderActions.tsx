@@ -1,8 +1,9 @@
-import { View, Pressable, Text, TouchableOpacity } from "react-native"
+import { View, Pressable, Text, TouchableOpacity, Alert } from "react-native"
 import { Phone, Eye, X } from "lucide-react-native"
 
 interface OrderActionsProps {
   status: "delivered" | "shipped" | "processing" | "pending" | "urgent" | "canceled"
+  paymentStatus: string
   onUpdateStatus: (newStatus: string) => void
   onCancel?: () => void
 }
@@ -22,11 +23,15 @@ const getActionButtonConfig = (status: string) => {
   }
 }
 
-export function OrderActions({ status, onUpdateStatus, onCancel }: OrderActionsProps) {
+export function OrderActions({ status, paymentStatus, onUpdateStatus, onCancel }: OrderActionsProps) {
   const { label, bgColor, textColor, isCompleted, nextStatus } = getActionButtonConfig(status)
 
   const handlePress = () => {
     if (nextStatus) {
+      if (nextStatus === "Processing" && paymentStatus !== "Paid") {
+        Alert.alert("Cannot Confirm Order", "This order has not been paid yet. Please wait for payment confirmation.")
+        return
+      }
       onUpdateStatus(nextStatus)
     }
   }

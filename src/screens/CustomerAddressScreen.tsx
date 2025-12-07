@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { View, Text, Alert, TouchableOpacity } from "react-native";
+import React, { useState, useCallback } from "react";
+import { View, Text, Alert, TouchableOpacity, ScrollView, RefreshControl } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ChevronLeft } from "lucide-react-native";
@@ -8,9 +8,12 @@ import { useGetAddresses, useCreateAddress, useUpdateAddress, useDeleteAddress }
 import { AddressList } from "@/components/profile/AddressList";
 import { AddEditAddressModal } from "@/components/profile/AddEditAddressModal";
 import { Address, CreateAddressData, UpdateAddressData } from "@/api/address";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function CustomerAddressScreen() {
     const navigation = useNavigation();
+    const queryClient = useQueryClient();
+    const [refreshing, setRefreshing] = useState(false);
 
     // Profile Data
     const { data: profile } = useGetProfile();
@@ -24,6 +27,15 @@ export default function CustomerAddressScreen() {
     // Modal State
     const [isAddressModalVisible, setIsAddressModalVisible] = useState(false);
     const [editingAddress, setEditingAddress] = useState<Address | null>(null);
+
+    const onRefresh = useCallback(async () => {
+        setRefreshing(true);
+        await Promise.all([
+            queryClient.invalidateQueries({ queryKey: ["addresses"] }),
+            queryClient.invalidateQueries({ queryKey: ["profile"] }),
+        ]);
+        setRefreshing(false);
+    }, [queryClient]);
 
     // Address Handlers
     const handleAddAddress = () => {
@@ -112,16 +124,21 @@ export default function CustomerAddressScreen() {
             </View>
 
             {/* Address List */}
-            <View className="mt-2">
+            <ScrollView
+                className="mt-2 flex-1"
+                refreshControl={
+                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={["#4CAF50"]} tintColor="#4CAF50" />
+                }
+            >
                 <AddressList
                     addresses={addresses}
-                    isLoading={isAddressLoading}
+                    isLoading={isAddressLoading && !refreshing}
                     onAddAddress={handleAddAddress}
                     onEditAddress={handleEditAddress}
                     onDeleteAddress={handleDeleteAddress}
                     onSetDefaultAddress={handleSetDefaultAddress}
                 />
-            </View>
+            </ScrollView>
 
             {/* Address Modal */}
             <AddEditAddressModal

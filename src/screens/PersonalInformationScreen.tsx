@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { View, Text, ScrollView, TouchableOpacity, Alert, ActivityIndicator, TextInput, Image, Platform, KeyboardAvoidingView } from "react-native";
+import React, { useState, useEffect, useCallback } from "react";
+import { View, Text, ScrollView, TouchableOpacity, Alert, ActivityIndicator, TextInput, Image, Platform, KeyboardAvoidingView, RefreshControl } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ChevronLeft, Camera, Edit2, Save } from "lucide-react-native";
@@ -12,6 +12,7 @@ import { AddEditAddressModal } from "@/components/profile/AddEditAddressModal";
 import { Address, CreateAddressData, UpdateAddressData } from "@/api/address";
 import { UpdateProfileData } from "@/api/profile";
 import { PersonalInformationScreenSkeleton } from "@/components/skeletons/PersonalInformationScreenSkeleton";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface FormData {
     fullname: string;
@@ -22,6 +23,8 @@ interface FormData {
 
 export default function PersonalInformationScreen() {
     const navigation = useNavigation();
+    const queryClient = useQueryClient();
+    const [refreshing, setRefreshing] = useState(false);
 
     // Profile Data
     const { data: profile, isLoading: isProfileLoading } = useGetProfile();
@@ -63,6 +66,15 @@ export default function PersonalInformationScreen() {
             });
         }
     }, [profile, reset]);
+
+    const onRefresh = useCallback(async () => {
+        setRefreshing(true);
+        await Promise.all([
+            queryClient.invalidateQueries({ queryKey: ["profile"] }),
+            queryClient.invalidateQueries({ queryKey: ["addresses"] }),
+        ]);
+        setRefreshing(false);
+    }, [queryClient]);
 
     const pickImage = async () => {
         const result = await ImagePicker.launchImageLibraryAsync({
@@ -203,7 +215,7 @@ export default function PersonalInformationScreen() {
     };
 
     // Show skeleton while loading
-    if (isLoading) {
+    if (isLoading && !refreshing) {
         return <PersonalInformationScreenSkeleton />;
     }
 
@@ -261,7 +273,13 @@ export default function PersonalInformationScreen() {
             </View>
 
             <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} className="flex-1">
-                <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 50 }}>
+                <ScrollView
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={{ paddingBottom: 50 }}
+                    refreshControl={
+                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={["#4CAF50"]} tintColor="#4CAF50" />
+                    }
+                >
 
                     {/* Avatar Section */}
                     <View className="items-center mt-6 mb-6">
@@ -300,7 +318,7 @@ export default function PersonalInformationScreen() {
                     {/* Address List */}
                     <AddressList
                         addresses={addresses}
-                        isLoading={isAddressLoading}
+                        isLoading={isAddressLoading && !refreshing}
                         onAddAddress={handleAddAddress}
                         onEditAddress={handleEditAddress}
                         onDeleteAddress={handleDeleteAddress}

@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { CustomerStackParamList } from '@/navigation/CustomerNavigator';
@@ -7,6 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFarmReviews } from '@/hooks/useFarmReview';
 import { FarmReviewCard } from '@/components/customer-farm-detail/FarmReviewCard';
 import { Picker } from '@react-native-picker/picker';
+import { useQueryClient } from '@tanstack/react-query';
 
 type Props = NativeStackScreenProps<CustomerStackParamList, 'CustomerAllReviews'>;
 
@@ -15,8 +16,16 @@ const CustomerAllReviewsScreen = ({ route, navigation }: Props) => {
     const [selectedCategory, setSelectedCategory] = useState<string>('');
     const [selectedProduct, setSelectedProduct] = useState<string>('');
     const [selectedBatch, setSelectedBatch] = useState<string>('');
+    const queryClient = useQueryClient();
+    const [refreshing, setRefreshing] = useState(false);
 
     const { data: reviews, isLoading } = useFarmReviews(farmId);
+
+    const onRefresh = useCallback(async () => {
+        setRefreshing(true);
+        await queryClient.invalidateQueries({ queryKey: ['farm-reviews', farmId] });
+        setRefreshing(false);
+    }, [queryClient, farmId]);
 
     // Extract unique options for filters
     const categories = useMemo(() => {
@@ -181,12 +190,17 @@ const CustomerAllReviewsScreen = ({ route, navigation }: Props) => {
             </View>
 
             {/* Content */}
-            {isLoading ? (
+            {isLoading && !refreshing ? (
                 <View className="flex-1 items-center justify-center">
                     <ActivityIndicator size="large" color="#4ADE80" />
                 </View>
             ) : (
-                <ScrollView contentContainerStyle={{ padding: 16 }}>
+                <ScrollView
+                    contentContainerStyle={{ padding: 16 }}
+                    refreshControl={
+                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#4CAF50']} tintColor="#4CAF50" />
+                    }
+                >
                     {filteredReviews.length > 0 ? (
                         filteredReviews.map(review => (
                             <FarmReviewCard key={review.id} review={review} />

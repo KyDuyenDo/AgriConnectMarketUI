@@ -27,7 +27,7 @@ const apiClient = axios.create({
 
 apiClient.interceptors.response.use(
     response => {
-        console.log(JSON.stringify(response.data, null, 2));
+        // console.log(JSON.stringify(response.data, null, 2));
         return response;
     },
     error => {

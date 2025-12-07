@@ -8,15 +8,23 @@ import { useCart } from "@/hooks/useCart"
 import { useFavoriteFarms } from "@/hooks/useFavoriteFarms"
 import { Clock, Heart, Locate, ShoppingBasket } from "lucide-react-native"
 import type React from "react"
-import { ScrollView, Platform, View, Text } from "react-native"
+import { ScrollView, Platform, View, Text, RefreshControl } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useGetProfile } from "@/hooks/useProfile"
-import { useMyOrders } from "@/hooks/useMyOrders"
+import { useMyOrders, ORDERS_QUERY_KEYS } from "@/hooks/useMyOrders"
 import { CustomerDashboardSkeleton } from "@/components/skeletons/CustomerDashboardSkeleton"
 import { useNavigation } from "@react-navigation/native"
+import { useState, useCallback } from "react"
+import { useQueryClient } from "@tanstack/react-query"
+import { CART_QUERY_KEYS } from "@/hooks/useCart"
+import { PROFILE_QUERY_KEYS } from "@/hooks/useProfile"
+import { FAVORITES_QUERY_KEYS } from "@/hooks/useFavoriteFarms"
 
 export const CustomerDashboardScreen: React.FC = () => {
   const navigation = useNavigation()
+  const queryClient = useQueryClient()
+  const [refreshing, setRefreshing] = useState(false)
+
   const { data: profile, isLoading: isProfileLoading } = useGetProfile()
   const { data: cart, isLoading: isCartLoading } = useCart()
   const { data: orders, isLoading: isOrdersLoading } = useMyOrders()
@@ -24,6 +32,17 @@ export const CustomerDashboardScreen: React.FC = () => {
 
   // Unified loading state
   const isLoading = isProfileLoading || isCartLoading || isOrdersLoading || isFavoritesLoading
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true)
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: PROFILE_QUERY_KEYS.me }),
+      queryClient.invalidateQueries({ queryKey: CART_QUERY_KEYS.cart }),
+      queryClient.invalidateQueries({ queryKey: ORDERS_QUERY_KEYS.myOrders }),
+      queryClient.invalidateQueries({ queryKey: FAVORITES_QUERY_KEYS.all }),
+    ])
+    setRefreshing(false)
+  }, [queryClient])
 
   const allCartItems = cart?.cartItems?.flatMap((group: any) => group.items) || []
 
@@ -85,7 +104,7 @@ export const CustomerDashboardScreen: React.FC = () => {
   ]
 
   // Show skeleton while loading
-  if (isLoading) {
+  if (isLoading && !refreshing) {
     return <CustomerDashboardSkeleton />
   }
 
@@ -105,6 +124,9 @@ export const CustomerDashboardScreen: React.FC = () => {
           gap: 16,
           paddingBottom: Platform.OS === "ios" ? 140 : 70,
         }}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={["#4CAF50"]} tintColor="#4CAF50" />
+        }
       >
         <View className="pt-4">
           <Header
@@ -132,7 +154,7 @@ export const CustomerDashboardScreen: React.FC = () => {
             </View>
           )}
         </View>
-        <RecentOrdersCard orders={orders || []} />
+        <RecentOrdersCard orders={(orders || []).slice(0, 3)} />
         {favoriteProducts.length > 0 ? (
           <YourFavoriteCard
             favorites={favoriteProducts}

@@ -23,7 +23,7 @@ const CustomerReviewsCard: React.FC<CustomerReviewsCardProps> = ({ batchId }) =>
         const data = await farmReviewService.getProductReviewsByBatchId(batchId);
         setReviews(data);
       } catch (error) {
-        console.error("Failed to fetch reviews:", error);
+        return [];
       } finally {
         setLoading(false);
       }

@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, TouchableOpacity, Image, Alert } from "react-native";
+import { View, Text, TouchableOpacity, Image, Alert, ScrollView } from "react-native";
 import { usePreOrderBatchesByFarm } from "@/hooks/useBatches";
 import { useCreatePreOrder } from "@/hooks/useOrders";
 import { useAuthStore } from "@/stores/auth";
@@ -8,7 +8,7 @@ import { useNavigation } from "@react-navigation/native";
 
 interface PreOrderSectionProps {
     farmId: string;
-    currentBatchId: string;
+    currentBatchId?: string;
 }
 
 export const PreOrderSection: React.FC<PreOrderSectionProps> = ({ farmId, currentBatchId }) => {
@@ -25,7 +25,7 @@ export const PreOrderSection: React.FC<PreOrderSectionProps> = ({ farmId, curren
     // Filter out current batch if it happens to be in the list (though PreOrder usually implies future, current batch might be selling)
     // Requirement says "returns all products in a batch that the farmer has previously sold".
     // Let's just show them.
-    const displayBatches = preOrderBatches.filter(b => b.id !== currentBatchId);
+    const displayBatches = currentBatchId ? preOrderBatches.filter(b => b.id !== currentBatchId) : preOrderBatches;
 
     if (displayBatches.length === 0) return null;
 
@@ -77,32 +77,57 @@ export const PreOrderSection: React.FC<PreOrderSectionProps> = ({ farmId, curren
     };
 
     return (
-        <View className="mt-4">
-            <Text className="text-[#2D2D2D] text-lg font-semibold mb-3">Available for Pre-Order</Text>
-            <View className="gap-3">
+        <View className="mt-6">
+            <View className="flex-row justify-between items-center mb-3">
+                <Text className="text-lg font-bold text-gray-900">Available for Pre-Order</Text>
+            </View>
+
+            <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+            // contentContainerStyle={{ paddingHorizontal: 16 }}
+            >
                 {displayBatches.map((batch) => (
-                    <View key={batch.id} className="flex-row bg-white p-3 rounded-xl border border-gray-100 items-center">
-                        <Image
-                            source={{ uri: batch.imageUrls?.[0] || "https://via.placeholder.com/100" }}
-                            className="w-16 h-16 rounded-lg bg-gray-100"
-                        />
-                        <View className="flex-1 ml-3">
-                            <Text className="text-[#2D2D2D] font-semibold">{batch.season?.product?.productName}</Text>
-                            <Text className="text-gray-500 text-xs">{batch.season?.seasonName}</Text>
-                            <Text className="text-[#4CAF50] font-medium mt-1">
-                                ${batch.price}/{batch.units}
-                            </Text>
+                    <View
+                        key={batch.id}
+                        className="w-[140px] mr-3 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"
+                    >
+                        <View className="relative">
+                            <Image
+                                source={{ uri: batch.imageUrls?.[0] || "https://via.placeholder.com/100" }}
+                                className="w-full h-[100px]"
+                                resizeMode="cover"
+                            />
+                            <View className="absolute top-2 left-2 bg-green-100 px-2 py-0.5 rounded-full">
+                                <Text className="text-[8px] font-medium text-green-800">Pre-Order</Text>
+                            </View>
                         </View>
-                        <TouchableOpacity
-                            onPress={() => handlePreOrder(batch)}
-                            disabled={isPending}
-                            className="bg-[#E8F5E9] px-4 py-2 rounded-full"
-                        >
-                            <Text className="text-[#4CAF50] font-semibold text-sm">Pre-Order</Text>
-                        </TouchableOpacity>
+
+                        <View className="p-2">
+                            <Text className="text-xs font-semibold text-gray-900 mb-0.5" numberOfLines={1}>
+                                {batch.season?.product?.productName}
+                            </Text>
+                            <Text className="text-[10px] text-gray-500 mb-1" numberOfLines={1}>
+                                {batch.season?.seasonName}
+                            </Text>
+
+                            <View className="flex-row justify-between items-center mt-1">
+                                <Text className="text-sm font-bold text-green-600">
+                                    ${batch.price}/{batch.units}
+                                </Text>
+                            </View>
+
+                            <TouchableOpacity
+                                onPress={() => handlePreOrder(batch)}
+                                disabled={isPending}
+                                className="mt-2 bg-green-50 w-full py-1.5 rounded-lg items-center justify-center border border-green-100"
+                            >
+                                <Text className="text-green-700 font-semibold text-[10px]">Pre-Order Now</Text>
+                            </TouchableOpacity>
+                        </View>
                     </View>
                 ))}
-            </View>
+            </ScrollView>
         </View>
     );
 };

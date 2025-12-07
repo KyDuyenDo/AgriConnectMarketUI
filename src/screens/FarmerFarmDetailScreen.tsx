@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   StatusBar,
   ActivityIndicator,
+  RefreshControl,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Edit, BarChart3, Award, Calendar, Package, Settings, Package2, TrendingUp, Layers } from "lucide-react-native";
@@ -19,6 +20,8 @@ import { useSeasons } from "@/hooks/useSeasons";
 import { useFarmByMe } from "@/hooks/useFarm";
 import { useFarmStatistics } from "@/hooks/custom/useFarmStatistics";
 import { FarmerFarmDetailScreenSkeleton } from "@/components/skeletons/FarmerFarmDetailScreenSkeleton";
+import { useState, useCallback } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
 type Nav = NativeStackNavigationProp<FarmStackParamList>;
 
@@ -27,9 +30,21 @@ export default function FarmDetailScreen() {
   const { data: farm, isLoading: farmLoading, error: farmError } = useFarmByMe();
   const { seasons, isLoading: seasonsLoading } = useSeasons(farm?.id);
   const { statistics, isLoading: statsLoading } = useFarmStatistics(farm?.id, farm?.farmerId);
+  const queryClient = useQueryClient();
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ["farm-by-me"] }),
+      queryClient.invalidateQueries({ queryKey: ["seasons", farm?.id] }),
+      queryClient.invalidateQueries({ queryKey: ["farm-statistics", farm?.id] }),
+    ]);
+    setRefreshing(false);
+  }, [queryClient, farm?.id]);
 
   // Loading state
-  if (farmLoading) {
+  if (farmLoading && !refreshing) {
     return <FarmerFarmDetailScreenSkeleton />;
   }
 
@@ -95,6 +110,9 @@ export default function FarmDetailScreen() {
 
       <ScrollView showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 50 }}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={["#4CAF50"]} tintColor="#4CAF50" />
+        }
       >
         {/* Carousel Header */}
         {carouselImages.length > 0 && (
@@ -197,7 +215,7 @@ export default function FarmDetailScreen() {
           <FarmManagementButton
             icon={BarChart3}
             title="Statistics"
-            onPress={() => navigation.navigate("FarmStatistics")}
+            onPress={() => navigation.navigate("FarmStatistics", { farmId: farm.id })}
             iconColor="#16a34a"
             iconBgColor="#dcfce7"
           />

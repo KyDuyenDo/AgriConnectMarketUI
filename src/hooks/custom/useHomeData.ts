@@ -1,62 +1,70 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useAuthStore } from "@/stores/auth";
 import FarmService from '@/services/farm.service';
 import CategoryService from '@/services/categories.service';
 import ProductService from '@/services/products.service';
 import SeasonService from '@/services/seasons.service';
 import BatchService from '@/services/batches.service';
-import { Category, Farm, ProductResponse, Season, ProductBatch, UnifiedProduct } from '@/types';
+import { UnifiedProduct, Farm } from '@/types';
+import { useQuery } from '@tanstack/react-query';
+import { FARM_QUERY_KEYS } from '../useFarm';
+import { CATEGORY_QUERY_KEYS } from '../useCategories';
+import { SEASON_QUERY_KEYS } from '../useSeasons';
+import { BATCH_QUERY_KEYS } from '../useBatches';
+
+// Define PRODUCT_QUERY_KEYS locally if not exported, or import if available. 
+// Assuming useProducts exports it, but checking previous file read of useProducts.ts, it DOES export PRODUCT_QUERY_KEYS but it's not 'export const' it's just 'const'.
+// Wait, useProducts.ts: "const PRODUCT_QUERY_KEYS = ...". It is NOT exported.
+// I should have checked useProducts.ts more carefully.
+// I will define a local key for products or update useProducts.ts.
+// Updating useProducts.ts is better but I want to finish this file.
+// I'll use a hardcoded key for products for now to avoid context switching, or better, I'll update useProducts.ts in the next step if needed.
+// Actually, I can just use ["products"] as the key since that's what useProducts uses.
+const PRODUCT_QUERY_KEYS = {
+    all: ["products"] as const,
+};
 
 export const useHomeData = () => {
-    const [farms, setFarms] = useState<Farm[]>([]);
-    const [categories, setCategories] = useState<Category[]>([]);
-    const [products, setProducts] = useState<ProductResponse[]>([]);
-    const [seasons, setSeasons] = useState<Season[]>([]);
-    const [batches, setBatches] = useState<ProductBatch[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-
     const { isAuthenticated, userId } = useAuthStore();
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                setLoading(true);
-                const [farmsData, categoriesData, productsData, seasonsData, batchesData] = await Promise.all([
-                    FarmService.getAllFarm({ IsMallFarm: false, searchTerm: "" }),
-                    CategoryService.getAll(),
-                    ProductService.getAll(),
-                    SeasonService.getAll(),
-                    BatchService.getAll()
-                ]);
+    const { data: farmsData, isLoading: isFarmsLoading, error: farmsError } = useQuery({
+        queryKey: FARM_QUERY_KEYS.all({ IsMallFarm: false, searchTerm: "" }),
+        queryFn: () => FarmService.getAllFarm({ IsMallFarm: false, searchTerm: "" }),
+        enabled: isAuthenticated,
+    });
 
-                // Handle FarmResponse structure if necessary (FarmService.getAllFarm returns FarmResponse which might have a data property or be the array itself depending on implementation)
-                // Checking FarmService implementation: returns response.data which is FarmResponse.
-                // FarmResponse usually contains 'data' field which is Farm[].
-                // Let's assume FarmResponse has a data property based on typical patterns, but check type definition if possible.
-                // Based on previous file read of farm.service.ts: return response.data.
-                // And FarmResponse type usage.
-                // If FarmResponse is { data: Farm[], ... }, then we need farmsData.data.
-                // Let's safely handle it.
-                const farmsList = (farmsData as any).data || (Array.isArray(farmsData) ? farmsData : []);
+    const { data: categories = [], isLoading: isCategoriesLoading, error: categoriesError } = useQuery({
+        queryKey: CATEGORY_QUERY_KEYS.all,
+        queryFn: CategoryService.getAll,
+        enabled: isAuthenticated,
+    });
 
-                setFarms(farmsList);
-                setCategories(categoriesData);
-                setProducts(productsData);
-                setSeasons(seasonsData);
-                setBatches(batchesData);
-            } catch (err: any) {
-                console.error("Error fetching home data:", err);
-                setError(err.message || "Failed to load data");
-            } finally {
-                setLoading(false);
-            }
-        };
+    const { data: products = [], isLoading: isProductsLoading, error: productsError } = useQuery({
+        queryKey: PRODUCT_QUERY_KEYS.all,
+        queryFn: () => ProductService.getAll(),
+        enabled: isAuthenticated,
+    });
 
-        if (isAuthenticated) {
-            fetchData();
-        }
-    }, [isAuthenticated, userId]);
+    const { data: seasons = [], isLoading: isSeasonsLoading, error: seasonsError } = useQuery({
+        queryKey: SEASON_QUERY_KEYS.all(),
+        queryFn: () => SeasonService.getAll(),
+        enabled: isAuthenticated,
+    });
+
+    const { data: batches = [], isLoading: isBatchesLoading, error: batchesError } = useQuery({
+        queryKey: BATCH_QUERY_KEYS.all,
+        queryFn: () => BatchService.getAll(),
+        enabled: isAuthenticated,
+    });
+
+    // Handle FarmResponse structure
+    const farms = useMemo((): Farm[] => {
+        if (!farmsData) return [];
+        return ((farmsData as any).data || (Array.isArray(farmsData) ? farmsData : [])) as Farm[];
+    }, [farmsData]);
+
+    const loading = isFarmsLoading || isCategoriesLoading || isProductsLoading || isSeasonsLoading || isBatchesLoading;
+    const error = farmsError || categoriesError || productsError || seasonsError || batchesError;
 
     const unifiedProducts: UnifiedProduct[] = useMemo(() => {
         if (!batches.length || !seasons.length || !products.length || !farms.length) return [];
@@ -100,6 +108,6 @@ export const useHomeData = () => {
         categories,
         unifiedProducts,
         loading,
-        error
+        error: error ? (error as Error).message : null
     };
 };

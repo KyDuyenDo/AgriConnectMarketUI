@@ -5,13 +5,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 export const CustomerFavoritesScreenSkeleton = () => {
     return (
-        <SafeAreaView className="flex-1 bg-[#F9FAF9]">
-            {/* Header */}
-            <View className="px-4 py-3">
-                <Skeleton width={180} height={24} />
-            </View>
-
-            <ScrollView className="flex-1 p-4" contentContainerStyle={{ paddingBottom: 20 }}>
+        <View className="flex-1 bg-[#F9FAF9]">
+            <ScrollView className="flex-1 p-4" contentContainerStyle={{ paddingBottom: 100 }}>
                 {/* 2-column Grid of Farm Cards */}
                 <View className="flex-row flex-wrap justify-between">
                     {[1, 2, 3, 4, 5, 6].map((i) => (
@@ -52,6 +47,6 @@ export const CustomerFavoritesScreenSkeleton = () => {
                     ))}
                 </View>
             </ScrollView>
-        </SafeAreaView>
+        </View>
     );
 };

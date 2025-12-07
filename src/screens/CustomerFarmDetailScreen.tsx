@@ -1,4 +1,4 @@
-import { ScrollView, View, Text, Platform, Image, TouchableOpacity } from 'react-native';
+import { ScrollView, View, Text, Platform, Image, TouchableOpacity, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useEffect, useState, useMemo, useCallback } from 'react';
 import { Header } from '@/components/customer-farm-detail/Header';
@@ -19,6 +19,7 @@ import { FarmReviewSummary } from '@/components/customer-farm-detail/FarmReviewS
 import { Ionicons } from '@expo/vector-icons';
 import { useFavoritesStore } from '@/stores/favorites';
 import { useFavoriteFarms, useToggleFavoriteFarm } from '@/hooks/useFavoriteFarms';
+import { PreOrderSection } from '@/components/customer-batch-detail/PreOrderSection';
 
 import { ProductResponse } from '@/types';
 import { Modal, TextInput, Alert } from 'react-native';
@@ -34,6 +35,9 @@ export function CustomerFarmDetailScreen({ route, navigation }: Props) {
     const isFavorited = useFavoritesStore((state) => state.isFavorited(farmId));
     const [isCertificateVisible, setIsCertificateVisible] = useState(false);
     const { mutate: toggleFavorite } = useToggleFavoriteFarm();
+    const queryClient = useQueryClient();
+    const [refreshing, setRefreshing] = useState(false);
+
     const { data: farm, isLoading: isLoadingFarm, error: farmError } = useFarmById(farmId);
 
     // Fetch farmer profile separately
@@ -42,7 +46,16 @@ export function CustomerFarmDetailScreen({ route, navigation }: Props) {
     const { data: batches, isLoading: isLoadingBatches } = useBatchesByFarm(farmId);
     const { data: reviews, isLoading: isLoadingReviews } = useFarmReviews(farmId);
 
-
+    const onRefresh = useCallback(async () => {
+        setRefreshing(true);
+        await Promise.all([
+            queryClient.invalidateQueries({ queryKey: ['farm', farmId] }),
+            queryClient.invalidateQueries({ queryKey: ['batches-by-farm', farmId] }),
+            queryClient.invalidateQueries({ queryKey: ['farm-reviews', farmId] }),
+            queryClient.invalidateQueries({ queryKey: ['profile', farm?.farmerId] }),
+        ]);
+        setRefreshing(false);
+    }, [queryClient, farmId, farm?.farmerId]);
 
     // Calculate average rating
     const averageRating = useMemo(() => reviews && reviews.length > 0
@@ -124,7 +137,7 @@ export function CustomerFarmDetailScreen({ route, navigation }: Props) {
     ), []);
 
     // Show loading state
-    if (isLoadingFarm || isLoadingBatches) {
+    if ((isLoadingFarm || isLoadingBatches) && !refreshing) {
         return (
             <SafeAreaView className="flex-1 items-center justify-center" style={{ backgroundColor: '#F9FAF9' }}>
                 <Text className="text-base" style={{ color: '#6B737A' }}>Loading farm details...</Text>
@@ -155,6 +168,9 @@ export function CustomerFarmDetailScreen({ route, navigation }: Props) {
                 showsVerticalScrollIndicator={false}
                 className="pt-4"
                 contentContainerStyle={{ paddingBottom: Platform.OS === 'ios' ? 140 : 100 }}
+                refreshControl={
+                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#4CAF50']} tintColor="#4CAF50" />
+                }
             >
                 <FarmHero image={farmData.heroImage} badge={farmData.badge} />
 
@@ -219,6 +235,11 @@ export function CustomerFarmDetailScreen({ route, navigation }: Props) {
                             <Text className="text-gray-500 italic">No products available at the moment.</Text>
                         </View>
                     )}
+                </View>
+
+                {/* Pre-Order Section */}
+                <View className="px-4">
+                    <PreOrderSection farmId={farmId} />
                 </View>
 
 

@@ -1,4 +1,4 @@
-import { ScrollView, View, Alert, TextInput, TouchableOpacity, Text, Modal } from 'react-native';
+import { ScrollView, View, Alert, TextInput, TouchableOpacity, Text, Modal, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Header } from '@/components/farmer-product-detail/Header';
 import { ProductHero } from '@/components/farmer-product-detail/ProductHero';
@@ -12,8 +12,9 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { FarmStackParamList } from '@/navigation/types';
 import { useFarmReviews, useReplyFarmReview } from '@/hooks/useFarmReview';
 import { useBatchById } from '@/hooks/useBatches';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { FarmerProductDetailReviewsScreenSkeleton } from '@/components/skeletons/FarmerProductDetailReviewsScreenSkeleton';
+import { useQueryClient } from '@tanstack/react-query';
 
 
 import { useSeason } from '@/hooks/useSeason';
@@ -25,6 +26,8 @@ export function FarmerProductDetailReviewsScreen({ route, navigation }: Props) {
     const { data: reviews, isLoading: isLoadingReviews } = useFarmReviews(farmId);
     const { data: batch, isLoading: isLoadingBatch } = useBatchById(batchId);
     const { mutate: replyToReview } = useReplyFarmReview();
+    const queryClient = useQueryClient();
+    const [refreshing, setRefreshing] = useState(false);
 
     // Fetch detailed season/product info using the hook
     const { season, product, category } = useSeason(batch?.seasonId || '');
@@ -69,6 +72,15 @@ export function FarmerProductDetailReviewsScreen({ route, navigation }: Props) {
         });
     };
 
+    const onRefresh = useCallback(async () => {
+        setRefreshing(true);
+        await Promise.all([
+            queryClient.invalidateQueries({ queryKey: ['farm-reviews', farmId] }),
+            queryClient.invalidateQueries({ queryKey: ['batch', batchId] }),
+        ]);
+        setRefreshing(false);
+    }, [queryClient, farmId, batchId]);
+
     // Filter reviews for this batch
     const batchReviews = reviews?.filter(r => r.batchId === batchId) || [];
 
@@ -84,7 +96,7 @@ export function FarmerProductDetailReviewsScreen({ route, navigation }: Props) {
         percentage: totalReviews > 0 ? (batchReviews.filter(r => r.rate === star).length / totalReviews) * 100 : 0
     }));
 
-    if (isLoadingBatch || isLoadingReviews) {
+    if ((isLoadingBatch || isLoadingReviews) && !refreshing) {
         return <FarmerProductDetailReviewsScreenSkeleton />;
     }
 
@@ -95,6 +107,9 @@ export function FarmerProductDetailReviewsScreen({ route, navigation }: Props) {
             <ScrollView
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{ paddingBottom: 20 }}
+                refreshControl={
+                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#4CAF50']} tintColor="#4CAF50" />
+                }
             >
                 <ProductHero
                     image={batch?.imageUrls?.[0] || 'https://via.placeholder.com/400'}

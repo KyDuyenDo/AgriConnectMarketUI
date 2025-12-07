@@ -1,8 +1,8 @@
 import type React from "react"
-import { View, ScrollView, Text, TouchableOpacity, Image, Alert } from "react-native"
+import { View, ScrollView, Text, TouchableOpacity, Image, Alert, RefreshControl } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { ChevronLeft, Share, Heart, ShieldCheck } from "lucide-react-native"
-import { useState } from "react"
+import { useState, useCallback } from "react"
 import Carousel from "@/components/ui/Carousel"
 import FarmInformationCard from "@/components/customer-batch-detail/FarmInformationCard"
 import ProductStockCard from "@/components/customer-batch-detail/ProductStockCard"
@@ -10,7 +10,6 @@ import FarmTransparencyCard from "@/components/customer-batch-detail/FarmTranspa
 import VerifiedProcessCard from "@/components/customer-batch-detail/process/VerifiedProcessCard"
 import CustomerReviewsCard from "@/components/customer-batch-detail/reviews/CustomerReviewsCard"
 import FromThisFarmSection from "@/components/customer-batch-detail/FromThisFarmSection"
-import PreOrderSection from "@/components/customer-batch-detail/PreOrderSection"
 import PurchaseCard from "@/components/customer-batch-detail/PurchaseCard"
 import NutritionQualityCard from "@/components/customer-batch-detail/NutritionQualityCard"
 import { useRoute, useNavigation } from "@react-navigation/native"
@@ -24,6 +23,7 @@ import { useGetAddresses } from "@/hooks/useAddress"
 import { useFarmById } from "@/hooks/useFarm"
 import { useBatchesByFarm } from "@/hooks/useBatches"
 import { useFarmReviews } from "@/hooks/useFarmReview"
+import { useQueryClient } from "@tanstack/react-query"
 
 export const CustomerBatchDetailScreen: React.FC = () => {
   const insets = useSafeAreaInsets()
@@ -31,6 +31,8 @@ export const CustomerBatchDetailScreen: React.FC = () => {
   const navigation = useNavigation<any>()
   const { batchId } = route.params || {}
   const { data: batch, isLoading } = useBatchDetail(batchId)
+  const queryClient = useQueryClient()
+  const [refreshing, setRefreshing] = useState(false)
 
   const { data: cart } = useCart()
   const addToCartMutation = useAddToCart()
@@ -49,7 +51,18 @@ export const CustomerBatchDetailScreen: React.FC = () => {
     ? reviews.reduce((acc, review) => acc + review.rate, 0) / reviews.length
     : 0;
 
-  if (isLoading) {
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true)
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ["batch", batchId] }),
+      queryClient.invalidateQueries({ queryKey: ["farm-reviews", farmId] }),
+      queryClient.invalidateQueries({ queryKey: ["farm", farmId] }),
+      queryClient.invalidateQueries({ queryKey: ["batches-by-farm", farmId] }),
+    ])
+    setRefreshing(false)
+  }, [queryClient, batchId, farmId])
+
+  if (isLoading && !refreshing) {
     return <CustomerBatchDetailSkeleton />
   }
 
@@ -155,6 +168,9 @@ export const CustomerBatchDetailScreen: React.FC = () => {
         contentContainerStyle={{ paddingBottom: 100 }}
         className="flex-1"
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={["#4CAF50"]} tintColor="#4CAF50" />
+        }
       >
         {/* Carousel with Overlays */}
         <View className="relative">
@@ -231,13 +247,11 @@ export const CustomerBatchDetailScreen: React.FC = () => {
             <NutritionQualityCard />
           </View>
 
-          {farmBatches && farmBatches.length > 0 && (
+          {/* {farmBatches && farmBatches.length > 0 && (
             <View>
               <FromThisFarmSection items={farmBatches.slice(0, 5)} />
             </View>
-          )}
-
-          <PreOrderSection farmId={farmId || ""} currentBatchId={batchId} />
+          )} */}
         </View>
       </ScrollView>
 

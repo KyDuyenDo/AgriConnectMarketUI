@@ -1,5 +1,6 @@
 import { View, Text, TouchableOpacity } from "react-native"
 import { StatusBadge } from "./StatusBadge"
+import { PaymentStatusBadge } from "./PaymentStatusBadge"
 import { OrderProducts } from "./OrderProducts"
 import { OrderMetadata } from "./OrderMetadata"
 import { OrderActions } from "./OrderActions"
@@ -53,6 +54,7 @@ export function OrderCard({ order }: OrderCardProps) {
         <View className="flex-row justify-between items-start mb-3">
           <View className="flex-row items-center gap-2">
             <StatusBadge status={status as any} />
+            <PaymentStatusBadge status={order.paymentStatus} />
           </View>
           <Text className="text-[#8A8A8A] text-xs">{formatDate(order.orderDate)}</Text>
         </View>
@@ -84,7 +86,7 @@ export function OrderCard({ order }: OrderCardProps) {
           timeline={order.timeline}
         /> */}
 
-        <OrderActions status={status as any} onUpdateStatus={handleUpdateStatus} onCancel={handleCancel} />
+        <OrderActions status={status as any} paymentStatus={order.paymentStatus} onUpdateStatus={handleUpdateStatus} onCancel={handleCancel} />
       </View>
     </TouchableOpacity>
   )

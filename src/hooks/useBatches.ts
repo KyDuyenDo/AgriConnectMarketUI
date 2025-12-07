@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import BatchService from "@/services/batches.service";
 import { Batch } from "@/types";
 
-const BATCH_QUERY_KEYS = {
+export const BATCH_QUERY_KEYS = {
     all: ["batches"] as const,
     bySeason: (seasonId: string) => ["batches", "season", seasonId] as const,
 };

@@ -9,11 +9,15 @@ interface UseSeasonsOptions {
     sortOrder?: 'asc' | 'desc';
 }
 
+export const SEASON_QUERY_KEYS = {
+    all: (farmId?: string) => ["seasons", farmId] as const,
+};
+
 export function useSeasons(farmId?: string, options: UseSeasonsOptions = {}) {
     const { search, sortBy, sortOrder = 'desc' } = options;
 
     const query = useQuery<Season[], Error>({
-        queryKey: ['seasons', farmId],
+        queryKey: SEASON_QUERY_KEYS.all(farmId),
         queryFn: () => (farmId ? getSeasonsByFarm(farmId) : SeasonService.getAll()),
         enabled: !!farmId,
     });

@@ -15,7 +15,7 @@ export type FarmStackParamList = {
   FarmSetupInformation: { farmId?: string }
   ProductDetailReviews: { batchId: string; farmId: string }
   PersonalInformation: undefined
-  FarmStatistics: undefined
+  FarmStatistics: { farmId: string }
   FarmCertificates: { farmId: string }
   FarmSeasons: { farmId: string }
   FarmProductsManagement: undefined
