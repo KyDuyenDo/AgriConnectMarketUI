@@ -185,6 +185,8 @@ export interface Order {
 
   paidDate?: string
   deliveredDate?: string
+  expectedReleaseDate?: string
+  partiallyPaidAmount?: number
 
   // NEW FIELDS FROM TABLE
   createdAt: string

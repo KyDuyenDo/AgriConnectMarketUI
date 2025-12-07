@@ -1,11 +1,11 @@
 "use client"
 
 import type React from "react"
-import { useState, useMemo } from "react"
+import { useState, useMemo, useCallback } from "react"
 import { ScrollView, View, Text, TouchableOpacity, Alert, Image } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { ChevronLeft } from "lucide-react-native"
-import { useNavigation, useRoute, RouteProp } from "@react-navigation/native"
+import { useNavigation, useRoute, RouteProp, useFocusEffect } from "@react-navigation/native"
 
 import DeliveryOptionsCard from "@/components/customer-cart/DeliveryOptionsCard"
 import { OrderSummary } from "@/components/customer-cart/OrderSummary"
@@ -28,7 +28,7 @@ export const CustomerCheckoutScreen: React.FC = () => {
     const route = useRoute<CheckoutScreenRouteProp>()
     const { selectedItems } = route.params
 
-    const { data: Cart, isLoading } = useCart()
+    const { data: Cart, isLoading, refetch: refetchCart } = useCart()
     const { mutateAsync: createOrder, isPending: isCreatingOrder } = useCreateOrder()
     const { mutateAsync: removeFromCart } = useRemoveFromCart()
     const { userId } = useAuthStore()
@@ -47,6 +47,31 @@ export const CustomerCheckoutScreen: React.FC = () => {
             items: group.items.filter(item => selectedItems.includes(item.itemId))
         })).filter(group => group.items.length > 0)
     }, [cartGroups, selectedItems])
+
+    // Refetch cart data when screen comes into focus
+    useFocusEffect(
+        useCallback(() => {
+            refetchCart()
+        }, [refetchCart])
+    )
+
+    // Handle empty state if items are removed (e.g. after payment attempt)
+    useFocusEffect(
+        useCallback(() => {
+            if (!isLoading && checkoutGroups.length === 0) {
+                Alert.alert(
+                    "Cart Updated",
+                    "The items in your checkout are no longer available in your cart.",
+                    [
+                        {
+                            text: "Return to Cart",
+                            onPress: () => navigation.navigate("MainTabs" as never)
+                        }
+                    ]
+                )
+            }
+        }, [isLoading, checkoutGroups, navigation])
+    )
 
     // Memoize shipping address to prevent infinite loops in useCartShipping
     const shippingAddress = useMemo(() => defaultAddress ? {

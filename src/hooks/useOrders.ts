@@ -42,6 +42,33 @@ export function useCancelOrder() {
             queryClient.invalidateQueries({ queryKey: ["order", orderId] });
             queryClient.invalidateQueries({ queryKey: ["my-orders"] });
             queryClient.invalidateQueries({ queryKey: ["farmer-orders"] });
+            queryClient.invalidateQueries({ queryKey: ["my-pre-orders"] });
+            queryClient.invalidateQueries({ queryKey: ["farmer-pre-orders"] });
         },
+    });
+}
+
+export function useCreatePreOrder() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: ordersService.createPreOrder,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["my-pre-orders"] });
+        },
+    });
+}
+
+export function useMyPreOrders() {
+    return useQuery({
+        queryKey: ["my-pre-orders"],
+        queryFn: ordersService.getMyPreOrders,
+    });
+}
+
+export function useFarmPreOrders(farmId: string) {
+    return useQuery({
+        queryKey: ["farmer-pre-orders", farmId],
+        queryFn: () => ordersService.getFarmPreOrders(farmId),
+        enabled: !!farmId,
     });
 }

@@ -204,6 +204,17 @@ const CustomerOrderDetailScreen: React.FC = () => {
             title="Delivery Window"
             line1="Today, 4:00 PM - 6:00 PM"
           />
+
+          {order.expectedReleaseDate && (
+            <>
+              <View className="my-2 h-[1px] bg-[#F0F2F5]" />
+              <InfoRow
+                icon={<Clock3 size={18} color="#32C373" />}
+                title="Expected Release Date"
+                line1={formatDate(order.expectedReleaseDate)}
+              />
+            </>
+          )}
         </View>
 
         {/* Farm card */}

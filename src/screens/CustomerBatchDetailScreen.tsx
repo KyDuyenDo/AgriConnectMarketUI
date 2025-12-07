@@ -10,6 +10,7 @@ import FarmTransparencyCard from "@/components/customer-batch-detail/FarmTranspa
 import VerifiedProcessCard from "@/components/customer-batch-detail/process/VerifiedProcessCard"
 import CustomerReviewsCard from "@/components/customer-batch-detail/reviews/CustomerReviewsCard"
 import FromThisFarmSection from "@/components/customer-batch-detail/FromThisFarmSection"
+import PreOrderSection from "@/components/customer-batch-detail/PreOrderSection"
 import PurchaseCard from "@/components/customer-batch-detail/PurchaseCard"
 import NutritionQualityCard from "@/components/customer-batch-detail/NutritionQualityCard"
 import { useRoute, useNavigation } from "@react-navigation/native"
@@ -235,6 +236,8 @@ export const CustomerBatchDetailScreen: React.FC = () => {
               <FromThisFarmSection items={farmBatches.slice(0, 5)} />
             </View>
           )}
+
+          <PreOrderSection farmId={farmId || ""} currentBatchId={batchId} />
         </View>
       </ScrollView>
 

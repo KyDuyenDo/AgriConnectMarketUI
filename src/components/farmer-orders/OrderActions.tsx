@@ -4,6 +4,7 @@ import { Phone, Eye, X } from "lucide-react-native"
 interface OrderActionsProps {
   status: "delivered" | "shipped" | "processing" | "pending" | "urgent" | "canceled"
   onUpdateStatus: (newStatus: string) => void
+  onCancel?: () => void
 }
 
 const getActionButtonConfig = (status: string) => {
@@ -21,7 +22,7 @@ const getActionButtonConfig = (status: string) => {
   }
 }
 
-export function OrderActions({ status, onUpdateStatus }: OrderActionsProps) {
+export function OrderActions({ status, onUpdateStatus, onCancel }: OrderActionsProps) {
   const { label, bgColor, textColor, isCompleted, nextStatus } = getActionButtonConfig(status)
 
   const handlePress = () => {

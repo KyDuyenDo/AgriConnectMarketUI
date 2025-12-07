@@ -23,6 +23,14 @@ export const useBatchesByFarm = (farmId: string) => {
     });
 };
 
+export const usePreOrderBatchesByFarm = (farmId: string) => {
+    return useQuery<Batch[]>({
+        queryKey: ["batches", "farm", farmId, "pre-order"],
+        queryFn: ({ signal }) => BatchService.getPreOrderBatchesByFarm(farmId, signal),
+        enabled: !!farmId,
+    });
+};
+
 export const useBatchById = (batchId: string) => {
     return useQuery<Batch>({
         queryKey: ["batches", batchId],

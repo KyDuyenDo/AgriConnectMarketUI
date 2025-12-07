@@ -6,10 +6,12 @@ import { Search, Filter, ChevronLeft, ShoppingBagIcon } from 'lucide-react-nativ
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { useMyOrders } from '@/hooks/useMyOrders';
+import { useMyPreOrders, useCancelOrder } from '@/hooks/useOrders';
 import { formatDate } from '@/utils/date';
 import { CustomerOrdersScreenSkeleton } from '@/components/skeletons/CustomerOrdersScreenSkeleton';
-
-
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { CustomerStackParamList } from '@/navigation/CustomerNavigator';
+import { useBatchDetail } from '@/hooks/useProductBatches';
 
 const FILTERS = ['All Orders', 'Active', 'Delivered', 'Cancelled'] as const;
 type FilterType = (typeof FILTERS)[number];
@@ -19,16 +21,11 @@ const mapStatus = (status: string): Order['status'] => {
   if (s.includes('shipped') || s.includes('shipping')) return 'in_transit';
   if (s.includes('deliver') || s.includes('complete')) return 'delivered';
   if (s.includes('cancel')) return 'cancelled';
-  if (s.includes('processing')) return 'pending'; // Or create a new 'processing' status in Order type if needed
+  if (s.includes('processing')) return 'pending';
   return 'pending';
 };
 
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { CustomerStackParamList } from '@/navigation/CustomerNavigator';
-
-import { useBatchDetail } from '@/hooks/useProductBatches';
-
-const FetchedOrderCard = ({ order }: { order: Order }) => {
+const FetchedOrderCard = ({ order, isPreOrder, onCancel }: { order: Order, isPreOrder?: boolean, onCancel?: (id: string) => void }) => {
   const { data: batch } = useBatchDetail(order.batchId || '');
 
   const displayOrder: Order = useMemo(() => ({
@@ -37,7 +34,19 @@ const FetchedOrderCard = ({ order }: { order: Order }) => {
     images: batch?.imageUrls && batch.imageUrls.length > 0 ? batch.imageUrls : order.images,
   }), [order, batch]);
 
-  return <OrderCard order={displayOrder} />;
+  return (
+    <View>
+      <OrderCard order={displayOrder} />
+      {isPreOrder && order.status !== 'cancelled' && order.status !== 'delivered' && (
+        <TouchableOpacity
+          onPress={() => onCancel && onCancel(order.id)}
+          className="bg-red-50 self-end px-4 py-2 rounded-full mt-2 mr-2 border border-red-100"
+        >
+          <Text className="text-red-500 text-xs font-semibold">Cancel Pre-Order</Text>
+        </TouchableOpacity>
+      )}
+    </View>
+  );
 };
 
 type Props = NativeStackScreenProps<CustomerStackParamList, 'CustomerOrders'>;
@@ -45,18 +54,22 @@ type Props = NativeStackScreenProps<CustomerStackParamList, 'CustomerOrders'>;
 const CustomerOrdersScreen: React.FC<Props> = ({ route, navigation }) => {
   const { initialFilter } = route.params || {};
   const [filter, setFilter] = useState<FilterType>((initialFilter as FilterType) || 'All Orders');
+  const [activeTab, setActiveTab] = useState<'Orders' | 'PreOrders'>('Orders');
 
   const { data: orders, isLoading: isLoadingOrders } = useMyOrders();
-  const isLoading = isLoadingOrders;
+  const { data: preOrders, isLoading: isLoadingPreOrders } = useMyPreOrders();
+  const { mutate: cancelOrder } = useCancelOrder();
 
-  const ordersData = useMemo(() => {
-    if (!orders) return [];
-    return orders.map((order: any) => {
+  const isLoading = activeTab === 'Orders' ? isLoadingOrders : isLoadingPreOrders;
+
+  const mapOrders = (data: any[]) => {
+    if (!data) return [];
+    return data.map((order: any) => {
       const firstItem = order.orderItems?.[0];
       const farm = firstItem?.batch?.season?.farm;
 
       return {
-        id: order.id,
+        id: order.orderId,
         code: order.orderCode,
         date: formatDate(order.orderDate),
         farmName: farm?.farmName || 'Unknown Farm',
@@ -66,25 +79,34 @@ const CustomerOrdersScreen: React.FC<Props> = ({ route, navigation }) => {
         subtitle: `${order.orderItems?.length || 0} items`,
         status: mapStatus(order.orderStatus),
         itemsCount: order.orderItems?.length || 0,
-        total: order.totalPrice,
-        estDelivery: 'TBD',
+        total: order.totalPrice || order.partiallyPaidAmount || 0, // Use partiallyPaidAmount for PreOrder if total is 0? Or just total.
+        estDelivery: order.expectedReleaseDate ? formatDate(order.expectedReleaseDate) : 'TBD',
         images: firstItem?.batch?.imagesUrl || [],
       } as Order;
     });
-  }, [orders]);
+  };
+
+  const ordersData = useMemo(() => mapOrders(orders || []), [orders]);
+  const preOrdersData = useMemo(() => mapOrders(preOrders || []), [preOrders]);
+
+  const currentData = activeTab === 'Orders' ? ordersData : preOrdersData;
 
   const filteredOrders = useMemo(() => {
-    if (filter === 'All Orders') return ordersData;
+    if (filter === 'All Orders') return currentData;
     if (filter === 'Active') {
-      return ordersData.filter(
+      return currentData.filter(
         o => o.status === 'in_transit' || o.status === 'pending',
       );
     }
     if (filter === 'Delivered') {
-      return ordersData.filter(o => o.status === 'delivered');
+      return currentData.filter(o => o.status === 'delivered');
     }
-    return ordersData.filter(o => o.status === 'cancelled');
-  }, [filter, ordersData]);
+    return currentData.filter(o => o.status === 'cancelled');
+  }, [filter, currentData]);
+
+  const handleCancelPreOrder = (orderId: string) => {
+    cancelOrder(orderId);
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-[#F9FAF9]">
@@ -114,8 +136,24 @@ const CustomerOrdersScreen: React.FC<Props> = ({ route, navigation }) => {
         </View>
       </View>
 
+      {/* Tabs */}
+      <View className="flex-row px-6 mb-4 border-b border-gray-200">
+        <TouchableOpacity
+          onPress={() => setActiveTab('Orders')}
+          className={`flex-1 items-center py-3 border-b-2 ${activeTab === 'Orders' ? 'border-[#4CAF50]' : 'border-transparent'}`}
+        >
+          <Text className={`font-semibold ${activeTab === 'Orders' ? 'text-[#4CAF50]' : 'text-gray-500'}`}>Orders</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => setActiveTab('PreOrders')}
+          className={`flex-1 items-center py-3 border-b-2 ${activeTab === 'PreOrders' ? 'border-[#4CAF50]' : 'border-transparent'}`}
+        >
+          <Text className={`font-semibold ${activeTab === 'PreOrders' ? 'text-[#4CAF50]' : 'text-gray-500'}`}>Pre-Orders</Text>
+        </TouchableOpacity>
+      </View>
+
       {/* Filter Pills */}
-      <View className="mb-4 px-4 pt-4">
+      <View className="mb-4 px-4">
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -144,7 +182,13 @@ const CustomerOrdersScreen: React.FC<Props> = ({ route, navigation }) => {
 
       <FlatList
         data={filteredOrders}
-        renderItem={({ item }) => <FetchedOrderCard order={item} />}
+        renderItem={({ item }) => (
+          <FetchedOrderCard
+            order={item}
+            isPreOrder={activeTab === 'PreOrders'}
+            onCancel={handleCancelPreOrder}
+          />
+        )}
         keyExtractor={item => item.id}
         contentContainerStyle={{ paddingBottom: 24, paddingHorizontal: 16 }}
         showsVerticalScrollIndicator={false}
@@ -153,8 +197,8 @@ const CustomerOrdersScreen: React.FC<Props> = ({ route, navigation }) => {
             <View className="bg-white rounded-2xl p-4 shadow-sm shadow-gray-100">
               <View className="items-center py-8">
                 <ShoppingBagIcon color="#9ca3af" size={40} />
-                <Text className="text-sm font-medium text-[#6B737A] mt-3">No orders found</Text>
-                <Text className="text-xs text-[#9ca3af] mt-1 text-center">You have no orders yet</Text>
+                <Text className="text-sm font-medium text-[#6B737A] mt-3">No {activeTab === 'PreOrders' ? 'pre-orders' : 'orders'} found</Text>
+                <Text className="text-xs text-[#9ca3af] mt-1 text-center">You have no {activeTab === 'PreOrders' ? 'pre-orders' : 'orders'} yet</Text>
               </View>
             </View>
           ) : <CustomerOrdersScreenSkeleton />

@@ -82,6 +82,13 @@ export function FarmerOrderDetailScreen() {
                     status={order.orderStatus}
                 />
 
+                {order.expectedReleaseDate && (
+                    <View className="mx-4 mt-2 bg-white p-4 rounded-xl">
+                        <Text className="text-gray-500 text-xs">Expected Release Date</Text>
+                        <Text className="text-gray-800 font-medium">{formatDate(order.expectedReleaseDate)}</Text>
+                    </View>
+                )}
+
                 <OrderTimeline steps={timeline} />
 
                 <CustomerInfo {...customer} />
