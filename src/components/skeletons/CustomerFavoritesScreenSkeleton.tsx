@@ -15,7 +15,7 @@ export const CustomerFavoritesScreenSkeleton = () => {
                             <View className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100">
                                 {/* Farm Image + Badges */}
                                 <View className="relative h-28">
-                                    <Skeleton width="100%" height={112} borderRadius={0} />
+                                    <Skeleton width="100%" height={98} borderRadius={0} />
 
                                     {/* Heart Icon Skeleton */}
                                     <View className="absolute top-2 right-2">
