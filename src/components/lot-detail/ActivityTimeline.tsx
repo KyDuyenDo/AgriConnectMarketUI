@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, Image, ActivityIndicator } from 'react-native';
-import { useCareEventsByBatch } from '@/hooks/useCareEvents';
+import { useCareEventsByBatch, useEventTypes } from '@/hooks/useCareEvents';
 import { formatDate } from '@/utils/date';
 import { getEventIconAndColor } from '@/constants/care-event-icons';
 
@@ -9,13 +9,29 @@ interface ActivityTimelineProps {
 }
 
 export const ActivityTimeline = ({ batchId }: ActivityTimelineProps) => {
-    const { data: events, isLoading } = useCareEventsByBatch(batchId || '');
+    const { data: events, isLoading, error } = useCareEventsByBatch(batchId || '');
+    const { data: eventTypes } = useEventTypes();
 
     if (isLoading) {
         return (
             <View className="px-4 mb-4">
                 <Text className="text-[#2D2D2D] text-base font-semibold mb-3">Activity Timeline</Text>
                 <ActivityIndicator size="small" color="#4CAF50" />
+            </View>
+        );
+    }
+
+    // Handle blockchain verification errors
+    if (error) {
+        return (
+            <View className="px-4 mb-4">
+                <Text className="text-[#2D2D2D] text-base font-semibold mb-3">Activity Timeline</Text>
+                <View className="bg-red-50 border border-red-200 rounded-2xl p-4">
+                    <Text className="text-red-600 text-sm font-semibold mb-1">⚠️ Verification Failed</Text>
+                    <Text className="text-red-500 text-xs">
+                        {error instanceof Error ? error.message : 'Unable to load care events. The blockchain may have been tampered with.'}
+                    </Text>
+                </View>
             </View>
         );
     }
@@ -29,6 +45,11 @@ export const ActivityTimeline = ({ batchId }: ActivityTimelineProps) => {
         );
     }
 
+    // Create a lookup map for event type details
+    const eventTypeMap = new Map(
+        eventTypes?.map(et => [et.eventTypeName, et]) || []
+    );
+
     // Sort events by date descending (newest first)
     const sortedEvents = [...events].sort((a, b) =>
         new Date(b.occurredAt).getTime() - new Date(a.occurredAt).getTime()
@@ -39,19 +60,21 @@ export const ActivityTimeline = ({ batchId }: ActivityTimelineProps) => {
             <Text className="text-[#2D2D2D] text-base font-semibold mb-3">Activity Timeline</Text>
 
             {sortedEvents.map((event) => {
-                const eventTypeName = event.eventType?.eventTypeName || 'Unknown';
+                // eventType is now a string (event type name)
+                const eventTypeName = event.eventType || 'Unknown';
+                const eventTypeDetails = eventTypeMap.get(eventTypeName);
                 const { Icon, bg, iconColor } = getEventIconAndColor(eventTypeName);
 
                 // Parse payload if it's a string
                 let description = '';
-                let images: string[] = [];
+                let payloadImages: string[] = [];
                 try {
                     const parsed = typeof event.payload === 'string' ? JSON.parse(event.payload) : event.payload;
 
                     if (typeof parsed === 'object' && parsed !== null) {
                         description = parsed.notes || parsed.description || parsed.details || '';
                         if (parsed.images && Array.isArray(parsed.images)) {
-                            images = parsed.images;
+                            payloadImages = parsed.images;
                         }
                     } else if (typeof parsed === 'string') {
                         description = parsed;
@@ -61,9 +84,12 @@ export const ActivityTimeline = ({ batchId }: ActivityTimelineProps) => {
                 }
 
                 // Fallback to event type description if payload description is empty
-                if (!description && event.eventType?.eventTypeDesc) {
-                    description = event.eventType.eventTypeDesc;
+                if (!description && eventTypeDetails?.eventTypeDesc) {
+                    description = eventTypeDetails.eventTypeDesc;
                 }
+
+                // Use imageUrl from API if available, otherwise check payload
+                const displayImage = event.imageUrl || (payloadImages.length > 0 ? payloadImages[0] : undefined);
 
                 return (
                     <TimelineItem
@@ -74,7 +100,7 @@ export const ActivityTimeline = ({ batchId }: ActivityTimelineProps) => {
                         title={eventTypeName}
                         date={formatDate(event.occurredAt)}
                         description={description}
-                        image={images.length > 0 ? images[0] : undefined}
+                        image={displayImage}
                     />
                 );
             })}

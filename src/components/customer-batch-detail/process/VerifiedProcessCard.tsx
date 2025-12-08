@@ -7,7 +7,7 @@ import { useCareEventsByBatch } from "@/hooks/useCareEvents";
 
 const VerifiedProcessCard = ({ batchId }: { batchId?: string }) => {
   const [modalVisible, setModalVisible] = React.useState(false);
-  const { data: events, isLoading } = useCareEventsByBatch(batchId || '');
+  const { data: events, isLoading, error } = useCareEventsByBatch(batchId || '');
 
   const sortedEvents = events ? [...events].sort((a, b) =>
     new Date(a.occurredAt).getTime() - new Date(b.occurredAt).getTime()
@@ -19,7 +19,7 @@ const VerifiedProcessCard = ({ batchId }: { batchId?: string }) => {
   return (
     <View className="bg-white rounded-3xl p-4 shadow shadow-gray-200 mt-3">
       {/* Timeline */}
-      <TimelineList events={displayedEvents} isLoading={isLoading} />
+      <TimelineList events={displayedEvents} isLoading={isLoading} error={error} />
 
       {/* Footer link */}
       {hasMore && (
@@ -52,7 +52,7 @@ const VerifiedProcessCard = ({ batchId }: { batchId?: string }) => {
             </TouchableOpacity>
           </View>
           <ScrollView className="flex-1 p-4">
-            <TimelineList events={sortedEvents} />
+            <TimelineList events={sortedEvents} error={error} />
             <View className="h-8" />
           </ScrollView>
         </View>

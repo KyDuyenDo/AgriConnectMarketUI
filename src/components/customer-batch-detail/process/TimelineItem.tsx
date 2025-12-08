@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text } from "react-native";
+import { View, Text, Image } from "react-native";
 import { LucideIcon } from "lucide-react-native";
 
 interface TimelineItemProps {
@@ -9,6 +9,7 @@ interface TimelineItemProps {
   title: string;
   date: string;
   description: string;
+  imageUrl?: string; // NEW: support for care event images
   isLast?: boolean;
 }
 
@@ -19,6 +20,7 @@ const TimelineItem: React.FC<TimelineItemProps> = ({
   title,
   date,
   description,
+  imageUrl,
   isLast,
 }) => {
   return (
@@ -39,6 +41,15 @@ const TimelineItem: React.FC<TimelineItemProps> = ({
         <Text className="text-[#2D2D2D] font-semibold">{title}</Text>
         <Text className="text-[#8A8A8A] text-sm mt-0.5">{date}</Text>
         <Text className="text-[#5C5C5C] text-sm mt-1">{description}</Text>
+
+        {/* Display image if available */}
+        {imageUrl && (
+          <Image
+            source={{ uri: imageUrl }}
+            className="w-full h-32 rounded-lg mt-2"
+            resizeMode="cover"
+          />
+        )}
       </View>
     </View>
   );

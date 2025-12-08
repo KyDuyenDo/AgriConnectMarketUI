@@ -19,7 +19,13 @@ export const useCreateCareEvent = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (data: { batchId: string; eventTypeId: string; payload: string; occurredAt?: string }) =>
+    mutationFn: (data: {
+      batchId: string;
+      eventTypeId: string;
+      payload: string;
+      occurredAt?: string;
+      imageFile?: File | Blob; // NEW: support for image upload
+    }) =>
       CareEventService.createCareEvent(data),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: CARE_EVENT_KEYS.eventTypes })

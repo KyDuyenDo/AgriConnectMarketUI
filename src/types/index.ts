@@ -363,12 +363,14 @@ export interface CareEventType {
 export interface CareEvent {
   id: string
   batchId: string
-  eventTypeId: string
+  eventType: string // Changed from eventTypeId, now returns event type name as string
   occurredAt: DateTime
   payload: string
+  imageUrl?: string // NEW field for uploaded images
   hash: string
   prevHash: string
-  eventType?: CareEventType
+  // Keep for backward compatibility during migration
+  eventTypeId?: string
   batch?: ProductBatch
 }
 
@@ -407,6 +409,6 @@ export interface CreateProductBatchResponse {
 export interface CreateCareEventResponse {
   occurredAt: string
   payload: string
-  eventType: CareEventType
+  eventType: CareEventType // Full object in create response
   batch: ProductBatch
 }

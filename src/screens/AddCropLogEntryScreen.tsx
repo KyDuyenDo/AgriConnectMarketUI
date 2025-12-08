@@ -1,13 +1,14 @@
 "use client"
 
 import { useState } from "react"
-import { View, Text, ScrollView, TouchableOpacity, Alert, ActivityIndicator } from "react-native"
-import { ChevronLeft } from "lucide-react-native"
+import { View, Text, ScrollView, TouchableOpacity, Alert, ActivityIndicator, Image } from "react-native"
+import { ChevronLeft, Camera, X } from "lucide-react-native"
 import { QuickTemplates } from "../components/add-crop-log-entry/QuickTemplates"
 import { ActivityDetailsForm } from "../components/add-crop-log-entry/ActivityDetailsForm"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useCreateCareEvent } from "@/hooks/useCareEvents"
 import { useRoute, useNavigation } from "@react-navigation/native"
+import * as ImagePicker from 'expo-image-picker'
 
 export default function AddCropLogEntryScreen() {
   const route = useRoute()
@@ -18,6 +19,7 @@ export default function AddCropLogEntryScreen() {
   const [selectedActivityType, setSelectedActivityType] = useState<string | null>(null)
   const [activityDetails, setActivityDetails] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [selectedImage, setSelectedImage] = useState<ImagePicker.ImagePickerAsset | null>(null)
 
   const { mutate: createCareEvent } = useCreateCareEvent()
 
@@ -27,6 +29,32 @@ export default function AddCropLogEntryScreen() {
 
   const handleActivityTypeSelect = (typeId: string, typeName: string) => {
     setSelectedActivityType(typeId)
+  }
+
+  const handlePickImage = async () => {
+    // Request permissions
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync()
+
+    if (!permissionResult.granted) {
+      Alert.alert("Permission Required", "Please grant camera roll permissions to upload images.")
+      return
+    }
+
+    // Launch image picker
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 0.8,
+    })
+
+    if (!result.canceled && result.assets[0]) {
+      setSelectedImage(result.assets[0])
+    }
+  }
+
+  const handleRemoveImage = () => {
+    setSelectedImage(null)
   }
 
   const handleSaveEntry = async () => {
@@ -48,12 +76,21 @@ export default function AddCropLogEntryScreen() {
     setIsSubmitting(true)
 
     try {
+      // Prepare image file if selected
+      let imageFile: File | Blob | undefined = undefined
+      if (selectedImage) {
+        const response = await fetch(selectedImage.uri)
+        const blob = await response.blob()
+        imageFile = blob
+      }
+
       createCareEvent(
         {
           batchId,
           eventTypeId: selectedActivityType,
           payload: activityDetails,
           occurredAt: selectedDate.toISOString(),
+          imageFile, // Pass the image file
         },
         {
           onSuccess: () => {
@@ -62,6 +99,7 @@ export default function AddCropLogEntryScreen() {
             setSelectedDate(new Date())
             setSelectedActivityType(null)
             setActivityDetails("")
+            setSelectedImage(null)
             navigation.goBack()
           },
           onError: (error: any) => {
@@ -103,6 +141,35 @@ export default function AddCropLogEntryScreen() {
           onDateChange={setSelectedDate}
           selectedActivityType={selectedActivityType}
         />
+
+        {/* Image Upload Section */}
+        <View className="mb-4">
+          <Text className="text-sm font-semibold text-[#2D2D2D] mb-2">Activity Image (Optional)</Text>
+
+          {selectedImage ? (
+            <View className="relative">
+              <Image
+                source={{ uri: selectedImage.uri }}
+                className="w-full h-48 rounded-xl"
+                resizeMode="cover"
+              />
+              <TouchableOpacity
+                onPress={handleRemoveImage}
+                className="absolute top-2 right-2 bg-red-500 rounded-full p-2"
+              >
+                <X size={16} color="white" />
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <TouchableOpacity
+              onPress={handlePickImage}
+              className="bg-white border-2 border-dashed border-[#E0E0E0] rounded-xl p-6 items-center justify-center"
+            >
+              <Camera size={32} color="#8A8A8A" />
+              <Text className="text-sm text-[#8A8A8A] mt-2">Tap to add image</Text>
+            </TouchableOpacity>
+          )}
+        </View>
 
         {/* Action Buttons */}
         <View className="mb-8 mt-6">
