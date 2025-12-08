@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState, useMemo, useCallback } from "react"
+import { useState, useMemo, useCallback, useEffect } from "react"
 import { ScrollView, View, Text, TouchableOpacity, Alert, Image, RefreshControl } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { ChevronLeft } from "lucide-react-native"
@@ -13,9 +13,9 @@ import { useCart, useRemoveFromCart } from "@/hooks/useCart"
 import { useCreateOrder } from "@/hooks/useOrders"
 import { useAuthStore } from "@/stores/auth"
 import { useGetAddresses } from "@/hooks/useAddress"
-import { useCartShipping } from "@/hooks/useCartShipping"
 import { CustomerStackParamList } from "@/navigation/CustomerNavigator"
 import { paymentService } from "@/api/services/payment.service"
+import { shippingService } from "@/api/services/shipping.service"
 import { CreditCard, Banknote } from "lucide-react-native"
 import { useQueryClient } from "@tanstack/react-query"
 
@@ -85,24 +85,49 @@ export const CustomerCheckoutScreen: React.FC = () => {
         }, [isLoading, checkoutGroups, navigation])
     )
 
-    // Memoize shipping address to prevent infinite loops in useCartShipping
-    const shippingAddress = useMemo(() => defaultAddress ? {
-        province: defaultAddress.province,
-        district: defaultAddress.district,
-        ward: defaultAddress.ward,
-        detail: defaultAddress.detail,
-    } : null, [defaultAddress])
+    // Shipping Fee Calculation
+    const [shippingFee, setShippingFee] = useState(0)
+    const [calculatingShipping, setCalculatingShipping] = useState(false)
 
-    // Cart shipping calculation using custom hook
-    const {
-        shippingFee,
-        isCalculating: calculatingShipping,
-        farmAddresses,
-    } = useCartShipping({
-        cartItems: checkoutGroups, // Only calculate for selected items
-        selectedItemIds: selectedItems,
-        customerAddress: shippingAddress,
-    })
+    useEffect(() => {
+        const calculateShipping = async () => {
+            if (!defaultAddress?.id || checkoutGroups.length === 0) {
+                setShippingFee(0)
+                return
+            }
+
+            setCalculatingShipping(true)
+            let totalFee = 0
+
+            try {
+                const feePromises = checkoutGroups.map(async (group) => {
+                    // Calculate total weight for the group (assuming 500g per item if not specified)
+                    // You might want to adjust this logic if you have actual weight data
+                    const groupWeight = group.items.reduce((sum, item) => sum + item.quantity, 0)
+
+                    // Ensure weight is at least 1g
+                    const weight = Math.max(1, groupWeight)
+
+                    return await shippingService.getShippingFee({
+                        farmId: group.farmId,
+                        addressId: defaultAddress.id!,
+                        weight: weight
+                    })
+                })
+
+                const fees = await Promise.all(feePromises)
+                totalFee = fees.reduce((sum, fee) => sum + fee, 0)
+            } catch (error) {
+                console.error("Failed to calculate shipping fee", error)
+            } finally {
+                setShippingFee(totalFee)
+                setCalculatingShipping(false)
+            }
+        }
+
+        calculateShipping()
+    }, [checkoutGroups, defaultAddress])
+
 
     // Calculate totals
     const allUiItems = checkoutGroups.flatMap(g => g.items);
@@ -115,7 +140,8 @@ export const CustomerCheckoutScreen: React.FC = () => {
 
     const itemCount = allUiItems.length
     const deliveryFee = calculatingShipping ? 0 : shippingFee
-    const tax = subtotal * 0.1
+    // Tax removed as per requirement
+    const tax = 0
     const discountPercentage = 0
     const discountAmount = subtotal * discountPercentage
     const total = subtotal + deliveryFee + tax - discountAmount
@@ -291,7 +317,7 @@ export const CustomerCheckoutScreen: React.FC = () => {
 
                 {calculatingShipping && (
                     <View className="mx-4 mt-2 p-3 bg-blue-50 rounded-lg">
-                        <Text className="text-sm text-blue-600">Calculating shipping from {farmAddresses.length} farms...</Text>
+                        <Text className="text-sm text-blue-600">Calculating shipping from {checkoutGroups.length} farms...</Text>
                     </View>
                 )}
             </ScrollView>
