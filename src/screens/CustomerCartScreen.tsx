@@ -110,21 +110,21 @@ export const CustomerCartScreen: React.FC = () => {
   }
 
   const handleClearAll = () => {
-    Alert.alert("Xóa toàn bộ giỏ hàng", "Bạn có chắc chắn muốn xóa tất cả sản phẩm trong giỏ hàng?", [
+    Alert.alert("Deleting all your cart items", "Are you sure you want to delete all items in your cart?", [
       {
-        text: "Hủy",
+        text: "Cancel",
         style: "cancel",
       },
       {
-        text: "Xóa",
+        text: "Delete",
         style: "destructive",
         onPress: () => {
           clearCart(undefined, {
             onSuccess: () => {
-              console.log("✅ Đã xóa toàn bộ giỏ hàng")
+              console.log("Deleted all cart items")
             },
             onError: (error) => {
-              console.error("❌ Lỗi xóa giỏ hàng:", error)
+              console.error("Error deleting cart items:", error)
             },
           })
         },
