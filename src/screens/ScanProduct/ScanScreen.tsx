@@ -25,9 +25,8 @@ const ScanScreen = () => {
 
         try {
             // Extract batchId from URL
-            // Expected format: http://localhost:3000/verify?batchId=111
-            const batchIdMatch = data.match(/[?&]batchId=([^&#]*)/);
-            const batchId = batchIdMatch ? batchIdMatch[1] : null;
+            // Expected format: .../product/{batchId}/...
+            const batchId = data?.split('product/')[1]?.split('/')[0];
             console.log("Batch ID:", batchId);
             if (batchId) {
                 // Verify if batch exists or has events (optional, but good for UX)
