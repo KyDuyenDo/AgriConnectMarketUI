@@ -21,7 +21,7 @@ export default function AddCropLogEntryScreen() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [selectedImage, setSelectedImage] = useState<ImagePicker.ImagePickerAsset | null>(null)
 
-  const { mutate: createCareEvent } = useCreateCareEvent()
+  const { mutateAsync: createCareEvent } = useCreateCareEvent()
 
   const handleSelectTemplate = (eventTypeId: string, eventTypeName: string) => {
     setSelectedActivityType(eventTypeId)
@@ -76,15 +76,23 @@ export default function AddCropLogEntryScreen() {
     setIsSubmitting(true)
 
     try {
-      // Prepare image file if selected
-      let imageFile: File | Blob | undefined = undefined
+      // Prepare image file if selected (React Native compatible format)
+      let imageFile: any = undefined
       if (selectedImage) {
-        const response = await fetch(selectedImage.uri)
-        const blob = await response.blob()
-        imageFile = blob
+        // Determine MIME type based on URI or default to image/jpeg
+        const uri = selectedImage.uri;
+        const fileType = uri.endsWith('.png') ? 'image/png' : 'image/jpeg';
+        const fileName = selectedImage.fileName || `image_${Date.now()}.${fileType === 'image/png' ? 'png' : 'jpg'}`;
+
+        // In React Native, FormData accepts objects with uri, name, and type
+        imageFile = {
+          uri: uri,
+          name: fileName,
+          type: fileType, // Must be a valid MIME type (e.g., image/jpeg), NOT just 'image'
+        }
       }
 
-      createCareEvent(
+      await createCareEvent(
         {
           batchId,
           eventTypeId: selectedActivityType,

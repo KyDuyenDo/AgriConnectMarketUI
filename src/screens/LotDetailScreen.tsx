@@ -33,7 +33,7 @@ export const LotDetailScreen = () => {
     const { season, product, category } = useSeason(batch?.seasonId || '');
 
     const onAddLogEntry = () => {
-        navigation.navigate('AddCropLog' as any);
+        navigation.navigate('AddCropLog' as any, { batchId: lotId });
     }
 
     const handleHarvest = () => {

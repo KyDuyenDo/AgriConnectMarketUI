@@ -24,7 +24,7 @@ export const useCreateCareEvent = () => {
       eventTypeId: string;
       payload: string;
       occurredAt?: string;
-      imageFile?: File | Blob; // NEW: support for image upload
+      imageFile?: any; // React Native compatible: {uri, name, type} or File/Blob
     }) =>
       CareEventService.createCareEvent(data),
     onSuccess: (data) => {

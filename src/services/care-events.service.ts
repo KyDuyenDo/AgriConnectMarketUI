@@ -8,7 +8,7 @@ const CareEventService = {
     eventTypeId: string
     payload: string
     occurredAt?: string
-    imageFile?: File | Blob
+    imageFile?: any // React Native format: {uri, name, type} or File/Blob for web
   }): Promise<CreateCareEventResponse> => {
     // Use FormData for multipart/form-data upload
     const formData = new FormData()
@@ -21,10 +21,12 @@ const CareEventService = {
       formData.append("ImageUrl", data.imageFile)
     }
 
+    console.log("FormData:", formData)
+
     const response = await apiClient.post<{ data: CreateCareEventResponse }>("/api/care-events", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
-      },
+      }
     })
     return response.data.data
   },
