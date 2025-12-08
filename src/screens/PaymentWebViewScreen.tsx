@@ -19,8 +19,21 @@ const PaymentWebViewScreen = () => {
     const handleNavigationStateChange = (navState: WebViewNavigation) => {
         const { url } = navState;
 
-        // Check for success or failure redirect
-        if (url.includes('/payment-success')) {
+        // Check for VNPay return URL
+        if (url.includes('/payments/vnpay-return')) {
+            // Parse query parameters to check status
+            // vnp_ResponseCode=00 means success
+            const params = new URLSearchParams(url.split('?')[1]);
+            const responseCode = params.get('vnp_ResponseCode');
+
+            if (responseCode === '00') {
+                navigation.replace('PaymentResult', { status: 'success' } as never);
+            } else {
+                navigation.replace('PaymentResult', { status: 'failed' } as never);
+            }
+        }
+        // Keep existing checks just in case
+        else if (url.includes('/payment-success')) {
             navigation.replace('PaymentResult', { status: 'success' } as never);
         } else if (url.includes('/payment-failed')) {
             navigation.replace('PaymentResult', { status: 'failed' } as never);

@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState, useMemo, useCallback, useEffect } from "react"
+import { useState, useMemo, useCallback, useEffect, useRef } from "react"
 import { ScrollView, View, Text, TouchableOpacity, Alert, Image, RefreshControl } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { ChevronLeft } from "lucide-react-native"
@@ -37,6 +37,9 @@ export const CustomerCheckoutScreen: React.FC = () => {
     const queryClient = useQueryClient()
     const [refreshing, setRefreshing] = useState(false)
 
+    // Track if we are currently processing an order to prevent "empty cart" alerts
+    const isProcessingOrderRef = useRef(false)
+
     // Address data
     const { data: addresses } = useGetAddresses()
     const defaultAddress = addresses?.find((addr) => addr.isDefault)
@@ -70,7 +73,8 @@ export const CustomerCheckoutScreen: React.FC = () => {
     // Handle empty state if items are removed (e.g. after payment attempt)
     useFocusEffect(
         useCallback(() => {
-            if (!isLoading && checkoutGroups.length === 0) {
+            // Only show alert if we are NOT currently processing an order
+            if (!isLoading && checkoutGroups.length === 0 && !isProcessingOrderRef.current) {
                 Alert.alert(
                     "Cart Updated",
                     "The items in your checkout are no longer available in your cart.",
@@ -161,6 +165,8 @@ export const CustomerCheckoutScreen: React.FC = () => {
         }
 
         try {
+            isProcessingOrderRef.current = true; // Set flag to prevent empty cart alert
+
             const orderItems = allUiItems.map((item) => ({
                 batchId: item.batchId,
                 quantity: item.quantity,
@@ -193,6 +199,7 @@ export const CustomerCheckoutScreen: React.FC = () => {
 
         } catch (error: any) {
             console.error("Order creation failed:", error)
+            isProcessingOrderRef.current = false; // Reset flag on error
             Alert.alert("Error", error?.response?.data?.message || "Failed to create order.")
         }
     }
