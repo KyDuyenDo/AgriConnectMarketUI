@@ -188,6 +188,7 @@ export interface OrderItemDisplay {
 }
 
 export interface Order {
+  id: string
   orderId: string
   customerId: string
   orderCode: string

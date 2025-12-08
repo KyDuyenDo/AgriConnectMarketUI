@@ -81,7 +81,7 @@ const CustomerOrdersScreen: React.FC<Props> = ({ route, navigation }) => {
       }
 
       return {
-        id: order.orderId,
+        id: order.id,
         code: order.orderCode,
         date: formatDate(order.orderDate),
         farmName: farm?.farmName || 'Unknown Farm',
