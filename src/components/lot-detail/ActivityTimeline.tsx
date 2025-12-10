@@ -69,6 +69,7 @@ export const ActivityTimeline = ({ batchId }: ActivityTimelineProps) => {
                 let description = '';
                 let payloadImages: string[] = [];
                 try {
+                    // First try standard parse
                     const parsed = typeof event.payload === 'string' ? JSON.parse(event.payload) : event.payload;
 
                     if (typeof parsed === 'object' && parsed !== null) {
@@ -80,7 +81,19 @@ export const ActivityTimeline = ({ batchId }: ActivityTimelineProps) => {
                         description = parsed;
                     }
                 } catch (e) {
-                    description = event.payload || '';
+                    // If simple parse fails, it might be a raw string with unicode escapes that needs double parsing or direct usage
+                    // Try to wrap in quotes and parse to decode unicode sequences like \u01B0
+                    try {
+                        if (typeof event.payload === 'string') {
+                            const decoded = JSON.parse(`"${event.payload}"`);
+                            description = decoded;
+                        } else {
+                            description = String(event.payload || '');
+                        }
+                    } catch (e2) {
+                        // Fallback to raw payload
+                        description = event.payload || '';
+                    }
                 }
 
                 // Fallback to event type description if payload description is empty

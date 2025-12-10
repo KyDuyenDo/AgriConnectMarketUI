@@ -86,7 +86,7 @@ export function OrderCard({ order }: OrderCardProps) {
           timeline={order.timeline}
         /> */}
 
-        <OrderActions status={status as any} paymentStatus={order.paymentStatus} onUpdateStatus={handleUpdateStatus} onCancel={handleCancel} />
+        <OrderActions status={status as any} paymentStatus={order.paymentStatus} paymentMethod={order.paymentMethod} onUpdateStatus={handleUpdateStatus} onCancel={handleCancel} />
       </View>
     </TouchableOpacity>
   )
