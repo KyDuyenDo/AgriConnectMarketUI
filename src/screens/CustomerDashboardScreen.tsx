@@ -52,11 +52,12 @@ export const CustomerDashboardScreen: React.FC = () => {
       name: item.productName || "Unknown Product",
       quantity: `${item.quantity} ${item.units || "units"}`,
       price: `${new Intl.NumberFormat('vi-VN').format(item.itemPrice)} đ`,
-      image: item.batchImageUrls?.[0] || "https://via.placeholder.com/40",
+      image: item.batchImageUrls?.[0] || null,
     }))
 
   const cartItemsCount = allCartItems.length
-  const cartTotalValue = cart?.totalPrice || 0
+  const calculatedTotal = allCartItems.reduce((sum: number, item: any) => sum + (item.itemPrice || 0), 0)
+  const cartTotalValue = cart?.totalPrice || calculatedTotal
   const cartTotal = `${new Intl.NumberFormat('vi-VN').format(cartTotalValue)} đ`
   const hasCartItems = cartItemsCount > 0
 

@@ -50,14 +50,23 @@ export const CustomerCartScreen: React.FC = () => {
   }, [queryClient])
 
   // Show skeleton while loading
-  if (isLoading && !refreshing)
-    return <CustomerCartScreenSkeleton />
+
+
 
 
   const cartGroups = Cart?.cartItems || []
 
+  // Sync selectedItems with cart items to remove deleted items
+  useEffect(() => {
+    if (isLoading) return
 
+    const currentItemIds = new Set(cartGroups.flatMap((g: any) => g.items.map((i: any) => i.itemId)))
 
+    setSelectedItems((prev) => {
+      const newSelected = prev.filter((id) => currentItemIds.has(id))
+      return newSelected.length === prev.length ? prev : newSelected
+    })
+  }, [cartGroups, isLoading])
   // Show skeleton while loading
   if (isLoading && !refreshing) return <CustomerCartScreenSkeleton />
 
@@ -214,7 +223,7 @@ export const CustomerCartScreen: React.FC = () => {
           const farmName = group.farmName;
           const items = group.items.map((item) => {
             const productName = item.productName || "Loading..."
-            const imageUrl = item.batchImageUrls?.[0] || "https://via.placeholder.com/150"
+            const imageUrl = item.batchImageUrls?.[0] || null
             const unit = item.units || "unit"
 
             return {

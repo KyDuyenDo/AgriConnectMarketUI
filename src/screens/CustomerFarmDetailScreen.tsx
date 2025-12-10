@@ -201,7 +201,7 @@ export function CustomerFarmDetailScreen({ route, navigation }: Props) {
                 <View className="mt-6">
                     <View className="px-4 flex-row justify-between items-center mb-1">
                         <Text className="text-lg font-bold text-gray-900">Available Products</Text>
-                        <TouchableOpacity onPress={() => console.log('See all')}>
+                        <TouchableOpacity onPress={() => navigation.navigate('CustomerFarmProducts', { farmId, farmName: farmData.farmName })}>
                             <Text className="text-green-600 font-medium text-sm">See All</Text>
                         </TouchableOpacity>
                     </View>
@@ -212,23 +212,26 @@ export function CustomerFarmDetailScreen({ route, navigation }: Props) {
                             showsHorizontalScrollIndicator={false}
                             contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 8 }}
                         >
-                            {batches.map(batch => (
-                                <View key={batch.id} className="w-[160px] mr-4">
-                                    <FarmProductCard
-                                        image={batch.imageUrls?.[0] || 'https://via.placeholder.com/150'}
-                                        name={batch.season?.product?.productName || 'Unknown Product'}
-                                        price={`$${batch.price}/${batch.units}`}
-                                        badge={{
-                                            label: batch.availableQuantity > 0 ? 'In Stock' : 'Out of Stock',
-                                            color: batch.availableQuantity > 0 ? 'green' : 'orange'
-                                        }}
-                                        rating={batch.averageRating || 0}
-                                        reviewCount={batch.reviewCount || 0}
-                                        onAdd={() => console.log('Add', batch.id)}
-
-                                    />
-                                </View>
-                            ))}
+                            {batches.slice(0, 5).map(batch => {
+                                const b = batch as any;
+                                return (
+                                    <View key={b.id} className="w-[160px] mr-4">
+                                        <FarmProductCard
+                                            image={b.imageUrls?.[0] || 'https://via.placeholder.com/150'}
+                                            name={b.season?.product?.productName || 'Unknown Product'}
+                                            price={`${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(b.price)}/${b.units}`}
+                                            badge={{
+                                                label: b.availableQuantity > 0 ? 'In Stock' : 'Out of Stock',
+                                                color: b.availableQuantity > 0 ? 'green' : 'orange'
+                                            }}
+                                            rating={b.averageRating || 0}
+                                            reviewCount={b.reviewCount || 0}
+                                            onAdd={() => console.log('Add', b.id)}
+                                            onPress={() => navigation.navigate('BatchDetails', { batchId: b.id })}
+                                        />
+                                    </View>
+                                );
+                            })}
                         </ScrollView>
                     ) : (
                         <View className="px-4">

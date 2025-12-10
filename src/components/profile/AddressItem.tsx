@@ -52,7 +52,7 @@ export const AddressItem: React.FC<AddressItemProps> = ({
                 </View>
             </View>
 
-            <View className="mt-4 flex-row justify-end space-x-3 border-t border-gray-100 pt-3">
+            <View className="mt-4 flex-row justify-end gap-3 border-t border-gray-100 pt-3">
                 {!address.isDefault && (
                     <TouchableOpacity
                         onPress={() => onSetDefault(address)}

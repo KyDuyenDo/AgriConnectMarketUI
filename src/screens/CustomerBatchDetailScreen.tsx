@@ -38,12 +38,12 @@ export const CustomerBatchDetailScreen: React.FC = () => {
   const addToCartMutation = useAddToCart()
   const { mutateAsync: createOrder, isPending: isCreatingOrder } = useCreateOrder()
   const { userId } = useAuthStore()
-  const { data: reviews, isLoading: isLoadingReviews } = useFarmReviews(batch?.season?.farmId || "");
+  const { data: reviews, isLoading: isLoadingReviews } = useFarmReviews((batch as any)?.season?.farmId || "");
   const { data: addresses } = useGetAddresses()
 
   const [selectedQuantity, setSelectedQuantity] = useState(1)
 
-  const farmId = batch?.season?.farmId
+  const farmId = (batch as any)?.season?.farmId
   const { data: farm } = useFarmById(farmId || "")
   const { data: farmBatches } = useBatchesByFarm(farmId || "")
 
@@ -74,8 +74,10 @@ export const CustomerBatchDetailScreen: React.FC = () => {
     )
   }
 
+  const batchData = batch as any;
+
   const productImages =
-    batch.imageUrls && batch.imageUrls.length > 0 ? batch.imageUrls : ["https://via.placeholder.com/400"]
+    batchData.imageUrls && batchData.imageUrls.length > 0 ? batchData.imageUrls : ["https://via.placeholder.com/400"]
 
   const farmName = farm?.farmName || "Unknown Farm"
   const farmImage = farm?.bannerUrl || "https://via.placeholder.com/50"
@@ -105,39 +107,39 @@ export const CustomerBatchDetailScreen: React.FC = () => {
   }
 
   const handleBuyNow = async (quantity: number) => {
-    if (!cart?.cartId) {
-      Alert.alert("Error", "Cart not initialized or user not logged in.")
-      return
-    }
-
     if (!userId) {
       Alert.alert("Error", "User not found. Please login again.")
       return
     }
 
     try {
-      // Add item to cart and get the result
-      const addedItem = await addToCartMutation.mutateAsync({
-        cartId: cart.cartId,
-        batchId: batch.id,
+      // Construct the item object for direct checkout
+      const batchData = batch as any;
+      const buyNowItem = {
+        itemId: `temp-${Date.now()}`, // Temporary ID
+        batchId: batchData.id,
+        batchCode: batchData.batchCode?.value || batchData.batchCode,
+        batchImageUrls: batchData.imageUrls,
+        productName: batchData.season?.product?.productName || "Product Name",
+        categoryName: batchData.season?.product?.category?.categoryName || "Category",
+        seasonName: batchData.season?.seasonName || "Season",
+        batchPrice: batchData.price, // Unit price
         quantity: quantity,
-      })
-
-      if (addedItem && ((addedItem as any).id || (addedItem as any).itemId)) {
-        // Navigate to checkout with the specific item selected
-        // Backend returns entity with 'id', frontend interface might expect 'itemId'
-        const cartItemId = (addedItem as any).id || (addedItem as any).itemId;
-
-        navigation.navigate("CustomerCheckout" as never, {
-          selectedItems: [cartItemId]
-        } as never)
-      } else {
-        throw new Error("Failed to retrieve cart item ID")
+        units: batchData.units,
+        itemPrice: batchData.price * quantity, // Total price
+        seasonStatus: batchData.season?.status || "Active",
+        farmId: farmId,
+        farmName: farmName,
       }
+
+      navigation.navigate("CustomerCheckout" as never, {
+        selectedItems: [], // No cart items selected
+        buyNowItems: [buyNowItem]
+      } as never)
 
     } catch (error: any) {
       console.error("Buy Now failed:", error)
-      Alert.alert("Error", error?.response?.data?.message || "Failed to process buy now request.")
+      Alert.alert("Error", error?.message || "Failed to process buy now request.")
     }
   }
 
@@ -184,34 +186,34 @@ export const CustomerBatchDetailScreen: React.FC = () => {
           {/* In Stock Badge */}
           <View className="absolute top-4 right-4 bg-white px-3 py-1.5 rounded-full flex-row items-center">
             <View
-              className={`w-2 h-2 rounded-full ${(batch.availableQuantity || 0) > 0 ? "bg-[#4CAF50]" : "bg-red-500"} mr-2`}
+              className={`w-2 h-2 rounded-full ${(batchData.availableQuantity || 0) > 0 ? "bg-[#4CAF50]" : "bg-red-500"} mr-2`}
             />
             <Text className="text-[#2D2D2D] text-xs font-medium">
-              {(batch.availableQuantity || 0) > 0 ? "In Stock" : "Out of Stock"}
+              {(batchData.availableQuantity || 0) > 0 ? "In Stock" : "Out of Stock"}
             </Text>
           </View>
         </View>
 
         <View className="px-4 pt-4 gap-4">
           <FarmInformationCard
-            id={batch.batchCode.value}
-            name={batch.season?.product?.productName || "Product Name"}
-            variety={batch.season?.product?.productDesc || "No description available"}
+            id={batchData.batchCode?.value || batchData.batchCode}
+            name={batchData.season?.product?.productName || "Product Name"}
+            variety={batchData.season?.product?.productDesc || "No description available"}
             farmName={farmName}
             farmLogo={farmImage}
-            harvestDate={batch.harvestDate ? formatDate(batch.harvestDate) : "N/A"}
-            totalYield={`${batch.totalYield || 0} ${batch.units || "units"}`}
+            harvestDate={batchData.harvestDate ? formatDate(batchData.harvestDate) : "N/A"}
+            totalYield={`${new Intl.NumberFormat('vi-VN').format(batchData.totalYield || 0)} ${batchData.units || "units"}`}
             verified={true}
           />
 
           <ProductStockCard
-            pricePerLb={batch.price || 0}
-            available={`${batch.availableQuantity || 0} ${batch.units || "units"} available`}
-            weightType={batch.units || "unit"}
-            stockLevel={batch.availableQuantity || 0}
+            pricePerLb={batchData.price || 0}
+            available={`${new Intl.NumberFormat('vi-VN').format(batchData.availableQuantity || 0)} ${batchData.units || "units"} available`}
+            weightType={batchData.units || "unit"}
+            stockLevel={batchData.availableQuantity || 0}
             initialQuantity={selectedQuantity}
-            maxQuantity={batch.totalYield || 0}
-            unit={batch.units || "unit"}
+            maxQuantity={batchData.totalYield || 0}
+            unit={batchData.units || "unit"}
             onQuantityChange={setSelectedQuantity}
           />
 
@@ -246,22 +248,16 @@ export const CustomerBatchDetailScreen: React.FC = () => {
           <View>
             <NutritionQualityCard />
           </View>
-
-          {/* {farmBatches && farmBatches.length > 0 && (
-            <View>
-              <FromThisFarmSection items={farmBatches.slice(0, 5)} />
-            </View>
-          )} */}
         </View>
       </ScrollView>
 
       <PurchaseCard
-        total={`$${(batch.price * selectedQuantity || 0).toFixed(2)}`}
-        weight={`${selectedQuantity} ${batch.units || "unit"}`}
-        pricePerLb={`$${batch.price || 0}/${batch.units || "unit"}`}
-        availableQuantity={batch.availableQuantity || 0}
-        unit={batch.units || "unit"}
-        price={batch.price || 0}
+        total={`$${(batchData.price * selectedQuantity || 0).toFixed(2)}`}
+        weight={`${selectedQuantity} ${batchData.units || "unit"}`}
+        pricePerLb={`$${batchData.price || 0}/${batchData.units || "unit"}`}
+        availableQuantity={batchData.availableQuantity || 0}
+        unit={batchData.units || "unit"}
+        price={batchData.price || 0}
         onAddToCart={() => handleAddToCart(selectedQuantity)}
         onBuyNow={() => handleBuyNow(selectedQuantity)}
         showQuantitySelector={false}

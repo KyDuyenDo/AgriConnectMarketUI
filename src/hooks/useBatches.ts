@@ -8,7 +8,7 @@ export const BATCH_QUERY_KEYS = {
 };
 
 export const useBatchesBySeason = (seasonId: string) => {
-    return useQuery<Batch[]>({
+    return useQuery<ProductBatch[]>({
         queryKey: BATCH_QUERY_KEYS.bySeason(seasonId),
         queryFn: ({ signal }) => BatchService.getAllBySeasonId(seasonId, signal),
         enabled: !!seasonId,
@@ -16,7 +16,7 @@ export const useBatchesBySeason = (seasonId: string) => {
 };
 
 export const useBatchesByFarm = (farmId: string) => {
-    return useQuery<Batch[]>({
+    return useQuery<ProductBatch[]>({
         queryKey: ["batches", "farm", farmId],
         queryFn: ({ signal }) => BatchService.getBatchesByFarm(farmId, signal),
         enabled: !!farmId,
@@ -24,7 +24,7 @@ export const useBatchesByFarm = (farmId: string) => {
 };
 
 export const usePreOrderBatchesByFarm = (farmId: string) => {
-    return useQuery<Batch[]>({
+    return useQuery<ProductBatch[]>({
         queryKey: ["batches", "farm", farmId, "pre-order"],
         queryFn: ({ signal }) => BatchService.getPreOrderBatchesByFarm(farmId, signal),
         enabled: !!farmId,

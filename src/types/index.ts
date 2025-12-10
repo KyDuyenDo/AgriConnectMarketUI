@@ -23,7 +23,7 @@ export interface Product {
   farm: string
   price: string
   unit: string
-  image: string
+  image: string | null
   isFavorite: boolean
   rating: number
   numRatings: number
@@ -158,7 +158,7 @@ export interface CartItem {
   name: string
   quantity: string
   price: string
-  image: string
+  image: string | null
 }
 
 export interface OrderItem {

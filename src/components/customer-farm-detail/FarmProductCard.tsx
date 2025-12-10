@@ -19,13 +19,15 @@ export function FarmProductCard({
     rating,
     reviewCount,
     onAdd,
-}: FarmProductCardProps) {
+    onPress,
+}: FarmProductCardProps & { onPress?: () => void }) {
     const badgeStyle = badge?.color === 'green'
         ? { bg: 'rgba(200, 230, 201, 1)', text: '#2E7D32' }
         : { bg: 'rgba(255, 224, 178, 1)', text: '#F57C00' };
 
     return (
-        <View
+        <Pressable
+            onPress={onPress}
             className="rounded-[20px] overflow-hidden"
             style={{
                 backgroundColor: '#FFFFFF',
@@ -79,6 +81,6 @@ export function FarmProductCard({
                     </Pressable>
                 </View>
             </View>
-        </View>
+        </Pressable>
     );
 }

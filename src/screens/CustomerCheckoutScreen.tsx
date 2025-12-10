@@ -27,7 +27,7 @@ type CheckoutScreenNavigationProp = NativeStackNavigationProp<CustomerStackParam
 export const CustomerCheckoutScreen: React.FC = () => {
     const navigation = useNavigation<CheckoutScreenNavigationProp>()
     const route = useRoute<CheckoutScreenRouteProp>()
-    const { selectedItems } = route.params
+    const { selectedItems, buyNowItems } = route.params
 
     const { data: Cart, isLoading, refetch: refetchCart } = useCart()
     const { mutateAsync: createOrder, isPending: isCreatingOrder } = useCreateOrder()
@@ -55,26 +55,46 @@ export const CustomerCheckoutScreen: React.FC = () => {
         setRefreshing(false)
     }, [queryClient])
 
-    // Filter groups to only include selected items
+    // Filter groups to only include selected items OR use buyNowItems
     const checkoutGroups = useMemo(() => {
+        if (buyNowItems && buyNowItems.length > 0) {
+            // Group buyNowItems by farmId
+            const groups: any[] = [];
+            buyNowItems.forEach(item => {
+                let group = groups.find(g => g.farmId === item.farmId);
+                if (!group) {
+                    group = {
+                        farmId: item.farmId,
+                        farmName: item.farmName,
+                        items: []
+                    };
+                    groups.push(group);
+                }
+                group.items.push(item);
+            });
+            return groups;
+        }
+
         return cartGroups.map(group => ({
             ...group,
             items: group.items.filter(item => selectedItems.includes(item.itemId))
         })).filter(group => group.items.length > 0)
-    }, [cartGroups, selectedItems])
+    }, [cartGroups, selectedItems, buyNowItems])
 
     // Refetch cart data when screen comes into focus
     useFocusEffect(
         useCallback(() => {
-            refetchCart()
-        }, [refetchCart])
+            if (!buyNowItems) {
+                refetchCart()
+            }
+        }, [refetchCart, buyNowItems])
     )
 
     // Handle empty state if items are removed (e.g. after payment attempt)
     useFocusEffect(
         useCallback(() => {
             // Only show alert if we are NOT currently processing an order
-            if (!isLoading && checkoutGroups.length === 0 && !isProcessingOrderRef.current) {
+            if (!isLoading && checkoutGroups.length === 0 && !isProcessingOrderRef.current && !buyNowItems) {
                 Alert.alert(
                     "Cart Updated",
                     "The items in your checkout are no longer available in your cart.",
@@ -86,7 +106,7 @@ export const CustomerCheckoutScreen: React.FC = () => {
                     ]
                 )
             }
-        }, [isLoading, checkoutGroups, navigation])
+        }, [isLoading, checkoutGroups, navigation, buyNowItems])
     )
 
     // Shipping Fee Calculation
@@ -104,10 +124,10 @@ export const CustomerCheckoutScreen: React.FC = () => {
             let totalFee = 0
 
             try {
-                const feePromises = checkoutGroups.map(async (group) => {
+                const feePromises = checkoutGroups.map(async (group: any) => {
                     // Calculate total weight for the group (assuming 500g per item if not specified)
                     // You might want to adjust this logic if you have actual weight data
-                    const groupWeight = group.items.reduce((sum, item) => sum + item.quantity, 0)
+                    const groupWeight = group.items.reduce((sum: number, item: any) => sum + item.quantity, 0)
 
                     // Ensure weight is at least 1g
                     const weight = Math.max(1, groupWeight)
@@ -137,9 +157,11 @@ export const CustomerCheckoutScreen: React.FC = () => {
     const allUiItems = checkoutGroups.flatMap(g => g.items);
 
     const subtotal = allUiItems.reduce((sum, item) => {
-        const itemPrice = item.itemPrice || 0
+        // Use batchPrice (unit price) if available, otherwise fallback to itemPrice / quantity (if valid)
+        // Backend 'itemPrice' is total price. 'batchPrice' is unit price.
+        const unitPrice = item.batchPrice || (item.quantity ? item.itemPrice / item.quantity : 0) || 0
         const itemQuantity = item.quantity || 0
-        return sum + itemPrice * itemQuantity
+        return sum + unitPrice * itemQuantity
     }, 0)
 
     const itemCount = allUiItems.length
@@ -183,8 +205,10 @@ export const CustomerCheckoutScreen: React.FC = () => {
             const order = await createOrder(payload)
             console.log("Order created:", order)
 
-            // Remove items from cart after successful order creation
-            await Promise.all(selectedItems.map((id) => removeFromCart(id)))
+            // Remove items from cart after successful order creation ONLY if not buyNowItems
+            if (!buyNowItems) {
+                await Promise.all(selectedItems.map((id) => removeFromCart(id)))
+            }
 
             if (paymentMethod === 'ONLINE') {
                 // VNPay Flow
@@ -204,7 +228,7 @@ export const CustomerCheckoutScreen: React.FC = () => {
         }
     }
 
-    if (isLoading && !refreshing) {
+    if (isLoading && !refreshing && !buyNowItems) {
         return (
             <View className="flex-1 items-center justify-center bg-[#F9FAF9]">
                 <Text>Loading checkout...</Text>
@@ -288,7 +312,7 @@ export const CustomerCheckoutScreen: React.FC = () => {
                     {checkoutGroups.map((group) => (
                         <View key={group.farmId} className="mb-4">
                             <Text className="text-sm font-medium text-gray-500 mb-2">{group.farmName}</Text>
-                            {group.items.map((item) => (
+                            {group.items.map((item: any) => (
                                 <View key={item.itemId} className="flex-row items-center mb-3">
                                     <Image
                                         source={{ uri: item.batchImageUrls?.[0] || "https://via.placeholder.com/50" }}
@@ -299,11 +323,11 @@ export const CustomerCheckoutScreen: React.FC = () => {
                                             {item.productName || "Product"}
                                         </Text>
                                         <Text className="text-xs text-gray-500">
-                                            {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.itemPrice)} x {item.quantity} {item.units}
+                                            {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.batchPrice || 0)} x {item.quantity} {item.units}
                                         </Text>
                                     </View>
                                     <Text className="text-sm font-semibold text-[#4CAF50]">
-                                        {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.itemPrice * item.quantity)}
+                                        {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format((item.batchPrice || 0) * item.quantity)}
                                     </Text>
                                 </View>
                             ))}

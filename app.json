@@ -10,14 +10,14 @@
       "tsconfigPaths": true
     },
     "plugins": [
-      [
-        "react-native-vision-camera",
-        {
-          "cameraPermissionText": "$(PRODUCT_NAME) needs access to your Camera.",
-          "enableMicrophonePermission": true,
-          "microphonePermissionText": "$(PRODUCT_NAME) needs access to your Microphone."
-        }
-      ]
+      // [
+      //   "react-native-vision-camera",
+      //   {
+      //     "cameraPermissionText": "$(PRODUCT_NAME) needs access to your Camera.",
+      //     "enableMicrophonePermission": true,
+      //     "microphonePermissionText": "$(PRODUCT_NAME) needs access to your Microphone."
+      //   }
+      // ]
     ],
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -30,26 +30,26 @@
     "assetBundlePatterns": [
       "**/*"
     ],
-    "ios": {
-      "supportsTablet": true,
-      "infoPlist": {
-        "NSCameraUsageDescription": "$(PRODUCT_NAME) needs access to your Camera.",
-        "NSMicrophoneUsageDescription": "$(PRODUCT_NAME) needs access to your Microphone.",
-        "ITSAppUsesNonExemptEncryption": false
-      },
-      "bundleIdentifier": "com.anonymous.AgriConnectMarket"
-    },
-    "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      },
-      "package": "com.anonymous.AgriConnectMarket",
-      "permissions": [
-        "android.permission.CAMERA",
-        "android.permission.RECORD_AUDIO"
-      ]
-    },
+    // "ios": {
+    //   "supportsTablet": true,
+    //   "infoPlist": {
+    //     "NSCameraUsageDescription": "$(PRODUCT_NAME) needs access to your Camera.",
+    //     "NSMicrophoneUsageDescription": "$(PRODUCT_NAME) needs access to your Microphone.",
+    //     "ITSAppUsesNonExemptEncryption": false
+    //   },
+    //   "bundleIdentifier": "com.anonymous.AgriConnectMarket"
+    // },
+    // "android": {
+    //   "adaptiveIcon": {
+    //     "foregroundImage": "./assets/adaptive-icon.png",
+    //     "backgroundColor": "#ffffff"
+    //   },
+    //   "package": "com.anonymous.AgriConnectMarket",
+    //   "permissions": [
+    //     "android.permission.CAMERA",
+    //     "android.permission.RECORD_AUDIO"
+    //   ]
+    // },
     "extra": {
       "eas": {
         "projectId": "a295cf08-baaf-46fe-8982-0e220a27f57e"

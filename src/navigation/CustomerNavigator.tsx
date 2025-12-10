@@ -8,7 +8,7 @@ import { CustomerBatchDetailScreen } from "@/screens/CustomerBatchDetailScreen"
 import PersonalInformationScreen from "@/screens/PersonalInformationScreen"
 import { CustomerFarmDetailScreen } from "@/screens/CustomerFarmDetailScreen"
 import CustomerAddressScreen from "@/screens/CustomerAddressScreen"
-import ScanScreen from "@/screens/ScanProduct/ScanScreen"
+// import ScanScreen from "@/screens/ScanProduct/ScanScreen"
 import CareEventDetailScreen from "@/screens/CareEventDetailScreen"
 
 export type CustomerStackParamList = {
@@ -23,7 +23,8 @@ export type CustomerStackParamList = {
   FarmReview: { farmId: string; batchId: string }
   CustomerAllReviews: { farmId: string }
   ScanScreen: undefined
-  CustomerCheckout: { selectedItems: string[] }
+  CustomerCheckout: { selectedItems: string[]; buyNowItems?: any[] }
+  CustomerFarmProducts: { farmId: string; farmName: string }
   CareEventDetail: { batchId: string }
   PaymentWebView: { paymentUrl: string }
   PaymentResult: { status: 'success' | 'failed' }
@@ -94,14 +95,19 @@ const CustomerNavigator = () => {
         component={require("@/screens/CustomerAllReviewsScreen").default}
         options={{ title: "All Reviews" }}
       />
-      <Stack.Screen
+      {/* <Stack.Screen
         name="ScanScreen"
         component={ScanScreen}
         options={{ headerShown: false }}
-      />
+      /> */}
       <Stack.Screen
         name="CustomerCheckout"
         component={require("@/screens/CustomerCheckoutScreen").default}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="CustomerFarmProducts"
+        component={require("@/screens/CustomerFarmProductsScreen").default}
         options={{ headerShown: false }}
       />
       <Stack.Screen

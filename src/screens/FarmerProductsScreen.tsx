@@ -360,7 +360,6 @@ export const FarmerProductsScreen = () => {
       onDelete={() => handleDelete(item.id)}
       onLogCareEvent={() => handleLogCareEvent(item)}
       onViewReviews={() => handleViewReviews(item)}
-      onViewReviews={() => handleViewReviews(item)}
       onToggleStatus={() => handleSellPress(item)}
     />
   ), [navigation, handleDelete, handleLogCareEvent, handleViewReviews, handleSellPress, categories])

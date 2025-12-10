@@ -1,13 +1,13 @@
 "use client"
 
 import { View, Text, Image, Pressable } from "react-native"
-import { Minus, Plus, Trash2, Check, Edit2 } from "lucide-react-native"
+import { Minus, Plus, Trash2, Check, Edit2, Sprout } from "lucide-react-native"
 import { useState } from "react"
 import { QuantityInputModal } from "@/components/modals/QuantityInputModal"
 
 interface CartItemProps {
   id: string
-  image: string
+  image: string | null
   name: string
   farm: string
   badge: { label: string; color: "green" | "orange" }
@@ -66,17 +66,23 @@ export function CartItem({
           {/* Checkbox */}
           <Pressable
             onPress={() => onSelect?.(id)}
-            className="w-5 h-5 rounded items-center justify-center mt-1"
+            className="w-7 h-7 rounded items-center justify-center mt-1"
             style={{
               backgroundColor: isSelected ? "#4CAF50" : "#ffffff",
               borderWidth: 2,
               borderColor: isSelected ? "#4CAF50" : "#D0D0D0",
             }}
           >
-            {isSelected && <Check size={14} color="#ffffff" strokeWidth={3} />}
+            {isSelected && <Check size={18} color="#ffffff" strokeWidth={3} />}
           </Pressable>
 
-          <Image source={{ uri: image }} className="w-20 h-20 rounded-lg" resizeMode="cover" />
+          {image ? (
+            <Image source={{ uri: image }} className="w-20 h-20 rounded-lg" resizeMode="cover" />
+          ) : (
+            <View className="w-20 h-20 rounded-lg bg-[#E8F5E8] items-center justify-center">
+              <Sprout size={32} color="#4CAF50" />
+            </View>
+          )}
 
           {/* Info and Trash */}
           <View className="flex-1 flex-row justify-between items-start">

@@ -47,7 +47,7 @@ export function useFarmDashboardData() {
         );
 
         // Active Batches
-        const activeBatches = batches.filter((b) => b.availableQuantity > 0);
+        const activeBatches = batches.filter((b: any) => b.availableQuantity > 0);
 
         // New Orders
         const newOrders = orders.filter(
