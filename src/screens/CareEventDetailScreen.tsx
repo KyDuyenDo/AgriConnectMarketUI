@@ -52,7 +52,7 @@ const CareEventDetailScreen = () => {
                         {item.occurredAt ? format(new Date(item.occurredAt), 'dd/MM/yyyy HH:mm') : 'N/A'}
                     </Text>
                 </View>
-                <Text style={styles.eventPayload}>{item.payload}</Text>
+                <Text style={styles.eventPayload}>{JSON.parse(item.payload)}</Text>
 
                 {/* Display image if available */}
                 {item.imageUrl && (
