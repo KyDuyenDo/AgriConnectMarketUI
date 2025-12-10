@@ -212,7 +212,7 @@ export function CustomerFarmDetailScreen({ route, navigation }: Props) {
                             showsHorizontalScrollIndicator={false}
                             contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 8 }}
                         >
-                            {batches.slice(0, 5).map(batch => {
+                            {batches.slice(0, 4).map(batch => {
                                 const b = batch as any;
                                 return (
                                     <View key={b.id} className="w-[160px] mr-4">

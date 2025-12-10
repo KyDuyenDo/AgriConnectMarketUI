@@ -155,7 +155,7 @@ export default function ProductModal({ form, setFormValues, lot, season, handleS
                 {/* --- Phần 3: Product Images --- */}
                 <ProductImagePicker
                     label="Main Photo"
-                    initialUrl={form?.image}
+                    initialUrl={form?.image || ''}
                     onChange={(uri) => setFormValues && setFormValues({ ...form, image: uri })}
                     image={image}
                     setImage={setImage}

@@ -25,7 +25,7 @@ export const PreOrderSection: React.FC<PreOrderSectionProps> = ({ farmId, curren
     // Filter out current batch if it happens to be in the list (though PreOrder usually implies future, current batch might be selling)
     // Requirement says "returns all products in a batch that the farmer has previously sold".
     // Let's just show them.
-    const displayBatches = currentBatchId ? preOrderBatches.filter(b => b.id !== currentBatchId) : preOrderBatches;
+    const displayBatches = (currentBatchId ? preOrderBatches.filter(b => b.id !== currentBatchId) : preOrderBatches).slice(0, 4);
 
     if (displayBatches.length === 0) return null;
 
