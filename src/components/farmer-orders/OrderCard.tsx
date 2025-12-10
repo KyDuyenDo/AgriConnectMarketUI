@@ -40,7 +40,7 @@ export function OrderCard({ order }: OrderCardProps) {
   const { mutate: cancelOrder } = useCancelOrder()
 
   const handleUpdateStatus = (newStatus: string) => {
-    updateStatus({ orderId: order.orderId, status: newStatus })
+    updateStatus({ orderId: order.id, status: newStatus })
   }
 
   const handleCancel = () => {
