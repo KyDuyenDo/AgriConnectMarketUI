@@ -114,10 +114,10 @@ const OrderCard: React.FC<{ order: Order }> = ({ order }) => {
           resizeMode="cover"
         />
         <View className="flex-1">
-          <Text className="text-[14px] font-semibold text-[#1B1F24]">
+          <Text className="text-[14px] font-semibold text-[#1B1F24]" numberOfLines={1}>
             {order.farmName}
           </Text>
-          <Text className="text-[12px] text-[#6B737A]">
+          <Text className="text-[12px] text-[#6B737A]" numberOfLines={1}>
             {order.subtitle}
           </Text>
         </View>

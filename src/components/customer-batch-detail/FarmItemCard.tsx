@@ -16,7 +16,7 @@ export default function FarmItemCard({ name, price, image }: FarmItemCardProps) 
         resizeMode="cover"
       />
       <View className="p-2">
-        <Text className="text-gray-800 font-medium">{name}</Text>
+        <Text className="text-gray-800 font-medium" numberOfLines={1}>{name}</Text>
         <Text className="text-[#2D2D2D] text-sm">{price}</Text>
       </View>
     </View>

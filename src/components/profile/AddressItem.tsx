@@ -45,7 +45,7 @@ export const AddressItem: React.FC<AddressItemProps> = ({
                                 </View>
                             )}
                         </View>
-                        <Text className="text-gray-600 text-sm leading-5">
+                        <Text className="text-gray-600 text-sm leading-5" numberOfLines={2}>
                             {address.detail}, {address.ward}, {address.district}, {address.province}
                         </Text>
                     </View>

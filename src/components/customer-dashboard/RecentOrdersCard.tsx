@@ -40,7 +40,7 @@ export const RecentOrdersCard: React.FC<RecentOrdersCardProps> = ({ orders, onVi
                 <View className="flex flex-row justify-between items-center">
                   {/* Farm and Items */}
                   <View>
-                    <Text className="text-sm font-medium text-[#2F3941] mb-0.5">
+                    <Text className="text-sm font-medium text-[#2F3941] mb-0.5" numberOfLines={1}>
                       {order.orderItems?.[0]?.batch?.season?.farm?.farmName || 'Unknown Farm'}
                     </Text>
                     <Text className="text-xs text-[#6B737A]">

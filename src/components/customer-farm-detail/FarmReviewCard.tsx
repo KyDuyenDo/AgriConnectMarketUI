@@ -33,7 +33,7 @@ export const FarmReviewCard: React.FC<FarmReviewCardProps> = ({ review }) => {
                 />
                 <View className="flex-1">
                     <View className="flex-row justify-between items-center mb-1">
-                        <Text className="font-bold text-gray-900 text-sm">{review.userName || 'Anonymous'}</Text>
+                        <Text className="font-bold text-gray-900 text-sm" numberOfLines={1}>{review.userName || 'Anonymous'}</Text>
                         <Text className="text-xs text-gray-400">
                             {review.createdAt ? format(new Date(review.createdAt), 'dd/MM/yyyy HH:mm') : ''}
                         </Text>
@@ -55,7 +55,7 @@ export const FarmReviewCard: React.FC<FarmReviewCardProps> = ({ review }) => {
                                 />
                             )}
                             <View>
-                                <Text className="text-xs font-medium text-gray-600">
+                                <Text className="text-xs font-medium text-gray-600" numberOfLines={1}>
                                     {review.batchName}
                                 </Text>
                                 <Text className="text-[10px] text-gray-400">
