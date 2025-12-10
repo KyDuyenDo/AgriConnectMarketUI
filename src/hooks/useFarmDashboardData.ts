@@ -78,12 +78,12 @@ export function useFarmDashboardData() {
 
                 // FIX: always have a product name
                 const productName =
-                    batch?.season?.product?.productName ||
+                    (typeof batch?.season === "object"
+                        ? batch?.season?.product?.productName
+                        : undefined) ||
                     firstItem?.productName ||
                     order.orderCode ||
                     "Order";
-
-                // FIX: always have an image
                 const imageUrl =
                     batch?.imageUrls?.[0] ||
                     firstItem?.imageUrl ||
