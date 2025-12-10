@@ -43,7 +43,7 @@ export const FarmProductCard: React.FC<FarmProductCardProps> = ({
     return (
         <TouchableOpacity
             onPress={onPress}
-            className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden h-full"
+            className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"
         >
             <View className="relative">
                 <Image
@@ -60,7 +60,7 @@ export const FarmProductCard: React.FC<FarmProductCardProps> = ({
                 )}
             </View>
 
-            <View className="p-3 flex-1 justify-between">
+            <View className="p-3 justify-between">
                 <View>
                     <Text numberOfLines={1} className="text-sm font-bold text-gray-900 mb-1">
                         {name}
