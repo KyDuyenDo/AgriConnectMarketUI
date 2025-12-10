@@ -212,7 +212,7 @@ export const CustomerBatchDetailScreen: React.FC = () => {
             weightType={batchData.units || "unit"}
             stockLevel={batchData.availableQuantity || 0}
             initialQuantity={selectedQuantity}
-            maxQuantity={batchData.totalYield || 0}
+            maxQuantity={batchData.availableQuantity || 0}
             unit={batchData.units || "unit"}
             onQuantityChange={setSelectedQuantity}
           />
