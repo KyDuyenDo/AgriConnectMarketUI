@@ -8,7 +8,7 @@ import { CustomerBatchDetailScreen } from "@/screens/CustomerBatchDetailScreen"
 import PersonalInformationScreen from "@/screens/PersonalInformationScreen"
 import { CustomerFarmDetailScreen } from "@/screens/CustomerFarmDetailScreen"
 import CustomerAddressScreen from "@/screens/CustomerAddressScreen"
-// import ScanScreen from "@/screens/ScanProduct/ScanScreen"
+import ScanScreen from "@/screens/ScanProduct/ScanScreen"
 import CareEventDetailScreen from "@/screens/CareEventDetailScreen"
 
 export type CustomerStackParamList = {
@@ -95,11 +95,11 @@ const CustomerNavigator = () => {
         component={require("@/screens/CustomerAllReviewsScreen").default}
         options={{ title: "All Reviews" }}
       />
-      {/* <Stack.Screen
+      <Stack.Screen
         name="ScanScreen"
         component={ScanScreen}
         options={{ headerShown: false }}
-      /> */}
+      />
       <Stack.Screen
         name="CustomerCheckout"
         component={require("@/screens/CustomerCheckoutScreen").default}
