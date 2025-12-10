@@ -26,3 +26,18 @@ export const register = async (formData: FormData) => {
     });
     return response.data;
 };
+
+export const forgotPassword = async (email: string) => {
+    const response = await apiClient.post('/api/auth/forgot-password', { email });
+    return response.data;
+}
+
+export const verifyOtp = async (email: string, otp: string) => {
+    const response = await apiClient.post('/api/auth/verify-otp', { email, otp });
+    return response.data;
+}
+
+export const resetPassword = async (request: any) => {
+    const response = await apiClient.post('/api/auth/reset-password', request);
+    return response.data;
+}

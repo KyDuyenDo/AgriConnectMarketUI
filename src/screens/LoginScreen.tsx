@@ -133,7 +133,7 @@ export default function LoginScreen() {
               {/* Remember Me & Forgot Password */}
               <View className="mb-6 flex-row items-center justify-between">
                 <RememberMeCheckbox checked={rememberMe} onToggle={setRememberMe} />
-                <TouchableOpacity>
+                <TouchableOpacity onPress={() => navigate.navigate("ForgotPassword")}>
                   <Text className="text-sm font-semibold text-[#4CAF50]">Forgot Password?</Text>
                 </TouchableOpacity>
               </View>

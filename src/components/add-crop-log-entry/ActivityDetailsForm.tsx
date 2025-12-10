@@ -122,6 +122,7 @@ export const ActivityDetailsForm: React.FC<{
                       </TouchableOpacity>
                     );
                   }}
+                  contentContainerStyle={{ paddingBottom: 40 }}
                 />
               )}
             </View>
