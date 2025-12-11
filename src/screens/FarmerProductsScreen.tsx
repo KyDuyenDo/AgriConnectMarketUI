@@ -41,7 +41,10 @@ const getBatchCode = (batch: Batch): string => {
   return "Batch"
 }
 
-const getStockStatus = (batch: Batch): "In Stock" | "Low Stock" | "Out of Stock" => {
+const getStockStatus = (batch: Batch): "In Stock" | "Low Stock" | "Out of Stock" | "Unsold" => {
+  if (batch.availableQuantity === 0 && batch.price === 0) {
+    return "Unsold"
+  }
   const percentage = (batch.availableQuantity / batch.totalYield) * 100
   if (percentage === 0) return "Out of Stock"
   if (percentage < 20) return "Low Stock"
@@ -55,7 +58,9 @@ const getStockBadgeStyle = (stock: string) => {
     case "Low Stock":
       return { bg: "bg-orange-100", text: "text-orange-700" }
     case "Out of Stock":
-      return { bg: "bg-red-100", text: "text-red-700" }
+      return { bg: "transparent", text: "text-transparent" }
+    case "Unsold":
+      return { bg: "bg-gray-100", text: "text-gray-600" }
     default:
       return { bg: "bg-green-100", text: "text-green-700" }
   }
@@ -142,11 +147,13 @@ const BatchCard = ({
         </View>
 
         {/* Selling Status Badge - Top Left (Below Category) */}
-        <View className={`absolute bottom-2 right-2 flex-row items-center py-1 px-2 rounded-full ${isSelling ? "bg-blue-100" : "bg-gray-200"}`}>
-          <Text className={`text-[10px] font-semibold ${isSelling ? "text-blue-700" : "text-gray-600"}`}>
-            {isSelling ? "Selling" : "Not Selling"}
-          </Text>
-        </View>
+        {isSelling && (
+          <View className="absolute bottom-2 right-2 flex-row items-center py-1 px-2 rounded-full bg-blue-100">
+            <Text className="text-[10px] font-semibold text-blue-700">
+              Selling
+            </Text>
+          </View>
+        )}
 
         {/* Category Badge - Top Left (Replaces Star) */}
         <View className="absolute top-2 left-2 bg-blue-100 py-1 px-2 rounded-full shadow-sm">
@@ -172,7 +179,11 @@ const BatchCard = ({
 
         {/* Price and Units */}
         <View className="flex-row justify-between items-end mb-3">
-          <Text className="text-base font-bold text-green-600">{new Intl.NumberFormat('vi-VN').format(batch.price)} đ/{batch.units}</Text>
+          {batch.price > 0 ? (
+            <Text className="text-base font-bold text-green-600">{new Intl.NumberFormat('vi-VN').format(batch.price)} đ/{batch.units}</Text>
+          ) : (
+            <View />
+          )}
           <Text className={`text-[11px] font-medium ${unitColor}`} numberOfLines={1}>
             {batch.availableQuantity} {batch.units}
           </Text>

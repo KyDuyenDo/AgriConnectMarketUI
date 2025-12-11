@@ -146,7 +146,7 @@ export const CustomerCartScreen: React.FC = () => {
   const selectedCartItems = allUiItems.filter((item) => selectedItems.includes(item.itemId));
 
   const subtotal = selectedCartItems.reduce((sum, item) => {
-    const itemPrice = item.itemPrice || 0
+    const itemPrice = item.batchPrice || 0
     const itemQuantity = item.quantity || 0
     return sum + itemPrice * itemQuantity
   }, 0)
@@ -230,7 +230,8 @@ export const CustomerCartScreen: React.FC = () => {
               id: item.itemId,
               name: productName,
               farm: group.farmName,
-              price: `${item.itemPrice}`,
+              price: `${(item.batchPrice || 0) * (item.quantity || 0)}`,
+              batchPrice: item.batchPrice,
               unit: unit,
               image: imageUrl,
               quantity: item.quantity,
@@ -242,7 +243,6 @@ export const CustomerCartScreen: React.FC = () => {
             }
           });
 
-          const isFarmSelected = items.some((item) => selectedItems.includes(item.id));
 
           return (
             <View key={farmName}>

@@ -26,7 +26,10 @@ export const BatchRow: React.FC<BatchRowProps> = ({ batch, onPress }) => {
         return code?.value || 'Unknown Code';
     };
 
-    const getStockStatus = (batch: Batch): "In Stock" | "Low Stock" | "Out of Stock" => {
+    const getStockStatus = (batch: Batch): "In Stock" | "Low Stock" | "Out of Stock" | "Unsold" => {
+        if (batch.availableQuantity === 0 && batch.price === 0) {
+            return "Unsold";
+        }
         const percentage = (batch.availableQuantity / batch.totalYield) * 100;
         if (percentage === 0) return "Out of Stock";
         if (percentage < 20) return "Low Stock";
@@ -40,7 +43,9 @@ export const BatchRow: React.FC<BatchRowProps> = ({ batch, onPress }) => {
             case "Low Stock":
                 return { bg: "bg-[#FFE0B2]", text: "text-[#F57C00]" };
             case "Out of Stock":
-                return { bg: "bg-[#FFCDD2]", text: "text-[#D32F2F]" };
+                return { bg: "transparent", text: "text-transparent" }; // Hide out of stock badge
+            case "Unsold":
+                return { bg: "bg-gray-100", text: "text-gray-600" };
             default:
                 return { bg: "bg-[#C8E6C9]", text: "text-[#2E7D32]" };
         }
@@ -123,12 +128,9 @@ export const BatchRow: React.FC<BatchRowProps> = ({ batch, onPress }) => {
                         {/* Sell Action Button */}
                         <TouchableOpacity
                             onPress={handleSellPress}
-                            className="flex-row items-center bg-green-50 px-2 py-1 rounded-full border border-green-100"
+                            className="bg-green-50 p-2 rounded-full border border-green-100"
                         >
-                            <DollarSign size={14} color="#16a34a" className="mr-1" />
-                            <Text className="text-xs font-bold text-green-700">
-                                ${batch.price}
-                            </Text>
+                            <DollarSign size={16} color="#16a34a" />
                         </TouchableOpacity>
                     </View>
 

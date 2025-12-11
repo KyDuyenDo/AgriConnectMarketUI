@@ -27,12 +27,15 @@ import { BATCH_QUERY_KEYS } from "@/hooks/useBatches"
 
 export function ExploreScreen() {
     const [searchQuery, setSearchQuery] = useState("")
-    const debouncedSearchQuery = useDebounce(searchQuery, 300)
+    const debouncedSearchQuery = useDebounce(searchQuery, 600)
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
     const queryClient = useQueryClient()
     const [refreshing, setRefreshing] = useState(false)
 
-    const { farms, categories, unifiedProducts, loading, error } = useHomeData();
+    const { farms, categories, unifiedProducts: filteredProducts, loading, error, fetchNextPage, hasNextPage, isFetchingNextPage } = useHomeData({
+        searchTerm: debouncedSearchQuery,
+        categoryId: selectedCategory || undefined
+    });
 
     const onRefresh = useCallback(async () => {
         setRefreshing(true)
@@ -46,22 +49,23 @@ export function ExploreScreen() {
         setRefreshing(false)
     }, [queryClient])
 
-    // Filter products based on search and category
-    const filteredProducts = useMemo(() => {
-        return unifiedProducts.filter(product => {
-            const matchesSearch = product.productName.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
-                product.farmName.toLowerCase().includes(debouncedSearchQuery.toLowerCase());
-            const matchesCategory = selectedCategory ? product.categoryId === selectedCategory : true;
-            return matchesSearch && matchesCategory;
-        });
-    }, [unifiedProducts, debouncedSearchQuery, selectedCategory]);
-
     // Featured Farmers (Top 3)
     const featuredFarmers = useMemo(() => {
         return farms.slice(0, 3);
     }, [farms]);
 
     const navigation = useNavigation<any>();
+
+    const handleScrollEnd = ({ nativeEvent }: any) => {
+        const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
+        // Check if user is at the very bottom
+        const paddingToBottom = 1; // Very strict threshold
+        if (layoutMeasurement.height + contentOffset.y >= contentSize.height - paddingToBottom) {
+            if (hasNextPage && !isFetchingNextPage) {
+                fetchNextPage();
+            }
+        }
+    };
 
     if (loading && !refreshing) {
         return <ExploreScreenSkeleton />
@@ -91,6 +95,8 @@ export function ExploreScreen() {
                 className="pt-4"
                 contentContainerStyle={{ paddingBottom: Platform.OS === "ios" ? 100 : 80 }}
                 showsVerticalScrollIndicator={false}
+                onMomentumScrollEnd={handleScrollEnd}
+                scrollEventThrottle={400}
                 refreshControl={
                     <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={["#4CAF50"]} tintColor="#4CAF50" />
                 }
@@ -153,6 +159,14 @@ export function ExploreScreen() {
 
                 {/* Products Grid */}
                 <ProductCustomerGrid searchQuery={searchQuery} products={filteredProducts as any} />
+
+                {/* Loading Indicator */}
+                {isFetchingNextPage && (
+                    <View className="py-6 flex-row justify-center items-center">
+                        <ActivityIndicator size="small" color="#4CAF50" />
+                        <Text className="text-gray-500 text-sm ml-2">Loading more...</Text>
+                    </View>
+                )}
             </ScrollView>
         </SafeAreaView>
     )

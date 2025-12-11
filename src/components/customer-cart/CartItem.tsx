@@ -37,7 +37,7 @@ export function CartItem({
   unitPrice,
   total,
   unit,
-  maxQuantity = 100,
+  maxQuantity = 0,
   isSelected = false,
   onSelect,
   onIncrement,

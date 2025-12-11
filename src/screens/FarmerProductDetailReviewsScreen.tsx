@@ -112,7 +112,16 @@ export function FarmerProductDetailReviewsScreen({ route, navigation }: Props) {
                 }
             >
                 <ProductHero
-                    image={batch?.imageUrls?.[0] || 'https://via.placeholder.com/400'}
+                    image={
+                        // Safely extract image URI
+                        (() => {
+                            const rawImage = batch?.imageUrls?.[0];
+                            if (!rawImage) return 'https://via.placeholder.com/400';
+                            if (typeof rawImage === 'string') return rawImage;
+                            // @ts-ignore - Handle case where backend returns object
+                            return rawImage?.imageUrl || rawImage?.uri || 'https://via.placeholder.com/400';
+                        })()
+                    }
                     badges={[]}
                 />
 

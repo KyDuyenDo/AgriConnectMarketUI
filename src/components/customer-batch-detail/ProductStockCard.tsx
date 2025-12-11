@@ -103,7 +103,7 @@ const ProductStockCard: React.FC<ProductStockCardProps> = ({
       <QuantityInputModal
         visible={isModalVisible}
         currentQuantity={quantity}
-        maxQuantity={maxQuantity || 100}
+        maxQuantity={maxQuantity || 0}
         unit={unit}
         title="Enter Exact Quantity"
         onConfirm={handleModalConfirm}

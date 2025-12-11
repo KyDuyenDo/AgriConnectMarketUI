@@ -1,7 +1,7 @@
 import type React from "react"
-import { View, ScrollView, Text, TouchableOpacity, Image, Alert, RefreshControl } from "react-native"
+import { View, ScrollView, Text, TouchableOpacity, Image, Alert, RefreshControl, Modal, TouchableWithoutFeedback } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
-import { ChevronLeft, Share, Heart, ShieldCheck } from "lucide-react-native"
+import { ChevronLeft, Share, Heart, ShieldCheck, X } from "lucide-react-native"
 import { useState, useCallback } from "react"
 import Carousel from "@/components/ui/Carousel"
 import FarmInformationCard from "@/components/customer-batch-detail/FarmInformationCard"
@@ -16,7 +16,7 @@ import { useRoute, useNavigation } from "@react-navigation/native"
 import { useBatchDetail } from "@/hooks/useBatchDetail"
 import { formatDate } from "@/utils/date"
 import { CustomerBatchDetailSkeleton } from "@/components/skeletons/CustomerBatchDetailSkeleton"
-import { useAddToCart, useCart } from "@/hooks/useCart"
+import { useAddToCart, useCart, useUpdateCartItem } from "@/hooks/useCart"
 import { useCreateOrder } from "@/hooks/useOrders"
 import { useAuthStore } from "@/stores/auth"
 import { useGetAddresses } from "@/hooks/useAddress"
@@ -33,6 +33,7 @@ export const CustomerBatchDetailScreen: React.FC = () => {
   const { data: batch, isLoading } = useBatchDetail(batchId)
   const queryClient = useQueryClient()
   const [refreshing, setRefreshing] = useState(false)
+  const [isQrModalVisible, setIsQrModalVisible] = useState(false)
 
   const { data: cart } = useCart()
   const addToCartMutation = useAddToCart()
@@ -77,10 +78,17 @@ export const CustomerBatchDetailScreen: React.FC = () => {
   const batchData = batch as any;
 
   const productImages =
-    batchData.imageUrls && batchData.imageUrls.length > 0 ? batchData.imageUrls : ["https://via.placeholder.com/400"]
+    batchData.imageUrls && batchData.imageUrls.length > 0
+      ? batchData.imageUrls.map((img: any) => {
+        if (typeof img === 'string') return img;
+        return img.imageUrl || img.uri || "https://via.placeholder.com/400";
+      })
+      : ["https://via.placeholder.com/400"]
 
   const farmName = farm?.farmName || "Unknown Farm"
   const farmImage = farm?.bannerUrl || "https://via.placeholder.com/50"
+
+  const updateCartItemMutation = useUpdateCartItem()
 
   const handleAddToCart = (quantity: number) => {
     if (!cart?.cartId) {
@@ -88,22 +96,65 @@ export const CustomerBatchDetailScreen: React.FC = () => {
       return
     }
 
-    addToCartMutation.mutate(
-      {
-        cartId: cart.cartId,
-        batchId: batch.id,
-        quantity: quantity,
-      },
-      {
-        onSuccess: () => {
-          Alert.alert("Success", `Added ${quantity} ${batch.units} to cart!`)
-          setSelectedQuantity(1)
+    // Check if item already exists in cart
+    let existingItem: any = null;
+    if (cart.cartItems) {
+      for (const group of cart.cartItems) {
+        const found = group.items.find((item: any) => item.batchId === batch.id);
+        if (found) {
+          existingItem = found;
+          break;
+        }
+      }
+    }
+
+    if (existingItem) {
+      // Update existing item
+      const newQuantity = existingItem.quantity + quantity;
+
+      // Optional: Check if new quantity exceeds stock
+      // if (newQuantity > (batch.availableQuantity || 0)) {
+      //   Alert.alert("Error", "Cannot add more items than available in stock.");
+      //   return;
+      // }
+
+      updateCartItemMutation.mutate(
+        {
+          cartId: cart.cartId,
+          data: {
+            batchId: batch.id,
+            quantity: newQuantity
+          }
         },
-        onError: (error: any) => {
-          Alert.alert("Error", "Failed to add to cart. " + (error.message || ""))
+        {
+          onSuccess: () => {
+            Alert.alert("Success", `Updated cart: Total ${newQuantity} ${batch.units}`)
+            setSelectedQuantity(1)
+          },
+          onError: (error: any) => {
+            Alert.alert("Error", "Failed to update cart. " + (error.message || ""))
+          }
+        }
+      )
+    } else {
+      // Add new item
+      addToCartMutation.mutate(
+        {
+          cartId: cart.cartId,
+          batchId: batch.id,
+          quantity: quantity,
         },
-      },
-    )
+        {
+          onSuccess: () => {
+            Alert.alert("Success", `Added ${quantity} ${batch.units} to cart!`)
+            setSelectedQuantity(1)
+          },
+          onError: (error: any) => {
+            Alert.alert("Error", "Failed to add to cart. " + (error.message || ""))
+          },
+        },
+      )
+    }
   }
 
   const handleBuyNow = async (quantity: number) => {
@@ -260,8 +311,56 @@ export const CustomerBatchDetailScreen: React.FC = () => {
         price={batchData.price || 0}
         onAddToCart={() => handleAddToCart(selectedQuantity)}
         onBuyNow={() => handleBuyNow(selectedQuantity)}
+        onViewQr={() => setIsQrModalVisible(true)}
         showQuantitySelector={false}
       />
+
+      <Modal
+        visible={isQrModalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setIsQrModalVisible(false)}
+      >
+        <TouchableWithoutFeedback onPress={() => setIsQrModalVisible(false)}>
+          <View className="flex-1 bg-black/60 justify-center items-center p-6">
+            <TouchableWithoutFeedback>
+              <View className="bg-white p-6 rounded-3xl items-center w-full max-w-sm">
+                <View className="w-full flex-row justify-end mb-2">
+                  <TouchableOpacity
+                    onPress={() => setIsQrModalVisible(false)}
+                    className="w-8 h-8 bg-gray-100 rounded-full items-center justify-center"
+                  >
+                    <X size={20} color="#666" />
+                  </TouchableOpacity>
+                </View>
+
+                <Text className="text-xl font-bold text-gray-900 mb-2">Verification QR</Text>
+                <Text className="text-gray-500 text-center mb-6">
+                  Scan this code to verify the origin and quality of this product batch.
+                </Text>
+
+                <View className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-4">
+                  {batchData.verificationQr ? (
+                    <Image
+                      source={{ uri: batchData.verificationQr }}
+                      className="w-64 h-64"
+                      resizeMode="contain"
+                    />
+                  ) : (
+                    <View className="w-64 h-64 bg-gray-100 items-center justify-center rounded-xl">
+                      <Text className="text-gray-400">QR Code not available</Text>
+                    </View>
+                  )}
+                </View>
+
+                <Text className="text-xs text-gray-400 text-center">
+                  Batch ID: {batchData.batchCode?.value || batchData.batchCode}
+                </Text>
+              </View>
+            </TouchableWithoutFeedback>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
     </View>
   )
 }

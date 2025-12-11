@@ -1,7 +1,19 @@
 import apiClient from "@/api/config";
-import { ProductBatch, CreateProductBatchResponse, Batch } from "@/types";
+import { ProductBatch, CreateProductBatchResponse, Batch, SellingBatch } from "@/types";
 
 const BatchService = {
+    getSellingBatches: async (params?: { searchTerm?: string; categoryId?: string; isDesc?: boolean; pageNumber?: number; pageSize?: number; signal?: AbortSignal }): Promise<SellingBatch[]> => {
+        const queryParams = new URLSearchParams();
+        if (params?.searchTerm) queryParams.append("searchTerm", params.searchTerm);
+        if (params?.categoryId && params?.categoryId !== undefined) queryParams.append("categoryId", params.categoryId);
+        queryParams.append("isDesc", "true");
+        if (params?.pageNumber) queryParams.append("pageNumber", String(params.pageNumber));
+        if (params?.pageSize) queryParams.append("pageSize", String(params.pageSize));
+        console.log("params", params)
+
+        const response = await apiClient.get<{ success: boolean; message: string; data: SellingBatch[] }>(`/api/product-batches/selling?${queryParams.toString()}`, { signal: params?.signal });
+        return response.data.data;
+    },
     getAllBySeasonId: async (seasonId: string, signal?: AbortSignal): Promise<ProductBatch[]> => {
         const response = await apiClient.get<{ data: ProductBatch[] }>(`/api/product-batches/season/${seasonId}`, { signal });
         return response.data.data;

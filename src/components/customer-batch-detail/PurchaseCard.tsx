@@ -12,6 +12,7 @@ type PurchaseCardProps = {
   price: number
   onAddToCart?: (quantity: number) => void
   onBuyNow?: (quantity: number) => void
+  onViewQr?: () => void
   showQuantitySelector?: boolean
 }
 
@@ -24,6 +25,7 @@ export default function PurchaseCard({
   price,
   onAddToCart,
   onBuyNow,
+  onViewQr,
   showQuantitySelector = false,
 }: PurchaseCardProps) {
   const insets = useSafeAreaInsets()
@@ -45,7 +47,7 @@ export default function PurchaseCard({
           </Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => { }} className="flex items-center justify-center mt-1">
+        <TouchableOpacity onPress={onViewQr} className="flex items-center justify-center mt-1">
           <QrCode size={24} color="#2D2D2D" className="mx-auto" />
           <Text
             numberOfLines={1}

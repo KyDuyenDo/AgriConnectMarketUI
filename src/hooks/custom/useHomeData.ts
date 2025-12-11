@@ -6,7 +6,7 @@ import ProductService from '@/services/products.service';
 import SeasonService from '@/services/seasons.service';
 import BatchService from '@/services/batches.service';
 import { UnifiedProduct, Farm, SellingBatch } from '@/types';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
 import { FARM_QUERY_KEYS } from '../useFarm';
 import { CATEGORY_QUERY_KEYS } from '../useCategories';
 import { SEASON_QUERY_KEYS } from '../useSeasons';
@@ -17,14 +17,14 @@ import { BATCH_QUERY_KEYS } from '../useBatches';
 // Wait, useProducts.ts: "const PRODUCT_QUERY_KEYS = ...". It is NOT exported.
 // I should have checked useProducts.ts more carefully.
 // I will define a local key for products or update useProducts.ts.
-// Updating useProducts.ts is better but I want to finish this file.
-// I'll use a hardcoded key for products for now to avoid context switching, or better, I'll update useProducts.ts in the next step if needed.
 // Actually, I can just use ["products"] as the key since that's what useProducts uses.
 const PRODUCT_QUERY_KEYS = {
     all: ["products"] as const,
 };
 
-export const useHomeData = () => {
+const PAGE_SIZE = 10;
+
+export const useHomeData = (filters?: { searchTerm?: string; categoryId?: string }) => {
     const { isAuthenticated, userId } = useAuthStore();
 
     const { data: farmsData, isLoading: isFarmsLoading, error: farmsError } = useQuery({
@@ -45,15 +45,32 @@ export const useHomeData = () => {
         enabled: isAuthenticated,
     });
 
+    // Keeping seasons query just in case, though might be unused for SellingBatch logic
     const { data: seasons = [], isLoading: isSeasonsLoading, error: seasonsError } = useQuery({
         queryKey: SEASON_QUERY_KEYS.all(),
         queryFn: () => SeasonService.getAll(),
         enabled: isAuthenticated,
     });
 
-    const { data: batches = [], isLoading: isBatchesLoading, error: batchesError } = useQuery({
-        queryKey: BATCH_QUERY_KEYS.all,
-        queryFn: () => BatchService.getAll(),
+    const {
+        data: batchesData,
+        isLoading: isBatchesLoading,
+        error: batchesError,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage
+    } = useInfiniteQuery({
+        queryKey: [...BATCH_QUERY_KEYS.all, filters],
+        queryFn: ({ pageParam = 1 }) => BatchService.getSellingBatches({
+            searchTerm: filters?.searchTerm,
+            categoryId: filters?.categoryId,
+            pageNumber: pageParam,
+            pageSize: PAGE_SIZE
+        }),
+        getNextPageParam: (lastPage, allPages) => {
+            return lastPage.length === PAGE_SIZE ? allPages.length + 1 : undefined;
+        },
+        initialPageParam: 1,
         enabled: isAuthenticated,
     });
 
@@ -67,80 +84,49 @@ export const useHomeData = () => {
     const error = farmsError || categoriesError || productsError || seasonsError || batchesError;
 
     const unifiedProducts: UnifiedProduct[] = useMemo(() => {
-        if (!batches.length) return [];
+        if (!batchesData?.pages) return [];
 
-        return batches.map(batch => {
-            // Check if it is SellingBatch (has 'product' property as string name)
-            if ('product' in batch && typeof (batch as any).product === 'string') {
-                const sBatch = batch as SellingBatch;
+        // Flatten the pages
+        const allBatches = batchesData.pages.flatMap(page => page);
+        const sellingBatches = allBatches as unknown as SellingBatch[];
 
-                // Try to find matches for IDs
-                // Match Farm
-                const farm = farms.find(f => f.farmName === sBatch.farm);
+        return sellingBatches.map(sBatch => {
+            // Match Farm
+            const farm = farms.find(f => f.farmName === sBatch.farm);
 
-                // Match Product to get Category
-                const product = products.find(p => p.productName.trim().toLowerCase() === sBatch.product.trim().toLowerCase());
-                const category = product ? categories.find(c => c.id === product.categoryId) : null;
-
-                return {
-                    id: sBatch.id,
-                    batchCode: sBatch.batchCode,
-                    productName: sBatch.product,
-                    farmName: sBatch.farm,
-                    farmId: farm?.id || "",
-                    price: sBatch.price,
-                    unit: sBatch.units,
-                    totalYield: sBatch.totalYield,
-                    availableQuantity: sBatch.avaibleQuantity, // Using the field from JSON (with typo)
-                    categoryName: category?.categoryName || "Uncategorized",
-                    categoryId: category?.id || "",
-                    imageUrl: sBatch.imageUrls && sBatch.imageUrls.length > 0 ? sBatch.imageUrls[0] : (category?.illustrativeImageUrl || ""),
-                    rating: 0,
-                    reviewCount: 0,
-                    location: farm?.address?.province || "Unknown Location"
-                };
-            }
-
-            // Existing logic for Batch (ProductBatch/Batch)
-            const b = batch as import('@/types').Batch;
-            const season = seasons.find(s => s.id === b.seasonId);
-            const product = season ? products.find(p => p.id === season.productId) : null;
-            const farm = season ? farms.find(f => f.id === season.farmId) : null;
+            // Match Product to get Category
+            // Uses name matching as fallback/primary method since SellingBatch has product name
+            const product = products.find(p => p.productName.trim().toLowerCase() === sBatch.product.trim().toLowerCase());
             const category = product ? categories.find(c => c.id === product.categoryId) : null;
 
-            // Resolve batch code
-            let batchCodeStr = "N/A";
-            if (typeof b.batchCode === 'string') {
-                batchCodeStr = b.batchCode;
-            } else if (b.batchCode && typeof b.batchCode === 'object' && 'value' in b.batchCode) {
-                batchCodeStr = (b.batchCode as any).value;
-            }
-
             return {
-                id: b.id,
-                batchCode: batchCodeStr,
-                productName: product?.productName || "Unknown Product",
-                farmName: farm?.farmName || "Unknown Farm",
+                id: sBatch.id,
+                batchCode: sBatch.batchCode,
+                productName: sBatch.product,
+                farmName: sBatch.farm,
                 farmId: farm?.id || "",
-                price: b.price,
-                unit: b.units,
-                totalYield: b.totalYield,
-                availableQuantity: b.availableQuantity,
+                price: sBatch.price,
+                unit: sBatch.units,
+                totalYield: sBatch.totalYield,
+                availableQuantity: sBatch.avaibleQuantity, // Using the property from SellingBatch type
                 categoryName: category?.categoryName || "Uncategorized",
                 categoryId: category?.id || "",
-                imageUrl: b.imageUrls && b.imageUrls.length > 0 ? b.imageUrls[0] : (category?.illustrativeImageUrl || ""),
-                rating: b.averageRating || 0,
-                reviewCount: b.reviewCount || 0,
-                location: farm?.address?.province || "Unknown Location"
+                imageUrl: sBatch.imageUrls && sBatch.imageUrls.length > 0 ? sBatch.imageUrls[0] : (category?.illustrativeImageUrl || ""),
+                rating: 0,
+                reviewCount: 0,
+                location: farm?.address?.province || "Unknown"
             };
         });
-    }, [batches, seasons, products, farms, categories]);
+    }, [batchesData, products, farms, categories]);
 
     return {
         farms,
         categories,
         unifiedProducts,
         loading,
-        error: error ? (error as Error).message : null
+        error: error ? (error as Error).message : null,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage
     };
 };

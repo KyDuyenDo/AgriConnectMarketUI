@@ -26,9 +26,7 @@ import { AddBatchScreenSkeleton } from "@/components/skeletons/AddBatchScreenSke
 const schema = yup.object({
     seasonId: yup.string().required("Season is required"),
     totalYield: yup.number().required("Total yield is required").positive(),
-    availableQuantity: yup.number().required("Available quantity is required").positive(),
     units: yup.string().required("Unit is required"),
-    price: yup.number().required("Price is required").positive(),
     plantingDate: yup.string().required("Planting date is required"),
 });
 
@@ -94,11 +92,11 @@ export default function AddBatchScreen() {
         const formData = new FormData();
         formData.append('SeasonId', data.seasonId);
         formData.append('TotalYield', data.totalYield.toString());
-        formData.append('AvailableQuantity', data.availableQuantity.toString());
+        formData.append('AvailableQuantity', '0');
         formData.append('Units', data.units);
         formData.append('PlantingDate', data.plantingDate);
         formData.append('IsActive', 'true');
-        formData.append('Price', data.price.toString());
+        formData.append('Price', '0');
 
         selectedImages.forEach((image, index) => {
             // @ts-ignore
@@ -197,104 +195,54 @@ export default function AddBatchScreen() {
                     </View>
 
                     {/* Yield Information */}
-                    <View className="flex-row gap-3 mb-4">
-                        <View className="flex-1">
-                            <Text className="text-sm font-medium text-[#5c5c5c] mb-2">Total Yield</Text>
-                            <Controller
-                                control={control}
-                                name="totalYield"
-                                render={({ field: { onChange, onBlur, value } }) => (
-                                    <TextInput
-                                        className="bg-white border border-[#e8e8e8] rounded-xl px-4 py-3 text-sm text-[#2d2d2d]"
-                                        placeholder="0"
-                                        keyboardType="numeric"
-                                        onBlur={onBlur}
-                                        onChangeText={onChange}
-                                        value={value?.toString()}
-                                    />
-                                )}
-                            />
-                            {errors.totalYield && (
-                                <Text className="text-red-500 text-xs mt-1">
-                                    {errors.totalYield.message}
-                                </Text>
+                    <View className="mb-4">
+                        <Text className="text-sm font-medium text-[#5c5c5c] mb-2">Total Yield</Text>
+                        <Controller
+                            control={control}
+                            name="totalYield"
+                            render={({ field: { onChange, onBlur, value } }) => (
+                                <TextInput
+                                    className="bg-white border border-[#e8e8e8] rounded-xl px-4 py-3 text-sm text-[#2d2d2d]"
+                                    placeholder="0"
+                                    keyboardType="numeric"
+                                    onBlur={onBlur}
+                                    onChangeText={onChange}
+                                    value={value?.toString()}
+                                />
                             )}
-                        </View>
-
-                        <View className="flex-1">
-                            <Text className="text-sm font-medium text-[#5c5c5c] mb-2">Available Qty</Text>
-                            <Controller
-                                control={control}
-                                name="availableQuantity"
-                                render={({ field: { onChange, onBlur, value } }) => (
-                                    <TextInput
-                                        className="bg-white border border-[#e8e8e8] rounded-xl px-4 py-3 text-sm text-[#2d2d2d]"
-                                        placeholder="0"
-                                        keyboardType="numeric"
-                                        onBlur={onBlur}
-                                        onChangeText={onChange}
-                                        value={value?.toString()}
-                                    />
-                                )}
-                            />
-                            {errors.availableQuantity && (
-                                <Text className="text-red-500 text-xs mt-1">
-                                    {errors.availableQuantity.message}
-                                </Text>
-                            )}
-                        </View>
+                        />
+                        {errors.totalYield && (
+                            <Text className="text-red-500 text-xs mt-1">
+                                {errors.totalYield.message}
+                            </Text>
+                        )}
                     </View>
 
-                    {/* Price and Unit */}
-                    <View className="flex-row gap-3 mb-4">
-                        <View className="flex-1">
-                            <Text className="text-sm font-medium text-[#5c5c5c] mb-2">Price</Text>
+                    {/* Unit */}
+                    <View className="mb-4">
+                        <Text className="text-sm font-medium text-[#5c5c5c] mb-2">Unit</Text>
+                        <View className="bg-white border border-[#e8e8e8] rounded-xl">
                             <Controller
                                 control={control}
-                                name="price"
-                                render={({ field: { onChange, onBlur, value } }) => (
-                                    <TextInput
-                                        className="bg-white border border-[#e8e8e8] rounded-xl px-4 py-3 text-sm text-[#2d2d2d]"
-                                        placeholder="0.00"
-                                        keyboardType="numeric"
-                                        onBlur={onBlur}
-                                        onChangeText={onChange}
-                                        value={value?.toString()}
-                                    />
+                                name="units"
+                                render={({ field: { onChange, value } }) => (
+                                    <Picker
+                                        selectedValue={value || ""}
+                                        onValueChange={onChange}
+                                    >
+                                        <Picker.Item label="kg" value="kg" />
+                                        <Picker.Item label="lb" value="lb" />
+                                        <Picker.Item label="ton" value="ton" />
+                                        <Picker.Item label="box" value="box" />
+                                    </Picker>
                                 )}
                             />
-                            {errors.price && (
-                                <Text className="text-red-500 text-xs mt-1">
-                                    {errors.price.message}
-                                </Text>
-                            )}
                         </View>
-
-                        <View className="flex-1">
-                            <Text className="text-sm font-medium text-[#5c5c5c] mb-2">Unit</Text>
-                            <View className="bg-white border border-[#e8e8e8] rounded-xl">
-                                <Controller
-                                    control={control}
-                                    name="units"
-                                    render={({ field: { onChange, value } }) => (
-                                        <Picker
-                                            selectedValue={value || ""}
-                                            onValueChange={onChange}
-                                        >
-                                            <Picker.Item label="kg" value="kg" />
-                                            <Picker.Item label="lb" value="lb" />
-                                            <Picker.Item label="ton" value="ton" />
-                                            <Picker.Item label="box" value="box" />
-                                        </Picker>
-                                    )}
-                                />
-                            </View>
-                            {errors.units && (
-                                <Text className="text-red-500 text-xs mt-1">
-                                    {errors.units.message}
-                                </Text>
-                            )}
-                        </View>
+                        {errors.units && (
+                            <Text className="text-red-500 text-xs mt-1">
+                                {errors.units.message}
+                            </Text>
+                        )}
                     </View>
 
                     {/* Planting Date */}
