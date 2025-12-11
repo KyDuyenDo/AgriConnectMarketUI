@@ -28,11 +28,13 @@ export default function PurchaseCard({
 }: PurchaseCardProps) {
   const insets = useSafeAreaInsets()
 
+  const isOutOfStock = availableQuantity <= 0
+
   return (
     <SafeAreaView edges={["bottom"]} className="bg-white w-full p-4">
       {/* Buttons */}
       <View className="flex-row gap-2">
-        <TouchableOpacity onPress={() => {}} className="flex items-center justify-center mt-1">
+        <TouchableOpacity onPress={() => { }} className="flex items-center justify-center mt-1">
           <Store size={24} color="#2D2D2D" className="mx-auto" />
           <Text
             numberOfLines={1}
@@ -43,7 +45,7 @@ export default function PurchaseCard({
           </Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => {}} className="flex items-center justify-center mt-1">
+        <TouchableOpacity onPress={() => { }} className="flex items-center justify-center mt-1">
           <QrCode size={24} color="#2D2D2D" className="mx-auto" />
           <Text
             numberOfLines={1}
@@ -55,19 +57,30 @@ export default function PurchaseCard({
         </TouchableOpacity>
 
         <TouchableOpacity
-          onPress={() => onAddToCart?.(1)}
-          className="bg-[#d3ecd4] px-4 py-2 rounded-2xl flex-row items-center justify-center"
+          onPress={() => !isOutOfStock && onAddToCart?.(1)}
+          disabled={isOutOfStock}
+          className={`px-4 py-2 rounded-2xl flex-row items-center justify-center ${isOutOfStock ? "bg-gray-200" : "bg-[#d3ecd4]"
+            }`}
         >
-          <ShoppingCart size={24} color="#4CAF50" className="mx-auto mb-1" />
+          <ShoppingCart size={24} color={isOutOfStock ? "#A0A0A0" : "#4CAF50"} className="mx-auto mb-1" />
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => onBuyNow?.(1)} className="flex-1 bg-green-600 py-2 rounded-2xl">
-          <Text className="text-white font-medium text-center">Buy Now</Text>
-          <View>
-            <Text className="text-white text-sm font-light text-center">
-              {total} | {weight}
-            </Text>
-          </View>
+        <TouchableOpacity
+          onPress={() => !isOutOfStock && onBuyNow?.(1)}
+          disabled={isOutOfStock}
+          className={`flex-1 py-2 rounded-2xl ${isOutOfStock ? "bg-gray-300" : "bg-green-600"
+            }`}
+        >
+          <Text className="text-white font-medium text-center">
+            {isOutOfStock ? "Out of Stock" : "Buy Now"}
+          </Text>
+          {!isOutOfStock && (
+            <View>
+              <Text className="text-white text-sm font-light text-center">
+                {total} | {weight}
+              </Text>
+            </View>
+          )}
         </TouchableOpacity>
       </View>
     </SafeAreaView>
