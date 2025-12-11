@@ -16,16 +16,31 @@ import { CustomerCartScreen } from "@/screens/CustomerCartScreen"
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import CustomerNavigator from "@/navigation/CustomerNavigator"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { QueryProvider } from "@/providers/QueryProvider"
 import { useAuthStore } from "@/stores/auth"
+import { FreshHarvestSplash } from "@/screens/FreshHarvestSplash"
 
 enableScreens()
 
 export default function App() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
   const isFarmer = useAuthStore((state) => state.role === 'Farmer')
+  const [isShowSplash, setIsShowSplash] = useState(true)
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsShowSplash(false)
+    }, 7000)
+
+    return () => clearTimeout(timer)
+  }, [])
+
   console.log("App: isAuthenticated:", isAuthenticated, "isFarmer:", isFarmer)
+
+  if (isShowSplash) {
+    return <FreshHarvestSplash />
+  }
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
