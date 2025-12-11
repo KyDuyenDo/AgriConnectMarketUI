@@ -240,6 +240,7 @@ export const CustomerCartScreen: React.FC = () => {
               isFavorite: false,
               rating: 0,
               numRatings: 0,
+              isOutOfStock: item.isOutOfStock,
             }
           });
 

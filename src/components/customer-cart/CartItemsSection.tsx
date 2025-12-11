@@ -57,9 +57,10 @@ export default function CartItemsSection({
             name={item.name}
             farm={item.farm}
             badge={{
-              label: item.status,
-              color: "green",
+              label: item.isOutOfStock ? "Out of Stock" : item.status,
+              color: item.isOutOfStock ? "red" : "green",
             }}
+            isOutOfStock={item.isOutOfStock}
             harvestInfo={""}
             quantity={item.quantity}
             unitPrice={new Intl.NumberFormat('vi-VN').format(Number.parseFloat(item.batchPrice))}

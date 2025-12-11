@@ -34,6 +34,7 @@ export const CustomerBatchDetailScreen: React.FC = () => {
   const queryClient = useQueryClient()
   const [refreshing, setRefreshing] = useState(false)
   const [isQrModalVisible, setIsQrModalVisible] = useState(false)
+  const updateCartItemMutation = useUpdateCartItem()
 
   const { data: cart } = useCart()
   const addToCartMutation = useAddToCart()
@@ -88,7 +89,7 @@ export const CustomerBatchDetailScreen: React.FC = () => {
   const farmName = farm?.farmName || "Unknown Farm"
   const farmImage = farm?.bannerUrl || "https://via.placeholder.com/50"
 
-  const updateCartItemMutation = useUpdateCartItem()
+
 
   const handleAddToCart = (quantity: number) => {
     if (!cart?.cartId) {
@@ -98,9 +99,16 @@ export const CustomerBatchDetailScreen: React.FC = () => {
 
     // Check if item already exists in cart
     let existingItem: any = null;
+    console.log("Full Cart Object:", JSON.stringify(cart, null, 2));
+
     if (cart.cartItems) {
+      console.log("Checking cart items for batchId:", batch.id);
       for (const group of cart.cartItems) {
-        const found = group.items.find((item: any) => item.batchId === batch.id);
+        console.log("Group items:", group.items);
+        const found = group.items.find((item: any) => {
+          console.log(`Comparing ${item.batchId} with ${batch.id}`);
+          return item.batchId === batch.id
+        });
         if (found) {
           existingItem = found;
           break;
@@ -109,14 +117,15 @@ export const CustomerBatchDetailScreen: React.FC = () => {
     }
 
     if (existingItem) {
+      console.log("Existing item:", existingItem);
       // Update existing item
       const newQuantity = existingItem.quantity + quantity;
 
-      // Optional: Check if new quantity exceeds stock
-      // if (newQuantity > (batch.availableQuantity || 0)) {
-      //   Alert.alert("Error", "Cannot add more items than available in stock.");
-      //   return;
-      // }
+      const availableStock = batch.availableQuantity || 0;
+      if (newQuantity > availableStock) {
+        Alert.alert("Error", `Cannot add more items. You have ${existingItem.quantity} in cart and stock is ${availableStock}.`);
+        return;
+      }
 
       updateCartItemMutation.mutate(
         {
@@ -132,11 +141,13 @@ export const CustomerBatchDetailScreen: React.FC = () => {
             setSelectedQuantity(1)
           },
           onError: (error: any) => {
-            Alert.alert("Error", "Failed to update cart. " + (error.message || ""))
+            console.log("Update Error:", error.response?.data || error.message);
+            Alert.alert("Error", "Failed to update cart. " + (error.response?.data?.message || error.message || ""))
           }
         }
       )
     } else {
+      console.log("Adding new item to cart:", batch);
       // Add new item
       addToCartMutation.mutate(
         {
@@ -150,7 +161,8 @@ export const CustomerBatchDetailScreen: React.FC = () => {
             setSelectedQuantity(1)
           },
           onError: (error: any) => {
-            Alert.alert("Error", "Failed to add to cart. " + (error.message || ""))
+            console.log("Add Error:", error.response?.data || error.message);
+            Alert.alert("Error", "Failed to add to cart. " + (error.response?.data?.message || error.message || ""))
           },
         },
       )

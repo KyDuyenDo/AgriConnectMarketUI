@@ -315,7 +315,13 @@ export const CustomerCheckoutScreen: React.FC = () => {
                             {group.items.map((item: any) => (
                                 <View key={item.itemId} className="flex-row items-center mb-3">
                                     <Image
-                                        source={{ uri: item.batchImageUrls?.[0] || "https://via.placeholder.com/50" }}
+                                        source={{
+                                            uri: (() => {
+                                                const img = item.batchImageUrls?.[0];
+                                                if (typeof img === 'string') return img;
+                                                return (img as any)?.imageUrl || (img as any)?.uri || "https://via.placeholder.com/50";
+                                            })()
+                                        }}
                                         className="w-12 h-12 rounded-lg bg-gray-100"
                                     />
                                     <View className="flex-1 ml-3">

@@ -214,7 +214,6 @@ export const CartService = {
             console.log("✅ Item added successfully:", res.data);
             return res.data.data;
         } catch (error) {
-            console.error("❌ Error adding item to cart:", error);
             throw error;
         }
     },
