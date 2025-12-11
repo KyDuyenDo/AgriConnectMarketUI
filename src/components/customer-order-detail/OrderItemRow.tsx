@@ -21,7 +21,7 @@ export const OrderItemRow: React.FC<{
       <View className="flex-row items-start py-3">
         {batch?.imageUrls?.[0] ? (
           <Image
-            source={{ uri: batch?.imageUrls?.[0] }}
+            source={{ uri: typeof batch?.imageUrls?.[0] === 'string' ? batch?.imageUrls?.[0] : (batch?.imageUrls?.[0] as any)?.uri || "" }}
             className="mr-3 h-16 w-16 rounded-2xl bg-[#FFE2E2]"
             resizeMode="cover"
           />

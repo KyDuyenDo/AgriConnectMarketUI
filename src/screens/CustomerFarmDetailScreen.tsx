@@ -292,7 +292,7 @@ export function CustomerFarmDetailScreen({ route, navigation }: Props) {
 
                         {farm.certificateUrl ? (
                             <Image
-                                source={{ uri: farm.certificateUrl }}
+                                source={{ uri: typeof farm.certificateUrl === 'string' ? farm.certificateUrl : (farm.certificateUrl as any)?.uri || "" }}
                                 className="w-full h-[80%] rounded-lg"
                                 resizeMode="contain"
                             />

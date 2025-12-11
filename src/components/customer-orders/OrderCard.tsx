@@ -109,7 +109,7 @@ const OrderCard: React.FC<{ order: Order }> = ({ order }) => {
       {/* Farm info */}
       < View className="flex-row items-center mb-3" >
         <Image
-          source={{ uri: order.farmBanner }}
+          source={{ uri: typeof order.farmBanner === 'string' ? order.farmBanner : (order.farmBanner as any)?.uri || "" }}
           className="w-10 h-10 rounded-lg mr-3"
           resizeMode="cover"
         />
@@ -148,7 +148,7 @@ const OrderCard: React.FC<{ order: Order }> = ({ order }) => {
           order.images?.slice(0, 3).map((img, idx) => (
             <Image
               key={idx}
-              source={{ uri: img }}
+              source={{ uri: typeof img === 'string' ? img : (img as any)?.uri || "" }}
               className="w-12 h-12 rounded-lg"
               resizeMode="cover"
             />

@@ -155,7 +155,7 @@ export const CustomerBatchDetailScreen: React.FC = () => {
 
           <View className="flex-row items-center gap-2">
             <View className="w-8 h-8 rounded-full bg-[#F5F5F5] overflow-hidden">
-              <Image source={{ uri: farmImage }} className="w-full h-full" resizeMode="cover" />
+              <Image source={{ uri: typeof farmImage === 'string' ? farmImage : (farmImage as any)?.uri || "" }} className="w-full h-full" resizeMode="cover" />
             </View>
             <Text className="text-[#2D2D2D] text-sm font-semibold">{farmName}</Text>
           </View>

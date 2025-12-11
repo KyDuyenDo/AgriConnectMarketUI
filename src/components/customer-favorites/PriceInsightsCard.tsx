@@ -6,7 +6,7 @@ interface PriceInsightsCardProps extends Product {
     name: string
     price: string
     unit: string
-    image: string
+    image: string | null
 }
 
 const formatPriceChange = (percent: number) => {

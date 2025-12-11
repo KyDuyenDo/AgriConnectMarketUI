@@ -45,7 +45,7 @@ export const PreOrderSection: React.FC<PreOrderSectionProps> = ({ farmId, curren
 
         Alert.alert(
             "Confirm Pre-Order",
-            `Do you want to pre-order 1 ${batch.units} of ${batch.season?.product?.productName}?`,
+            `Do you want to pre-order 1 ${batch.units} of ${(typeof batch.season === 'object' ? batch.season?.product?.productName : 'this product')}?`,
             [
                 { text: "Cancel", style: "cancel" },
                 {
@@ -105,10 +105,10 @@ export const PreOrderSection: React.FC<PreOrderSectionProps> = ({ farmId, curren
 
                         <View className="p-2">
                             <Text className="text-xs font-semibold text-gray-900 mb-0.5" numberOfLines={1}>
-                                {batch.season?.product?.productName}
+                                {typeof batch.season === 'object' ? batch.season?.product?.productName : 'Product'}
                             </Text>
                             <Text className="text-[10px] text-gray-500 mb-1" numberOfLines={1}>
-                                {batch.season?.seasonName}
+                                {typeof batch.season === 'object' ? batch.season?.seasonName : 'Season'}
                             </Text>
 
                             <View className="flex-row justify-between items-center mt-1">

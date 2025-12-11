@@ -158,7 +158,7 @@ const TimelineItem = ({
 
                     {image && (
                         <Image
-                            source={{ uri: image }}
+                            source={{ uri: typeof image === 'string' ? image : (image as any)?.uri || "" }}
                             className="w-full h-24 rounded-lg mb-2"
                             resizeMode="cover"
                         />

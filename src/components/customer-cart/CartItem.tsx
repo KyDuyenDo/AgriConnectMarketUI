@@ -77,7 +77,7 @@ export function CartItem({
           </Pressable>
 
           {image ? (
-            <Image source={{ uri: image }} className="w-20 h-20 rounded-lg" resizeMode="cover" />
+            <Image source={{ uri: typeof image === 'string' ? image : (image as any)?.uri || "" }} className="w-20 h-20 rounded-lg" resizeMode="cover" />
           ) : (
             <View className="w-20 h-20 rounded-lg bg-[#E8F5E8] items-center justify-center">
               <Sprout size={32} color="#4CAF50" />

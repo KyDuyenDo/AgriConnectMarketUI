@@ -34,7 +34,7 @@ export default function CartItemCard({
 }: CartItemProps) {
   return (
     <View className="flex-row items-center">
-      <Image source={{ uri: image }} className="w-20 h-20 rounded-lg mr-3" />
+      <Image source={{ uri: typeof image === 'string' ? image : (image as any)?.uri || "" }} className="w-20 h-20 rounded-lg mr-3" />
       <View className="flex-1">
         <Text className="font-semibold text-gray-800" numberOfLines={2}>{name}</Text>
         <View className="flex-row items-center gap-1 mt-1">

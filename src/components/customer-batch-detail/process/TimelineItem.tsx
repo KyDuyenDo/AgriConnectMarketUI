@@ -45,7 +45,7 @@ const TimelineItem: React.FC<TimelineItemProps> = ({
         {/* Display image if available */}
         {imageUrl && (
           <Image
-            source={{ uri: imageUrl }}
+            source={{ uri: typeof imageUrl === 'string' ? imageUrl : (imageUrl as any)?.uri || "" }}
             className="w-full h-32 rounded-lg mt-2"
             resizeMode="cover"
           />

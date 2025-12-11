@@ -20,7 +20,7 @@ export default function FromThisFarmSection({ title = "From This Farm", items }:
               key={item.id}
               name={item.season?.product?.productName || ""}
               price={item?.price?.toString() || ""}
-              image={item?.imagesUrl?.[0] || ""}
+              image={item?.imageUrls?.[0] || ""}
             />
           ))}
         </View>

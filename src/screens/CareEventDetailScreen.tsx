@@ -57,7 +57,7 @@ const CareEventDetailScreen = () => {
                 {/* Display image if available */}
                 {item.imageUrl && (
                     <Image
-                        source={{ uri: item.imageUrl }}
+                        source={{ uri: typeof item.imageUrl === 'string' ? item.imageUrl : (item.imageUrl as any)?.uri || "" }}
                         style={styles.eventImage}
                         resizeMode="cover"
                     />
