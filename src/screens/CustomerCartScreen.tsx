@@ -56,14 +56,22 @@ export const CustomerCartScreen: React.FC = () => {
 
   const cartGroups = Cart?.cartItems || []
 
-  // Sync selectedItems with cart items to remove deleted items
+  // Sync selectedItems with cart items to remove deleted or out-of-stock items
   useEffect(() => {
     if (isLoading) return
 
-    const currentItemIds = new Set(cartGroups.flatMap((g: any) => g.items.map((i: any) => i.itemId)))
+    // Get IDs of items that exist AND are in stock
+    const validItemIds = new Set(
+      cartGroups.flatMap((g: any) =>
+        g.items
+          .filter((i: any) => !i.isOutOfStock)
+          .map((i: any) => i.itemId)
+      )
+    )
 
     setSelectedItems((prev) => {
-      const newSelected = prev.filter((id) => currentItemIds.has(id))
+      // Keep only items that are valid (exist and in stock)
+      const newSelected = prev.filter((id) => validItemIds.has(id))
       return newSelected.length === prev.length ? prev : newSelected
     })
   }, [cartGroups, isLoading])
