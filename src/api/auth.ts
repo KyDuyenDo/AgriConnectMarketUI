@@ -41,3 +41,8 @@ export const resetPassword = async (request: any) => {
     const response = await apiClient.post('/api/auth/reset-password', request);
     return response.data;
 }
+
+export const deactivateAccount = async () => {
+    const response = await apiClient.patch('/api/auth/me/deactive');
+    return response.data;
+}

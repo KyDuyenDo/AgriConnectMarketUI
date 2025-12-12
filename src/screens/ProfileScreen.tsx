@@ -9,6 +9,7 @@ import { useAuthStore } from "@/stores/auth";
 import { useGetProfile } from "@/hooks/useProfile";
 import { useGetAddresses } from "@/hooks/useAddress";
 import { ProfileScreenSkeleton } from "@/components/skeletons/ProfileScreenSkeleton";
+import { deactivateAccount } from "@/api/auth";
 
 export default function ProfileScreen() {
   const navigation = useNavigation();
@@ -39,10 +40,15 @@ export default function ProfileScreen() {
         {
           text: "Deactivate",
           style: "destructive",
-          onPress: () => {
-            // TODO: Implement actual deactivation logic
-            Alert.alert("Account Deactivated", "Your account has been deactivated.");
-            logout();
+          onPress: async () => {
+            try {
+              await deactivateAccount();
+              Alert.alert("Account Deactivated", "Your account has been deactivated.", [
+                { text: "OK", onPress: () => logout() }
+              ]);
+            } catch (error: any) {
+              Alert.alert("Error", error?.response?.data?.message || "Failed to deactivate account.");
+            }
           }
         },
       ]
