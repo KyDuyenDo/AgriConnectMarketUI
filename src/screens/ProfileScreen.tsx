@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, ScrollView, TouchableOpacity, Alert, ActivityIndicator } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { LogOut, MapPin, Settings, Shield, ShoppingBag, Truck, User } from "lucide-react-native";
+import { LogOut, MapPin, Settings, Shield, ShoppingBag, Truck, User, Trash2 } from "lucide-react-native";
 import { ProfileCard } from "@/components/profile/ProfileCard";
 
 import { useAuthStore } from "@/stores/auth";
@@ -28,6 +28,25 @@ export default function ProfileScreen() {
       { text: "Cancel", style: "cancel" },
       { text: "Logout", style: "destructive", onPress: logout },
     ]);
+  };
+
+  const handleDeactivateAccount = () => {
+    Alert.alert(
+      "Deactivate Account",
+      "Are you sure you want to deactivate your account? This action cannot be undone.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Deactivate",
+          style: "destructive",
+          onPress: () => {
+            // TODO: Implement actual deactivation logic
+            Alert.alert("Account Deactivated", "Your account has been deactivated.");
+            logout();
+          }
+        },
+      ]
+    );
   };
 
   const handleMenuAction = (title: string, action: () => void) => {
@@ -96,6 +115,12 @@ export default function ProfileScreen() {
     //   color: "#EF4444",
     //   action: () => Alert.alert("Support", "Contact support team")
     // }
+    {
+      title: "Deactivate Account",
+      icon: Trash2,
+      color: "#EF4444",
+      action: handleDeactivateAccount
+    }
   ]
 
   return (

@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { favoriteFarmService } from "@/services/favoriteFarmService"
+import { favoriteFarmService, Favorite } from "@/services/favoriteFarmService"
 import { useFavoritesStore } from "@/stores/favorites"
 import type { Farm } from "@/types"
 
@@ -13,9 +13,11 @@ export const useFavoriteFarms = () => {
   return useQuery({
     queryKey: FAVORITES_QUERY_KEYS.all,
     queryFn: async () => {
-      const farms = await favoriteFarmService.getMyFavoriteFarms()
-      setFavorites(farms.map((farm: Farm) => farm.id))
-      return farms
+      const favorites = await favoriteFarmService.getMyFavoriteFarms()
+      // Extract farm IDs from the favorite objects
+      const farmIds = favorites.map((fav: Favorite) => fav.farmId || fav.farm.id)
+      setFavorites(farmIds)
+      return favorites
     },
   })
 }
