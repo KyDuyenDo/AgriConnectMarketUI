@@ -22,7 +22,10 @@ const FavoriteFarmCard = ({ farm }: FavoriteFarmCardProps) => {
     const handleToggleFavorite = async (e: any) => {
         // Stop propagation doesn't work exactly like web in RN Pressable but preventing overlap is key
         e.stopPropagation?.();
-        await toggleFavorite(farm.id);
+        const response = await toggleFavorite(farm.id);
+        if (response?.isDeleted) {
+            // Item removed
+        }
     };
 
     return (

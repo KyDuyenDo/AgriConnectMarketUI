@@ -99,6 +99,8 @@ export const useHomeData = (filters?: { searchTerm?: string; categoryId?: string
             const product = products.find(p => p.productName.trim().toLowerCase() === sBatch.product.trim().toLowerCase());
             const category = product ? categories.find(c => c.id === product.categoryId) : null;
 
+            console.log("images", sBatch.imageUrls)
+
             return {
                 id: sBatch.id,
                 batchCode: sBatch.batchCode,

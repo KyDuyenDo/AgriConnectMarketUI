@@ -44,8 +44,6 @@ const PriceSection = ({ price, unit, onPress, disabled }: { price: string; unit:
 }
 
 export const ProductCard: React.FC<{ product: any; toggleFavorite: (id: string) => void; onPress?: () => void; onAddToCart?: () => void }> = ({ product, toggleFavorite, onPress, onAddToCart }) => {
-
-    console.log("product", product)
     // Calculate stock status
     const getStockStatus = (): "In Stock" | "Low Stock" | "Out of Stock" => {
         if (!product.totalYield || product.totalYield === 0) return "Out of Stock";
