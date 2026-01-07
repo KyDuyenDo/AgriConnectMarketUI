@@ -28,7 +28,7 @@ export const RecentOrdersCard: React.FC<RecentOrdersCardProps> = ({ orders, onVi
         orders.length > 0 ? (
           <View className="gap-3">
             {orders.map((order) => (
-              <View key={order.id} className="bg-white rounded-2xl p-4 shadow-sm shadow-gray-100">
+              <View key={order.id} className="bg-white rounded-2xl p-4 shadow-sm shadow-gray-100 border border-gray-200">
                 {/* Status and Date */}
                 <View className="flex-row items-center justify-between mb-2">
                   <View className={`${getStatusColor(order.orderStatus)} rounded-full px-3 py-1.5`}>

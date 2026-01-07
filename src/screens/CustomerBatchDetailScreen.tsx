@@ -1,7 +1,19 @@
+"use client"
+
 import type React from "react"
-import { View, ScrollView, Text, TouchableOpacity, Image, Alert, RefreshControl, Modal, TouchableWithoutFeedback } from "react-native"
+import {
+  View,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  Image,
+  Alert,
+  RefreshControl,
+  Modal,
+  TouchableWithoutFeedback,
+} from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
-import { ChevronLeft, Share, Heart, ShieldCheck, X } from "lucide-react-native"
+import { ChevronLeft, ShieldCheck, X } from "lucide-react-native"
 import { useState, useCallback } from "react"
 import Carousel from "@/components/ui/Carousel"
 import FarmInformationCard from "@/components/customer-batch-detail/FarmInformationCard"
@@ -9,7 +21,6 @@ import ProductStockCard from "@/components/customer-batch-detail/ProductStockCar
 import FarmTransparencyCard from "@/components/customer-batch-detail/FarmTransparencyCard"
 import VerifiedProcessCard from "@/components/customer-batch-detail/process/VerifiedProcessCard"
 import CustomerReviewsCard from "@/components/customer-batch-detail/reviews/CustomerReviewsCard"
-import FromThisFarmSection from "@/components/customer-batch-detail/FromThisFarmSection"
 import PurchaseCard from "@/components/customer-batch-detail/PurchaseCard"
 import NutritionQualityCard from "@/components/customer-batch-detail/NutritionQualityCard"
 import { useRoute, useNavigation } from "@react-navigation/native"
@@ -24,6 +35,7 @@ import { useFarmById } from "@/hooks/useFarm"
 import { useBatchesByFarm } from "@/hooks/useBatches"
 import { useFarmReviews } from "@/hooks/useFarmReview"
 import { useQueryClient } from "@tanstack/react-query"
+import { normalizeBatchImages } from "@/utils/image-helper"
 
 export const CustomerBatchDetailScreen: React.FC = () => {
   const insets = useSafeAreaInsets()
@@ -40,7 +52,7 @@ export const CustomerBatchDetailScreen: React.FC = () => {
   const addToCartMutation = useAddToCart()
   const { mutateAsync: createOrder, isPending: isCreatingOrder } = useCreateOrder()
   const { userId } = useAuthStore()
-  const { data: reviews, isLoading: isLoadingReviews } = useFarmReviews((batch as any)?.season?.farmId || "");
+  const { data: reviews, isLoading: isLoadingReviews } = useFarmReviews((batch as any)?.season?.farmId || "")
   const { data: addresses } = useGetAddresses()
 
   const [selectedQuantity, setSelectedQuantity] = useState(1)
@@ -49,9 +61,8 @@ export const CustomerBatchDetailScreen: React.FC = () => {
   const { data: farm } = useFarmById(farmId || "")
   const { data: farmBatches } = useBatchesByFarm(farmId || "")
 
-  const averageRating = reviews && reviews.length > 0
-    ? reviews.reduce((acc, review) => acc + review.rate, 0) / reviews.length
-    : 0;
+  const averageRating =
+    reviews && reviews.length > 0 ? reviews.reduce((acc, review) => acc + review.rate, 0) / reviews.length : 0
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true)
@@ -76,20 +87,12 @@ export const CustomerBatchDetailScreen: React.FC = () => {
     )
   }
 
-  const batchData = batch as any;
+  const batchData = batch as any
 
-  const productImages =
-    batchData.imageUrls && batchData.imageUrls.length > 0
-      ? batchData.imageUrls.map((img: any) => {
-        if (typeof img === 'string') return img;
-        return img.imageUrl || img.uri || "https://via.placeholder.com/400";
-      })
-      : ["https://via.placeholder.com/400"]
+  const productImages = normalizeBatchImages(batchData.imageUrls)
 
   const farmName = farm?.farmName || "Unknown Farm"
   const farmImage = farm?.bannerUrl || "https://via.placeholder.com/50"
-
-
 
   const handleAddToCart = (quantity: number) => {
     if (!cart?.cartId) {
@@ -97,43 +100,33 @@ export const CustomerBatchDetailScreen: React.FC = () => {
       return
     }
 
-    // Check if item already exists in cart
-    let existingItem: any = null;
-    console.log("Full Cart Object:", JSON.stringify(cart, null, 2));
+    let existingItem: any = null
 
-    if (cart.cartItems) {
-      console.log("Checking cart items for batchId:", batch.id);
+    if (cart.cartItems && Array.isArray(cart.cartItems)) {
       for (const group of cart.cartItems) {
-        console.log("Group items:", group.items);
-        const found = group.items.find((item: any) => {
-          console.log(`Comparing ${item.batchId} with ${batch.id}`);
-          return item.batchId === batch.id
-        });
-        if (found) {
-          existingItem = found;
-          break;
+        if (Array.isArray(group.items)) {
+          existingItem = group.items.find((item: any) => item.batchId === batchData.id)
+          if (existingItem) break
         }
       }
     }
 
     if (existingItem) {
-      console.log("Existing item:", existingItem);
-      // Update existing item
-      const newQuantity = existingItem.quantity + quantity;
+      const newQuantity = (existingItem.quantity || 0) + quantity
+      const availableStock = (batch?.availableQuantity as any) || 0
 
-      const availableStock = batch.availableQuantity || 0;
       if (newQuantity > availableStock) {
-        Alert.alert("Error", `Cannot add more items. You have ${existingItem.quantity} in cart and stock is ${availableStock}.`);
-        return;
+        Alert.alert(
+          "Error",
+          `Cannot add more items. You have ${existingItem.quantity || 0} in cart and stock is ${availableStock}.`,
+        )
+        return
       }
 
       updateCartItemMutation.mutate(
         {
-          cartId: cart.cartId,
-          data: {
-            batchId: batch.id,
-            quantity: newQuantity
-          }
+          batchId: batch.id,
+          quantity: newQuantity,
         },
         {
           onSuccess: () => {
@@ -141,17 +134,13 @@ export const CustomerBatchDetailScreen: React.FC = () => {
             setSelectedQuantity(1)
           },
           onError: (error: any) => {
-            console.log("Update Error:", error.response?.data || error.message);
             Alert.alert("Error", "Failed to update cart. " + (error.response?.data?.message || error.message || ""))
-          }
-        }
+          },
+        },
       )
     } else {
-      console.log("Adding new item to cart:", batch);
-      // Add new item
       addToCartMutation.mutate(
         {
-          cartId: cart.cartId,
           batchId: batch.id,
           quantity: quantity,
         },
@@ -161,7 +150,6 @@ export const CustomerBatchDetailScreen: React.FC = () => {
             setSelectedQuantity(1)
           },
           onError: (error: any) => {
-            console.log("Add Error:", error.response?.data || error.message);
             Alert.alert("Error", "Failed to add to cart. " + (error.response?.data?.message || error.message || ""))
           },
         },
@@ -176,30 +164,31 @@ export const CustomerBatchDetailScreen: React.FC = () => {
     }
 
     try {
-      // Construct the item object for direct checkout
-      const batchData = batch as any;
+      const batchData = batch as any
       const buyNowItem = {
-        itemId: `temp-${Date.now()}`, // Temporary ID
+        itemId: `temp-${Date.now()}`,
         batchId: batchData.id,
         batchCode: batchData.batchCode?.value || batchData.batchCode,
-        batchImageUrls: batchData.imageUrls,
+        batchImageUrls: normalizeBatchImages(batchData.imageUrls),
         productName: batchData.season?.product?.productName || "Product Name",
         categoryName: batchData.season?.product?.category?.categoryName || "Category",
         seasonName: batchData.season?.seasonName || "Season",
-        batchPrice: batchData.price, // Unit price
+        batchPrice: batchData.price,
         quantity: quantity,
         units: batchData.units,
-        itemPrice: batchData.price * quantity, // Total price
+        itemPrice: batchData.price * quantity,
         seasonStatus: batchData.season?.status || "Active",
         farmId: farmId,
         farmName: farmName,
       }
 
-      navigation.navigate("CustomerCheckout" as never, {
-        selectedItems: [], // No cart items selected
-        buyNowItems: [buyNowItem]
-      } as never)
-
+      navigation.navigate(
+        "CustomerCheckout" as never,
+        {
+          selectedItems: [],
+          buyNowItems: [buyNowItem],
+        } as never,
+      )
     } catch (error: any) {
       console.error("Buy Now failed:", error)
       Alert.alert("Error", error?.message || "Failed to process buy now request.")
@@ -208,7 +197,6 @@ export const CustomerBatchDetailScreen: React.FC = () => {
 
   return (
     <View className="flex-1 bg-[#F9FAF9]">
-      {/* Custom Header */}
       <View style={{ paddingTop: insets.top }} className="bg-[#F9FAF9] z-10">
         <View className="h-14 flex-row justify-between items-center px-6">
           <TouchableOpacity className="flex-row items-center gap-2" onPress={() => navigation.goBack()}>
@@ -218,17 +206,19 @@ export const CustomerBatchDetailScreen: React.FC = () => {
 
           <View className="flex-row items-center gap-2">
             <View className="w-8 h-8 rounded-full bg-[#F5F5F5] overflow-hidden">
-              <Image source={{ uri: typeof farmImage === 'string' ? farmImage : (farmImage as any)?.uri || "" }} className="w-full h-full" resizeMode="cover" />
+              <Image
+                source={{ uri: typeof farmImage === "string" ? farmImage : (farmImage as any)?.uri || "" }}
+                className="w-full h-full"
+                resizeMode="cover"
+              />
             </View>
             <Text className="text-[#2D2D2D] text-sm font-semibold">{farmName}</Text>
           </View>
 
-          <View className="flex-row items-center gap-2">
-          </View>
+          <View className="flex-row items-center gap-2"></View>
         </View>
       </View>
 
-      {/* Scroll Content */}
       <ScrollView
         contentContainerStyle={{ paddingBottom: 100 }}
         className="flex-1"
@@ -237,16 +227,13 @@ export const CustomerBatchDetailScreen: React.FC = () => {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={["#4CAF50"]} tintColor="#4CAF50" />
         }
       >
-        {/* Carousel with Overlays */}
         <View className="relative">
           <Carousel height={320} autoScroll={false} images={productImages} />
 
-          {/* Harvested Today Badge */}
           <View className="absolute top-4 left-4 bg-[#C8E6C9] px-3 py-1.5 rounded-full">
             <Text className="text-[#2E7D32] text-xs font-medium">Harvested Today</Text>
           </View>
 
-          {/* In Stock Badge */}
           <View className="absolute top-4 right-4 bg-white px-3 py-1.5 rounded-full flex-row items-center">
             <View
               className={`w-2 h-2 rounded-full ${(batchData.availableQuantity || 0) > 0 ? "bg-[#4CAF50]" : "bg-red-500"} mr-2`}
@@ -265,13 +252,13 @@ export const CustomerBatchDetailScreen: React.FC = () => {
             farmName={farmName}
             farmLogo={farmImage}
             harvestDate={batchData.harvestDate ? formatDate(batchData.harvestDate) : "N/A"}
-            totalYield={`${new Intl.NumberFormat('vi-VN').format(batchData.totalYield || 0)} ${batchData.units || "units"}`}
+            totalYield={`${new Intl.NumberFormat("vi-VN").format(batchData.totalYield || 0)} ${batchData.units || "units"}`}
             verified={true}
           />
 
           <ProductStockCard
             pricePerLb={batchData.price || 0}
-            available={`${new Intl.NumberFormat('vi-VN').format(batchData.availableQuantity || 0)} ${batchData.units || "units"} available`}
+            available={`${new Intl.NumberFormat("vi-VN").format(batchData.availableQuantity || 0)} ${batchData.units || "units"} available`}
             weightType={batchData.units || "unit"}
             stockLevel={batchData.availableQuantity || 0}
             initialQuantity={selectedQuantity}
@@ -353,11 +340,7 @@ export const CustomerBatchDetailScreen: React.FC = () => {
 
                 <View className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-4">
                   {batchData.verificationQr ? (
-                    <Image
-                      source={{ uri: batchData.verificationQr }}
-                      className="w-64 h-64"
-                      resizeMode="contain"
-                    />
+                    <Image source={{ uri: batchData.verificationQr }} className="w-64 h-64" resizeMode="contain" />
                   ) : (
                     <View className="w-64 h-64 bg-gray-100 items-center justify-center rounded-xl">
                       <Text className="text-gray-400">QR Code not available</Text>

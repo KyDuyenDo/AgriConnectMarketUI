@@ -1,5 +1,6 @@
 import { TouchableOpacity, Text, View, ActivityIndicator } from "react-native"
-
+import theme from "@/utils/theme"
+import { createButtonStyle } from "@/utils/style-helpers"
 
 interface SignInButtonProps {
   isLoading: boolean
@@ -8,17 +9,34 @@ interface SignInButtonProps {
   loadingTitle?: string
 }
 
-export function SignInButton({ isLoading, onPress, title = "Sign In", loadingTitle = "Signing In..." }: SignInButtonProps) {
+export function SignInButton({
+  isLoading,
+  onPress,
+  title = "Sign In",
+  loadingTitle = "Signing In...",
+}: SignInButtonProps) {
   return (
     <TouchableOpacity
-      className="active:scale-95 rounded-3xl bg-[#4CAF50] py-4 shadow-lg"
+      style={{
+        ...createButtonStyle("primary"),
+        marginVertical: theme.spacing.md,
+      }}
       onPress={onPress}
       disabled={isLoading}
       activeOpacity={0.8}
     >
-      <View className="flex-row items-center justify-center gap-2">
-        {isLoading && <ActivityIndicator color="white" size="small" />}
-        <Text className="text-center text-lg font-bold text-white">{isLoading ? loadingTitle : title}</Text>
+      <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "center", gap: theme.spacing.sm }}>
+        {isLoading && <ActivityIndicator color={theme.colors.neutral.text.inverse} size="small" />}
+        <Text
+          style={{
+            fontSize: theme.fontSize.lg,
+            fontWeight: theme.fontWeight.bold,
+            color: theme.colors.neutral.text.inverse,
+            textAlign: "center",
+          }}
+        >
+          {isLoading ? loadingTitle : title}
+        </Text>
       </View>
     </TouchableOpacity>
   )

@@ -1,5 +1,8 @@
 import { View, Text, Image, TouchableOpacity } from "react-native"
 import { Trash2 } from "lucide-react-native"
+import { normalizeImageUrl } from "@/utils/image-helper"
+import theme from "@/utils/theme"
+import { createCardStyle, createTextStyle } from "@/utils/style-helpers"
 
 type CartItemProps = {
   image: string
@@ -27,32 +30,92 @@ export default function CartItemCard({
   price,
   total,
   quantity,
-  tagColor = "bg-green-100 text-green-700",
   onIncrease,
   onDecrease,
   onRemove,
 }: CartItemProps) {
+  const imageUri = normalizeImageUrl(image)
+
   return (
-    <View className="flex-row items-center">
-      <Image source={{ uri: typeof image === 'string' ? image : (image as any)?.uri || "" }} className="w-20 h-20 rounded-lg mr-3" />
-      <View className="flex-1">
-        <Text className="font-semibold text-gray-800" numberOfLines={2}>{name}</Text>
-        <View className="flex-row items-center gap-1 mt-1">
-          <View className={`px-2 py-[1px] rounded-full ${tagColor}`}>
-            <Text className="text-xs font-medium">{status}</Text>
+    <View
+      style={{
+        flexDirection: "row",
+        alignItems: "center",
+        marginBottom: theme.spacing.md,
+        ...createCardStyle(),
+        padding: theme.spacing.md,
+      }}
+    >
+      <Image
+        source={{ uri: imageUri }}
+        style={{
+          width: 80,
+          height: 80,
+          borderRadius: theme.radius.md,
+          marginRight: theme.spacing.md,
+          backgroundColor: theme.colors.neutral.divider,
+        }}
+      />
+      <View style={{ flex: 1 }}>
+        <Text
+          numberOfLines={2}
+          style={{
+            ...createTextStyle("primary"),
+            fontSize: theme.fontSize.base,
+            fontWeight: theme.fontWeight.semibold,
+          }}
+        >
+          {name}
+        </Text>
+        <View
+          style={{ flexDirection: "row", alignItems: "center", gap: theme.spacing.xs, marginTop: theme.spacing.xs }}
+        >
+          <View
+            style={{
+              paddingHorizontal: theme.spacing.sm,
+              paddingVertical: 2,
+              borderRadius: theme.radius.full,
+              backgroundColor: theme.colors.primary.light,
+            }}
+          >
+            <Text
+              style={{
+                fontSize: theme.fontSize.xs,
+                fontWeight: theme.fontWeight.medium,
+                color: theme.colors.primary.dark,
+              }}
+            >
+              {status}
+            </Text>
           </View>
-          <Text className="text-gray-400 text-xs">Harvested {harvested}</Text>
+          <Text style={{ ...createTextStyle("tertiary"), fontSize: theme.fontSize.xs }}>Harvested {harvested}</Text>
         </View>
 
-        <View className="flex-row items-center gap-3 mt-2">
-          <Text className="text-green-700 font-semibold text-right">{total}</Text>
-          <Text className="text-gray-500 text-sm text-right">{price}</Text>
+        <View
+          style={{ flexDirection: "row", alignItems: "center", gap: theme.spacing.lg, marginTop: theme.spacing.md }}
+        >
+          <Text
+            style={{
+              color: theme.colors.primary.main,
+              fontWeight: theme.fontWeight.semibold,
+              textAlign: "right",
+            }}
+          >
+            {total}
+          </Text>
+          <Text style={{ ...createTextStyle("secondary"), fontSize: theme.fontSize.sm }}>{price}</Text>
         </View>
       </View>
 
-      <TouchableOpacity onPress={onRemove} className="ml-2">
-        <View className="bg-red-100 p-2 rounded-full">
-          <Trash2 size={16} color="#ef4444" />
+      <TouchableOpacity onPress={onRemove} style={{ marginLeft: theme.spacing.md }}>
+        <View
+          style={{
+            backgroundColor: theme.colors.status.error + "20", // 20% opacity
+            padding: theme.spacing.sm,
+            borderRadius: theme.radius.full,
+          }}
+        >
+          <Trash2 size={16} color={theme.colors.status.error} />
         </View>
       </TouchableOpacity>
     </View>

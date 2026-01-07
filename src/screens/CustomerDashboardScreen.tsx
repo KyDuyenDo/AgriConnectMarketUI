@@ -1,3 +1,5 @@
+"use client"
+
 import { type ActionButton, ActionButtonList } from "@/components/customer-dashboard/ActionButtonList"
 import { Header } from "@/components/customer-dashboard/Header"
 import { RecentOrdersCard } from "@/components/customer-dashboard/RecentOrdersCard"
@@ -19,6 +21,8 @@ import { useQueryClient } from "@tanstack/react-query"
 import { CART_QUERY_KEYS } from "@/hooks/useCart"
 import { PROFILE_QUERY_KEYS } from "@/hooks/useProfile"
 import { FAVORITES_QUERY_KEYS } from "@/hooks/useFavoriteFarms"
+import theme from "@/utils/theme"
+import { normalizeBatchImages } from "@/utils/image-helper"
 
 export const CustomerDashboardScreen: React.FC = () => {
   const navigation = useNavigation()
@@ -37,69 +41,73 @@ export const CustomerDashboardScreen: React.FC = () => {
     setRefreshing(true)
     await Promise.all([
       queryClient.invalidateQueries({ queryKey: PROFILE_QUERY_KEYS.me }),
-      queryClient.invalidateQueries({ queryKey: CART_QUERY_KEYS.cart }),
+      queryClient.invalidateQueries({ queryKey: CART_QUERY_KEYS.all }),
       queryClient.invalidateQueries({ queryKey: ORDERS_QUERY_KEYS.myOrders }),
       queryClient.invalidateQueries({ queryKey: FAVORITES_QUERY_KEYS.all }),
     ])
     setRefreshing(false)
   }, [queryClient])
 
-  const allCartItems = cart?.cartItems?.flatMap((group: any) => group.items) || []
+  const allCartItems = cart?.cartItems?.flatMap((group: any) => group.items || []) || []
 
-  const cartItems =
-    allCartItems.map((item: any) => ({
-      id: item.itemId,
-      name: item.productName || "Unknown Product",
-      quantity: `${item.quantity} ${item.units || "units"}`,
-      price: `${new Intl.NumberFormat('vi-VN').format(item.itemPrice)} đ`,
-      image: item.batchImageUrls?.[0] || null,
-    }))
+  const cartItems = allCartItems.map((item: any) => ({
+    id: item.itemId || `${item.batchId}-0`,
+    name: item.productName || "Unknown Product",
+    quantity: `${Math.floor(item.quantity || 0)} ${item.units || "units"}`,
+    price: `${new Intl.NumberFormat("vi-VN").format(item.itemPrice || 0)} đ`,
+    image: normalizeBatchImages(item.batchImageUrls)[0] || null,
+  }))
 
   const cartItemsCount = allCartItems.length
-  const calculatedTotal = allCartItems.reduce((sum: number, item: any) => sum + (item.itemPrice || 0), 0)
+  const calculatedTotal = allCartItems.reduce((sum: number, item: any) => {
+    const itemPrice = item.itemPrice || 0
+    return sum + itemPrice
+  }, 0)
   const cartTotalValue = cart?.totalPrice || calculatedTotal
-  const cartTotal = `${new Intl.NumberFormat('vi-VN').format(cartTotalValue)} đ`
+  const cartTotal = `${new Intl.NumberFormat("vi-VN").format(cartTotalValue)} đ`
   const hasCartItems = cartItemsCount > 0
 
-  const favoriteProducts = (favoriteFarms || []).map((favorite: any) => ({
-    id: favorite.farm.id,
-    name: favorite.farm.farmName || "Unknown Farm",
-    farm: favorite.farm.location || "Unknown Location",
-    price: favorite.farm.averageRating || 0,
-    unit: "farm",
-    image: favorite.farm.bannerUrl || "https://via.placeholder.com/150",
-    isFavorite: true,
-  })).slice(0, 2)
+  const favoriteProducts = (favoriteFarms || [])
+    .map((favorite: any) => ({
+      id: favorite.farm?.id || favorite.id,
+      name: favorite.farm?.farmName || "Unknown Farm",
+      farm: favorite.farm?.address?.ward || "Unknown Location",
+      price: favorite.farm?.averageRating || 0,
+      unit: "farm",
+      image: favorite.farm?.bannerUrl || "https://via.placeholder.com/150",
+      isFavorite: true,
+    }))
+    .slice(0, 2)
 
   const actions: ActionButton[] = [
     {
       id: "1",
       label: "Shop",
       icon: <ShoppingBasket color="white" size={20} />,
-      backgroundColor: "bg-[#4CAF50]",
+      backgroundColor: theme.colors.primary.main,
       link: "Explore",
     },
     {
       id: "2",
       label: "Favorites",
       icon: <Heart color="white" size={20} />,
-      backgroundColor: "bg-[#4CAF50]",
+      backgroundColor: theme.colors.primary.main,
       link: "Favorites",
     },
     {
       id: "3",
       label: "Orders",
-      icon: <Clock color="#4CAF50" size={20} />,
-      backgroundColor: "bg-[#F5F7F5]",
-      borderStyle: "border border-[#E8EAEB]",
+      icon: <Clock color={theme.colors.primary.main} size={20} />,
+      backgroundColor: theme.colors.neutral.surface,
+      borderStyle: `border border-[${theme.colors.neutral.border}]`,
       link: "CustomerOrders",
     },
     {
       id: "4",
       label: "Nearby",
-      icon: <Locate color="#4CAF50" size={20} />,
-      backgroundColor: "bg-[#F5F7F5]",
-      borderStyle: "border border-[#E8EAEB]",
+      icon: <Locate color={theme.colors.primary.main} size={20} />,
+      backgroundColor: theme.colors.neutral.surface,
+      borderStyle: `border border-[${theme.colors.neutral.border}]`,
       link: "Nearby",
     },
   ]
@@ -116,20 +124,25 @@ export const CustomerDashboardScreen: React.FC = () => {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-[#F9FAF9]">
+    <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.neutral.background }}>
       <ScrollView
         style={{ flex: 1 }}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{
           paddingVertical: 0,
-          gap: 16,
+          gap: theme.spacing.md,
           paddingBottom: Platform.OS === "ios" ? 140 : 70,
         }}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={["#4CAF50"]} tintColor="#4CAF50" />
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[theme.colors.primary.main]}
+            tintColor={theme.colors.primary.main}
+          />
         }
       >
-        <View className="pt-4">
+        <View style={{ paddingTop: theme.spacing.md }}>
           <Header
             userName={profile?.fullname || "Guest"}
             profileImage={
@@ -140,15 +153,39 @@ export const CustomerDashboardScreen: React.FC = () => {
           />
         </View>
         <ActionButtonList actions={actions} />
-        <View className="px-4">
+        <View style={{ paddingHorizontal: theme.spacing.lg }}>
           {hasCartItems ? (
             <YourCartCard items={cartItems} total={cartTotal} itemsCount={cartItemsCount} onCheckout={handleCheckout} />
           ) : (
-            <View className="bg-white rounded-2xl p-4 shadow-sm shadow-gray-100">
-              <View className="items-center py-8">
-                <ShoppingBasket color="#9ca3af" size={40} />
-                <Text className="text-sm font-medium text-[#6B737A] mt-3">Your cart is empty</Text>
-                <Text className="text-xs text-[#9ca3af] mt-1 text-center">
+            <View
+              style={{
+                backgroundColor: theme.colors.neutral.surface,
+                borderRadius: theme.radius.lg,
+                paddingHorizontal: theme.spacing.md,
+                paddingVertical: theme.spacing.lg,
+                ...theme.shadows.xs,
+              }}
+            >
+              <View style={{ alignItems: "center", paddingVertical: theme.spacing.xxxl }}>
+                <ShoppingBasket color={theme.colors.neutral.text.tertiary} size={40} />
+                <Text
+                  style={{
+                    fontSize: theme.fontSize.sm,
+                    fontWeight: theme.fontWeight.medium,
+                    color: theme.colors.neutral.text.secondary,
+                    marginTop: theme.spacing.md,
+                  }}
+                >
+                  Your cart is empty
+                </Text>
+                <Text
+                  style={{
+                    fontSize: theme.fontSize.xs,
+                    color: theme.colors.neutral.text.tertiary,
+                    marginTop: theme.spacing.sm,
+                    textAlign: "center",
+                  }}
+                >
                   Start shopping to add items to your cart
                 </Text>
               </View>
@@ -163,12 +200,38 @@ export const CustomerDashboardScreen: React.FC = () => {
             onViewAll={() => navigation.navigate("Favorites" as never)}
           />
         ) : (
-          <View className="px-4">
-            <View className="bg-white rounded-2xl p-4 shadow-sm shadow-gray-100">
-              <View className="items-center py-8">
-                <Heart color="#9ca3af" size={40} />
-                <Text className="text-sm font-medium text-[#6B737A] mt-3">No favorite farms yet</Text>
-                <Text className="text-xs text-[#9ca3af] mt-1 text-center">Explore farms and add your favorites</Text>
+          <View style={{ paddingHorizontal: theme.spacing.lg }}>
+            <View
+              style={{
+                backgroundColor: theme.colors.neutral.surface,
+                borderRadius: theme.radius.lg,
+                paddingHorizontal: theme.spacing.md,
+                paddingVertical: theme.spacing.lg,
+                ...theme.shadows.xs,
+              }}
+            >
+              <View style={{ alignItems: "center", paddingVertical: theme.spacing.xxxl }}>
+                <Heart color={theme.colors.neutral.text.tertiary} size={40} />
+                <Text
+                  style={{
+                    fontSize: theme.fontSize.sm,
+                    fontWeight: theme.fontWeight.medium,
+                    color: theme.colors.neutral.text.secondary,
+                    marginTop: theme.spacing.md,
+                  }}
+                >
+                  No favorite farms yet
+                </Text>
+                <Text
+                  style={{
+                    fontSize: theme.fontSize.xs,
+                    color: theme.colors.neutral.text.tertiary,
+                    marginTop: theme.spacing.sm,
+                    textAlign: "center",
+                  }}
+                >
+                  Explore farms and add your favorites
+                </Text>
               </View>
             </View>
           </View>

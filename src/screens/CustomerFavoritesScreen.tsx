@@ -1,17 +1,19 @@
+"use client"
+
 import { View, Text, ScrollView, TouchableOpacity, RefreshControl, TextInput } from "react-native"
 import { useNavigation } from "@react-navigation/native"
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import type { CustomerStackParamList } from "@/navigation/CustomerNavigator"
 import { useFavoriteFarms, useToggleFavoriteFarm } from "@/hooks/useFavoriteFarms"
 import { useFavoritesStore } from "@/stores/favorites"
-// import FarmFeatureCard from "@/components/customer-exlore/FarmFeatureCard"
 import FavoriteFarmCard from "@/components/customer-favorites/FavoriteFarmCard"
-import { ArrowLeft, Heart, Loader, Search } from "lucide-react-native"
+import { Heart, Search } from "lucide-react-native"
 import { Alert } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { CustomerFavoritesScreenSkeleton } from "@/components/skeletons/CustomerFavoritesScreenSkeleton"
 import { useState, useCallback, useMemo } from "react"
 import { useQueryClient } from "@tanstack/react-query"
+import theme from "@/utils/theme"
 
 export const CustomerFavoritesScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<CustomerStackParamList>>()
@@ -29,14 +31,15 @@ export const CustomerFavoritesScreen = () => {
   }, [queryClient])
 
   const filteredFavorites = useMemo(() => {
-    if (!favoriteFarms) return [];
-    if (!searchQuery) return favoriteFarms;
+    if (!favoriteFarms) return []
+    if (!searchQuery) return favoriteFarms
 
-    return favoriteFarms.filter((fav: any) =>
-      fav.farm.farmName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (fav.farm.farmDesc && fav.farm.farmDesc.toLowerCase().includes(searchQuery.toLowerCase()))
-    );
-  }, [favoriteFarms, searchQuery]);
+    return favoriteFarms.filter(
+      (fav: any) =>
+        fav.farm.farmName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (fav.farm.farmDesc && fav.farm.farmDesc.toLowerCase().includes(searchQuery.toLowerCase())),
+    )
+  }, [favoriteFarms, searchQuery])
 
   const handleToggleFavorite = async (farmId: string) => {
     try {
@@ -49,63 +52,137 @@ export const CustomerFavoritesScreen = () => {
   const hasNoFavorites = !isLoading && (!favoriteFarms || favoriteFarms.length === 0)
 
   return (
-    <SafeAreaView className="flex-1 bg-[#F9FAF9]">
-      <View className="px-4 py-3 flex-row items-center justify-between">
-        <Text className="text-[20px] font-semibold">My Favorite Farms</Text>
+    <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.neutral.background }}>
+      <View
+        style={{
+          paddingHorizontal: theme.spacing.lg,
+          paddingVertical: theme.spacing.md,
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <Text
+          style={{
+            fontSize: theme.fontSize["2xl"],
+            fontWeight: theme.fontWeight.semibold,
+            color: theme.colors.neutral.text.primary,
+          }}
+        >
+          My Favorite Farms
+        </Text>
       </View>
 
       {/* Search Bar */}
-      <View className="px-4 mb-2">
-        <View className="flex-row items-center bg-white rounded-xl px-3 py-2 border border-gray-200 shadow-sm">
-          <Search size={20} color="#9CA3AF" />
+      <View style={{ paddingHorizontal: theme.spacing.lg, marginBottom: theme.spacing.sm }}>
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            backgroundColor: theme.colors.neutral.surface,
+            borderRadius: theme.radius.lg,
+            paddingHorizontal: theme.spacing.md,
+            paddingVertical: theme.spacing.sm,
+            borderWidth: 1,
+            borderColor: theme.colors.neutral.borderLight,
+            ...theme.shadows.xs,
+          }}
+        >
+          <Search size={20} color={theme.colors.neutral.text.tertiary} />
           <TextInput
-            className="flex-1 ml-2 text-base text-gray-900"
+            style={{
+              flex: 1,
+              marginLeft: theme.spacing.sm,
+              fontSize: theme.fontSize.base,
+              color: theme.colors.neutral.text.primary,
+            }}
             placeholder="Search favorites..."
             value={searchQuery}
             onChangeText={setSearchQuery}
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor={theme.colors.neutral.text.tertiary}
           />
         </View>
       </View>
 
       {isLoading && !refreshing ? (
         <CustomerFavoritesScreenSkeleton />
-      ) : (
+      ) : hasNoFavorites ? (
         <ScrollView
-          className="flex-1 p-4"
-          contentContainerStyle={{ paddingBottom: 100 }}
+          style={{ flex: 1 }}
+          contentContainerStyle={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            paddingHorizontal: theme.spacing.lg,
+          }}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={["#4CAF50"]} tintColor="#4CAF50" />
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={[theme.colors.primary.main]}
+              tintColor={theme.colors.primary.main}
+            />
           }
         >
-          {hasNoFavorites ? (
-            <View className="flex-1 items-center justify-center mt-20">
-              <Heart size={60} color="#9ca3af" />
-              <Text className="text-gray-600 text-base font-medium mt-6">No favorite farms yet.</Text>
-              <Text className="text-gray-500 text-sm mt-2 text-center">
-                Explore and add farms to your favorites to see them here
-              </Text>
-              <TouchableOpacity
-                onPress={() => navigation.navigate("Explore" as never)}
-                className="mt-8 bg-green-600 px-6 py-3 rounded-full"
-              >
-                <Text className="text-white font-semibold">Explore Farms</Text>
-              </TouchableOpacity>
-            </View>
-
-          ) : (
-            <View className="pb-4">
-              {filteredFavorites.length === 0 && searchQuery ? (
-                <View className="items-center justify-center mt-10">
-                  <Text className="text-gray-500">No farms match your search.</Text>
-                </View>
-              ) : (
-                filteredFavorites.map((favorite: any) => (
-                  <FavoriteFarmCard key={favorite.farm.id} farm={favorite.farm} />
-                ))
-              )}
-            </View>
-          )}
+          <Heart size={50} color={theme.colors.neutral.text.tertiary} />
+          <Text
+            style={{
+              fontSize: theme.fontSize.lg,
+              fontWeight: theme.fontWeight.semibold,
+              color: theme.colors.neutral.text.primary,
+              marginTop: theme.spacing.lg,
+              textAlign: "center",
+            }}
+          >
+            No Favorite Farms Yet
+          </Text>
+          <Text
+            style={{
+              fontSize: theme.fontSize.sm,
+              color: theme.colors.neutral.text.secondary,
+              marginTop: theme.spacing.sm,
+              textAlign: "center",
+            }}
+          >
+            Explore farms and add them to your favorites
+          </Text>
+          <TouchableOpacity
+            style={{
+              marginTop: theme.spacing.xl,
+              backgroundColor: theme.colors.primary.main,
+              paddingHorizontal: theme.spacing.xl,
+              paddingVertical: theme.spacing.md,
+              borderRadius: theme.radius.lg,
+            }}
+            onPress={() => navigation.navigate("Explore" as never)}
+          >
+            <Text
+              style={{
+                color: theme.colors.neutral.text.inverse,
+                fontWeight: theme.fontWeight.semibold,
+                fontSize: theme.fontSize.sm,
+              }}
+            >
+              Explore Farms
+            </Text>
+          </TouchableOpacity>
+        </ScrollView>
+      ) : (
+        <ScrollView
+          style={{ flex: 1, paddingHorizontal: theme.spacing.lg }}
+          contentContainerStyle={{ paddingBottom: 100 }}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={[theme.colors.primary.main]}
+              tintColor={theme.colors.primary.main}
+            />
+          }
+        >
+          {filteredFavorites.map((favorite: any) => (
+            <FavoriteFarmCard key={favorite.farm.id} farm={favorite.farm} />
+          ))}
         </ScrollView>
       )}
     </SafeAreaView>

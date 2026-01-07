@@ -1,74 +1,165 @@
-import type React from "react"
 import { View, Image, TouchableOpacity, Text, Pressable } from "react-native"
-import { Trash2, Star, Edit, Plus, Heart } from "lucide-react-native"
+import { Star, Plus, Heart } from "lucide-react-native"
+import theme from "@/utils/theme"
+import { createCardStyle, createTextStyle, createHeadingStyle } from "@/utils/style-helpers"
 
 interface ProductCardProps {
-    product: {
-        id: string
-        name: string
-        farm: string
-        price: string
-        units: string
-        sold: string
-        soldAmount: string
-        image: string
-        category: string
-    }
+  product: {
+    id: string
+    name: string
+    farm: string
+    price: string
+    units: string
+    sold: string
+    soldAmount: string
+    image: string
+    category: string
+  }
 }
 
 export const ProductCustomer = ({ product }: ProductCardProps) => {
-    return (
-        <View className="bg-white rounded-3xl border border-gray-100 overflow-hidden shadow shadow-gray-200">
-            <View className="relative h-40 bg-gray-200 rounded-2xl overflow-hidden">
-                {/* Hình ảnh sản phẩm */}
-                <Image
-                    source={{ uri: product.image }}
-                    className="w-full h-full"
-                    resizeMode="cover"
-                    defaultSource={{ uri: "/placeholder.svg" }}
-                />
+  return (
+    <View
+      style={{
+        ...createCardStyle({
+          overflow: "hidden",
+          marginBottom: theme.spacing.md,
+        }),
+        borderRadius: theme.radius.lg,
+      }}
+    >
+      {/* Product Image */}
+      <View
+        style={{
+          height: 160,
+          width: "100%",
+          backgroundColor: theme.colors.neutral.divider,
+          overflow: "hidden",
+          borderRadius: theme.radius.md,
+          margin: theme.spacing.md,
+          marginBottom: theme.spacing.sm,
+        }}
+      >
+        <Image source={{ uri: product.image }} style={{ width: "100%", height: "100%" }} resizeMode="cover" />
 
-                {/* Category (bên trái trên cùng) */}
-                <View className="absolute top-2 left-2 bg-white/80 px-2 py-1 rounded-full">
-                    <Text className="text-xs font-medium text-gray-700">
-                        {product.category}
-                    </Text>
-                </View>
-
-                {/* Icon tim (bên phải trên cùng) */}
-                <Pressable className="absolute top-2 right-2 bg-white/80 rounded-full p-1.5">
-                    <Heart color="#9e9a9aff" size={18} strokeWidth={2} />
-                </Pressable>
-            </View>
-
-            {/* Content */}
-            <View className="p-4 flex-1 flex flex-col justify-between">
-                {/* Product Info */}
-                <View>
-                    {/* Product Name and Category */}
-                    <Text className="text-base font-semibold text-[#2D2D2D] mb-1">{product.name}</Text>
-                    <Text className="text-sm text-[#8A8A8A] mb-3">{product.farm}</Text>
-
-                    {/* Sold Info */}
-                    <View className="mt-2">
-                        {/* Hàng rating */}
-                        <View className="flex-row items-center mb-1">
-                            <Star size={14} color="#FBBF24" fill="#FBBF24" />
-                            <Text className="text-gray-500 text-xs ml-1">4.8(5)</Text>
-                            <Text className="text-gray-400 text-xs mx-1">•</Text>
-                            <Text className="text-gray-500 text-xs">{product.soldAmount}</Text>
-                        </View>
-
-                        {/* Hàng giá + nút thêm */}
-                        <View className="flex-row justify-between items-center">
-                            <Text className="text-green-600 font-semibold text-base">{product.price}</Text>
-                            <Pressable className="bg-green-500 rounded-full p-2">
-                                <Plus color="white" size={18} strokeWidth={2.5} />
-                            </Pressable>
-                        </View>
-                    </View>
-                </View>
-            </View>
+        {/* Category Badge */}
+        <View
+          style={{
+            position: "absolute",
+            top: theme.spacing.md,
+            left: theme.spacing.md,
+            backgroundColor: theme.colors.neutral.surface + "95",
+            paddingHorizontal: theme.spacing.sm,
+            paddingVertical: 4,
+            borderRadius: theme.radius.full,
+          }}
+        >
+          <Text
+            style={{
+              fontSize: theme.fontSize.xs,
+              fontWeight: theme.fontWeight.medium,
+              color: theme.colors.neutral.text.secondary,
+            }}
+          >
+            {product.category}
+          </Text>
         </View>
-    )
+
+        {/* Heart Icon */}
+        <Pressable
+          style={{
+            position: "absolute",
+            top: theme.spacing.md,
+            right: theme.spacing.md,
+            backgroundColor: theme.colors.neutral.surface + "95",
+            borderRadius: theme.radius.full,
+            padding: 6,
+          }}
+        >
+          <Heart color={theme.colors.neutral.text.tertiary} size={18} strokeWidth={2} />
+        </Pressable>
+      </View>
+
+      {/* Content */}
+      <View
+        style={{
+          paddingHorizontal: theme.spacing.md,
+          paddingBottom: theme.spacing.md,
+          flex: 1,
+          justifyContent: "space-between",
+        }}
+      >
+        {/* Product Info */}
+        <View>
+          <Text
+            style={{
+              ...createHeadingStyle("h3"),
+              marginBottom: theme.spacing.xs,
+            }}
+          >
+            {product.name}
+          </Text>
+          <Text
+            style={{
+              ...createTextStyle("secondary"),
+              fontSize: theme.fontSize.sm,
+              marginBottom: theme.spacing.md,
+            }}
+          >
+            {product.farm}
+          </Text>
+
+          {/* Rating & Sales */}
+          <View style={{ marginTop: theme.spacing.sm }}>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                marginBottom: theme.spacing.xs,
+              }}
+            >
+              <Star size={14} color={theme.colors.secondary.main} fill={theme.colors.secondary.main} />
+              <Text style={{ ...createTextStyle("secondary"), fontSize: theme.fontSize.xs, marginLeft: 4 }}>
+                4.8(5)
+              </Text>
+              <Text style={{ ...createTextStyle("tertiary"), fontSize: theme.fontSize.xs, marginHorizontal: 4 }}>
+                •
+              </Text>
+              <Text style={{ ...createTextStyle("secondary"), fontSize: theme.fontSize.xs }}>{product.soldAmount}</Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Price & Action */}
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginTop: theme.spacing.md,
+          }}
+        >
+          <Text
+            style={{
+              fontSize: theme.fontSize.lg,
+              fontWeight: theme.fontWeight.bold,
+              color: theme.colors.primary.main,
+            }}
+          >
+            {product.price}
+          </Text>
+          <TouchableOpacity
+            style={{
+              backgroundColor: theme.colors.primary.main,
+              paddingHorizontal: theme.spacing.md,
+              paddingVertical: theme.spacing.sm,
+              borderRadius: theme.radius.md,
+            }}
+          >
+            <Plus size={18} color={theme.colors.neutral.surface} />
+          </TouchableOpacity>
+        </View>
+      </View>
+    </View>
+  )
 }

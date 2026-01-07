@@ -1,90 +1,126 @@
-import React from 'react';
-import { View, Text, Image, TouchableOpacity, Pressable } from 'react-native';
-import { Farm } from '@/types';
-import { Heart, Star, MapPin } from 'lucide-react-native';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { CustomerStackParamList } from '@/navigation/CustomerNavigator';
-import { useToggleFavoriteFarm } from '@/hooks/useFavoriteFarms';
+import { View, Text, Image, TouchableOpacity, Pressable } from "react-native"
+import type { Farm } from "@/types"
+import { Heart, Star, MapPin } from "lucide-react-native"
+import { useNavigation } from "@react-navigation/native"
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack"
+import type { CustomerStackParamList } from "@/navigation/CustomerNavigator"
+import { useToggleFavoriteFarm } from "@/hooks/useFavoriteFarms"
+import theme from "@/utils/theme"
+import { createCardStyle, createTextStyle } from "@/utils/style-helpers"
 
 interface FavoriteFarmCardProps {
-    farm: Farm;
+  farm: Farm
 }
 
 const FavoriteFarmCard = ({ farm }: FavoriteFarmCardProps) => {
-    const navigation = useNavigation<NativeStackNavigationProp<CustomerStackParamList>>();
-    const { mutateAsync: toggleFavorite, isPending } = useToggleFavoriteFarm();
+  const navigation = useNavigation<NativeStackNavigationProp<CustomerStackParamList>>()
+  const { mutateAsync: toggleFavorite, isPending } = useToggleFavoriteFarm()
 
-    const handlePress = () => {
-        navigation.navigate('FarmDetail', { farmId: farm.id });
-    };
+  const handlePress = () => {
+    navigation.navigate("FarmDetail", { farmId: farm.id })
+  }
 
-    const handleToggleFavorite = async (e: any) => {
-        // Stop propagation doesn't work exactly like web in RN Pressable but preventing overlap is key
-        e.stopPropagation?.();
-        await toggleFavorite(farm.id);
-    };
+  const handleToggleFavorite = async (e: any) => {
+    e.stopPropagation?.()
+    await toggleFavorite(farm.id)
+  }
 
-    return (
-        <Pressable
-            onPress={handlePress}
-            className="flex-row bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 mb-3 h-28"
-        >
-            {/* Image Section - Left side, fixed width */}
-            <View className="w-28 h-full bg-gray-100">
-                <Image
-                    source={{ uri: farm.bannerUrl || 'https://via.placeholder.com/150' }}
-                    className="w-full h-full"
-                    resizeMode="cover"
-                />
-            </View>
+  return (
+    <Pressable
+      onPress={handlePress}
+      style={{
+        ...createCardStyle(),
+        flexDirection: "row",
+        overflow: "hidden",
+        marginBottom: theme.spacing.md,
+        height: 112, // h-28
+      }}
+    >
+      {/* Image Section - Left side */}
+      <View
+        style={{
+          width: 112,
+          height: "100%",
+          backgroundColor: theme.colors.neutral.divider,
+        }}
+      >
+        <Image
+          source={{ uri: farm.bannerUrl || "https://via.placeholder.com/150" }}
+          style={{ width: "100%", height: "100%" }}
+          resizeMode="cover"
+        />
+      </View>
 
-            {/* Content Section - Right side, flex-1 */}
-            <View className="flex-1 p-3 flex-col justify-between">
-                <View>
-                    <View className="flex-row justify-between items-start">
-                        <Text className="text-base font-bold text-gray-900 flex-1 mr-2" numberOfLines={1}>
-                            {farm.farmName}
-                        </Text>
+      {/* Content Section - Right side */}
+      <View
+        style={{
+          flex: 1,
+          padding: theme.spacing.md,
+          justifyContent: "space-between",
+          flexDirection: "column",
+        }}
+      >
+        <View>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "flex-start",
+            }}
+          >
+            <Text
+              numberOfLines={1}
+              style={{
+                ...createTextStyle("primary"),
+                fontSize: theme.fontSize.base,
+                fontWeight: theme.fontWeight.bold,
+                flex: 1,
+                marginRight: theme.spacing.sm,
+              }}
+            >
+              {farm.farmName}
+            </Text>
 
-                        {/* Heart Button - Small, clean, top right */}
-                        <TouchableOpacity
-                            onPress={handleToggleFavorite as any}
-                            disabled={isPending}
-                            className="bg-green-50 p-1.5 rounded-full"
-                        >
-                            <Heart size={16} fill="#4CAF50" color="#4CAF50" />
-                        </TouchableOpacity>
-                    </View>
+            {/* Heart Button */}
+            <TouchableOpacity
+              onPress={handleToggleFavorite as any}
+              disabled={isPending}
+              style={{
+                backgroundColor: theme.colors.primary.light,
+                padding: 6,
+                borderRadius: theme.radius.full,
+              }}
+            >
+              <Heart size={16} fill={theme.colors.primary.main} color={theme.colors.primary.main} />
+            </TouchableOpacity>
+          </View>
 
-                    {/* Location */}
-                    <View className="flex-row items-center mt-1">
-                        <MapPin size={12} color="#9CA3AF" className="mr-1" />
-                        <Text className="text-xs text-gray-500 flex-1" numberOfLines={1}>
-                            {farm.address ? `${farm.address.ward}, ${farm.address.district}` : 'Unknown Location'}
-                        </Text>
-                    </View>
-                </View>
+          {/* Location */}
+          <View style={{ flexDirection: "row", alignItems: "center", marginTop: theme.spacing.xs }}>
+            <MapPin size={12} color={theme.colors.neutral.text.tertiary} />
+            <Text
+              numberOfLines={1}
+              style={{
+                ...createTextStyle("secondary"),
+                fontSize: theme.fontSize.sm,
+                marginLeft: 4,
+              }}
+            >
+              {farm.location}
+            </Text>
+          </View>
+        </View>
 
-                {/* Bottom Row - Rating & Badges */}
-                <View className="flex-row items-center justify-between">
-                    <View className="flex-row items-center bg-orange-50 px-1.5 py-0.5 rounded-md">
-                        <Star size={10} fill="#F59E0B" color="#F59E0B" />
-                        <Text className="text-[10px] font-bold text-orange-700 ml-1">
-                            {/* TODO: Pass rating if available, otherwise default */}
-                            5.0
-                        </Text>
-                    </View>
+        {/* Rating */}
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
+          <Star size={14} fill={theme.colors.secondary.main} color={theme.colors.secondary.main} />
+          <Text style={{ ...createTextStyle("secondary"), fontSize: theme.fontSize.sm }}>
+            {farm.averageRating?.toFixed(1) || "N/A"}
+          </Text>
+        </View>
+      </View>
+    </Pressable>
+  )
+}
 
-                    {farm.isConfirmAsMall && (
-                        <View className="bg-green-100 px-2 py-0.5 rounded">
-                            <Text className="text-[10px] font-medium text-green-700">Mall</Text>
-                        </View>
-                    )}
-                </View>
-            </View>
-        </Pressable>
-    );
-};
-
-export default FavoriteFarmCard;
+export default FavoriteFarmCard

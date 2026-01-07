@@ -141,14 +141,13 @@ export interface SellingBatch {
   plantingDate: string
   harvestDate: string
   totalYield: number
-  avaibleQuantity: number // Note: Check if typo in API is consistent
+  availableQuantity: number
   price: number
   units: string
   imageUrls: string[]
 }
 
 export type ProductBatch = Batch | SellingBatch
-
 
 // Keeping existing types that might be used elsewhere for now, but marking them as potentially legacy if they conflict.
 // Re-adding UserData and others that seemed useful.
@@ -215,7 +214,6 @@ export interface Order {
   // Existing relations
   customer?: any // Profile type
   orderItems?: OrderItem[]
-
 }
 
 export type HistoryItem = {
@@ -351,8 +349,6 @@ export interface UnifiedProduct {
   reviewCount?: number
   location: string // Province
 }
-
-
 
 export interface CareEventType {
   id: string

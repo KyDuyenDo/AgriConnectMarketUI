@@ -1,3 +1,5 @@
+"use client"
+
 import { useState, useEffect } from "react"
 import { View, Text, ScrollView, TouchableOpacity, Alert } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
@@ -11,10 +13,11 @@ import { SocialLoginButtons } from "@/components/auth/SocialLoginButtons"
 import { SignUpLink } from "@/components/auth/SignUpLink"
 import { useLogin } from "@/hooks/auth/useAuth"
 import { useAuthStore } from "@/stores/auth"
-import { AuthParamList } from "@/navigation/AuthNavigator"
-import { NativeStackNavigationProp } from "@react-navigation/native-stack"
+import type { AuthParamList } from "@/navigation/AuthNavigator"
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { useNavigation } from "@react-navigation/native"
 import AsyncStorage from "@react-native-async-storage/async-storage"
+import theme from "@/utils/theme"
 
 type Nav = NativeStackNavigationProp<AuthParamList>
 
@@ -55,7 +58,7 @@ export default function LoginScreen() {
       try {
         await AsyncStorage.setItem(
           REMEMBER_ME_KEY,
-          JSON.stringify({ username: data.username, password: data.password })
+          JSON.stringify({ username: data.username, password: data.password }),
         )
       } catch (error) {
         console.error("Failed to save credentials", error)
@@ -68,10 +71,11 @@ export default function LoginScreen() {
       }
     }
 
-    login({
-      Username: data.username,
-      Password: data.password,
-    },
+    login(
+      {
+        Username: data.username,
+        Password: data.password,
+      },
       {
         onSuccess: (response) => {
           const user = response.data
@@ -80,8 +84,8 @@ export default function LoginScreen() {
         onError: (error) => {
           console.log("Error", error.message || "Login failed. Please try again.")
           Alert.alert("Login failed", "Account not found")
-        }
-      }
+        },
+      },
     )
   }
 
@@ -90,25 +94,58 @@ export default function LoginScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-[#F9FAF9]">
+    <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.neutral.background }}>
       <ScrollView contentContainerClassName="flex-grow" className="flex-1">
-        <View className="flex-1 px-4 pb-8 pt-8">
+        <View
+          style={{
+            flex: 1,
+            paddingHorizontal: theme.spacing.lg,
+            paddingBottom: theme.spacing.xl,
+            paddingTop: theme.spacing.xl,
+          }}
+        >
           {/* Logo */}
-          <View className="mb-8 items-center">
+          <View style={{ marginBottom: theme.spacing.xxl, alignItems: "center" }}>
             <LogoIcon />
           </View>
 
           {/* Title and Subtitle */}
-          <View className="mb-6 items-center">
-            <Text className="text-3xl font-bold text-gray-900">Welcome Back</Text>
-            <Text className="mt-2 text-center text-base text-gray-600">Sign in to access fresh produce</Text>
+          <View style={{ marginBottom: theme.spacing.lg, alignItems: "center" }}>
+            <Text
+              style={{
+                fontSize: theme.fontSize["3xl"],
+                fontWeight: theme.fontWeight.bold,
+                color: theme.colors.neutral.text.primary,
+              }}
+            >
+              Welcome Back
+            </Text>
+            <Text
+              style={{
+                marginTop: theme.spacing.sm,
+                textAlign: "center",
+                fontSize: theme.fontSize.base,
+                color: theme.colors.neutral.text.secondary,
+              }}
+            >
+              Sign in to access fresh produce
+            </Text>
           </View>
 
-          <View className="mb-6 rounded-3xl bg-white p-4 shadow-md">
+          <View
+            style={{
+              marginBottom: theme.spacing.lg,
+              borderRadius: theme.radius.lg,
+              backgroundColor: theme.colors.neutral.surface,
+              paddingHorizontal: theme.spacing.md,
+              paddingVertical: theme.spacing.lg,
+              ...theme.shadows.sm,
+            }}
+          >
             {/* Form content with inner padding */}
-            <View className="px-4 py-4">
+            <View style={{ paddingHorizontal: theme.spacing.md, paddingVertical: theme.spacing.md }}>
               {/* Email Input */}
-              <View className="mb-5">
+              <View style={{ marginBottom: theme.spacing.lg }}>
                 <InputField
                   name="username"
                   control={control}
@@ -120,7 +157,7 @@ export default function LoginScreen() {
               </View>
 
               {/* Password Input */}
-              <View className="mb-5">
+              <View style={{ marginBottom: theme.spacing.lg }}>
                 <PasswordField
                   name="password"
                   control={control}
@@ -131,10 +168,25 @@ export default function LoginScreen() {
               </View>
 
               {/* Remember Me & Forgot Password */}
-              <View className="mb-6 flex-row items-center justify-between">
+              <View
+                style={{
+                  marginBottom: theme.spacing.lg,
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
                 <RememberMeCheckbox checked={rememberMe} onToggle={setRememberMe} />
                 <TouchableOpacity onPress={() => navigate.navigate("ForgotPassword")}>
-                  <Text className="text-sm font-semibold text-[#4CAF50]">Forgot Password?</Text>
+                  <Text
+                    style={{
+                      fontSize: theme.fontSize.sm,
+                      fontWeight: theme.fontWeight.semibold,
+                      color: theme.colors.primary.main,
+                    }}
+                  >
+                    Forgot Password?
+                  </Text>
                 </TouchableOpacity>
               </View>
 
@@ -144,10 +196,18 @@ export default function LoginScreen() {
           </View>
 
           {/* Divider */}
-          <View className="my-4 flex-row items-center">
-            <View className="flex-1 border-t border-gray-300" />
-            <Text className="px-3 text-sm text-gray-600">Or continue with</Text>
-            <View className="flex-1 border-t border-gray-300" />
+          <View style={{ marginVertical: theme.spacing.md, flexDirection: "row", alignItems: "center" }}>
+            <View style={{ flex: 1, borderTopWidth: 1, borderTopColor: theme.colors.neutral.border }} />
+            <Text
+              style={{
+                paddingHorizontal: theme.spacing.md,
+                fontSize: theme.fontSize.sm,
+                color: theme.colors.neutral.text.secondary,
+              }}
+            >
+              Or continue with
+            </Text>
+            <View style={{ flex: 1, borderTopWidth: 1, borderTopColor: theme.colors.neutral.border }} />
           </View>
 
           {/* Social Login Buttons */}

@@ -1,5 +1,9 @@
+"use client"
+
 import { View, Text, TextInput } from "react-native"
 import { Controller } from "react-hook-form"
+import theme from "@/utils/theme"
+import { createFormLabelStyle, createFormInputStyle } from "@/utils/style-helpers"
 
 interface InputFieldProps {
   name: string
@@ -11,28 +15,39 @@ interface InputFieldProps {
   rules?: any
 }
 
-export function InputField({ name, control, placeholder, label, keyboardType = "default", error, rules }: InputFieldProps) {
+export function InputField({
+  name,
+  control,
+  placeholder,
+  label,
+  keyboardType = "default",
+  error,
+  rules,
+}: InputFieldProps) {
   return (
-    <View>
-      <Text className="mb-2 text-sm font-semibold text-gray-900">{label}</Text>
+    <View style={{ marginBottom: theme.spacing.lg }}>
+      <Text style={createFormLabelStyle()}>{label}</Text>
       <Controller
         control={control}
         name={name}
         rules={rules}
         render={({ field: { onChange, onBlur, value } }) => (
           <TextInput
-            className={`rounded-2xl border bg-white px-4 py-3 text-base text-gray-900 placeholder-gray-400 inset-shadow-sm ${error ? "border-red-500" : "border-gray-200"
-              }`}
+            style={createFormInputStyle(!!error)}
             placeholder={placeholder}
             keyboardType={keyboardType}
             onBlur={onBlur}
             onChangeText={onChange}
             value={value}
-            placeholderTextColor="#999"
+            placeholderTextColor={theme.colors.neutral.text.tertiary}
           />
         )}
       />
-      {error && <Text className="mt-2 text-sm text-red-500">{error}</Text>}
+      {error && (
+        <Text style={{ fontSize: theme.fontSize.sm, color: theme.colors.status.error, marginTop: theme.spacing.xs }}>
+          {error}
+        </Text>
+      )}
     </View>
   )
 }
