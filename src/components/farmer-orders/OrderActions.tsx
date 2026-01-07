@@ -7,6 +7,7 @@ interface OrderActionsProps {
   paymentMethod: string
   onUpdateStatus: (newStatus: string) => void
   onCancel?: () => void
+  onCall?: () => void
 }
 
 const getActionButtonConfig = (status: string) => {
@@ -24,7 +25,7 @@ const getActionButtonConfig = (status: string) => {
   }
 }
 
-export function OrderActions({ status, paymentStatus, paymentMethod, onUpdateStatus, onCancel }: OrderActionsProps) {
+export function OrderActions({ status, paymentStatus, paymentMethod, onUpdateStatus, onCancel, onCall }: OrderActionsProps) {
   const { label, bgColor, textColor, isCompleted, nextStatus } = getActionButtonConfig(status)
 
   const handlePress = () => {
@@ -52,7 +53,7 @@ export function OrderActions({ status, paymentStatus, paymentMethod, onUpdateSta
 
       <View className="flex-row gap-2">
         {!isCompleted && (
-          <Pressable className="w-10 h-10 bg-[#FFE0B2] rounded-lg items-center justify-center">
+          <Pressable onPress={onCall} className="w-10 h-10 bg-[#FFE0B2] rounded-lg items-center justify-center">
             <View className="w-5 h-5 items-center justify-center">
               <Phone size={16} color="#FFA726" />
             </View>

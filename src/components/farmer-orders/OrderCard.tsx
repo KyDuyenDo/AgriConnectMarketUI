@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, Alert } from "react-native"
+import { View, Text, TouchableOpacity, Alert, Linking } from "react-native"
 import { StatusBadge } from "./StatusBadge"
 import { PaymentStatusBadge } from "./PaymentStatusBadge"
 import { OrderProducts } from "./OrderProducts"
@@ -55,6 +55,24 @@ export function OrderCard({ order, isPreOrder }: OrderCardProps) {
     cancelOrder(order.orderId)
   }
 
+  const handleCall = () => {
+    const phoneNumber = order.customer?.phone
+    if (!phoneNumber) {
+      Alert.alert("No Phone Number", "This customer has not provided a phone number.")
+      return
+    }
+
+    Alert.alert(
+      "Contact Customer",
+      `Choose an action for ${phoneNumber}`,
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "Call", onPress: () => Linking.openURL(`tel:${phoneNumber}`) },
+        { text: "Message", onPress: () => Linking.openURL(`sms:${phoneNumber}`) }
+      ]
+    )
+  }
+
   return (
     <TouchableOpacity onPress={handlePress} activeOpacity={0.9}>
       <View className={`bg-white rounded-2xl mx-4 p-4 mb-3 ${leftBorder}`}>
@@ -94,7 +112,7 @@ export function OrderCard({ order, isPreOrder }: OrderCardProps) {
           timeline={order.timeline}
         /> */}
 
-        <OrderActions status={status as any} paymentStatus={order.paymentStatus} paymentMethod={order.paymentMethod} onUpdateStatus={handleUpdateStatus} onCancel={handleCancel} />
+        <OrderActions status={status as any} paymentStatus={order.paymentStatus} paymentMethod={order.paymentMethod} onUpdateStatus={handleUpdateStatus} onCancel={handleCancel} onCall={handleCall} />
       </View>
     </TouchableOpacity>
   )

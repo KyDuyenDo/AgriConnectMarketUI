@@ -1,4 +1,4 @@
-import { ScrollView, Platform, View, Text, ActivityIndicator, RefreshControl } from 'react-native';
+import { ScrollView, Platform, View, Text, ActivityIndicator, RefreshControl, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Header } from '@/components/farmer-order-detail/Header';
 import { OrderHeader } from '@/components/farmer-order-detail/OrderHeader';
@@ -56,6 +56,24 @@ export function FarmerOrderDetailScreen() {
 
     const handleCancel = () => {
         cancelOrder(orderId);
+    };
+
+    const handleContactCustomer = () => {
+        const phoneNumber = order?.customer?.phone;
+        if (!phoneNumber) {
+            Alert.alert("No Phone Number", "This customer has not provided a phone number.");
+            return;
+        }
+
+        Alert.alert(
+            "Contact Customer",
+            `Choose an action for ${phoneNumber}`,
+            [
+                { text: "Cancel", style: "cancel" },
+                { text: "Call", onPress: () => Linking.openURL(`tel:${phoneNumber}`) },
+                { text: "Message", onPress: () => Linking.openURL(`sms:${phoneNumber}`) }
+            ]
+        );
     };
 
     const onRefresh = useCallback(async () => {
@@ -170,7 +188,7 @@ export function FarmerOrderDetailScreen() {
             <OrderActions
                 onConfirm={() => handleUpdateStatus('Processing')}
                 onMarkReady={() => handleUpdateStatus('Shipped')}
-                onCall={() => console.log('Call')}
+                onCall={handleContactCustomer}
                 onMessage={() => console.log('Message')}
                 onCancel={() => handleCancel()}
             />
