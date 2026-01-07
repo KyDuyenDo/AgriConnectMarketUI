@@ -58,12 +58,13 @@ export const PreOrderSection: React.FC<PreOrderSectionProps> = ({ farmId, curren
                                 quantity: 1, // Default to 1 for now, could add selector
                                 farmId: farmId,
                                 addressId: addressId,
-                                note: "Pre-order from Batch Detail"
+                                note: "Pre-order from Batch Detail",
+                                expectedReleaseDate: batch.harvestDate
                             },
                             {
                                 onSuccess: () => {
                                     Alert.alert("Success", "Pre-order placed successfully!");
-                                    navigation.navigate("CustomerOrders"); // Navigate to orders to see it
+                                    navigation.navigate("CustomerOrders", { initialFilter: 'All Orders' });
                                 },
                                 onError: (error: any) => {
                                     Alert.alert("Error", "Failed to place pre-order. " + (error.message || ""));

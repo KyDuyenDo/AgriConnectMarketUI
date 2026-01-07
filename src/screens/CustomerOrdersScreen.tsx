@@ -31,15 +31,7 @@ const mapStatus = (status: string | undefined): Order['status'] => {
 const FetchedOrderCard = ({ order, isPreOrder, onCancel }: { order: Order, isPreOrder?: boolean, onCancel?: (id: string) => void }) => {
   return (
     <View>
-      <OrderCard order={order} />
-      {isPreOrder && order.status !== 'cancelled' && order.status !== 'delivered' && (
-        <TouchableOpacity
-          onPress={() => onCancel && onCancel(order.id)}
-          className="bg-red-50 self-end px-4 py-2 rounded-full mt-2 mr-2 border border-red-100"
-        >
-          <Text className="text-red-500 text-xs font-semibold">Cancel Pre-Order</Text>
-        </TouchableOpacity>
-      )}
+      <OrderCard order={order} isPreOrder={isPreOrder} />
     </View>
   );
 };
@@ -78,29 +70,42 @@ const CustomerOrdersScreen: React.FC<Props> = ({ route, navigation }) => {
       // Calculate total if 0 (common for pre-orders where totalPrice might be 0 initially)
       let total = order.totalPrice || order.partiallyPaidAmount || 0;
       if (total === 0 && firstItem) {
-        total = firstItem.price * firstItem.quantity;
+        // Use unitPrice from order item, or price from batch
+        const price = firstItem.unitPrice || firstItem.batch?.price || 0;
+        total = price * firstItem.quantity;
       }
+
+      const productName = firstItem?.batch?.season?.product?.productName || 'Unknown Product';
 
       return {
         id: order.id,
         code: order.orderCode,
+        orderType: order.orderType,
         date: formatDate(order.orderDate),
         farmName: farm?.farmName || 'Unknown Farm',
         farmBanner: farm?.bannerUrl || 'https://via.placeholder.com/50',
         farmId: firstItem?.batch?.season?.farmId,
         batchId: firstItem?.batch?.id,
-        subtitle: order.orderItems?.length === 1 ? firstItem?.productName : `${order.orderItems?.length || 0} items`,
+        subtitle: order.orderItems?.length === 1 ? productName : `${order.orderItems?.length || 0} items`,
         status: mapStatus(order.orderStatus),
         itemsCount: order.orderItems?.length || 0,
         total: total,
         estDelivery: order.expectedReleaseDate ? formatDate(order.expectedReleaseDate) : 'TBD',
         images: images.length > 0 ? images : ['https://via.placeholder.com/150'],
+        // Pass expectedReleaseDate raw for validatoin or usage in details
+        expectedReleaseDate: order.expectedReleaseDate,
+        // Use raw API status for PreOrders to support custom tags
+        statusLabel: order.orderType === 'Pre-Order' ? order.orderStatus : undefined
       } as Order;
     });
   };
 
-  const ordersData = useMemo(() => mapOrders(orders || []), [orders]);
-  const preOrdersData = useMemo(() => mapOrders(preOrders || []), [preOrders]);
+  const ordersData = useMemo(() =>
+    mapOrders(orders || []).filter(o => o.orderType !== 'Pre-Order'),
+    [orders]);
+  const preOrdersData = useMemo(() =>
+    mapOrders(preOrders || []).filter(o => o.orderType === 'Pre-Order'),
+    [preOrders]);
 
   const currentData = activeTab === 'Orders' ? ordersData : preOrdersData;
 

@@ -14,7 +14,7 @@ import CareEventDetailScreen from "@/screens/CareEventDetailScreen"
 export type CustomerStackParamList = {
   MainTabs: undefined
   CustomerOrders: { initialFilter?: string } | undefined
-  CustomerOrderDetail: { orderId: string }
+  CustomerOrderDetail: { orderId: string; isPreOrder?: boolean }
   FarmDetail: { farmId: string }
   BatchDetails: { batchId: string }
   PersonalInformation: undefined

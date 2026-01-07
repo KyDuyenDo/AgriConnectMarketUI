@@ -31,7 +31,12 @@ export function FarmerOrders() {
 
   const isLoading = isLoadingFarm || (activeTab === 'Orders' ? isLoadingOrders : isLoadingPreOrders)
 
-  const currentOrders = activeTab === 'Orders' ? orders : preOrders
+  const currentOrders = useMemo(() => {
+    if (activeTab === 'Orders') {
+      return orders?.filter((o: Order) => o.orderType !== 'Pre-Order') || []
+    }
+    return preOrders?.filter((o: Order) => o.orderType === 'Pre-Order') || []
+  }, [activeTab, orders, preOrders])
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true)
@@ -92,7 +97,7 @@ export function FarmerOrders() {
 
       <FlatList
         data={filteredOrders}
-        renderItem={({ item }) => <OrderCard order={item} />}
+        renderItem={({ item }) => <OrderCard order={item} isPreOrder={activeTab === 'PreOrders'} />}
         keyExtractor={(item, index) => `${item.orderId}-${index}`}
         contentContainerStyle={{
           paddingTop: 16,

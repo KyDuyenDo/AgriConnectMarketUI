@@ -26,23 +26,28 @@ export type Order = {
   farmId?: string
   batchId?: string
   images: string[]
+  orderType?: string
+  statusLabel?: string
 }
 
 type Nav = NativeStackNavigationProp<CustomerStackParamList>
 
-const OrderCard: React.FC<{ order: Order }> = ({ order }) => {
+const OrderCard: React.FC<{ order: Order; isPreOrder?: boolean }> = ({ order, isPreOrder }) => {
   const navigation = useNavigation<Nav>()
 
-  const statusBg = getStatusBgColor(order.status)
-  const statusText = getStatusTextColor(order.status)
-  const statusLabel = order.status
+  // If statusLabel provided, use it. Otherwise derive from mapped status.
+  const statusLabel = order.statusLabel || order.status
     .split("_")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ")
 
+  // Use generic colors for custom labels if not standard, or fallback to status based.
+  const statusBg = order.statusLabel ? "#E3F2FD" : getStatusBgColor(order.status) // Default light blue for custom tags?
+  const statusText = order.statusLabel ? "#1976D2" : getStatusTextColor(order.status)
+
   return (
     <Pressable
-      onPress={() => navigation.navigate("CustomerOrderDetail", { orderId: order.id })}
+      onPress={() => navigation.navigate("CustomerOrderDetail", { orderId: order.id, isPreOrder })}
       style={{
         ...createCardStyle({
           marginBottom: theme.spacing.md,

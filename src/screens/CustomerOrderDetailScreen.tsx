@@ -40,8 +40,8 @@ import { useCallback } from 'react';
 
 const CustomerOrderDetailScreen: React.FC = () => {
   const route = useRoute<any>();
-  const { orderId } = route.params || {};
-  const { data: order, isLoading } = useOrderDetail(orderId);
+  const { orderId, isPreOrder } = route.params || {};
+  const { data: order, isLoading } = useOrderDetail(orderId, isPreOrder);
   const { mutate: cancelOrder, isPending: isCancelling } = useCancelOrder();
   const { mutate: createReview, isPending } = useCreateFarmReview();
   const navigation = useNavigation();

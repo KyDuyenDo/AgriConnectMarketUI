@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity } from "react-native"
+import { View, Text, TouchableOpacity, Alert } from "react-native"
 import { StatusBadge } from "./StatusBadge"
 import { PaymentStatusBadge } from "./PaymentStatusBadge"
 import { OrderProducts } from "./OrderProducts"
@@ -11,14 +11,15 @@ import { useUpdateOrderStatus, useCancelOrder } from "@/hooks/useOrders"
 
 interface OrderCardProps {
   order: any
+  isPreOrder?: boolean
 }
 
-export function OrderCard({ order }: OrderCardProps) {
+export function OrderCard({ order, isPreOrder }: OrderCardProps) {
   const navigation = useNavigation<any>()
   const leftBorder = order.orderStatus === "urgent" ? "border-l-4 border-[#D32F2F]" : ""
 
   const handlePress = () => {
-    navigation.navigate("FarmerOrderDetail", { orderId: order.id })
+    navigation.navigate("FarmerOrderDetail", { orderId: order.id, isPreOrder })
   }
 
   // Map backend status to UI status
@@ -40,7 +41,14 @@ export function OrderCard({ order }: OrderCardProps) {
   const { mutate: cancelOrder } = useCancelOrder()
 
   const handleUpdateStatus = (newStatus: string) => {
-    updateStatus({ orderId: order.id, status: newStatus })
+    Alert.alert(
+      "Confirm Update",
+      `Are you sure you want to update status to ${newStatus}?`,
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "Confirm", onPress: () => updateStatus({ orderId: order.id, status: newStatus }) }
+      ]
+    )
   }
 
   const handleCancel = () => {

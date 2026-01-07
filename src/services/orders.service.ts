@@ -58,13 +58,14 @@ export const ordersService = {
     note?: string
     addressId: string
     farmId: string
+    expectedReleaseDate?: string
   }) => {
     const dto = {
       ...payload,
       orderCode: "PRE",
       orderDate: new Date().toISOString(),
       orderType: "PreOrder",
-      expectedReleaseDate: new Date().toISOString(), // Backend might ignore or set null
+      expectedReleaseDate: payload.expectedReleaseDate || new Date().toISOString(),
     }
     const response = await apiClient.post<any>("/api/orders/pre-order", dto)
     return extractResponseData<any>(response.data)
@@ -77,8 +78,27 @@ export const ordersService = {
   },
 
   getFarmPreOrders: async (farmId: string) => {
-    const response = await apiClient.get<any>(`/api/orders/farm/${farmId}/pre-orders`)
+    const response = await apiClient.get<any>(`/api/farm/${farmId}/pre-orders`)
     const data = extractResponseData<Order[]>(response.data)
     return data || []
+  },
+
+  getPreOrderDetail: async (orderId: string) => {
+    const response = await apiClient.get<any>(`/api/orders/pre-orders/${orderId}`)
+    return extractResponseData<Order>(response.data)
+  },
+
+  getPreOrderByCode: async (orderCode: string) => {
+    const response = await apiClient.get<any>(`/api/orders/pre-orders/order-code/${orderCode}`)
+    return extractResponseData<Order>(response.data)
+  },
+  approvePreOrder: async (orderId: string) => {
+    const response = await apiClient.patch<any>(`/api/orders/pre-orders/${orderId}/approve`)
+    return extractResponseData<{ orderId: string; orderStatus: string }>(response.data)
+  },
+
+  processOrder: async (orderId: string) => {
+    const response = await apiClient.patch<any>(`/api/orders/${orderId}/process`)
+    return extractResponseData<{ orderId: string; orderStatus: string }>(response.data)
   },
 }

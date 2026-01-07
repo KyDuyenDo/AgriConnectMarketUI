@@ -8,10 +8,11 @@ import { OrderItems } from '@/components/farmer-order-detail/OrderItems';
 import { SpecialInstructions } from '@/components/farmer-order-detail/SpecialInstructions';
 import { OrderActions } from '@/components/farmer-order-detail/OrderActions';
 import { useRoute, useNavigation } from '@react-navigation/native';
-import { useOrderDetail, useUpdateOrderStatus, useCancelOrder } from '@/hooks/useOrders';
+import { useOrderDetail, useUpdateOrderStatus, useCancelOrder, useProcessOrder, useApprovePreOrder } from '@/hooks/useOrders';
 import { formatDate } from '@/utils/date';
 import { useState, useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { Alert } from 'react-native';
 
 import { FarmerOrderDetailScreenSkeleton } from '@/components/skeletons/FarmerOrderDetailScreenSkeleton';
 
@@ -20,15 +21,37 @@ import { FarmerOrderDetailScreenSkeleton } from '@/components/skeletons/FarmerOr
 export function FarmerOrderDetailScreen() {
     const route = useRoute<any>();
     const navigation = useNavigation();
-    const { orderId } = route.params;
-    const { data: order, isLoading, isError, error, refetch } = useOrderDetail(orderId);
+    const { orderId, isPreOrder } = route.params;
+    const { data: order, isLoading, isError, error, refetch } = useOrderDetail(orderId, isPreOrder);
     const { mutate: updateStatus } = useUpdateOrderStatus();
     const { mutate: cancelOrder } = useCancelOrder();
+
+    const handleSuccess = (message: string) => {
+        queryClient.invalidateQueries({ queryKey: ['order', orderId] });
+        queryClient.invalidateQueries({ queryKey: ['orders'] });
+        queryClient.invalidateQueries({ queryKey: ['pre-orders'] });
+        Alert.alert("Success", message);
+    };
+
+    const { mutate: processOrder } = useProcessOrder({
+        onSuccess: () => handleSuccess("Order confirmed successfully")
+    });
+    const { mutate: approvePreOrder } = useApprovePreOrder({
+        onSuccess: () => handleSuccess("Pre-Order approved successfully")
+    });
     const queryClient = useQueryClient();
     const [refreshing, setRefreshing] = useState(false);
 
     const handleUpdateStatus = (status: string) => {
-        updateStatus({ orderId, status });
+        if (status === 'Processing') {
+            if (isPreOrder) {
+                approvePreOrder(orderId);
+            } else {
+                processOrder(orderId);
+            }
+        } else {
+            updateStatus({ orderId, status });
+        }
     };
 
     const handleCancel = () => {

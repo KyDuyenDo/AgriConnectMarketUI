@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient, UseMutationOptions } from "@tanstack/react-query"
 import { ordersService } from "@/services/orders.service"
 
 export const ORDERS_QUERY_KEYS = {
@@ -20,10 +20,10 @@ export function useCreateOrder() {
   })
 }
 
-export function useOrderDetail(orderId: string) {
+export function useOrderDetail(orderId: string, isPreOrder?: boolean) {
   return useQuery({
-    queryKey: ORDERS_QUERY_KEYS.orderDetail(orderId),
-    queryFn: () => ordersService.getOrderDetail(orderId),
+    queryKey: [...ORDERS_QUERY_KEYS.orderDetail(orderId), isPreOrder],
+    queryFn: () => isPreOrder ? ordersService.getPreOrderDetail(orderId) : ordersService.getOrderDetail(orderId),
     enabled: !!orderId,
   })
 }
@@ -36,15 +36,18 @@ export function useFarmOrders(farmId: string) {
   })
 }
 
-export function useUpdateOrderStatus() {
+export function useUpdateOrderStatus(options?: UseMutationOptions<any, unknown, { orderId: string; status: string }, unknown>) {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: ({ orderId, status }: { orderId: string; status: string }) =>
       ordersService.updateOrderStatus(orderId, status),
-    onSuccess: (_, variables) => {
+    ...options,
+    onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: ORDERS_QUERY_KEYS.orderDetail(variables.orderId) })
-      queryClient.invalidateQueries({ queryKey: ORDERS_QUERY_KEYS.farmOrders("") })
-      queryClient.invalidateQueries({ queryKey: ORDERS_QUERY_KEYS.myOrders })
+      queryClient.invalidateQueries({ queryKey: ["farmer-orders"] })
+      queryClient.invalidateQueries({ queryKey: ["my-orders"] })
+      // @ts-ignore
+      options?.onSuccess?.(data, variables, context)
     },
   })
 }
@@ -85,5 +88,33 @@ export function useFarmPreOrders(farmId: string) {
     queryKey: ORDERS_QUERY_KEYS.farmPreOrders(farmId),
     queryFn: () => ordersService.getFarmPreOrders(farmId),
     enabled: !!farmId,
+  })
+}
+
+export function useApprovePreOrder(options?: UseMutationOptions<any, unknown, string, unknown>) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ordersService.approvePreOrder,
+    ...options,
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: ORDERS_QUERY_KEYS.orderDetail(variables) })
+      queryClient.invalidateQueries({ queryKey: ["farmer-pre-orders"] })
+      // @ts-ignore
+      options?.onSuccess?.(data, variables, context)
+    },
+  })
+}
+
+export function useProcessOrder(options?: UseMutationOptions<any, unknown, string, unknown>) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ordersService.processOrder,
+    ...options,
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: ORDERS_QUERY_KEYS.orderDetail(variables) })
+      queryClient.invalidateQueries({ queryKey: ["farmer-orders"] })
+      // @ts-ignore
+      options?.onSuccess?.(data, variables, context)
+    },
   })
 }

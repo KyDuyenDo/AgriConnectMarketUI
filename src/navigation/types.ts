@@ -11,7 +11,7 @@ export type FarmStackParamList = {
   AddCategory: undefined
   EditProduct: { productId: string }
   FarmerOrders: { farmerId: string }
-  FarmerOrderDetail: { orderId: string }
+  FarmerOrderDetail: { orderId: string; isPreOrder?: boolean }
   FarmSetupInformation: { farmId?: string }
   ProductDetailReviews: { batchId: string; farmId: string }
   PersonalInformation: undefined
