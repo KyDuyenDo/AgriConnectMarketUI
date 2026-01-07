@@ -36,6 +36,7 @@ import { useBatchesByFarm } from "@/hooks/useBatches"
 import { useFarmReviews } from "@/hooks/useFarmReview"
 import { useQueryClient } from "@tanstack/react-query"
 import { normalizeBatchImages } from "@/utils/image-helper"
+import theme from "@/utils/theme"
 
 export const CustomerBatchDetailScreen: React.FC = () => {
   const insets = useSafeAreaInsets()
@@ -198,16 +199,16 @@ export const CustomerBatchDetailScreen: React.FC = () => {
   }
 
   return (
-    <View className="flex-1 bg-[#F9FAF9]">
-      <View style={{ paddingTop: insets.top }} className="bg-[#F9FAF9] z-10">
-        <View className="h-14 flex-row justify-between items-center px-6">
+    <View className="flex-1 bg-neutral-background">
+      <View style={{ paddingTop: insets.top }} className="bg-neutral-background z-10">
+        <View className="h-14 flex-row justify-between items-center px-4">
           <TouchableOpacity className="flex-row items-center gap-2" onPress={() => navigation.goBack()}>
-            <ChevronLeft size={20} color="#4CAF50" />
-            <Text className="text-[#4CAF50] text-base font-semibold">Back</Text>
+            <ChevronLeft size={20} color={theme.colors.primary.main} />
+            <Text className="text-primary-main text-base font-semibold">Back</Text>
           </TouchableOpacity>
 
           <View className="flex-row items-center gap-2">
-            <View className="w-8 h-8 rounded-full bg-[#F5F5F5] overflow-hidden">
+            <View className="w-8 h-8 rounded-full bg-neutral-divider overflow-hidden">
               <Image
                 source={{ uri: typeof farmImage === "string" ? farmImage : (farmImage as any)?.uri || "" }}
                 className="w-full h-full"

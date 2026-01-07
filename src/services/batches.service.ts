@@ -35,7 +35,7 @@ const BatchService = {
         return response.data.data;
     },
     getPreOrderBatchesByFarm: async (farmId: string, signal?: AbortSignal): Promise<ProductBatch[]> => {
-        const response = await apiClient.get<{ data: ProductBatch[] }>(`/api/product-batches/farm/${farmId}/pre-orders`, { signal });
+        const response = await apiClient.get<{ data: ProductBatch[] }>(`/api/product-batches/farm/${farmId}`, { signal });
         return response.data.data;
     },
     getBatchById: async (batchId: string, signal?: AbortSignal): Promise<Batch> => {

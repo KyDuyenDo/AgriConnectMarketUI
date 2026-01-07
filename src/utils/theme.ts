@@ -1,52 +1,58 @@
-import { colors } from "@/constants/colors"
-
 export const theme = {
   colors: {
     primary: {
-      main: colors.primary,
-      light: colors.primaryLight,
-      lighter: colors.primaryLighter,
-      dark: colors.primaryDark,
+      main: "#4CAF50", // Fresh Leaf Green
+      light: "#E8F5E9", // Very light green for backgrounds
+      lighter: "#C8E6C9", // Light green for accents
+      dark: "#2E7D32", // Growing Green for text/contrast
     },
     secondary: {
-      main: colors.secondary,
-      light: colors.secondaryLight,
-      dark: colors.secondaryDark,
+      main: "#FF9800", // Earthy Orange
+      light: "#FFF3E0",
+      dark: "#F57C00",
     },
     neutral: {
-      background: colors.background,
-      surface: colors.surface,
-      surfaceAlt: colors.surfaceAlt,
+      background: "#F5F5F5", // Off-white background
+      surface: "#FFFFFF",
+      surfaceAlt: "#FAFAFA",
       text: {
-        primary: colors.text,
-        secondary: colors.textSecondary,
-        tertiary: colors.textTertiary,
-        inverse: colors.textInverse,
+        primary: "#1B1F24", // Dark Charcoal
+        secondary: "#6B737A", // Medium Gray
+        tertiary: "#9DA3A8", // Light Gray
+        inverse: "#FFFFFF",
       },
-      border: colors.border,
-      borderLight: colors.borderLight,
-      divider: colors.divider,
+      border: "#E0E0E0",
+      borderLight: "#EEEEEE",
+      divider: "#F0F0F0",
     },
     status: {
-      success: colors.success,
-      error: colors.error,
-      warning: colors.warning,
-      info: colors.info,
+      success: "#4CAF50",
+      error: "#F44336",
+      warning: "#FF9800",
+      info: "#2196F3",
     },
   },
-
-  // Border Radius - Consistent mobile scale
-  radius: {
-    none: 0,
-    xs: 4, // Minimal rounding
-    sm: 8, // Small elements
-    md: 12, // Medium cards
-    lg: 16, // Large sections
-    xl: 20, // Extra large
-    full: 9999, // Fully rounded
+  statusColors: {
+    pending: { bg: "#FFF3E0", text: "#E65100" },
+    in_transit: { bg: "#E3F2FD", text: "#1565C0" },
+    delivered: { bg: "#E8F5E9", text: "#2E7D32" },
+    cancelled: { bg: "#FFEBEE", text: "#C62828" },
+    in_stock: { bg: "#E8F5E9", text: "#2E7D32" },
+    out_of_stock: { bg: "#FFEBEE", text: "#C62828" },
   },
 
-  // Shadows - iOS & Android compatible
+  // Border Radius - Moderate scale
+  radius: {
+    none: 0,
+    xs: 4,
+    sm: 8,
+    md: 12,
+    lg: 16,
+    xl: 20,
+    full: 9999,
+  },
+
+  // Shadows - Soft & Subtle
   shadows: {
     none: {
       elevation: 0,
@@ -60,33 +66,34 @@ export const theme = {
       shadowColor: "#000",
       shadowOffset: { width: 0, height: 1 },
       shadowOpacity: 0.05,
-      shadowRadius: 1.5,
+      shadowRadius: 1,
     },
     sm: {
       elevation: 2,
       shadowColor: "#000",
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.06,
-      shadowRadius: 3,
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.05,
+      shadowRadius: 2,
     },
     md: {
-      elevation: 3,
+      elevation: 4,
       shadowColor: "#000",
-      shadowOffset: { width: 0, height: 4 },
+      shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 0.08,
-      shadowRadius: 6,
+      shadowRadius: 4,
     },
     lg: {
-      elevation: 5,
+      elevation: 8,
       shadowColor: "#000",
-      shadowOffset: { width: 0, height: 8 },
+      shadowOffset: { width: 0, height: 4 },
       shadowOpacity: 0.1,
-      shadowRadius: 12,
+      shadowRadius: 8,
     },
   },
 
-  // Spacing - 4px base unit (mobile-friendly)
+  // Spacing - Tighter scale (4px base)
   spacing: {
+    xxs: 2,
     xs: 4,
     sm: 8,
     md: 12,
@@ -96,16 +103,17 @@ export const theme = {
     xxxl: 32,
   },
 
-  // Typography for mobile
+  // Typography - Compact
   fontSize: {
-    xs: 12,
+    xxs: 10,
+    xs: 11,
     sm: 13,
     base: 14,
     lg: 16,
     xl: 18,
     "2xl": 20,
     "3xl": 24,
-    "4xl": 28,
+    "4xl": 30,
   },
 
   fontWeight: {
@@ -116,35 +124,12 @@ export const theme = {
     bold: "700" as const,
   },
 
-  // Status color mapping
-  statusColors: {
-    pending: { bg: "#fef3c7", text: "#92400e" },
-    in_transit: { bg: "#fed7aa", text: "#92400e" },
-    delivered: { bg: "#dcfce7", text: "#166534" },
-    cancelled: { bg: "#fee2e2", text: "#991b1b" },
-    in_stock: { bg: "#dcfce7", text: "#166534" },
-    out_of_stock: { bg: "#f1f5f9", text: "#64748b" },
-  },
-
-  // Z-index scale
   zIndex: {
-    hide: -1,
     base: 0,
     dropdown: 10,
     modal: 20,
-    popover: 30,
-    tooltip: 40,
-    notification: 50,
+    tooltip: 30,
   },
-}
-
-// Helper functions
-export const getStatusColors = (status: string) => {
-  return theme.statusColors[status as keyof typeof theme.statusColors] || { bg: "#f1f5f9", text: "#64748b" }
-}
-
-export const getShadowStyle = (level: "xs" | "sm" | "md" | "lg" = "md") => {
-  return theme.shadows[level]
 }
 
 export default theme

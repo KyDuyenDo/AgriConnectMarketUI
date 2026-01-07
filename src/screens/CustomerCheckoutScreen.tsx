@@ -8,9 +8,9 @@ import {
     ScrollView,
     TouchableOpacity,
     Alert,
-    SafeAreaView,
     ActivityIndicator, RefreshControl
 } from "react-native"
+import { SafeAreaView } from "react-native-safe-area-context"
 import { useNavigation, useRoute, type RouteProp } from "@react-navigation/native"
 import { ChevronLeft, MapPin, Truck, CreditCard, ChevronRight } from "lucide-react-native"
 import { useCart, useRemoveFromCart, CART_QUERY_KEYS } from "@/hooks/useCart"
@@ -138,7 +138,9 @@ export const CustomerCheckoutScreen: React.FC = () => {
 
             await createOrder({
                 customerId: userId || "", // Should be handled by backend usually or from store
+                addressId: defaultAddress.id,
                 shippingFee: shippingFee,
+                paymentMethod: paymentMethod,
                 orderItems: orderItems,
                 orderCode: `ORD-${Date.now()}`,
                 orderDate: new Date().toISOString(),
@@ -154,7 +156,7 @@ export const CustomerCheckoutScreen: React.FC = () => {
             }
 
             Alert.alert("Success", "Order placed successfully!", [
-                { text: "OK", onPress: () => navigation.navigate("CustomerOrders" as never) }
+                { text: "OK", onPress: () => navigation.replace("CustomerOrders") }
             ])
         } catch (error: any) {
             console.error("Order failed", error)
@@ -174,7 +176,7 @@ export const CustomerCheckoutScreen: React.FC = () => {
 
     return (
         <View className="flex-1 bg-[#F9FAF9]">
-            <SafeAreaView style={{ backgroundColor: "#fff" }}>
+            <SafeAreaView edges={["top"]} style={{ backgroundColor: "#fff" }}>
                 <View className="h-14 flex-row items-center px-4 border-b border-gray-100">
                     <TouchableOpacity onPress={() => navigation.goBack()} className="mr-3">
                         <ChevronLeft size={24} color="#333" />
@@ -182,9 +184,9 @@ export const CustomerCheckoutScreen: React.FC = () => {
                     <Text className="text-lg font-bold text-[#333]">Checkout</Text>
                 </View>
             </SafeAreaView>
-
             <ScrollView
                 className="flex-1"
+                contentContainerStyle={{ paddingBottom: 150 }}
                 refreshControl={
                     <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[theme.colors.primary.main]} />
                 }
@@ -193,7 +195,7 @@ export const CustomerCheckoutScreen: React.FC = () => {
                 <View className="p-4">
                     <Text className="text-base font-bold text-[#333] mb-3">Shipping Address</Text>
                     <TouchableOpacity
-                        onPress={() => navigation.navigate("CustomerAddress" as never)}
+                        onPress={() => navigation.navigate("CustomerAddress")}
                         className="bg-white p-4 rounded-xl border border-gray-100 flex-row items-center gap-3"
                     >
                         <View className="w-10 h-10 bg-green-50 rounded-full items-center justify-center">
@@ -203,8 +205,8 @@ export const CustomerCheckoutScreen: React.FC = () => {
                             {defaultAddress ? (
                                 <>
                                     <View className="flex-row items-center gap-2 mb-1">
-                                        <Text className="font-bold text-[#333]">{defaultAddress.contactName || "User"}</Text>
-                                        <Text className="text-gray-500">| {defaultAddress.contactPhone}</Text>
+                                        <Text className="font-bold text-[#333]">{"User"}</Text>
+                                        <Text className="text-gray-500">| {"Phone"}</Text>
                                     </View>
                                     <Text className="text-gray-600 text-sm" numberOfLines={2}>
                                         {defaultAddress.detail}, {defaultAddress.ward}, {defaultAddress.district}, {defaultAddress.province}
@@ -266,28 +268,30 @@ export const CustomerCheckoutScreen: React.FC = () => {
                 </View>
 
                 {/* Summary */}
-                <View className="p-4 bg-white mt-2 pb-32">
+                <View className="p-4">
                     <Text className="text-base font-bold text-[#333] mb-4">Payment Summary</Text>
+                    <View className="bg-white p-4 rounded-xl">
+                        <View className="flex-row justify-between mb-2">
+                            <Text className="text-gray-500">Subtotal</Text>
+                            <Text className="text-[#333] font-medium">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(subtotal)}</Text>
+                        </View>
 
-                    <View className="flex-row justify-between mb-2">
-                        <Text className="text-gray-500">Subtotal</Text>
-                        <Text className="text-[#333] font-medium">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(subtotal)}</Text>
-                    </View>
+                        <View className="flex-row justify-between mb-2">
+                            <Text className="text-gray-500">Shipping Fee</Text>
+                            <Text className="text-[#333] font-medium">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(shippingFee)}</Text>
+                        </View>
 
-                    <View className="flex-row justify-between mb-2">
-                        <Text className="text-gray-500">Shipping Fee</Text>
-                        <Text className="text-[#333] font-medium">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(shippingFee)}</Text>
-                    </View>
+                        <View className="h-[1px] bg-gray-100 my-3" />
 
-                    <View className="h-[1px] bg-gray-100 my-3" />
-
-                    <View className="flex-row justify-between">
-                        <Text className="text-lg font-bold text-[#333]">Total</Text>
-                        <Text className="text-lg font-bold text-green-600">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(total)}</Text>
+                        <View className="flex-row justify-between">
+                            <Text className="text-lg font-bold text-[#333]">Total</Text>
+                            <Text className="text-lg font-bold text-green-600">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(total)}</Text>
+                        </View>
                     </View>
                 </View>
 
             </ScrollView>
+
 
             {/* Bottom Bar */}
             <View className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-100 p-4 shadow-lg">

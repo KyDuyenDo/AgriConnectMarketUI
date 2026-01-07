@@ -163,7 +163,7 @@ export const CustomerDashboardScreen: React.FC = () => {
                 borderRadius: theme.radius.lg,
                 paddingHorizontal: theme.spacing.md,
                 paddingVertical: theme.spacing.lg,
-                ...theme.shadows.xs,
+                ...theme.shadows.sm,
               }}
             >
               <View style={{ alignItems: "center", paddingVertical: theme.spacing.xxxl }}>
@@ -207,7 +207,7 @@ export const CustomerDashboardScreen: React.FC = () => {
                 borderRadius: theme.radius.lg,
                 paddingHorizontal: theme.spacing.md,
                 paddingVertical: theme.spacing.lg,
-                ...theme.shadows.xs,
+                ...theme.shadows.sm,
               }}
             >
               <View style={{ alignItems: "center", paddingVertical: theme.spacing.xxxl }}>

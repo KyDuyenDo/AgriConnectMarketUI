@@ -242,8 +242,8 @@ export const cartService = {
     return extractResponseData<ResponseCart["data"]>(response.data)
   },
 
-  clearCart: async () => {
-    const response = await apiClient.delete<any>("/api/carts")
+  clearCart: async (cartId: string) => {
+    const response = await apiClient.patch<any>(`/api/carts/${cartId}/delete-all`)
     return extractResponseData<ResponseCart["data"]>(response.data)
   },
 }

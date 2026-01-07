@@ -18,7 +18,8 @@ import { useCallback } from 'react';
 const FILTERS = ['All Orders', 'Active', 'Delivered', 'Cancelled'] as const;
 type FilterType = (typeof FILTERS)[number];
 
-const mapStatus = (status: string): Order['status'] => {
+const mapStatus = (status: string | undefined): Order['status'] => {
+  if (!status) return 'pending';
   const s = status.toLowerCase();
   if (s.includes('shipped') || s.includes('shipping')) return 'in_transit';
   if (s.includes('deliver') || s.includes('complete')) return 'delivered';

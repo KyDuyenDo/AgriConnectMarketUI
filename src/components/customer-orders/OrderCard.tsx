@@ -85,114 +85,98 @@ const OrderCard: React.FC<{ order: Order }> = ({ order }) => {
             </View>
           </View>
 
-          {/* Status Badge */}
-          <View
-            style={{
-              backgroundColor: statusBg,
-              paddingHorizontal: theme.spacing.sm,
-              paddingVertical: 4,
-              borderRadius: theme.radius.full,
-              alignSelf: "flex-start",
-              marginBottom: theme.spacing.sm,
-            }}
-          >
-            <Text style={{ fontSize: theme.fontSize.xs, fontWeight: theme.fontWeight.medium, color: statusText }}>
-              {statusLabel}
-            </Text>
-          </View>
         </View>
-
-        {/* Menu Button */}
-        <TouchableOpacity style={{ padding: theme.spacing.xs }}>
-          <MoreHorizontal size={20} color={theme.colors.neutral.text.secondary} />
-        </TouchableOpacity>
-      </View>
-
-      {/* Farm info */}
-      <View style={{ flexDirection: "row", alignItems: "center", marginBottom: theme.spacing.md }}>
-        <Image
-          source={{
-            uri: typeof order.farmBanner === "string" ? order.farmBanner : (order.farmBanner as any)?.uri || "",
+        {/* Status Badge */}
+        <View
+          style={{
+            backgroundColor: statusBg,
+            paddingHorizontal: theme.spacing.sm,
+            paddingVertical: 4,
+            borderRadius: theme.radius.full,
+            alignSelf: "flex-start",
+            marginBottom: theme.spacing.sm,
           }}
-          style={{ width: 40, height: 40, borderRadius: theme.radius.md, marginRight: theme.spacing.md }}
-          resizeMode="cover"
-        />
-        <View style={{ flex: 1 }}>
-          <Text
-            style={{
-              ...createTextStyle("primary"),
-              fontSize: theme.fontSize.sm,
-              fontWeight: theme.fontWeight.semibold,
-            }}
-            numberOfLines={1}
-          >
-            {order.farmName}
-          </Text>
-          <Text style={{ ...createTextStyle("secondary"), fontSize: theme.fontSize.xs }} numberOfLines={1}>
-            {order.subtitle}
+        >
+          <Text style={{ fontSize: theme.fontSize.xs, fontWeight: theme.fontWeight.medium, color: statusText }}>
+            {statusLabel}
           </Text>
         </View>
-
-        {(order.status === "in_transit" || order.status === "pending") && (
-          <Pressable
-            style={{
-              height: 40,
-              width: 40,
-              alignItems: "center",
-              justifyContent: "center",
-              borderRadius: theme.radius.md,
-              backgroundColor: theme.colors.neutral.divider,
-            }}
-          >
-            <PhoneCall size={14} color="#4CAF50" />
-          </Pressable>
-        )}
-
-        {order.status === "delivered" && (
-          <View style={{ flexDirection: "row", alignItems: "center", gap: theme.spacing.xs }}>
-            <Star size={12} color="#FFA726" fill="#FFA726" />
-            <Text style={{ ...createTextStyle("secondary"), fontSize: theme.fontSize.xs }}>{order.rating}</Text>
-          </View>
-        )}
       </View>
 
-      {/* Thumbnails */}
-      <View style={{ flexDirection: "row", gap: theme.spacing.sm, marginBottom: theme.spacing.md }}>
-        {order.images?.slice(0, 3).map((img, idx) => (
-          <Image
-            key={idx}
-            source={{ uri: typeof img === "string" ? img : (img as any)?.uri || "" }}
-            style={{
-              width: 50,
-              height: 50,
-              borderRadius: theme.radius.md,
-              backgroundColor: theme.colors.neutral.divider,
-            }}
-            resizeMode="cover"
-          />
-        ))}
-        {order.itemsCount > 3 && (
-          <View
-            style={{
-              width: 50,
-              height: 50,
-              borderRadius: theme.radius.md,
-              backgroundColor: theme.colors.neutral.divider,
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <Text
+      {/* Subtitle */}
+      {
+        order.subtitle && (
+          <View style={{ marginBottom: theme.spacing.md }}>
+            <Text style={{ ...createTextStyle("secondary"), fontSize: theme.fontSize.sm, color: theme.colors.neutral.text.primary }} numberOfLines={2}>
+              {order.subtitle}
+            </Text>
+          </View>)
+      }
+
+      {/* Thumbnails and Action Button Row */}
+      <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: theme.spacing.md }}>
+        <View style={{ flexDirection: "row", gap: theme.spacing.sm, flex: 1 }}>
+          {order.images?.slice(0, 3).map((img, idx) => (
+            <Image
+              key={idx}
+              source={{ uri: typeof img === "string" ? img : (img as any)?.uri || "" }}
               style={{
-                fontSize: theme.fontSize.xs,
-                fontWeight: theme.fontWeight.semibold,
-                color: theme.colors.neutral.text.secondary,
+                width: 50,
+                height: 50,
+                borderRadius: theme.radius.md,
+                backgroundColor: theme.colors.neutral.divider,
+              }}
+              resizeMode="cover"
+            />
+          ))}
+          {order.itemsCount > 3 && (
+            <View
+              style={{
+                width: 50,
+                height: 50,
+                borderRadius: theme.radius.md,
+                backgroundColor: theme.colors.neutral.divider,
+                justifyContent: "center",
+                alignItems: "center",
               }}
             >
-              +{order.itemsCount - 3}
-            </Text>
-          </View>
-        )}
+              <Text
+                style={{
+                  fontSize: theme.fontSize.xs,
+                  fontWeight: theme.fontWeight.semibold,
+                  color: theme.colors.neutral.text.secondary,
+                }}
+              >
+                +{order.itemsCount - 3}
+              </Text>
+            </View>
+          )}
+        </View>
+
+        {/* Action Button */}
+        <View style={{ marginLeft: theme.spacing.md }}>
+          {(order.status === "in_transit" || order.status === "pending") && (
+            <Pressable
+              style={{
+                height: 40,
+                width: 40,
+                alignItems: "center",
+                justifyContent: "center",
+                borderRadius: theme.radius.md,
+                backgroundColor: theme.colors.neutral.divider,
+              }}
+            >
+              <PhoneCall size={20} color="#4CAF50" />
+            </Pressable>
+          )}
+
+          {order.status === "delivered" && (
+            <View style={{ flexDirection: "row", alignItems: "center", gap: theme.spacing.xs }}>
+              <Star size={16} color="#FFA726" fill="#FFA726" />
+              <Text style={{ ...createTextStyle("secondary"), fontSize: theme.fontSize.sm }}>{order.rating}</Text>
+            </View>
+          )}
+        </View>
       </View>
 
       {/* items + total */}
@@ -215,7 +199,7 @@ const OrderCard: React.FC<{ order: Order }> = ({ order }) => {
             </Text>
           )}
           {order.status === "delivered" && order.deliveredDate && (
-            <Text style={{ ...createTextStyle("success"), fontSize: theme.fontSize.xs }}>
+            <Text style={{ ...createTextStyle("secondary"), fontSize: theme.fontSize.xs, color: theme.colors.status.success }}>
               Delivered on {order.deliveredDate}
             </Text>
           )}
@@ -223,7 +207,7 @@ const OrderCard: React.FC<{ order: Order }> = ({ order }) => {
             <Text style={{ ...createTextStyle("secondary"), fontSize: theme.fontSize.xs }}>Awaiting confirmation</Text>
           )}
           {order.status === "cancelled" && (
-            <Text style={{ ...createTextStyle("error"), fontSize: theme.fontSize.xs }}>Order cancelled</Text>
+            <Text style={{ ...createTextStyle("secondary"), fontSize: theme.fontSize.xs, color: theme.colors.status.error }}>Order cancelled</Text>
           )}
         </View>
 

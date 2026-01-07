@@ -14,6 +14,18 @@ export const favoriteFarmService = {
         return response.data;
     },
 
+    addFavoriteFarm: async (farmId: string) => {
+        const response = await apiClient.post('/api/favorite-farms', { farmId });
+        return response.data;
+    },
+
+    removeFavoriteFarm: async (farmId: string) => {
+        // Backend expects UpdateFavoriteFarmDto [FromRoute] with PATCH ... likely [FromBody] intended or Query
+        // Trying Body matching Add
+        const response = await apiClient.patch('/api/favorite-farms', { farmId });
+        return response.data;
+    },
+
     toggleFavoriteFarm: async (farmId: string) => {
         const response = await apiClient.post('/api/favorite-farms', { farmId });
         return response.data;

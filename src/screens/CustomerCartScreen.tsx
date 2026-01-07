@@ -120,7 +120,8 @@ export const CustomerCartScreen: React.FC = () => {
         text: "Delete",
         style: "destructive",
         onPress: () => {
-          clearCart(undefined, {
+          if (!Cart?.cartId) return
+          clearCart(Cart.cartId, {
             onSuccess: () => {
               console.log("Deleted all cart items")
             },

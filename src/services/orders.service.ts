@@ -27,7 +27,9 @@ export const ordersService = {
 
   createOrder: async (payload: {
     customerId: string
+    addressId: string
     shippingFee: number
+    paymentMethod: string
     orderItems: { batchId: string; quantity: number }[]
     orderCode?: string
     orderDate?: string
@@ -35,6 +37,7 @@ export const ordersService = {
   }) => {
     const dto = {
       ...payload,
+      paymentMethod: payload.paymentMethod === "ONLINE" ? "Bank Transfer (VNPay)" : "Cash on Delivery",
       orderCode: payload.orderCode || "TEMP",
       orderDate: payload.orderDate || new Date().toISOString(),
       orderType: payload.orderType || "Order",

@@ -28,7 +28,13 @@ export const useToggleFavoriteFarm = () => {
 
   return useMutation({
     mutationFn: async (farmId: string) => {
-      return await favoriteFarmService.toggleFavoriteFarm(farmId)
+      const isFav = useFavoritesStore.getState().isFavorited(farmId)
+      if (isFav) {
+        // With new logic, we just pass farmId to remove, as BE identifies by farmId
+        return await favoriteFarmService.removeFavoriteFarm(farmId)
+      } else {
+        return await favoriteFarmService.addFavoriteFarm(farmId)
+      }
     },
     onMutate: async (farmId: string) => {
       const wasFavorited = isFavorited(farmId)
@@ -46,12 +52,12 @@ export const useToggleFavoriteFarm = () => {
       queryClient.invalidateQueries({ queryKey: FAVORITES_QUERY_KEYS.all })
     },
     onError: (error, farmId, context) => {
+      console.error("Failed to toggle favorite:", error)
       if (context?.wasFavorited) {
         addFavorite(farmId)
       } else {
         removeFavorite(farmId)
       }
-      console.error("Failed to toggle favorite:", error)
     },
   })
 }

@@ -86,7 +86,7 @@ export const useClearCart = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: () => cartService.clearCart(),
+    mutationFn: (cartId: string) => cartService.clearCart(cartId),
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: CART_QUERY_KEYS.all })

@@ -96,7 +96,7 @@ const FavoriteFarmCard = ({ farm }: FavoriteFarmCardProps) => {
           </View>
 
           {/* Location */}
-          <View style={{ flexDirection: "row", alignItems: "center", marginTop: theme.spacing.xs }}>
+          {/* <View style={{ flexDirection: "row", alignItems: "center", marginTop: theme.spacing.xs }}>
             <MapPin size={12} color={theme.colors.neutral.text.tertiary} />
             <Text
               numberOfLines={1}
@@ -108,16 +108,16 @@ const FavoriteFarmCard = ({ farm }: FavoriteFarmCardProps) => {
             >
               {farm.location}
             </Text>
-          </View>
+          </View> */}
         </View>
 
         {/* Rating */}
-        <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
+        {/* <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
           <Star size={14} fill={theme.colors.secondary.main} color={theme.colors.secondary.main} />
           <Text style={{ ...createTextStyle("secondary"), fontSize: theme.fontSize.sm }}>
             {farm.averageRating?.toFixed(1) || "N/A"}
           </Text>
-        </View>
+        </View> */}
       </View>
     </Pressable>
   )
