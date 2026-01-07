@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, ActivityIndicator } from "react-native";
 import TimelineItem from "./TimelineItem";
 import { formatDate } from "@/utils/date";
+import { formatEventPayload } from "@/utils/care-event-formatter";
 import { getEventIconAndColor } from "@/constants/care-event-icons";
 import { useEventTypes } from "@/hooks/useCareEvents";
 
@@ -62,34 +63,24 @@ const TimelineList = ({ events, isLoading, error }: TimelineListProps) => {
         const eventTypeDetails = eventTypeMap.get(eventTypeName);
         const { Icon, bg, iconColor } = getEventIconAndColor(eventTypeName);
 
-        // Parse payload
-        let description = '';
-        try {
-          const parsed = typeof event.payload === 'string' ? JSON.parse(event.payload) : event.payload;
-          if (typeof parsed === 'object' && parsed !== null) {
-            description = parsed.notes || parsed.description || parsed.details || '';
-          } else if (typeof parsed === 'string') {
-            description = parsed;
-          }
-        } catch (e) {
-          description = event.payload || '';
-        }
+        // Use centralized formatter for payload
+        let description = formatEventPayload(event);
 
         // Fallback to event type description if payload description is empty
-        if (!description && eventTypeDetails?.eventTypeDesc) {
-          description = eventTypeDetails.eventTypeDesc;
+        if ((!description || description === "Event details recorded") && eventTypeDetails?.eventTypeDesc) {
+          // kept for compatibility if needed, though formatEventPayload usually returns something
         }
 
         return (
           <TimelineItem
             key={event.id}
             icon={Icon}
-            color={bg} // Use bg for icon background consistency
+            color={bg}
             iconColor={iconColor}
             title={eventTypeName}
             date={formatDate(event.occurredAt)}
             description={description}
-            imageUrl={event.imageUrl} // Use new imageUrl field
+            imageUrl={event.imageUrl}
             isLast={index === sortedEvents.length - 1}
           />
         );

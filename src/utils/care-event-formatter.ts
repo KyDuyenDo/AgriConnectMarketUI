@@ -31,6 +31,7 @@ export function formatEventPayload(event: CareEvent): string {
       return formatFertilizing(payload)
     case "pesticide":
     case "pest control":
+    case "pest and disease control":
       return formatPesticide(payload)
     case "harvesting":
     case "harvest":
@@ -60,19 +61,43 @@ function formatWatering(payload: Record<string, any>): string {
 
 function formatFertilizing(payload: Record<string, any>): string {
   const lines: string[] = []
+  // Original keys
   if (payload.fertilizerType) lines.push(`🌾 Type: ${payload.fertilizerType}`)
   if (payload.amount) lines.push(`⚖️ Amount: ${payload.amount}kg`)
   if (payload.method) lines.push(`🚿 Method: ${payload.method}`)
+
+  // New keys from screenshot
+  if (payload.product_name) lines.push(`🧪 Product: ${payload.product_name}`)
+  if (payload.formula) lines.push(`📊 Formula: ${payload.formula}`)
+  if (payload["type_(organic/synthetic)"]) lines.push(`🌾 Type: ${payload["type_(organic/synthetic)"]}`)
+  if (payload.rate) lines.push(`📏 Rate: ${payload.rate}`)
+  if (payload.application_method) lines.push(`🚿 Method: ${payload.application_method}`)
+  if (payload.withholding_period) lines.push(`⏳ Withholding Period: ${payload.withholding_period} days`)
+  if (payload.supplier) lines.push(`🏭 Supplier: ${payload.supplier}`)
+
   if (payload.notes) lines.push(`📝 Notes: ${payload.notes}`)
   return lines.length > 0 ? lines.join("\n") : "Fertilizing completed"
 }
 
 function formatPesticide(payload: Record<string, any>): string {
   const lines: string[] = []
+  // Original keys
   if (payload.pestType) lines.push(`🐛 Pest Type: ${payload.pestType}`)
-  if (payload.productName) lines.push(`🧪 Product: ${payload.productName}`)
   if (payload.dosage) lines.push(`⚗️ Dosage: ${payload.dosage}`)
   if (payload.treatmentArea) lines.push(`📍 Area: ${payload.treatmentArea}`)
+
+  // New keys from screenshot
+  if (payload["target_pest/disease"]) lines.push(`🎯 Target: ${payload["target_pest/disease"]}`)
+  if (payload.product_name) lines.push(`🧪 Product: ${payload.product_name}`)
+  if (payload.active_ingredient) lines.push(`⚛️ Active Ingredient: ${payload.active_ingredient}`)
+  if (payload.rate) lines.push(`📏 Rate: ${payload.rate}`)
+  if (payload.dilution) lines.push(`💧 Dilution: ${payload.dilution}`)
+  if (payload["phi_(pre-harvest_interval)"]) lines.push(`⏳ PHI: ${payload["phi_(pre-harvest_interval)"]} days`)
+  if (payload["rei_(re-entry_interval)"]) lines.push(`🚫 REI: ${payload["rei_(re-entry_interval)"]} hours`)
+  if (payload.application_equipment) lines.push(`🚜 Equipment: ${payload.application_equipment}`)
+  if (payload.weather_during_application) lines.push(`☁️ Weather: ${payload.weather_during_application}`)
+  if (payload.ppe_confirmation) lines.push(`🛡️ PPE: ${payload.ppe_confirmation}`)
+
   if (payload.notes) lines.push(`📝 Notes: ${payload.notes}`)
   return lines.length > 0 ? lines.join("\n") : "Pest control treatment applied"
 }
@@ -125,8 +150,12 @@ function formatGeneric(payload: Record<string, any>): string {
   const lines: string[] = []
   for (const [key, value] of Object.entries(payload)) {
     if (value && typeof value !== "object") {
-      // Capitalize first letter and convert camelCase to spaces
-      const displayKey = key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())
+      // Capitalize first letter and convert snake_case/camelCase to spaces
+      const displayKey = key
+        .replace(/_/g, " ") // snake_case to space
+        .replace(/([A-Z])/g, " $1") // camelCase to space
+        .replace(/^./, (str) => str.toUpperCase())
+        .trim()
       lines.push(`${displayKey}: ${value}`)
     }
   }
