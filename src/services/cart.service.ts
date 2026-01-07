@@ -162,11 +162,13 @@ export interface ProductBatch {
 }
 
 export interface AddToCartRequest {
+  cartId: string
   batchId: string
   quantity: number
 }
 
 export interface UpdateCartItemRequest {
+  cartId: string
   batchId: string
   quantity: number
 }
@@ -202,12 +204,12 @@ export const cartService = {
           farmId: item.farmId || group.farmId || "",
           batchImageUrls: Array.isArray(item.batchImageUrls)
             ? item.batchImageUrls
-                .map((img: any) => {
-                  if (typeof img === "string") return img
-                  if (img && typeof img === "object") return img.imageUrl || img.uri || ""
-                  return ""
-                })
-                .filter((url: string) => url)
+              .map((img: any) => {
+                if (typeof img === "string") return img
+                if (img && typeof img === "object") return img.imageUrl || img.uri || ""
+                return ""
+              })
+              .filter((url: string) => url)
             : [],
           isOutOfStock: item.isOutOfStock === true,
           createdAt: item.createdAt || new Date().toISOString(),
@@ -218,23 +220,25 @@ export const cartService = {
     return cartData
   },
 
-  addToCart: async (batchId: string, quantity: number) => {
-    const response = await apiClient.post<any>("/api/carts/items", {
+  addToCart: async (cartId: string, batchId: string, quantity: number) => {
+    const response = await apiClient.post<any>("/api/carts", {
+      cartId,
       batchId,
       quantity,
     })
     return extractResponseData<ResponseCart["data"]>(response.data)
   },
 
-  updateCartItem: async (batchId: string, quantity: number) => {
-    const response = await apiClient.put<any>(`/api/carts/items/${batchId}`, {
+  updateCartItem: async (cartId: string, batchId: string, quantity: number) => {
+    const response = await apiClient.patch<any>(`/api/carts/${cartId}`, {
+      batchId,
       quantity,
     })
     return extractResponseData<ResponseCart["data"]>(response.data)
   },
 
-  removeFromCart: async (batchId: string) => {
-    const response = await apiClient.delete<any>(`/api/carts/items/${batchId}`)
+  removeFromCart: async (itemId: string) => {
+    const response = await apiClient.delete<any>(`/api/carts/cart-items/${itemId}`)
     return extractResponseData<ResponseCart["data"]>(response.data)
   },
 

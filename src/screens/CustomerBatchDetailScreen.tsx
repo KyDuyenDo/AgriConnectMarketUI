@@ -125,6 +125,7 @@ export const CustomerBatchDetailScreen: React.FC = () => {
 
       updateCartItemMutation.mutate(
         {
+          cartId: cart.cartId,
           batchId: batch.id,
           quantity: newQuantity,
         },
@@ -141,6 +142,7 @@ export const CustomerBatchDetailScreen: React.FC = () => {
     } else {
       addToCartMutation.mutate(
         {
+          cartId: cart.cartId,
           batchId: batch.id,
           quantity: quantity,
         },

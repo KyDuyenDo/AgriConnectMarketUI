@@ -25,6 +25,7 @@ export const useHandleAddToCart = () => {
 
     addToCart(
       {
+        cartId: cart.cartId,
         batchId: batchId,
         quantity: 1,
       },

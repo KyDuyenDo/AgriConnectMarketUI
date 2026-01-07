@@ -86,7 +86,13 @@ export const CustomerCartScreen: React.FC = () => {
         return
       }
 
+      if (!Cart?.cartId) {
+        Alert.alert("Error", "Cart not initialized")
+        return
+      }
+
       await updateCartItem({
+        cartId: Cart.cartId,
         batchId: item.batchId,
         quantity: newQuantity,
       })

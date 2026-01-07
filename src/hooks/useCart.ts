@@ -18,7 +18,7 @@ export const useAddToCart = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (item: AddToCartRequest) => cartService.addToCart(item.batchId, item.quantity),
+    mutationFn: (item: AddToCartRequest) => cartService.addToCart(item.cartId, item.batchId, item.quantity),
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: CART_QUERY_KEYS.all })
@@ -30,7 +30,7 @@ export const useUpdateCartItem = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (data: UpdateCartItemRequest) => cartService.updateCartItem(data.batchId, data.quantity),
+    mutationFn: (data: UpdateCartItemRequest) => cartService.updateCartItem(data.cartId, data.batchId, data.quantity),
 
     onMutate: async (data) => {
       await queryClient.cancelQueries({ queryKey: CART_QUERY_KEYS.all })
