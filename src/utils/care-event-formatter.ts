@@ -8,7 +8,27 @@ export function parsePayload(payloadStr: string | undefined): Record<string, any
 
   try {
     const parsed = JSON.parse(payloadStr)
-    return typeof parsed === "object" ? parsed : { value: parsed }
+
+    if (typeof parsed === "object" && parsed !== null) {
+      // Handle case where data is nested inside "Value" or "value"
+      if (parsed.Value && typeof parsed.Value === "object") {
+        return { ...parsed, ...parsed.Value }
+      }
+      if (parsed.value && typeof parsed.value === "object") {
+        return { ...parsed, ...parsed.value }
+      }
+      // Handle case where "Value" might be a JSON string
+      if (typeof parsed.Value === "string") {
+        try {
+          const inner = JSON.parse(parsed.Value)
+          if (typeof inner === "object") return { ...parsed, ...inner }
+        } catch { }
+      }
+
+      return parsed
+    }
+
+    return { value: parsed }
   } catch {
     // If JSON parse fails, return as plain text object
     return { text: payloadStr }
@@ -56,6 +76,12 @@ function formatWatering(payload: Record<string, any>): string {
   if (payload.waterAmount) lines.push(`💧 Water Amount: ${payload.waterAmount}L`)
   if (payload.method) lines.push(`🚰 Method: ${payload.method}`)
   if (payload.notes) lines.push(`📝 Notes: ${payload.notes}`)
+
+  if (lines.length === 0) {
+    if (payload.text) return payload.text
+    if (payload.value && typeof payload.value === "string") return payload.value
+  }
+
   return lines.length > 0 ? lines.join("\n") : "Watering event recorded"
 }
 
@@ -76,6 +102,12 @@ function formatFertilizing(payload: Record<string, any>): string {
   if (payload.supplier) lines.push(`🏭 Supplier: ${payload.supplier}`)
 
   if (payload.notes) lines.push(`📝 Notes: ${payload.notes}`)
+
+  if (lines.length === 0) {
+    if (payload.text) return payload.text
+    if (payload.value && typeof payload.value === "string") return payload.value
+  }
+
   return lines.length > 0 ? lines.join("\n") : "Fertilizing completed"
 }
 
@@ -99,6 +131,12 @@ function formatPesticide(payload: Record<string, any>): string {
   if (payload.ppe_confirmation) lines.push(`🛡️ PPE: ${payload.ppe_confirmation}`)
 
   if (payload.notes) lines.push(`📝 Notes: ${payload.notes}`)
+
+  if (lines.length === 0) {
+    if (payload.text) return payload.text
+    if (payload.value && typeof payload.value === "string") return payload.value
+  }
+
   return lines.length > 0 ? lines.join("\n") : "Pest control treatment applied"
 }
 
@@ -108,6 +146,12 @@ function formatHarvesting(payload: Record<string, any>): string {
   if (payload.batchYield) lines.push(`🌾 Batch Yield: ${payload.batchYield}kg`)
   if (payload.quality) lines.push(`⭐ Quality: ${payload.quality}`)
   if (payload.notes) lines.push(`📝 Notes: ${payload.notes}`)
+
+  if (lines.length === 0) {
+    if (payload.text) return payload.text
+    if (payload.value && typeof payload.value === "string") return payload.value
+  }
+
   return lines.length > 0 ? lines.join("\n") : "Harvest recorded"
 }
 
@@ -116,7 +160,21 @@ function formatPlanting(payload: Record<string, any>): string {
   if (payload.seedVariety) lines.push(`🌱 Variety: ${payload.seedVariety}`)
   if (payload.quantityPlanted) lines.push(`📊 Quantity: ${payload.quantityPlanted}`)
   if (payload.spacing) lines.push(`📏 Spacing: ${payload.spacing}cm`)
-  if (payload.notes) lines.push(`📝 Notes: ${payload.notes}`)
+
+  // New keys from screenshot
+  if (payload["variety_/_seed_lot"]) lines.push(`🌱 Variety/Seed Lot: ${payload["variety_/_seed_lot"]}`)
+  if (payload.supplier) lines.push(`🏭 Supplier: ${payload.supplier}`)
+  if (payload["spacing_/_density"]) lines.push(`📏 Spacing/Density: ${payload["spacing_/_density"]}`)
+  if (payload.planting_method) lines.push(`🚜 Method: ${payload.planting_method}`)
+  if (payload.germination_rate) lines.push(`� Germination: ${payload.germination_rate}`)
+
+  if (payload.notes) lines.push(`�📝 Notes: ${payload.notes}`)
+
+  if (lines.length === 0) {
+    if (payload.text) return payload.text
+    if (payload.value && typeof payload.value === "string") return payload.value
+  }
+
   return lines.length > 0 ? lines.join("\n") : "Planting completed"
 }
 
@@ -125,6 +183,12 @@ function formatWeeding(payload: Record<string, any>): string {
   if (payload.method) lines.push(`🔧 Method: ${payload.method}`)
   if (payload.areaWeeded) lines.push(`📍 Area: ${payload.areaWeeded}`)
   if (payload.notes) lines.push(`📝 Notes: ${payload.notes}`)
+
+  if (lines.length === 0) {
+    if (payload.text) return payload.text
+    if (payload.value && typeof payload.value === "string") return payload.value
+  }
+
   return lines.length > 0 ? lines.join("\n") : "Weeding completed"
 }
 
@@ -135,6 +199,12 @@ function formatDiseaseCheck(payload: Record<string, any>): string {
   if (payload.affectedArea) lines.push(`📍 Affected Area: ${payload.affectedArea}`)
   if (payload.recommendation) lines.push(`💡 Recommendation: ${payload.recommendation}`)
   if (payload.notes) lines.push(`📝 Notes: ${payload.notes}`)
+
+  if (lines.length === 0) {
+    if (payload.text) return payload.text
+    if (payload.value && typeof payload.value === "string") return payload.value
+  }
+
   return lines.length > 0 ? lines.join("\n") : "Disease inspection completed"
 }
 
@@ -143,6 +213,12 @@ function formatPruning(payload: Record<string, any>): string {
   if (payload.pruningType) lines.push(`✂️ Type: ${payload.pruningType}`)
   if (payload.branchesRemoved) lines.push(`🌿 Branches: ${payload.branchesRemoved}`)
   if (payload.notes) lines.push(`📝 Notes: ${payload.notes}`)
+
+  if (lines.length === 0) {
+    if (payload.text) return payload.text
+    if (payload.value && typeof payload.value === "string") return payload.value
+  }
+
   return lines.length > 0 ? lines.join("\n") : "Pruning completed"
 }
 
