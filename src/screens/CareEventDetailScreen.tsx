@@ -9,7 +9,7 @@ import type { CareEvent } from "@/types"
 import type { CustomerStackParamList } from "@/navigation/CustomerNavigator"
 import { format } from "date-fns"
 import { useEventTypes } from "@/hooks/useCareEvents"
-import { formatEventPayload } from "@/utils/care-event-formatter"
+import { formatEventPayload, type UIPayload } from "@/utils/care-event-formatter"
 
 type CareEventDetailRouteProp = RouteProp<CustomerStackParamList, "CareEventDetail">
 
@@ -43,7 +43,7 @@ const CareEventDetailScreen = () => {
   const renderEventItem = ({ item }: { item: CareEvent }) => {
     const eventTypeName = item.eventType || "Unknown Event"
 
-    const formattedPayload = formatEventPayload(item)
+    const formattedPayload = formatEventPayload(item) as UIPayload
 
     return (
       <View style={styles.eventCard}>
@@ -53,12 +53,23 @@ const CareEventDetailScreen = () => {
             {item.occurredAt ? format(new Date(item.occurredAt), "dd/MM/yyyy HH:mm") : "N/A"}
           </Text>
         </View>
-        <Text style={styles.eventPayload}>{formattedPayload}</Text>
+
+        {/* Structured Payload Rendering */}
+        <View style={styles.payloadContainer}>
+          {formattedPayload.map((payloadItem, index) => (
+            <View key={index} style={styles.payloadRow}>
+              <Text style={styles.payloadLabel}>{payloadItem.label}</Text>
+              <Text style={styles.payloadValue}>{payloadItem.value}</Text>
+            </View>
+          ))}
+        </View>
 
         {/* Display image if available */}
         {item.imageUrl && (
           <Image
-            source={{ uri: typeof item.imageUrl === "string" ? item.imageUrl : (item.imageUrl as any)?.uri || "" }}
+            source={{
+              uri: typeof item.imageUrl === "string" ? item.imageUrl : (item.imageUrl as any)?.uri || "",
+            }}
             style={styles.eventImage}
             resizeMode="cover"
           />
@@ -167,6 +178,36 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#333",
     marginBottom: 8,
+  },
+  payloadContainer: {
+    marginBottom: 12,
+    marginTop: 4,
+    backgroundColor: "#F9F9F9",
+    padding: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#EEE",
+  },
+  payloadRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 6,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F0F0F0",
+    paddingBottom: 4,
+  },
+  payloadLabel: {
+    fontSize: 14,
+    color: "#666",
+    fontWeight: "500",
+    flex: 1,
+  },
+  payloadValue: {
+    fontSize: 14,
+    color: "#333",
+    fontWeight: "bold",
+    flex: 1,
+    textAlign: "right",
   },
   eventImage: {
     width: "100%",
