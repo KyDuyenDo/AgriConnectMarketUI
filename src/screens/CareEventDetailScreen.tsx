@@ -58,11 +58,7 @@ const CareEventDetailScreen = () => {
         {/* Structured Payload Rendering */}
         <View style={styles.payloadContainer}>
           <Text style={styles.payloadHeader}>📋 Event Details</Text>
-          {typeof formattedPayload === "string" ? (
-            <View style={styles.payloadRow}>
-              <Text style={[styles.payloadValue, styles.payloadValueSingle]}>{formattedPayload}</Text>
-            </View>
-          ) : (
+          {Array.isArray(formattedPayload) ? (
             formattedPayload.map((payloadItem, index) => (
               <View key={index} style={styles.payloadRow}>
                 {payloadItem.label ? (
@@ -78,12 +74,19 @@ const CareEventDetailScreen = () => {
                   {payloadItem.value}
                 </Text>
               </View>
-            )))}
+            ))
+          ) : (
+            <View style={styles.payloadRow}>
+              <Text style={[styles.payloadValue, styles.payloadValueSingle]}>
+                {typeof formattedPayload === 'string' ? formattedPayload : JSON.stringify(formattedPayload)}
+              </Text>
+            </View>
+          )}
         </View>
 
 
         {/* Display image if available */}
-        {item.imageUrl && (
+        {item.imageUrl ? (
           <Image
             source={{
               uri: typeof item.imageUrl === "string" ? item.imageUrl : (item.imageUrl as any)?.uri || "",
@@ -91,7 +94,7 @@ const CareEventDetailScreen = () => {
             style={styles.eventImage}
             resizeMode="cover"
           />
-        )}
+        ) : null}
 
         <Text style={styles.hashText}>Hash: {item.hash?.substring(0, 10)}...</Text>
       </View>
@@ -128,7 +131,6 @@ const CareEventDetailScreen = () => {
           <ChevronLeft size={24} color="#333" />
         </TouchableOpacity>
         <Text style={styles.title}>Care Events</Text>
-        <View style={{ width: 24 }} /> {/* Placeholder for balance */}
       </View>
       {events.length === 0 ? (
         <View style={styles.emptyContainer}>
