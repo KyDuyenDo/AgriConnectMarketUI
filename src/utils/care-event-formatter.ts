@@ -45,7 +45,21 @@ export function normalizePayload(payloadStr?: string): Record<string, any> {
 /* =========================
  * AUTOMATIC FORMATTER
  * ========================= */
-export function formatPayloadUI(payloadObj: Record<string, any>): UIPayload {
+export function formatPayloadUI(payloadObj: any): UIPayload {
+  if (
+    typeof payloadObj !== "object" ||
+    payloadObj === null ||
+    Array.isArray(payloadObj)
+  ) {
+    return [
+      {
+        label: "",
+        value: String(payloadObj),
+        priority: "primary",
+      },
+    ]
+  }
+
   return Object.entries(payloadObj)
     .map(([key, value]) => ({
       label: prettifyKey(key),
@@ -53,6 +67,8 @@ export function formatPayloadUI(payloadObj: Record<string, any>): UIPayload {
     }))
     .filter(item => item.value !== "")
 }
+
+
 
 export function formatEventPayload(event: CareEvent): UIPayload {
   const normalized = normalizePayload(event.payload)

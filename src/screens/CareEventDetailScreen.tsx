@@ -58,11 +58,22 @@ const CareEventDetailScreen = () => {
         <View style={styles.payloadContainer}>
           {formattedPayload.map((payloadItem, index) => (
             <View key={index} style={styles.payloadRow}>
-              <Text style={styles.payloadLabel}>{payloadItem.label}</Text>
-              <Text style={styles.payloadValue}>{payloadItem.value}</Text>
+              {payloadItem.label ? (
+                <Text style={styles.payloadLabel}>{payloadItem.label}</Text>
+              ) : null}
+
+              <Text
+                style={[
+                  styles.payloadValue,
+                  !payloadItem.label && styles.payloadValueSingle,
+                ]}
+              >
+                {payloadItem.value}
+              </Text>
             </View>
           ))}
         </View>
+
 
         {/* Display image if available */}
         {item.imageUrl && (
@@ -187,6 +198,12 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     borderColor: "#EEE",
+  },
+  payloadValueSingle: {
+    fontSize: 15,
+    fontWeight: "500",
+    color: "#222",
+    paddingVertical: 4,
   },
   payloadRow: {
     flexDirection: "row",
