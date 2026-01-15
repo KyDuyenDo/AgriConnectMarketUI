@@ -56,10 +56,9 @@ const CareEventDetailScreen = () => {
 
         {/* Structured Payload Rendering */}
         <View style={styles.payloadContainer}>
+          <Text style={styles.payloadHeader}>📋 Event Details</Text>
           {typeof formattedPayload === "string" ? (
-            <View style={styles.payloadRow}>
-              <Text style={[styles.payloadValue, styles.payloadValueSingle]}>{formattedPayload}</Text>
-            </View>
+            <Text style={styles.payloadStringText}>{formattedPayload}</Text>
           ) : (
             formattedPayload.map((payloadItem, index) => (
               <View key={index} style={styles.payloadRow}>
@@ -67,12 +66,7 @@ const CareEventDetailScreen = () => {
                   <Text style={styles.payloadLabel}>{payloadItem.label}</Text>
                 ) : null}
 
-                <Text
-                  style={[
-                    styles.payloadValue,
-                    !payloadItem.label && styles.payloadValueSingle,
-                  ]}
-                >
+                <Text style={styles.payloadValue}>
                   {payloadItem.value}
                 </Text>
               </View>
@@ -198,11 +192,17 @@ const styles = StyleSheet.create({
   payloadContainer: {
     marginBottom: 12,
     marginTop: 4,
-    backgroundColor: "#F9F9F9",
+    backgroundColor: "#EFF6FF", // blue-50
     padding: 12,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "#EEE",
+    borderColor: "#BFDBFE", // blue-200
+  },
+  payloadHeader: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#1F2937", // gray-800
+    marginBottom: 8,
   },
   payloadValueSingle: {
     fontSize: 15,
@@ -213,23 +213,32 @@ const styles = StyleSheet.create({
   payloadRow: {
     flexDirection: "row",
     justifyContent: "space-between",
+    alignItems: "flex-start",
+    backgroundColor: "white",
+    borderRadius: 6,
+    padding: 8,
+    borderWidth: 1,
+    borderColor: "#F3F4F6", // gray-100
     marginBottom: 6,
-    borderBottomWidth: 1,
-    borderBottomColor: "#F0F0F0",
-    paddingBottom: 4,
   },
   payloadLabel: {
-    fontSize: 14,
-    color: "#666",
+    fontSize: 13, // text-xs is usually 12-13px
+    color: "#4B5563", // gray-600
     fontWeight: "500",
     flex: 1,
+    marginRight: 8,
   },
   payloadValue: {
-    fontSize: 14,
-    color: "#333",
-    fontWeight: "bold",
+    fontSize: 13,
+    color: "#111827", // gray-900
+    fontWeight: "600",
     flex: 1,
     textAlign: "right",
+  },
+  payloadStringText: {
+    fontSize: 14,
+    color: "#374151", // gray-700
+    fontWeight: "500",
   },
   eventImage: {
     width: "100%",
