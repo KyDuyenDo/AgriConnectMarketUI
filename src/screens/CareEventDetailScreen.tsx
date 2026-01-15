@@ -56,22 +56,27 @@ const CareEventDetailScreen = () => {
 
         {/* Structured Payload Rendering */}
         <View style={styles.payloadContainer}>
-          {formattedPayload.map((payloadItem, index) => (
-            <View key={index} style={styles.payloadRow}>
-              {payloadItem.label ? (
-                <Text style={styles.payloadLabel}>{payloadItem.label}</Text>
-              ) : null}
-
-              <Text
-                style={[
-                  styles.payloadValue,
-                  !payloadItem.label && styles.payloadValueSingle,
-                ]}
-              >
-                {payloadItem.value}
-              </Text>
+          {typeof formattedPayload === "string" ? (
+            <View style={styles.payloadRow}>
+              <Text style={[styles.payloadValue, styles.payloadValueSingle]}>{formattedPayload}</Text>
             </View>
-          ))}
+          ) : (
+            formattedPayload.map((payloadItem, index) => (
+              <View key={index} style={styles.payloadRow}>
+                {payloadItem.label ? (
+                  <Text style={styles.payloadLabel}>{payloadItem.label}</Text>
+                ) : null}
+
+                <Text
+                  style={[
+                    styles.payloadValue,
+                    !payloadItem.label && styles.payloadValueSingle,
+                  ]}
+                >
+                  {payloadItem.value}
+                </Text>
+              </View>
+            )))}
         </View>
 
 

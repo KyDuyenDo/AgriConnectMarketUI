@@ -9,7 +9,7 @@ export interface UIPayloadItem {
   priority?: "primary" | "secondary"
 }
 
-export type UIPayload = UIPayloadItem[]
+export type UIPayload = UIPayloadItem[] | string
 
 /* =========================
  * NORMALIZE PAYLOAD
@@ -51,13 +51,13 @@ export function formatPayloadUI(payloadObj: any): UIPayload {
     payloadObj === null ||
     Array.isArray(payloadObj)
   ) {
-    return [
-      {
-        label: "",
-        value: String(payloadObj),
-        priority: "primary",
-      },
-    ]
+    // Return string directly for simple values
+    return String(payloadObj)
+  }
+
+  // Special handling: if object has only one key "text" which was likely created by normalizePayload catch block
+  if (Object.keys(payloadObj).length === 1 && payloadObj.text && typeof payloadObj.text === 'string') {
+    return payloadObj.text
   }
 
   return Object.entries(payloadObj)
