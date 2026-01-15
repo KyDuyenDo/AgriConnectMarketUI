@@ -1,9 +1,10 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { StyleSheet, View, Text, FlatList, ActivityIndicator, Image } from "react-native"
+import { StyleSheet, View, Text, FlatList, ActivityIndicator, Image, TouchableOpacity } from "react-native"
 import { type RouteProp, useNavigation, useRoute } from "@react-navigation/native"
 import { SafeAreaView } from "react-native-safe-area-context"
+import { ChevronLeft } from "lucide-react-native"
 import CareEventService from "@/services/care-events.service"
 import type { CareEvent } from "@/types"
 import type { CustomerStackParamList } from "@/navigation/CustomerNavigator"
@@ -58,7 +59,9 @@ const CareEventDetailScreen = () => {
         <View style={styles.payloadContainer}>
           <Text style={styles.payloadHeader}>📋 Event Details</Text>
           {typeof formattedPayload === "string" ? (
-            <Text style={styles.payloadStringText}>{formattedPayload}</Text>
+            <View style={styles.payloadRow}>
+              <Text style={[styles.payloadValue, styles.payloadValueSingle]}>{formattedPayload}</Text>
+            </View>
           ) : (
             formattedPayload.map((payloadItem, index) => (
               <View key={index} style={styles.payloadRow}>
@@ -66,7 +69,12 @@ const CareEventDetailScreen = () => {
                   <Text style={styles.payloadLabel}>{payloadItem.label}</Text>
                 ) : null}
 
-                <Text style={styles.payloadValue}>
+                <Text
+                  style={[
+                    styles.payloadValue,
+                    !payloadItem.label && styles.payloadValueSingle,
+                  ]}
+                >
                   {payloadItem.value}
                 </Text>
               </View>
@@ -116,7 +124,11 @@ const CareEventDetailScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <ChevronLeft size={24} color="#333" />
+        </TouchableOpacity>
         <Text style={styles.title}>Care Events</Text>
+        <View style={{ width: 24 }} /> {/* Placeholder for balance */}
       </View>
       {events.length === 0 ? (
         <View style={styles.emptyContainer}>
@@ -149,6 +161,12 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     borderBottomWidth: 1,
     borderBottomColor: "#E0E0E0",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  backButton: {
+    padding: 4,
   },
   title: {
     fontSize: 20,
@@ -213,32 +231,23 @@ const styles = StyleSheet.create({
   payloadRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "flex-start",
-    backgroundColor: "white",
-    borderRadius: 6,
-    padding: 8,
-    borderWidth: 1,
-    borderColor: "#F3F4F6", // gray-100
     marginBottom: 6,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F0F0F0",
+    paddingBottom: 4,
   },
   payloadLabel: {
-    fontSize: 13, // text-xs is usually 12-13px
-    color: "#4B5563", // gray-600
+    fontSize: 14,
+    color: "#666",
     fontWeight: "500",
     flex: 1,
-    marginRight: 8,
   },
   payloadValue: {
-    fontSize: 13,
-    color: "#111827", // gray-900
-    fontWeight: "600",
+    fontSize: 14,
+    color: "#333",
+    fontWeight: "bold",
     flex: 1,
     textAlign: "right",
-  },
-  payloadStringText: {
-    fontSize: 14,
-    color: "#374151", // gray-700
-    fontWeight: "500",
   },
   eventImage: {
     width: "100%",
