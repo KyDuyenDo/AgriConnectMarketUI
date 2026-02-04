@@ -14,7 +14,7 @@ import CareEventDetailScreen from "@/screens/CareEventDetailScreen"
 export type CustomerStackParamList = {
   MainTabs: undefined
   CustomerOrders: { initialFilter?: string } | undefined
-  CustomerOrderDetail: { orderId: string }
+  CustomerOrderDetail: { orderId: string; isPreOrder?: boolean }
   FarmDetail: { farmId: string }
   BatchDetails: { batchId: string }
   PersonalInformation: undefined
@@ -23,8 +23,11 @@ export type CustomerStackParamList = {
   FarmReview: { farmId: string; batchId: string }
   CustomerAllReviews: { farmId: string }
   ScanScreen: undefined
-  CustomerCheckout: { selectedItems: string[] }
+  CustomerCheckout: { selectedItems: string[]; buyNowItems?: any[] }
+  CustomerFarmProducts: { farmId: string; farmName: string }
   CareEventDetail: { batchId: string }
+  PaymentWebView: { paymentUrl: string }
+  PaymentResult: { status: 'success' | 'failed' }
 }
 
 const Stack = createNativeStackNavigator<CustomerStackParamList>()
@@ -103,11 +106,27 @@ const CustomerNavigator = () => {
         options={{ headerShown: false }}
       />
       <Stack.Screen
+        name="CustomerFarmProducts"
+        component={require("@/screens/CustomerFarmProductsScreen").default}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
         name="CareEventDetail"
         component={CareEventDetailScreen}
         options={{ title: "Care Events" }}
       />
+      <Stack.Screen
+        name="PaymentWebView"
+        component={require("@/screens/PaymentWebViewScreen").default}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="PaymentResult"
+        component={require("@/screens/PaymentResultScreen").default}
+        options={{ headerShown: false }}
+      />
     </Stack.Navigator>
+
   )
 }
 

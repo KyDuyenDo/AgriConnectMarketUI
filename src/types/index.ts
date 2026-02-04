@@ -23,7 +23,7 @@ export interface Product {
   farm: string
   price: string
   unit: string
-  image: string
+  image: string | null
   isFavorite: boolean
   rating: number
   numRatings: number
@@ -68,7 +68,7 @@ export interface Batch {
   plantingDate: string
   harvestDate?: string
 
-  imagesUrl: string[]
+  imageUrls: string[]
 
   seasonId: string
   season?: {
@@ -80,6 +80,7 @@ export interface Batch {
     createdAt: string
     farmId: string
     productId: string
+    farm?: Farm
 
     product: {
       productName: string
@@ -130,7 +131,23 @@ export interface Batch {
   isActive?: boolean
 }
 
-export type ProductBatch = Batch
+export interface SellingBatch {
+  id: string
+  batchCode: string
+  product: string
+  season: string
+  farm: string
+  createdAt: string
+  plantingDate: string
+  harvestDate: string
+  totalYield: number
+  availableQuantity: number
+  price: number
+  units: string
+  imageUrls: string[]
+}
+
+export type ProductBatch = Batch | SellingBatch
 
 // Keeping existing types that might be used elsewhere for now, but marking them as potentially legacy if they conflict.
 // Re-adding UserData and others that seemed useful.
@@ -140,7 +157,7 @@ export interface CartItem {
   name: string
   quantity: string
   price: string
-  image: string
+  image: string | null
 }
 
 export interface OrderItem {
@@ -171,6 +188,7 @@ export interface OrderItemDisplay {
 
 export interface Order {
   id: string
+  orderId: string
   customerId: string
   orderCode: string
 
@@ -184,6 +202,8 @@ export interface Order {
 
   paidDate?: string
   deliveredDate?: string
+  expectedReleaseDate?: string
+  partiallyPaidAmount?: number
 
   // NEW FIELDS FROM TABLE
   createdAt: string
@@ -194,7 +214,6 @@ export interface Order {
   // Existing relations
   customer?: any // Profile type
   orderItems?: OrderItem[]
-
 }
 
 export type HistoryItem = {
@@ -331,8 +350,6 @@ export interface UnifiedProduct {
   location: string // Province
 }
 
-
-
 export interface CareEventType {
   id: string
   eventTypeName: string
@@ -343,12 +360,14 @@ export interface CareEventType {
 export interface CareEvent {
   id: string
   batchId: string
-  eventTypeId: string
+  eventType: string // Changed from eventTypeId, now returns event type name as string
   occurredAt: DateTime
   payload: string
+  imageUrl?: string // NEW field for uploaded images
   hash: string
   prevHash: string
-  eventType?: CareEventType
+  // Keep for backward compatibility during migration
+  eventTypeId?: string
   batch?: ProductBatch
 }
 
@@ -387,6 +406,6 @@ export interface CreateProductBatchResponse {
 export interface CreateCareEventResponse {
   occurredAt: string
   payload: string
-  eventType: CareEventType
+  eventType: CareEventType // Full object in create response
   batch: ProductBatch
 }

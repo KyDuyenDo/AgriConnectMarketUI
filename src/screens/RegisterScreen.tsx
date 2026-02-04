@@ -1,5 +1,7 @@
+"use client"
+
 import { useState } from "react"
-import { View, Text, ScrollView } from "react-native"
+import { View, Text, ScrollView, Alert } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useForm } from "react-hook-form"
 import { LogoIcon } from "@/components/auth/LogoIcon"
@@ -9,10 +11,9 @@ import { AccountTypeSelector } from "@/components/auth/AccountTypeSelector"
 import { TermsCheckbox } from "@/components/auth/TermsCheckbox"
 import { SignUpButton } from "@/components/auth/SignUpButton"
 import { SocialLoginButtons } from "@/components/auth/SocialLoginButtons"
-
 import { useNavigation } from "@react-navigation/native"
-import { Alert } from "react-native"
 import { useRegister } from "@/hooks/auth/useAuth"
+import theme from "@/utils/theme"
 
 interface RegistrationFormData {
   username: string
@@ -68,9 +69,16 @@ export default function RegisterScreen() {
 
     register(formData, {
       onSuccess: () => {
-        Alert.alert("Success", "Account created successfully", [
-          { text: "OK", onPress: () => navigation.navigate("Login") },
-        ])
+        Alert.alert(
+          "Verify Your Email",
+          `A verification code has been sent to ${data.email}. Please check your email and enter the verification code to complete your registration.`,
+          [
+            {
+              text: "OK",
+              onPress: () => navigation.navigate("Login"),
+            },
+          ],
+        )
       },
       onError: (error: any) => {
         console.error(error)
@@ -80,20 +88,52 @@ export default function RegisterScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
+    <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.neutral.background }}>
       <ScrollView contentContainerClassName="flex-grow" className="flex-1">
-        <View className="flex-1 px-4 pb-12 pt-8">
+        <View
+          style={{
+            flex: 1,
+            paddingHorizontal: theme.spacing.lg,
+            paddingBottom: theme.spacing.xxxl,
+            paddingTop: theme.spacing.xl,
+          }}
+        >
           {/* Header */}
-          <View className="mb-6 items-center gap-2">
+          <View style={{ marginBottom: theme.spacing.lg, alignItems: "center", gap: theme.spacing.sm }}>
             <LogoIcon />
-            <View className="items-center gap-2">
-              <Text className="text-3xl font-bold text-gray-900">Join Our Community</Text>
-              <Text className="text-center text-sm text-gray-600">Create account to discover fresh produce</Text>
+            <View style={{ alignItems: "center", gap: theme.spacing.sm }}>
+              <Text
+                style={{
+                  fontSize: theme.fontSize["3xl"],
+                  fontWeight: theme.fontWeight.bold,
+                  color: theme.colors.neutral.text.primary,
+                }}
+              >
+                Join Our Community
+              </Text>
+              <Text
+                style={{ textAlign: "center", fontSize: theme.fontSize.sm, color: theme.colors.neutral.text.secondary }}
+              >
+                Create account to discover fresh produce
+              </Text>
             </View>
           </View>
 
-          <View className="mb-6 rounded-3xl border border-gray-200 bg-white p-4 shadow-md">
-            <View className="px-4 py-4 gap-5">
+          <View
+            style={{
+              marginBottom: theme.spacing.lg,
+              borderRadius: theme.radius.lg,
+              borderWidth: 1,
+              borderColor: theme.colors.neutral.borderLight,
+              backgroundColor: theme.colors.neutral.surface,
+              paddingHorizontal: theme.spacing.md,
+              paddingVertical: theme.spacing.lg,
+              ...theme.shadows.sm,
+            }}
+          >
+            <View
+              style={{ paddingHorizontal: theme.spacing.md, paddingVertical: theme.spacing.md, gap: theme.spacing.lg }}
+            >
               {/* Username */}
               <InputField
                 name="username"
@@ -180,17 +220,35 @@ export default function RegisterScreen() {
           </View>
 
           {/* Social Login */}
-          <View className="my-4 flex-row items-center">
-            <View className="flex-1 border-t border-gray-300" />
-            <Text className="px-3 text-sm text-gray-600">Or sign up with</Text>
-            <View className="flex-1 border-t border-gray-300" />
+          <View style={{ marginVertical: theme.spacing.md, flexDirection: "row", alignItems: "center" }}>
+            <View style={{ flex: 1, borderTopWidth: 1, borderTopColor: theme.colors.neutral.border }} />
+            <Text
+              style={{
+                paddingHorizontal: theme.spacing.md,
+                fontSize: theme.fontSize.sm,
+                color: theme.colors.neutral.text.secondary,
+              }}
+            >
+              Or sign up with
+            </Text>
+            <View style={{ flex: 1, borderTopWidth: 1, borderTopColor: theme.colors.neutral.border }} />
           </View>
 
           <SocialLoginButtons />
 
-          <View className="items-center gap-1 pt-6">
-            <Text className="text-sm text-gray-700">Already have an account?</Text>
-            <Text className="text-sm font-semibold text-[#4CAF50]">Sign in here</Text>
+          <View style={{ alignItems: "center", gap: theme.spacing.xs, paddingTop: theme.spacing.lg }}>
+            <Text style={{ fontSize: theme.fontSize.sm, color: theme.colors.neutral.text.secondary }}>
+              Already have an account?
+            </Text>
+            <Text
+              style={{
+                fontSize: theme.fontSize.sm,
+                fontWeight: theme.fontWeight.semibold,
+                color: theme.colors.primary.main,
+              }}
+            >
+              Sign in here
+            </Text>
           </View>
         </View>
       </ScrollView>

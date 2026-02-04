@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useCallback } from "react"
 import { useDebounce } from "@/hooks/useDebounce"
-import { View, TouchableOpacity, Text, Image, TextInput, FlatList, Platform } from "react-native"
+import { View, TouchableOpacity, Text, Image, TextInput, FlatList, Platform, RefreshControl } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import {
   Plus,
@@ -20,13 +20,16 @@ import {
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import type { FarmStackParamList } from "@/navigation/types"
 import { useNavigation } from "@react-navigation/native"
-import { useAllBatches, useUpdateBatch } from "@/hooks/useBatches"
+import { useAllBatches, useUpdateBatch, useSellBatch } from "@/hooks/useBatches"
 import type { Batch } from "@/types"
 import { useAuthStore } from "@/stores/auth"
 import { FarmerProductsScreenSkeleton } from "@/components/skeletons/FarmerProductsScreenSkeleton"
 import { CategorySelector } from "@/components/CategorySelector"
+import { BatchActionModal } from "@/components/modals/BatchActionModal"
 import { useCategories } from "@/hooks/useCategories"
 import { useFarmByMe } from "@/hooks/useFarm"
+import { useSeason } from "@/hooks/useSeason"
+import { useQueryClient } from "@tanstack/react-query"
 
 type Nav = NativeStackNavigationProp<FarmStackParamList>
 
@@ -38,7 +41,10 @@ const getBatchCode = (batch: Batch): string => {
   return "Batch"
 }
 
-const getStockStatus = (batch: Batch): "In Stock" | "Low Stock" | "Out of Stock" => {
+const getStockStatus = (batch: Batch): "In Stock" | "Low Stock" | "Out of Stock" | "Unsold" => {
+  if (batch.availableQuantity === 0 && batch.price === 0) {
+    return "Unsold"
+  }
   const percentage = (batch.availableQuantity / batch.totalYield) * 100
   if (percentage === 0) return "Out of Stock"
   if (percentage < 20) return "Low Stock"
@@ -52,7 +58,9 @@ const getStockBadgeStyle = (stock: string) => {
     case "Low Stock":
       return { bg: "bg-orange-100", text: "text-orange-700" }
     case "Out of Stock":
-      return { bg: "bg-red-100", text: "text-red-700" }
+      return { bg: "transparent", text: "text-transparent" }
+    case "Unsold":
+      return { bg: "bg-gray-100", text: "text-gray-600" }
     default:
       return { bg: "bg-green-100", text: "text-green-700" }
   }
@@ -71,6 +79,7 @@ const getStockUnitColor = (stock: string) => {
 
 const BatchCard = ({
   batch,
+  categories,
   onPress,
   onEdit,
   onDelete,
@@ -79,6 +88,7 @@ const BatchCard = ({
   onToggleStatus,
 }: {
   batch: Batch
+  categories?: any[]
   onPress: () => void
   onEdit?: () => void
   onDelete?: () => void
@@ -86,24 +96,40 @@ const BatchCard = ({
   onViewReviews?: () => void
   onToggleStatus?: () => void
 }) => {
-  const imageUrl = batch.imagesUrl && batch.imagesUrl.length > 0 ? batch.imagesUrl[0] : null
+  const imageUrl = batch.imageUrls && batch.imageUrls.length > 0 ? batch.imageUrls[0] : null
   const batchCode = getBatchCode(batch)
   const stockStatus = getStockStatus(batch)
   const stockBadge = getStockBadgeStyle(stockStatus)
   const unitColor = getStockUnitColor(stockStatus)
 
-  const productName = batch.season?.product?.productName || "Unknown Product"
-  const categoryName = batch.season?.product?.category?.categoryName || "Uncategorized"
-  const seasonName = batch.season?.seasonName || ""
+  // Fetch detailed season/product info using the hook
+  const { season, product, category, isLoading } = useSeason(batch.seasonId || '');
+
+  const productName = product?.productName || batch.season?.product?.productName || "Unknown Product"
+
+  // Resolve category name: try fetched category, then batch data, then lookup in categories list
+  let categoryName = category?.categoryName || batch.season?.product?.category?.categoryName;
+  if (!categoryName && categories && (product?.categoryId || batch.season?.product?.categoryId)) {
+    const targetCategoryId = product?.categoryId || batch.season?.product?.categoryId;
+    const foundCategory = categories.find(c => c.id === targetCategoryId);
+    if (foundCategory) {
+      categoryName = foundCategory.categoryName;
+    }
+  }
+  categoryName = categoryName || "Uncategorized";
+
+  const seasonName = season?.seasonName || batch.season?.seasonName || ""
 
   const isSelling = batch.isActive
 
   return (
-    <View
+    <TouchableOpacity
       className="bg-white rounded-2xl shadow-sm border border-gray-100"
       style={{
         width: "48%",
       }}
+      onPress={onPress}
+      activeOpacity={0.7}
     >
       {/* Product Image with Overlays */}
       <View className="relative">
@@ -111,7 +137,7 @@ const BatchCard = ({
           <Image source={{ uri: imageUrl }} className="w-full rounded-t-2xl h-[130px]" style={{ objectFit: "cover" }} />
         ) : (
           <View className="w-full h-[130px] bg-gray-50 items-center justify-center">
-            <Text className="text-gray-400 font-medium text-sm">{productName}</Text>
+            <Text className="text-gray-400 font-medium text-sm">{isLoading ? "Loading..." : productName}</Text>
           </View>
         )}
 
@@ -121,11 +147,13 @@ const BatchCard = ({
         </View>
 
         {/* Selling Status Badge - Top Left (Below Category) */}
-        <View className={`absolute bottom-2 right-2 flex-row items-center py-1 px-2 rounded-full ${isSelling ? "bg-blue-100" : "bg-gray-200"}`}>
-          <Text className={`text-[10px] font-semibold ${isSelling ? "text-blue-700" : "text-gray-600"}`}>
-            {isSelling ? "Selling" : "Not Selling"}
-          </Text>
-        </View>
+        {isSelling && (
+          <View className="absolute bottom-2 right-2 flex-row items-center py-1 px-2 rounded-full bg-blue-100">
+            <Text className="text-[10px] font-semibold text-blue-700">
+              Selling
+            </Text>
+          </View>
+        )}
 
         {/* Category Badge - Top Left (Replaces Star) */}
         <View className="absolute top-2 left-2 bg-blue-100 py-1 px-2 rounded-full shadow-sm">
@@ -151,7 +179,11 @@ const BatchCard = ({
 
         {/* Price and Units */}
         <View className="flex-row justify-between items-end mb-3">
-          <Text className="text-base font-bold text-green-600">{new Intl.NumberFormat('vi-VN').format(batch.price)} VNĐ/{batch.units}</Text>
+          {batch.price > 0 ? (
+            <Text className="text-base font-bold text-green-600">{new Intl.NumberFormat('vi-VN').format(batch.price)} đ/{batch.units}</Text>
+          ) : (
+            <View />
+          )}
           <Text className={`text-[11px] font-medium ${unitColor}`} numberOfLines={1}>
             {batch.availableQuantity} {batch.units}
           </Text>
@@ -183,7 +215,7 @@ const BatchCard = ({
           </View>
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   )
 }
 
@@ -229,8 +261,11 @@ const FarmerProductsHeader = ({
 export const FarmerProductsScreen = () => {
   const navigation = useNavigation<Nav>()
   const { accountId } = useAuthStore()
-  const { data: batches, isLoading } = useAllBatches(accountId || undefined, { enabled: !!accountId })
+  const { data: batchesData, isLoading } = useAllBatches(accountId || undefined, { enabled: !!accountId })
+  const batches = batchesData as Batch[] | undefined
   const { data: farmer, isLoading: isLoadingFarmer } = useFarmByMe()
+  const queryClient = useQueryClient()
+  const [refreshing, setRefreshing] = useState(false)
 
   const farmId = farmer?.id
   const { data: categories } = useCategories()
@@ -238,7 +273,15 @@ export const FarmerProductsScreen = () => {
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
 
-
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true)
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ["batches", accountId] }),
+      queryClient.invalidateQueries({ queryKey: ["farm-by-me"] }),
+      queryClient.invalidateQueries({ queryKey: ["categories"] }),
+    ])
+    setRefreshing(false)
+  }, [queryClient, accountId])
 
   const filteredBatches = useMemo(() => {
     return batches?.filter((b) => {
@@ -269,12 +312,42 @@ export const FarmerProductsScreen = () => {
   }, [navigation])
 
   const handleViewReviews = useCallback((batch: Batch) => {
-    if (batch.season?.farmId) {
-      navigation.navigate("ProductDetailReviews", { batchId: batch.id, farmId: batch.season.farmId })
+    const targetFarmId = batch.season?.farmId || farmId;
+    if (targetFarmId) {
+      navigation.navigate("ProductDetailReviews", { batchId: batch.id, farmId: targetFarmId })
+    } else {
+      console.warn("Cannot navigate to reviews: farmId is missing");
     }
-  }, [navigation])
+  }, [navigation, farmId])
 
   const { mutateAsync: updateBatch } = useUpdateBatch()
+  const { mutateAsync: sellBatch } = useSellBatch()
+
+  const [modalVisible, setModalVisible] = useState(false)
+  const [selectedBatch, setSelectedBatch] = useState<Batch | undefined>(undefined)
+
+  const handleSellPress = useCallback((batch: Batch) => {
+    setSelectedBatch(batch)
+    setModalVisible(true)
+  }, [])
+
+  const handleModalSubmit = async (data: { totalYield?: number; availableQuantity?: number; price?: number }) => {
+    if (!selectedBatch) return
+
+    try {
+      if (data.availableQuantity !== undefined && data.price !== undefined) {
+        await sellBatch({
+          id: selectedBatch.id,
+          data: {
+            availableQuantity: data.availableQuantity,
+            price: data.price
+          }
+        })
+      }
+    } catch (error) {
+      console.error("Failed to sell batch:", error)
+    }
+  }
 
   const handleToggleStatus = useCallback(async (batch: Batch) => {
     try {
@@ -290,6 +363,7 @@ export const FarmerProductsScreen = () => {
   const renderItem = useCallback(({ item }: { item: Batch }) => (
     <BatchCard
       batch={item}
+      categories={categories}
       onPress={() =>
         navigation.navigate("LotDetail", { lotId: item.id })
       }
@@ -297,11 +371,11 @@ export const FarmerProductsScreen = () => {
       onDelete={() => handleDelete(item.id)}
       onLogCareEvent={() => handleLogCareEvent(item)}
       onViewReviews={() => handleViewReviews(item)}
-      onToggleStatus={() => handleToggleStatus(item)}
+      onToggleStatus={() => handleSellPress(item)}
     />
-  ), [navigation, handleDelete, handleLogCareEvent, handleViewReviews, handleToggleStatus])
+  ), [navigation, handleDelete, handleLogCareEvent, handleViewReviews, handleSellPress, categories])
 
-  if (isLoading || isLoadingFarmer) {
+  if ((isLoading || isLoadingFarmer) && !refreshing) {
     return <FarmerProductsScreenSkeleton />
   }
 
@@ -344,6 +418,9 @@ export const FarmerProductsScreen = () => {
             ) : null
           }
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={["#4CAF50"]} tintColor="#4CAF50" />
+          }
         />
 
         {/* Floating Action Button */}
@@ -357,6 +434,17 @@ export const FarmerProductsScreen = () => {
           </TouchableOpacity>
         </View>
       </View>
-    </SafeAreaView>
+      <BatchActionModal
+        isVisible={modalVisible}
+        onClose={() => {
+          setModalVisible(false)
+          setSelectedBatch(undefined)
+        }}
+        mode="sell"
+        batch={selectedBatch}
+        onSubmit={handleModalSubmit}
+        units={selectedBatch?.units || 'kg'}
+      />
+    </SafeAreaView >
   )
 }

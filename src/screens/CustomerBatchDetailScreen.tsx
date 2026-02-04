@@ -1,54 +1,82 @@
+"use client"
+
 import type React from "react"
-import { View, ScrollView, Text, TouchableOpacity, Image, Alert } from "react-native"
+import {
+  View,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  Image,
+  Alert,
+  RefreshControl,
+  Modal,
+  TouchableWithoutFeedback,
+} from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
-import { ChevronLeft, Share, Heart, ShieldCheck } from "lucide-react-native"
-import { useState } from "react"
+import { ChevronLeft, ShieldCheck, X } from "lucide-react-native"
+import { useState, useCallback } from "react"
 import Carousel from "@/components/ui/Carousel"
 import FarmInformationCard from "@/components/customer-batch-detail/FarmInformationCard"
 import ProductStockCard from "@/components/customer-batch-detail/ProductStockCard"
 import FarmTransparencyCard from "@/components/customer-batch-detail/FarmTransparencyCard"
 import VerifiedProcessCard from "@/components/customer-batch-detail/process/VerifiedProcessCard"
 import CustomerReviewsCard from "@/components/customer-batch-detail/reviews/CustomerReviewsCard"
-import FromThisFarmSection from "@/components/customer-batch-detail/FromThisFarmSection"
 import PurchaseCard from "@/components/customer-batch-detail/PurchaseCard"
 import NutritionQualityCard from "@/components/customer-batch-detail/NutritionQualityCard"
 import { useRoute, useNavigation } from "@react-navigation/native"
 import { useBatchDetail } from "@/hooks/useBatchDetail"
 import { formatDate } from "@/utils/date"
 import { CustomerBatchDetailSkeleton } from "@/components/skeletons/CustomerBatchDetailSkeleton"
-import { useAddToCart, useCart } from "@/hooks/useCart"
+import { useAddToCart, useCart, useUpdateCartItem } from "@/hooks/useCart"
 import { useCreateOrder } from "@/hooks/useOrders"
 import { useAuthStore } from "@/stores/auth"
 import { useGetAddresses } from "@/hooks/useAddress"
 import { useFarmById } from "@/hooks/useFarm"
 import { useBatchesByFarm } from "@/hooks/useBatches"
 import { useFarmReviews } from "@/hooks/useFarmReview"
+import { useQueryClient } from "@tanstack/react-query"
+import { normalizeBatchImages } from "@/utils/image-helper"
+import theme from "@/utils/theme"
 
 export const CustomerBatchDetailScreen: React.FC = () => {
   const insets = useSafeAreaInsets()
   const route = useRoute<any>()
-  const navigation = useNavigation()
+  const navigation = useNavigation<any>()
   const { batchId } = route.params || {}
   const { data: batch, isLoading } = useBatchDetail(batchId)
+  const queryClient = useQueryClient()
+  const [refreshing, setRefreshing] = useState(false)
+  const [isQrModalVisible, setIsQrModalVisible] = useState(false)
+  const updateCartItemMutation = useUpdateCartItem()
 
   const { data: cart } = useCart()
   const addToCartMutation = useAddToCart()
   const { mutateAsync: createOrder, isPending: isCreatingOrder } = useCreateOrder()
   const { userId } = useAuthStore()
-  const { data: reviews, isLoading: isLoadingReviews } = useFarmReviews(batch?.season?.farmId || "");
+  const { data: reviews, isLoading: isLoadingReviews } = useFarmReviews((batch as any)?.season?.farmId || "")
   const { data: addresses } = useGetAddresses()
 
   const [selectedQuantity, setSelectedQuantity] = useState(1)
 
-  const farmId = batch?.season?.farmId
+  const farmId = (batch as any)?.season?.farmId
   const { data: farm } = useFarmById(farmId || "")
   const { data: farmBatches } = useBatchesByFarm(farmId || "")
 
-  const averageRating = reviews && reviews.length > 0
-    ? reviews.reduce((acc, review) => acc + review.rate, 0) / reviews.length
-    : 0;
+  const averageRating =
+    reviews && reviews.length > 0 ? reviews.reduce((acc, review) => acc + review.rate, 0) / reviews.length : 0
 
-  if (isLoading) {
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true)
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ["batch", batchId] }),
+      queryClient.invalidateQueries({ queryKey: ["farm-reviews", farmId] }),
+      queryClient.invalidateQueries({ queryKey: ["farm", farmId] }),
+      queryClient.invalidateQueries({ queryKey: ["batches-by-farm", farmId] }),
+    ])
+    setRefreshing(false)
+  }, [queryClient, batchId, farmId])
+
+  if (isLoading && !refreshing) {
     return <CustomerBatchDetailSkeleton />
   }
 
@@ -60,8 +88,9 @@ export const CustomerBatchDetailScreen: React.FC = () => {
     )
   }
 
-  const productImages =
-    batch.imagesUrl && batch.imagesUrl.length > 0 ? batch.imagesUrl : ["https://via.placeholder.com/400"]
+  const batchData = batch as any
+
+  const productImages = normalizeBatchImages(batchData.imageUrls)
 
   const farmName = farm?.farmName || "Unknown Farm"
   const farmImage = farm?.bannerUrl || "https://via.placeholder.com/50"
@@ -72,157 +101,172 @@ export const CustomerBatchDetailScreen: React.FC = () => {
       return
     }
 
-    addToCartMutation.mutate(
-      {
-        cartId: cart.cartId,
-        batchId: batch.id,
-        quantity: quantity,
-      },
-      {
-        onSuccess: () => {
-          Alert.alert("Success", `Added ${quantity} ${batch.units} to cart!`)
-          setSelectedQuantity(1)
+    let existingItem: any = null
+
+    if (cart.cartItems && Array.isArray(cart.cartItems)) {
+      for (const group of cart.cartItems) {
+        if (Array.isArray(group.items)) {
+          existingItem = group.items.find((item: any) => item.batchId === batchData.id)
+          if (existingItem) break
+        }
+      }
+    }
+
+    if (existingItem) {
+      const newQuantity = (existingItem.quantity || 0) + quantity
+      const availableStock = (batch?.availableQuantity as any) || 0
+
+      if (newQuantity > availableStock) {
+        Alert.alert(
+          "Error",
+          `Cannot add more items. You have ${existingItem.quantity || 0} in cart and stock is ${availableStock}.`,
+        )
+        return
+      }
+
+      updateCartItemMutation.mutate(
+        {
+          cartId: cart.cartId,
+          batchId: batch.id,
+          quantity: newQuantity,
         },
-        onError: (error: any) => {
-          Alert.alert("Error", "Failed to add to cart. " + (error.message || ""))
+        {
+          onSuccess: () => {
+            Alert.alert("Success", `Updated cart: Total ${newQuantity} ${batch.units}`)
+            setSelectedQuantity(1)
+          },
+          onError: (error: any) => {
+            Alert.alert("Error", "Failed to update cart. " + (error.response?.data?.message || error.message || ""))
+          },
         },
-      },
-    )
+      )
+    } else {
+      addToCartMutation.mutate(
+        {
+          cartId: cart.cartId,
+          batchId: batch.id,
+          quantity: quantity,
+        },
+        {
+          onSuccess: () => {
+            Alert.alert("Success", `Added ${quantity} ${batch.units} to cart!`)
+            setSelectedQuantity(1)
+          },
+          onError: (error: any) => {
+            Alert.alert("Error", "Failed to add to cart. " + (error.response?.data?.message || error.message || ""))
+          },
+        },
+      )
+    }
   }
 
   const handleBuyNow = async (quantity: number) => {
-    if (!cart?.cartId) {
-      Alert.alert("Error", "Cart not initialized or user not logged in.")
-      return
-    }
-
     if (!userId) {
       Alert.alert("Error", "User not found. Please login again.")
       return
     }
 
-    // Check if user has a default address
-    const defaultAddress = addresses?.find(addr => addr.isDefault)
-    if (!defaultAddress) {
-      Alert.alert(
-        "No Address",
-        "Please add a delivery address before placing an order.",
-        [
-          { text: "Cancel", style: "cancel" },
-          { text: "Add Address", onPress: () => navigation.navigate("CustomerAddress" as never) },
-        ]
-      )
-      return
-    }
-
     try {
-      // First, add the item to cart
-      await new Promise<void>((resolve, reject) => {
-        addToCartMutation.mutate(
-          {
-            cartId: cart.cartId,
-            batchId: batch.id,
-            quantity: quantity,
-          },
-          {
-            onSuccess: () => resolve(),
-            onError: (error) => reject(error),
-          },
-        )
-      })
-
-      // Then create order with only this item (bypass regular cart)
-      const payload = {
-        customerId: userId,
-        addressId: defaultAddress.id,
-        shippingFee: 0,
-        orderItems: [
-          {
-            batchId: batch.id,
-            quantity: quantity,
-          },
-        ],
+      const batchData = batch as any
+      const buyNowItem = {
+        itemId: `temp-${Date.now()}`,
+        batchId: batchData.id,
+        batchCode: batchData.batchCode?.value || batchData.batchCode,
+        batchImageUrls: normalizeBatchImages(batchData.imageUrls),
+        productName: batchData.season?.product?.productName || "Product Name",
+        categoryName: batchData.season?.product?.category?.categoryName || "Category",
+        seasonName: batchData.season?.seasonName || "Season",
+        batchPrice: batchData.price,
+        quantity: quantity,
+        units: batchData.units,
+        itemPrice: batchData.price * quantity,
+        seasonStatus: batchData.season?.status || "Active",
+        farmId: farmId,
+        farmName: farmName,
       }
 
-      const newOrder = await createOrder(payload)
-
-      Alert.alert("Success", "Order created successfully!", [
-        { text: "OK", onPress: () => navigation.navigate("CustomerOrders" as never) },
-      ])
+      navigation.navigate(
+        "CustomerCheckout" as never,
+        {
+          selectedItems: [],
+          buyNowItems: [buyNowItem],
+        } as never,
+      )
     } catch (error: any) {
       console.error("Buy Now failed:", error)
-      Alert.alert("Error", error?.response?.data?.message || "Failed to create order.")
+      Alert.alert("Error", error?.message || "Failed to process buy now request.")
     }
   }
 
   return (
-    <View className="flex-1 bg-[#F9FAF9]">
-      {/* Custom Header */}
-      <View style={{ paddingTop: insets.top }} className="bg-[#F9FAF9] z-10">
-        <View className="h-14 flex-row justify-between items-center px-6">
+    <View className="flex-1 bg-neutral-background">
+      <View style={{ paddingTop: insets.top }} className="bg-neutral-background z-10">
+        <View className="h-14 flex-row justify-between items-center px-4">
           <TouchableOpacity className="flex-row items-center gap-2" onPress={() => navigation.goBack()}>
-            <ChevronLeft size={20} color="#4CAF50" />
-            <Text className="text-[#4CAF50] text-base font-semibold">Back</Text>
+            <ChevronLeft size={20} color={theme.colors.primary.main} />
+            <Text className="text-primary-main text-base font-semibold">Back</Text>
           </TouchableOpacity>
 
           <View className="flex-row items-center gap-2">
-            <View className="w-8 h-8 rounded-full bg-[#F5F5F5] overflow-hidden">
-              <Image source={{ uri: farmImage }} className="w-full h-full" resizeMode="cover" />
+            <View className="w-8 h-8 rounded-full bg-neutral-divider overflow-hidden">
+              <Image
+                source={{ uri: typeof farmImage === "string" ? farmImage : (farmImage as any)?.uri || "" }}
+                className="w-full h-full"
+                resizeMode="cover"
+              />
             </View>
             <Text className="text-[#2D2D2D] text-sm font-semibold">{farmName}</Text>
           </View>
 
-          <View className="flex-row items-center gap-2">
-          </View>
+          <View className="flex-row items-center gap-2"></View>
         </View>
       </View>
 
-      {/* Scroll Content */}
       <ScrollView
         contentContainerStyle={{ paddingBottom: 100 }}
         className="flex-1"
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={["#4CAF50"]} tintColor="#4CAF50" />
+        }
       >
-        {/* Carousel with Overlays */}
         <View className="relative">
           <Carousel height={320} autoScroll={false} images={productImages} />
 
-          {/* Harvested Today Badge */}
           <View className="absolute top-4 left-4 bg-[#C8E6C9] px-3 py-1.5 rounded-full">
             <Text className="text-[#2E7D32] text-xs font-medium">Harvested Today</Text>
           </View>
 
-          {/* In Stock Badge */}
           <View className="absolute top-4 right-4 bg-white px-3 py-1.5 rounded-full flex-row items-center">
             <View
-              className={`w-2 h-2 rounded-full ${(batch.availableQuantity || 0) > 0 ? "bg-[#4CAF50]" : "bg-red-500"} mr-2`}
+              className={`w-2 h-2 rounded-full ${(batchData.availableQuantity || 0) > 0 ? "bg-[#4CAF50]" : "bg-red-500"} mr-2`}
             />
             <Text className="text-[#2D2D2D] text-xs font-medium">
-              {(batch.availableQuantity || 0) > 0 ? "In Stock" : "Out of Stock"}
+              {(batchData.availableQuantity || 0) > 0 ? "In Stock" : "Out of Stock"}
             </Text>
           </View>
         </View>
 
         <View className="px-4 pt-4 gap-4">
           <FarmInformationCard
-            id={batch.batchCode.value}
-            name={batch.season?.product?.productName || "Product Name"}
-            variety={batch.season?.product?.productDesc || "No description available"}
+            id={batchData.batchCode?.value || batchData.batchCode}
+            name={batchData.season?.product?.productName || "Product Name"}
+            variety={batchData.season?.product?.productDesc || "No description available"}
             farmName={farmName}
             farmLogo={farmImage}
-            harvestDate={batch.harvestDate ? formatDate(batch.harvestDate) : "N/A"}
-            totalYield={`${batch.totalYield || 0} ${batch.units || "units"}`}
+            harvestDate={batchData.harvestDate ? formatDate(batchData.harvestDate) : "N/A"}
+            totalYield={`${new Intl.NumberFormat("vi-VN").format(batchData.totalYield || 0)} ${batchData.units || "units"}`}
             verified={true}
           />
 
           <ProductStockCard
-            pricePerLb={batch.price || 0}
-            available={`${batch.availableQuantity || 0} ${batch.units || "units"} available`}
-            weightType={batch.units || "unit"}
-            stockLevel={batch.availableQuantity || 0}
+            pricePerLb={batchData.price || 0}
+            available={`${new Intl.NumberFormat("vi-VN").format(batchData.availableQuantity || 0)} ${batchData.units || "units"} available`}
+            weightType={batchData.units || "unit"}
+            stockLevel={batchData.availableQuantity || 0}
             initialQuantity={selectedQuantity}
-            maxQuantity={batch.totalYield || 0}
-            unit={batch.units || "unit"}
+            maxQuantity={batchData.availableQuantity || 0}
+            unit={batchData.units || "unit"}
             onQuantityChange={setSelectedQuantity}
           />
 
@@ -257,26 +301,64 @@ export const CustomerBatchDetailScreen: React.FC = () => {
           <View>
             <NutritionQualityCard />
           </View>
-
-          {farmBatches && farmBatches.length > 0 && (
-            <View>
-              <FromThisFarmSection items={farmBatches.slice(0, 5)} />
-            </View>
-          )}
         </View>
       </ScrollView>
 
       <PurchaseCard
-        total={`$${(batch.price * selectedQuantity || 0).toFixed(2)}`}
-        weight={`${selectedQuantity} ${batch.units || "unit"}`}
-        pricePerLb={`$${batch.price || 0}/${batch.units || "unit"}`}
-        availableQuantity={batch.availableQuantity || 0}
-        unit={batch.units || "unit"}
-        price={batch.price || 0}
+        total={`$${(batchData.price * selectedQuantity || 0).toFixed(2)}`}
+        weight={`${selectedQuantity} ${batchData.units || "unit"}`}
+        pricePerLb={`$${batchData.price || 0}/${batchData.units || "unit"}`}
+        availableQuantity={batchData.availableQuantity || 0}
+        unit={batchData.units || "unit"}
+        price={batchData.price || 0}
         onAddToCart={() => handleAddToCart(selectedQuantity)}
         onBuyNow={() => handleBuyNow(selectedQuantity)}
+        onViewQr={() => setIsQrModalVisible(true)}
         showQuantitySelector={false}
       />
+
+      <Modal
+        visible={isQrModalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setIsQrModalVisible(false)}
+      >
+        <TouchableWithoutFeedback onPress={() => setIsQrModalVisible(false)}>
+          <View className="flex-1 bg-black/60 justify-center items-center p-6">
+            <TouchableWithoutFeedback>
+              <View className="bg-white p-6 rounded-3xl items-center w-full max-w-sm">
+                <View className="w-full flex-row justify-end mb-2">
+                  <TouchableOpacity
+                    onPress={() => setIsQrModalVisible(false)}
+                    className="w-8 h-8 bg-gray-100 rounded-full items-center justify-center"
+                  >
+                    <X size={20} color="#666" />
+                  </TouchableOpacity>
+                </View>
+
+                <Text className="text-xl font-bold text-gray-900 mb-2">Verification QR</Text>
+                <Text className="text-gray-500 text-center mb-6">
+                  Scan this code to verify the origin and quality of this product batch.
+                </Text>
+
+                <View className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-4">
+                  {batchData.verificationQr ? (
+                    <Image source={{ uri: batchData.verificationQr }} className="w-64 h-64" resizeMode="contain" />
+                  ) : (
+                    <View className="w-64 h-64 bg-gray-100 items-center justify-center rounded-xl">
+                      <Text className="text-gray-400">QR Code not available</Text>
+                    </View>
+                  )}
+                </View>
+
+                <Text className="text-xs text-gray-400 text-center">
+                  Batch ID: {batchData.batchCode?.value || batchData.batchCode}
+                </Text>
+              </View>
+            </TouchableWithoutFeedback>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
     </View>
   )
 }

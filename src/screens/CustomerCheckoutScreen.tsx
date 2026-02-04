@@ -1,223 +1,318 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
-import { ScrollView, View, Text, TouchableOpacity, Alert, Image } from "react-native"
+import { useState, useCallback, useRef, useMemo } from "react"
+import {
+    View,
+    Text,
+    ScrollView,
+    TouchableOpacity,
+    Alert,
+    ActivityIndicator, RefreshControl
+} from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
-import { ChevronLeft } from "lucide-react-native"
-import { useNavigation, useRoute, RouteProp } from "@react-navigation/native"
-
-import DeliveryOptionsCard from "@/components/customer-cart/DeliveryOptionsCard"
-import { OrderSummary } from "@/components/customer-cart/OrderSummary"
-import { useCart, useRemoveFromCart } from "@/hooks/useCart"
+import { useNavigation, useRoute, type RouteProp } from "@react-navigation/native"
+import { ChevronLeft, MapPin, Truck, CreditCard, ChevronRight } from "lucide-react-native"
+import { useCart, useRemoveFromCart, CART_QUERY_KEYS } from "@/hooks/useCart"
 import { useCreateOrder } from "@/hooks/useOrders"
 import { useAuthStore } from "@/stores/auth"
-import { useGetAddresses } from "@/hooks/useAddress"
-import { useCartShipping } from "@/hooks/useCartShipping"
-import { CustomerStackParamList } from "@/navigation/CustomerNavigator"
+import { useGetAddresses, ADDRESS_QUERY_KEYS } from "@/hooks/useAddress"
+import type { CustomerStackParamList } from "@/navigation/CustomerNavigator"
+import { useQueryClient } from "@tanstack/react-query"
+import CartItemsSection from "@/components/customer-cart/CartItemsSection"
+import theme from "@/utils/theme"
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack"
 
 type CheckoutScreenRouteProp = RouteProp<CustomerStackParamList, "CustomerCheckout">
+type CheckoutScreenNavigationProp = NativeStackNavigationProp<CustomerStackParamList>
 
 export const CustomerCheckoutScreen: React.FC = () => {
-    const navigation = useNavigation()
+    const navigation = useNavigation<CheckoutScreenNavigationProp>()
     const route = useRoute<CheckoutScreenRouteProp>()
-    const { selectedItems } = route.params
+    const { selectedItems, buyNowItems } = route.params || {}
 
-    const { data: Cart, isLoading } = useCart()
+    const { data: Cart, isLoading: isLoadingCart } = useCart()
     const { mutateAsync: createOrder, isPending: isCreatingOrder } = useCreateOrder()
     const { mutateAsync: removeFromCart } = useRemoveFromCart()
     const { userId } = useAuthStore()
+    const [paymentMethod, setPaymentMethod] = useState<"COD" | "ONLINE">("COD")
+    const queryClient = useQueryClient()
+    const [refreshing, setRefreshing] = useState(false)
 
-    // Address data
+    const isProcessingOrderRef = useRef(false)
+
     const { data: addresses } = useGetAddresses()
-    const defaultAddress = addresses?.find((addr) => addr.isDefault)
+    const defaultAddress = addresses?.find((addr) => addr.isDefault) || addresses?.[0]
 
-    const cartGroups = Cart?.cartItems || []
+    const onRefresh = useCallback(async () => {
+        setRefreshing(true)
+        await Promise.all([
+            queryClient.invalidateQueries({ queryKey: CART_QUERY_KEYS.all }),
+            queryClient.invalidateQueries({ queryKey: ADDRESS_QUERY_KEYS.all }),
+        ])
+        setRefreshing(false)
+    }, [queryClient])
 
-    // Filter groups to only include selected items
-    const checkoutGroups = cartGroups.map(group => ({
-        ...group,
-        items: group.items.filter(item => selectedItems.includes(item.id))
-    })).filter(group => group.items.length > 0)
+    // Determine items to checkout
+    const checkoutItems = useMemo(() => {
+        if (buyNowItems && buyNowItems.length > 0) {
+            // Group buy now items by farm if needed, but usually it's just one or few items
+            // For consistency with CartItemsSection, we structure them similarly
+            return [{
+                farmName: buyNowItems[0].farmName,
+                items: buyNowItems.map(item => ({
+                    id: item.itemId,
+                    name: item.productName,
+                    farm: item.farmName,
+                    price: item.batchPrice,
+                    batchPrice: item.batchPrice,
+                    unit: item.units,
+                    image: item.batchImageUrls?.[0] || "",
+                    quantity: item.quantity,
+                    status: item.seasonStatus,
+                    batch: item.batchCode,
+                    isOutOfStock: false,
+                    itemId: item.itemId,
+                    batchId: item.batchId,
+                }))
+            }]
+        }
 
-    // Cart shipping calculation using custom hook
-    const {
-        shippingFee,
-        isCalculating: calculatingShipping,
-        farmAddresses,
-    } = useCartShipping({
-        cartItems: checkoutGroups, // Only calculate for selected items
-        selectedItemIds: selectedItems,
-        customerAddress: defaultAddress
-            ? {
-                province: defaultAddress.province,
-                district: defaultAddress.district,
-                ward: defaultAddress.ward,
-                detail: defaultAddress.detail,
+        // Fallback to cart items
+        if (!Cart?.cartItems) return []
+
+        const validIds = new Set(selectedItems || [])
+
+        return Cart.cartItems.map(group => {
+            const filteredItems = (group.items || []).filter((item: any) => validIds.has(item.itemId))
+            if (filteredItems.length === 0) return null
+
+            return {
+                farmName: group.farmName,
+                items: filteredItems.map((item: any) => ({
+                    id: item.itemId,
+                    name: item.productName,
+                    farm: group.farmName,
+                    price: item.itemPrice, // Total price for this line item (unitPrice * qty) or batchPrice * qty
+                    batchPrice: item.batchPrice || item.unitPrice,
+                    unit: item.units,
+                    image: (item.batchImageUrls && item.batchImageUrls.length > 0) ? item.batchImageUrls[0] : "",
+                    quantity: item.quantity,
+                    status: item.seasonStatus,
+                    batch: item.batchCode,
+                    isOutOfStock: item.isOutOfStock,
+                    itemId: item.itemId,
+                    batchId: item.batchId
+                }))
             }
-            : null,
-    })
+        }).filter(Boolean)
 
-    // Calculate totals
-    const allUiItems = checkoutGroups.flatMap(g => g.items);
+    }, [buyNowItems, Cart, selectedItems])
 
-    const subtotal = allUiItems.reduce((sum, item) => {
-        const itemPrice = item.itemPrice || 0
-        const itemQuantity = item.quantity || 0
-        return sum + itemPrice * itemQuantity
-    }, 0)
+    const subtotal = useMemo(() => {
+        if (!checkoutItems) return 0
+        return checkoutItems.reduce((acc: number, group: any) => {
+            return acc + group.items.reduce((sum: number, item: any) => {
+                return sum + (item.batchPrice * item.quantity)
+            }, 0)
+        }, 0)
+    }, [checkoutItems])
 
-    const itemCount = allUiItems.length
-    const deliveryFee = calculatingShipping ? 0 : shippingFee
-    const tax = subtotal * 0.1
-    const discountPercentage = 0
-    const discountAmount = subtotal * discountPercentage
-    const total = subtotal + deliveryFee + tax - discountAmount
+    const shippingFee = 15000 // Mock shipping fee
+    const total = subtotal + shippingFee
 
     const handlePlaceOrder = async () => {
-        if (!userId) {
-            Alert.alert("Error", "User not found. Please login again.")
+        if (!defaultAddress) {
+            Alert.alert("Missing Address", "Please select a shipping address.")
             return
         }
 
-        if (!addresses || addresses.length === 0) {
-            Alert.alert("Address Required", "You need to set up an address before checkout.", [
-                { text: "Cancel", style: "cancel" },
-                { text: "Add Address", onPress: () => navigation.navigate("CustomerAddress" as never) },
-            ])
-            return
-        }
+        if (isProcessingOrderRef.current) return
+        isProcessingOrderRef.current = true
 
         try {
-            const orderItems = allUiItems.map((item) => ({
-                batchId: item.batchId,
-                quantity: item.quantity,
-            }))
+            const orderItems = checkoutItems.flatMap((g: any) => g.items.map((i: any) => ({
+                batchId: i.batchId,
+                quantity: i.quantity
+            })))
 
-            const payload = {
-                customerId: userId,
+            await createOrder({
+                customerId: userId || "", // Should be handled by backend usually or from store
+                addressId: defaultAddress.id,
                 shippingFee: shippingFee,
+                paymentMethod: paymentMethod,
                 orderItems: orderItems,
-                addressId: defaultAddress?.id || addresses?.[0]?.id,
+                orderCode: `ORD-${Date.now()}`,
+                orderDate: new Date().toISOString(),
+                orderType: "Order"
+            })
+
+            // If buy now, we don't need to clear cart for these items as they are temp
+            // If from cart, we should remove them
+            if ((!buyNowItems || buyNowItems.length === 0) && selectedItems && selectedItems.length > 0) {
+                // Remove items from cart
+                // We can iterate or use a clearCart implementation if backend supports removing multiple info
+                await Promise.all(selectedItems.map(id => removeFromCart(id).catch(e => console.error("Failed to remove item", id))))
             }
 
-            await createOrder(payload)
-
-            // Remove items from cart after successful order
-            await Promise.all(selectedItems.map((id) => removeFromCart(id)))
-
-            Alert.alert("Success", "Order created successfully!", [
-                { text: "OK", onPress: () => navigation.navigate("CustomerOrders" as never) },
+            Alert.alert("Success", "Order placed successfully!", [
+                { text: "OK", onPress: () => navigation.replace("CustomerOrders") }
             ])
         } catch (error: any) {
-            console.error("Order creation failed:", error)
-            Alert.alert("Error", error?.response?.data?.message || "Failed to create order.")
+            console.error("Order failed", error)
+            Alert.alert("Order Failed", error.message || "Something went wrong.")
+        } finally {
+            isProcessingOrderRef.current = false
         }
     }
 
-    if (isLoading) {
+    if (isLoadingCart && !buyNowItems) {
         return (
-            <View className="flex-1 items-center justify-center bg-[#F9FAF9]">
-                <Text>Loading checkout...</Text>
+            <View className="flex-1 justify-center items-center bg-[#F9FAF9]">
+                <ActivityIndicator size="large" color={theme.colors.primary.main} />
             </View>
         )
     }
 
     return (
         <View className="flex-1 bg-[#F9FAF9]">
-            <SafeAreaView edges={["top"]} className="bg-[#F9FAF9]">
-                <View className="h-[56px] flex-row items-center justify-between px-6">
-                    <TouchableOpacity onPress={() => navigation.goBack()} className="flex-row items-center gap-2">
-                        <View className="w-5 h-5 items-center justify-center">
-                            <ChevronLeft size={20} color="#4CAF50" />
-                        </View>
-                        <Text className="text-base font-semibold text-[#4CAF50]">Back</Text>
+            <SafeAreaView edges={["top"]} style={{ backgroundColor: "#fff" }}>
+                <View className="h-14 flex-row items-center px-4 border-b border-gray-100">
+                    <TouchableOpacity onPress={() => navigation.goBack()} className="mr-3">
+                        <ChevronLeft size={24} color="#333" />
                     </TouchableOpacity>
-                    <Text className="text-[20px] font-semibold text-[#2D2D2D]">Checkout</Text>
-                    <View style={{ width: 60 }} />
+                    <Text className="text-lg font-bold text-[#333]">Checkout</Text>
                 </View>
             </SafeAreaView>
-
             <ScrollView
-                style={{ flex: 1 }}
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ paddingTop: 16, paddingBottom: 130 }}
+                className="flex-1"
+                contentContainerStyle={{ paddingBottom: 150 }}
+                refreshControl={
+                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[theme.colors.primary.main]} />
+                }
             >
-                <DeliveryOptionsCard
-                    defaultAddress={defaultAddress}
-                    customer={{
-                        fullname: Cart?.fullname || "",
-                        phone: Cart?.phone || "",
-                        email: Cart?.email || "",
-                    }}
-                    onChangeAddress={() => navigation.navigate("CustomerAddress" as never)}
-                />
-
-                {/* Selected Items Summary */}
-                <View className="mx-4 mt-4 bg-white rounded-xl p-4 shadow-sm">
-                    <Text className="text-lg font-semibold mb-3">Order Items</Text>
-                    {checkoutGroups.map((group) => (
-                        <View key={group.farmId} className="mb-4">
-                            <Text className="text-sm font-medium text-gray-500 mb-2">{group.farmName}</Text>
-                            {group.items.map((item) => (
-                                <View key={item.id} className="flex-row items-center mb-3">
-                                    <Image
-                                        source={{ uri: item.batch?.imagesUrl?.[0] || "https://via.placeholder.com/50" }}
-                                        className="w-12 h-12 rounded-lg bg-gray-100"
-                                    />
-                                    <View className="flex-1 ml-3">
-                                        <Text className="text-sm font-medium text-[#2D2D2D]" numberOfLines={1}>
-                                            {item.batch?.product?.productName || "Product"}
-                                        </Text>
-                                        <Text className="text-xs text-gray-500">
-                                            {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.itemPrice)} x {item.quantity} {item.batch?.units}
-                                        </Text>
-                                    </View>
-                                    <Text className="text-sm font-semibold text-[#4CAF50]">
-                                        {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.itemPrice * item.quantity)}
-                                    </Text>
-                                </View>
-                            ))}
+                {/* Address Section */}
+                <View className="p-4">
+                    <Text className="text-base font-bold text-[#333] mb-3">Shipping Address</Text>
+                    <TouchableOpacity
+                        onPress={() => navigation.navigate("CustomerAddress")}
+                        className="bg-white p-4 rounded-xl border border-gray-100 flex-row items-center gap-3"
+                    >
+                        <View className="w-10 h-10 bg-green-50 rounded-full items-center justify-center">
+                            <MapPin size={20} color={theme.colors.primary.main} />
                         </View>
-                    ))}
+                        <View className="flex-1">
+                            {defaultAddress ? (
+                                <>
+                                    <View className="flex-row items-center gap-2 mb-1">
+                                        <Text className="font-bold text-[#333]">{"User"}</Text>
+                                        <Text className="text-gray-500">| {"Phone"}</Text>
+                                    </View>
+                                    <Text className="text-gray-600 text-sm" numberOfLines={2}>
+                                        {defaultAddress.detail}, {defaultAddress.ward}, {defaultAddress.district}, {defaultAddress.province}
+                                    </Text>
+                                </>
+                            ) : (
+                                <Text className="text-gray-500">Select an address</Text>
+                            )}
+                        </View>
+                        <ChevronRight size={20} color="#ccc" />
+                    </TouchableOpacity>
                 </View>
 
-                <OrderSummary
-                    subtotal={subtotal}
-                    itemCount={itemCount}
-                    deliveryFee={deliveryFee}
-                    discountLabel="FRESH20"
-                    discountAmount={discountAmount}
-                    tax={tax}
-                    total={total}
-                    savedMessage={discountAmount > 0 ? `You saved ${new Intl.NumberFormat('vi-VN').format(discountAmount)} VNĐ!` : ""}
-                />
+                {/* Items Section */}
+                <View className="px-4 mb-2">
+                    <Text className="text-base font-bold text-[#333] mb-3">Order Items</Text>
+                </View>
 
-                {calculatingShipping && (
-                    <View className="mx-4 mt-2 p-3 bg-blue-50 rounded-lg">
-                        <Text className="text-sm text-blue-600">Calculating shipping from {farmAddresses.length} farms...</Text>
+                {checkoutItems?.map((group: any, index: number) => (
+                    <CartItemsSection
+                        key={index}
+                        items={group.items}
+                        selectedItems={[]} // UI specific, not needed here
+                        onSelectItem={() => { }} // No selection in checkout
+                        onDelete={() => { }} // Can't delete in checkout
+                        hideQuantityControls={true}
+                        farmName={group.farmName}
+                        shippingFee={undefined}
+                        isCalculatingShipping={false}
+                    />
+                ))}
+
+                {/* Payment Method */}
+                <View className="p-4">
+                    <Text className="text-base font-bold text-[#333] mb-3">Payment Method</Text>
+                    <View className="bg-white rounded-xl border border-gray-100 overflow-hidden">
+                        <TouchableOpacity
+                            onPress={() => setPaymentMethod("COD")}
+                            className={`p-4 flex-row items-center gap-3 border-b border-gray-50 ${paymentMethod === "COD" ? "bg-green-50/50" : ""}`}
+                        >
+                            <View className={`w-5 h-5 rounded-full border items-center justify-center ${paymentMethod === "COD" ? "border-green-500" : "border-gray-300"}`}>
+                                {paymentMethod === "COD" && <View className="w-3 h-3 rounded-full bg-green-500" />}
+                            </View>
+                            <Truck size={20} color="#333" />
+                            <Text className="text-[#333] font-medium">Cash on Delivery (COD)</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            onPress={() => setPaymentMethod("ONLINE")}
+                            className={`p-4 flex-row items-center gap-3 ${paymentMethod === "ONLINE" ? "bg-green-50/50" : ""}`}
+                        >
+                            <View className={`w-5 h-5 rounded-full border items-center justify-center ${paymentMethod === "ONLINE" ? "border-green-500" : "border-gray-300"}`}>
+                                {paymentMethod === "ONLINE" && <View className="w-3 h-3 rounded-full bg-green-500" />}
+                            </View>
+                            <CreditCard size={20} color="#333" />
+                            <Text className="text-[#333] font-medium">Online Payment</Text>
+                        </TouchableOpacity>
                     </View>
-                )}
+                </View>
+
+                {/* Summary */}
+                <View className="p-4">
+                    <Text className="text-base font-bold text-[#333] mb-4">Payment Summary</Text>
+                    <View className="bg-white p-4 rounded-xl">
+                        <View className="flex-row justify-between mb-2">
+                            <Text className="text-gray-500">Subtotal</Text>
+                            <Text className="text-[#333] font-medium">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(subtotal)}</Text>
+                        </View>
+
+                        <View className="flex-row justify-between mb-2">
+                            <Text className="text-gray-500">Shipping Fee</Text>
+                            <Text className="text-[#333] font-medium">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(shippingFee)}</Text>
+                        </View>
+
+                        <View className="h-[1px] bg-gray-100 my-3" />
+
+                        <View className="flex-row justify-between">
+                            <Text className="text-lg font-bold text-[#333]">Total</Text>
+                            <Text className="text-lg font-bold text-green-600">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(total)}</Text>
+                        </View>
+                    </View>
+                </View>
+
             </ScrollView>
 
-            {/* Bottom Action Bar */}
+
+            {/* Bottom Bar */}
             <View className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-100 p-4 shadow-lg">
                 <SafeAreaView edges={["bottom"]}>
-                    <View className="flex-row items-center justify-between mb-4">
-                        <Text className="text-gray-500">Total Payment</Text>
-                        <Text className="text-xl font-bold text-[#4CAF50]">
-                            {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(total)}
-                        </Text>
+                    <View className="flex-row gap-3">
+                        <View className="flex-1 justify-center">
+                            <Text className="text-gray-500 text-xs">Total Payment</Text>
+                            <Text className="text-lg font-bold text-green-600">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(total)}</Text>
+                        </View>
+                        <TouchableOpacity
+                            onPress={handlePlaceOrder}
+                            disabled={isCreatingOrder}
+                            className={`bg-green-600 px-8 py-3 rounded-xl items-center justify-center flex-1 ${isCreatingOrder ? 'opacity-70' : ''}`}
+                        >
+                            {isCreatingOrder ? (
+                                <ActivityIndicator color="white" />
+                            ) : (
+                                <Text className="text-white font-bold text-base">Place Order</Text>
+                            )}
+                        </TouchableOpacity>
                     </View>
-                    <TouchableOpacity
-                        className={`w-full py-4 rounded-xl items-center ${isCreatingOrder ? "bg-gray-300" : "bg-[#4CAF50]"}`}
-                        onPress={handlePlaceOrder}
-                        disabled={isCreatingOrder || calculatingShipping}
-                    >
-                        <Text className="text-white font-bold text-lg">
-                            {isCreatingOrder ? "Processing..." : "Place Order"}
-                        </Text>
-                    </TouchableOpacity>
                 </SafeAreaView>
             </View>
         </View>

@@ -1,10 +1,9 @@
 import { View, Text } from "react-native"
 import { CartItem } from "./CartItem"
-import type { Product } from "@/types"
 import { Store, Truck } from "lucide-react-native"
 
 type Props = {
-  items: Product[]
+  items: any[]
   selectedItems: string[]
   onSelectItem: (id: string) => void
   onDelete: (id: string) => void
@@ -44,7 +43,7 @@ export default function CartItemsSection({
             <View className="bg-blue-50 px-3 py-1.5 rounded-full flex-row items-center gap-1.5">
               <Truck size={14} color="#3B82F6" />
               <Text className="text-xs font-semibold text-blue-600">
-                {isCalculatingShipping ? "..." : `${new Intl.NumberFormat('vi-VN').format(shippingFee)} VNĐ`}
+                {isCalculatingShipping ? "..." : `${new Intl.NumberFormat('vi-VN').format(shippingFee)} đ`}
               </Text>
             </View>
           )}
@@ -58,13 +57,14 @@ export default function CartItemsSection({
             name={item.name}
             farm={item.farm}
             badge={{
-              label: item.status,
-              color: "green",
+              label: item.isOutOfStock ? "Out of Stock" : item.status,
+              color: item.isOutOfStock ? "red" : "green",
             }}
+            isOutOfStock={item.isOutOfStock}
             harvestInfo={""}
             quantity={item.quantity}
-            unitPrice={new Intl.NumberFormat('vi-VN').format(Number.parseFloat(item.price))}
-            total={new Intl.NumberFormat('vi-VN').format(Number.parseFloat(item.price) * item.quantity)}
+            unitPrice={new Intl.NumberFormat('vi-VN').format(Number.parseFloat(item.batchPrice))}
+            total={new Intl.NumberFormat('vi-VN').format(Number.parseFloat(item.batchPrice) * item.quantity)}
             unit={item.unit}
             maxQuantity={100}
             isSelected={selectedItems.includes(item.id)}

@@ -47,7 +47,7 @@ export function useFarmDashboardData() {
         );
 
         // Active Batches
-        const activeBatches = batches.filter((b) => b.availableQuantity > 0);
+        const activeBatches = batches.filter((b: any) => b.availableQuantity > 0);
 
         // New Orders
         const newOrders = orders.filter(
@@ -57,7 +57,7 @@ export function useFarmDashboardData() {
         );
 
         return {
-            earningsAmount: `${totalEarnings.toLocaleString()} VNĐ`,
+            earningsAmount: `${totalEarnings.toLocaleString()} đ`,
             earningsPeriod: "",
             activeProductsCount: activeBatches.length,
             activeProductsTrend: "",
@@ -78,14 +78,14 @@ export function useFarmDashboardData() {
 
                 // FIX: always have a product name
                 const productName =
-                    batch?.season?.product?.productName ||
+                    (typeof batch?.season === "object"
+                        ? batch?.season?.product?.productName
+                        : undefined) ||
                     firstItem?.productName ||
                     order.orderCode ||
                     "Order";
-
-                // FIX: always have an image
                 const imageUrl =
-                    batch?.imagesUrl?.[0] ||
+                    batch?.imageUrls?.[0] ||
                     firstItem?.imageUrl ||
                     "https://picsum.photos/50";
 
@@ -97,7 +97,7 @@ export function useFarmDashboardData() {
                             ? order.orderCode.substring(0, 20) + "..."
                             : order.orderCode,
                     quantity: `${totalQuantity} ${batch?.units}`,
-                    price: `${order.totalPrice} VNĐ`,
+                    price: order.totalPrice,
                     status: order.orderStatus,
                     statusColor: getStatusColor(order.orderStatus),
                     statusTextColor: getStatusTextColor(order.orderStatus),

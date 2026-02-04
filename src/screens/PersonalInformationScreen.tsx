@@ -1,17 +1,18 @@
-import React, { useState, useEffect } from "react";
-import { View, Text, ScrollView, TouchableOpacity, Alert, ActivityIndicator, TextInput, Image, Platform, KeyboardAvoidingView } from "react-native";
+import React, { useState, useEffect, useCallback } from "react";
+import { View, Text, ScrollView, TouchableOpacity, Alert, ActivityIndicator, TextInput, Image, Platform, KeyboardAvoidingView, RefreshControl } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ChevronLeft, Camera, Edit2, Save } from "lucide-react-native";
 import { useForm, Controller } from "react-hook-form";
 import * as ImagePicker from 'expo-image-picker';
-import { useGetProfile, useUpdateProfile } from "@/hooks/useProfile";
+import { useGetProfile, useUpdateProfile, useUpdateAvatar } from "@/hooks/useProfile";
 import { useGetAddresses, useCreateAddress, useUpdateAddress, useDeleteAddress } from "@/hooks/useAddress";
 import { AddressList } from "@/components/profile/AddressList";
 import { AddEditAddressModal } from "@/components/profile/AddEditAddressModal";
 import { Address, CreateAddressData, UpdateAddressData } from "@/api/address";
 import { UpdateProfileData } from "@/api/profile";
 import { PersonalInformationScreenSkeleton } from "@/components/skeletons/PersonalInformationScreenSkeleton";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface FormData {
     fullname: string;
@@ -22,10 +23,13 @@ interface FormData {
 
 export default function PersonalInformationScreen() {
     const navigation = useNavigation();
+    const queryClient = useQueryClient();
+    const [refreshing, setRefreshing] = useState(false);
 
     // Profile Data
     const { data: profile, isLoading: isProfileLoading } = useGetProfile();
     const updateProfileMutation = useUpdateProfile();
+    const updateAvatarMutation = useUpdateAvatar();
 
     // Address Data
     const { data: addresses, isLoading: isAddressLoading } = useGetAddresses();
@@ -63,6 +67,15 @@ export default function PersonalInformationScreen() {
         }
     }, [profile, reset]);
 
+    const onRefresh = useCallback(async () => {
+        setRefreshing(true);
+        await Promise.all([
+            queryClient.invalidateQueries({ queryKey: ["profile"] }),
+            queryClient.invalidateQueries({ queryKey: ["addresses"] }),
+        ]);
+        setRefreshing(false);
+    }, [queryClient]);
+
     const pickImage = async () => {
         const result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -76,23 +89,54 @@ export default function PersonalInformationScreen() {
         }
     };
 
-    const onSaveProfile = (data: FormData) => {
+    const onSaveProfile = async (data: FormData) => {
+        console.log("data", data);
         if (!profile?.id) return;
 
-        updateProfileMutation.mutate({
-            id: profile.id,
-            data: data as UpdateProfileData
-        }, {
-            onSuccess: () => {
-                setEditableField(null);
-                reset(data); // Reset dirty state with new values
-                Alert.alert("Success", "Profile updated successfully");
-            },
-            onError: (error) => {
-                Alert.alert("Error", "Failed to update profile");
-                console.error(error);
+        try {
+            // 1. Handle Avatar Upload if it's a local URI
+            let newAvatarUrl = data.avatarUrl;
+            if (data.avatarUrl && (data.avatarUrl.startsWith("file://") || data.avatarUrl.startsWith("content://"))) {
+                const formData = new FormData();
+                const filename = data.avatarUrl.split('/').pop() || "avatar.jpg";
+                const match = /\.(\w+)$/.exec(filename);
+                const type = match ? `image/${match[1]}` : `image`;
+
+                formData.append("avatar", {
+                    uri: data.avatarUrl,
+                    name: filename,
+                    type: type,
+                } as any);
+
+                const avatarResponse = await updateAvatarMutation.mutateAsync({
+                    id: profile.id,
+                    formData: formData
+                });
+
+                // Update the avatarUrl with the one returned from server
+                if (avatarResponse.avatarUrl) {
+                    newAvatarUrl = avatarResponse.avatarUrl;
+                }
             }
-        });
+
+            // 2. Update other profile details
+            // We use the newAvatarUrl (which is now a remote URL) or the existing one
+            await updateProfileMutation.mutateAsync({
+                id: profile.id,
+                data: {
+                    ...data,
+                    avatarUrl: newAvatarUrl
+                } as UpdateProfileData
+            });
+
+            setEditableField(null);
+            reset({ ...data, avatarUrl: newAvatarUrl }); // Reset dirty state with new values
+            Alert.alert("Success", "Profile updated successfully");
+
+        } catch (error) {
+            console.error(error);
+            Alert.alert("Error", "Failed to update profile");
+        }
     };
 
     // Address Handlers
@@ -171,7 +215,7 @@ export default function PersonalInformationScreen() {
     };
 
     // Show skeleton while loading
-    if (isLoading) {
+    if (isLoading && !refreshing) {
         return <PersonalInformationScreenSkeleton />;
     }
 
@@ -217,8 +261,8 @@ export default function PersonalInformationScreen() {
                 <Text className="text-lg font-semibold text-gray-900">Personal Information</Text>
                 <View style={{ width: 40 }}>
                     {isDirty && (
-                        <TouchableOpacity onPress={handleSubmit(onSaveProfile)} disabled={updateProfileMutation.isPending}>
-                            {updateProfileMutation.isPending ? (
+                        <TouchableOpacity onPress={handleSubmit(onSaveProfile)} disabled={updateProfileMutation.isPending || updateAvatarMutation.isPending}>
+                            {updateProfileMutation.isPending || updateAvatarMutation.isPending ? (
                                 <ActivityIndicator size="small" color="#4CAF50" />
                             ) : (
                                 <Save size={24} color="#4CAF50" />
@@ -229,7 +273,13 @@ export default function PersonalInformationScreen() {
             </View>
 
             <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} className="flex-1">
-                <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 50 }}>
+                <ScrollView
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={{ paddingBottom: 50 }}
+                    refreshControl={
+                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={["#4CAF50"]} tintColor="#4CAF50" />
+                    }
+                >
 
                     {/* Avatar Section */}
                     <View className="items-center mt-6 mb-6">
@@ -268,7 +318,7 @@ export default function PersonalInformationScreen() {
                     {/* Address List */}
                     <AddressList
                         addresses={addresses}
-                        isLoading={isAddressLoading}
+                        isLoading={isAddressLoading && !refreshing}
                         onAddAddress={handleAddAddress}
                         onEditAddress={handleEditAddress}
                         onDeleteAddress={handleDeleteAddress}

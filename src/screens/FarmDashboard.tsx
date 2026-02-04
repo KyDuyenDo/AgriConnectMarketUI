@@ -6,12 +6,13 @@ import { RecentOrdersSection } from "@/components/farmer-dashboard/RecentOrdersS
 import { FarmStackParamList } from "@/navigation/types"
 import { useNavigation } from "@react-navigation/native"
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
-import { Platform, ScrollView } from "react-native"
+import { Platform, ScrollView, RefreshControl } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useFarmDashboardData } from "@/hooks/useFarmDashboardData"
 
 import { FarmDashboardSkeleton } from "@/components/skeletons/FarmDashboardSkeleton"
-import { useEffect } from "react"
+import { useEffect, useState, useCallback } from "react"
+import { useQueryClient } from "@tanstack/react-query"
 
 interface DashboardData {
   userName: string
@@ -55,6 +56,8 @@ type Nav = NativeStackNavigationProp<FarmStackParamList>
 
 export function FarmDashboard({ dashboardData }: FarmDashboardProps) {
   const navigation = useNavigation<Nav>()
+  const queryClient = useQueryClient()
+  const [refreshing, setRefreshing] = useState(false)
 
   const actions = [
     {
@@ -95,7 +98,16 @@ export function FarmDashboard({ dashboardData }: FarmDashboardProps) {
 
   const { dashboardData: fetchedData, farmer, isLoading } = useFarmDashboardData();
 
-  if (isLoading && !dashboardData) {
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true)
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ["farm-dashboard"] }),
+      queryClient.invalidateQueries({ queryKey: ["farm-by-me"] }),
+    ])
+    setRefreshing(false)
+  }, [queryClient])
+
+  if (isLoading && !dashboardData && !refreshing) {
     return <FarmDashboardSkeleton />;
   }
 
@@ -110,6 +122,9 @@ export function FarmDashboard({ dashboardData }: FarmDashboardProps) {
           gap: 16,
           paddingBottom: Platform.OS === "ios" ? 140 : 140,
         }}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={["#4CAF50"]} tintColor="#4CAF50" />
+        }
       >
         <DashboardHeader />
         <IntroSection

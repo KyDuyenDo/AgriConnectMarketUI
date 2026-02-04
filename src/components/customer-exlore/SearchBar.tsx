@@ -7,7 +7,7 @@ export function SearchBar() {
         <View className="mb-4">
             <View className="flex-row items-center bg-white rounded-2xl border border-gray-200 p-3 shadow-sm">
 
-           
+
                 <View style={{ marginRight: 8 }}>
                     <Search size={20} color="#9CA3AF" />
                 </View>

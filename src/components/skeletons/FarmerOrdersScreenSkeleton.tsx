@@ -22,11 +22,11 @@ export const FarmerOrdersScreenSkeleton = () => {
                     paddingBottom: Platform.OS === "ios" ? 140 : 80,
                 }}
             >
-                {/* Stats Section */}
+                {/* Stats Section - 4 cards */}
                 <View className="px-4 mb-4">
-                    <View className="flex-row justify-between">
-                        {[1, 2, 3].map((i) => (
-                            <View key={i} className="flex-1 bg-white rounded-xl p-4 mx-1 shadow-sm">
+                    <View className="flex-row flex-wrap justify-between">
+                        {[1, 2, 3, 4].map((i) => (
+                            <View key={i} className="w-[48%] bg-white rounded-xl p-4 mb-3 shadow-sm">
                                 <Skeleton width={40} height={40} borderRadius={8} style={{ marginBottom: 8 }} />
                                 <Skeleton width="80%" height={14} style={{ marginBottom: 6 }} />
                                 <Skeleton width="60%" height={20} />
@@ -50,7 +50,7 @@ export const FarmerOrdersScreenSkeleton = () => {
 
                 {/* Orders List */}
                 <View className="px-4">
-                    {[1, 2, 3, 4].map((i) => (
+                    {[1, 2, 3].map((i) => (
                         <View key={i} className="bg-white rounded-2xl p-4 mb-3 shadow-sm">
                             {/* Order Header */}
                             <View className="flex-row justify-between items-center mb-3">
@@ -67,13 +67,31 @@ export const FarmerOrdersScreenSkeleton = () => {
                                 </View>
                             </View>
 
-                            {/* Order Details */}
-                            <View className="flex-row justify-between items-center pt-3 border-t border-gray-100">
-                                <View>
-                                    <Skeleton width={60} height={14} style={{ marginBottom: 4 }} />
-                                    <Skeleton width={80} height={18} />
+                            {/* Product Thumbnails */}
+                            <View className="flex-row gap-2 mb-3">
+                                {[1, 2, 3].map((j) => (
+                                    <Skeleton key={j} width={60} height={60} borderRadius={8} />
+                                ))}
+                                <View className="h-[60px] w-[60px] items-center justify-center rounded-lg bg-[#F5F7F5]">
+                                    <Skeleton width={30} height={14} />
                                 </View>
-                                <Skeleton width={100} height={36} borderRadius={8} />
+                            </View>
+
+                            {/* Order Details & Actions */}
+                            <View className="pt-3 border-t border-gray-100">
+                                <View className="flex-row justify-between items-center mb-3">
+                                    <View>
+                                        <Skeleton width={60} height={14} style={{ marginBottom: 4 }} />
+                                        <Skeleton width={80} height={18} />
+                                    </View>
+                                    <Skeleton width={100} height={20} />
+                                </View>
+
+                                {/* Action Buttons */}
+                                <View className="flex-row gap-2">
+                                    <Skeleton width="48%" height={36} borderRadius={8} />
+                                    <Skeleton width="48%" height={36} borderRadius={8} />
+                                </View>
                             </View>
                         </View>
                     ))}

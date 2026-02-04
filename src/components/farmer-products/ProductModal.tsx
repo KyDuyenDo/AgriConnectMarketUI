@@ -106,7 +106,7 @@ export default function ProductModal({ form, setFormValues, lot, season, handleS
                                 Price per unit
                             </Text>
                             <View className="flex-row items-center border border-gray-300 rounded-lg p-3">
-                                <Text className="text-gray-500 mr-2">VNĐ</Text>
+                                <Text className="text-gray-500 mr-2">đ</Text>
                                 <TextInput
                                     className="flex-1 text-base p-0"
                                     placeholder="0.00"
@@ -155,7 +155,7 @@ export default function ProductModal({ form, setFormValues, lot, season, handleS
                 {/* --- Phần 3: Product Images --- */}
                 <ProductImagePicker
                     label="Main Photo"
-                    initialUrl={form?.image}
+                    initialUrl={form?.image || ''}
                     onChange={(uri) => setFormValues && setFormValues({ ...form, image: uri })}
                     image={image}
                     setImage={setImage}

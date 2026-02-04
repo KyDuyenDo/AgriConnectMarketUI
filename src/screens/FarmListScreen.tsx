@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useDebounce } from "@/hooks/useDebounce";
 import {
     View,
@@ -7,7 +7,8 @@ import {
     FlatList,
     ActivityIndicator,
     Pressable,
-    Platform
+    Platform,
+    RefreshControl
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Search, ArrowLeft } from "lucide-react-native";
@@ -24,6 +25,7 @@ export default function FarmListScreen() {
     const debouncedSearchQuery = useDebounce(searchQuery, 300);
     const [farms, setFarms] = useState<Farm[]>([]);
     const [loading, setLoading] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
@@ -44,6 +46,20 @@ export default function FarmListScreen() {
             setLoading(false);
         }
     };
+
+    const onRefresh = useCallback(async () => {
+        try {
+            setRefreshing(true);
+            const response = await FarmService.getAllFarm({ IsMallFarm: false, searchTerm: "" });
+            if (response && response.data) {
+                setFarms(response.data);
+            }
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setRefreshing(false);
+        }
+    }, []);
 
     const filteredFarms = useMemo(() => {
         if (!debouncedSearchQuery) return farms;
@@ -81,7 +97,7 @@ export default function FarmListScreen() {
             </View>
 
             {/* Content */}
-            {loading ? (
+            {loading && !refreshing ? (
                 <View className="flex-1 justify-center items-center">
                     <ActivityIndicator size="large" color="#4CAF50" />
                 </View>
@@ -103,6 +119,9 @@ export default function FarmListScreen() {
                     contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 20, paddingTop: 10 }}
                     showsVerticalScrollIndicator={false}
                     ItemSeparatorComponent={() => <View className="h-4" />}
+                    refreshControl={
+                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={["#4CAF50"]} tintColor="#4CAF50" />
+                    }
                     ListEmptyComponent={
                         <View className="flex-1 justify-center items-center mt-10">
                             <Text className="text-gray-500 text-lg">No farms found</Text>

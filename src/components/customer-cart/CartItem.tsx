@@ -1,16 +1,16 @@
 "use client"
 
 import { View, Text, Image, Pressable } from "react-native"
-import { Minus, Plus, Trash2, Check, Edit2 } from "lucide-react-native"
+import { Minus, Plus, Trash2, Check, Edit2, Sprout } from "lucide-react-native"
 import { useState } from "react"
 import { QuantityInputModal } from "@/components/modals/QuantityInputModal"
 
 interface CartItemProps {
   id: string
-  image: string
+  image: string | null
   name: string
   farm: string
-  badge: { label: string; color: "green" | "orange" }
+  badge: { label: string; color: "green" | "orange" | "red" }
   harvestInfo: string
   quantity: number
   unitPrice: string
@@ -24,6 +24,7 @@ interface CartItemProps {
   onQuantityChange?: (newQuantity: number) => void
   onDelete: (id: string) => void
   hideQuantityControls?: boolean
+  isOutOfStock?: boolean
 }
 
 export function CartItem({
@@ -37,7 +38,7 @@ export function CartItem({
   unitPrice,
   total,
   unit,
-  maxQuantity = 100,
+  maxQuantity = 0,
   isSelected = false,
   onSelect,
   onIncrement,
@@ -45,13 +46,14 @@ export function CartItem({
   onQuantityChange,
   onDelete,
   hideQuantityControls = false,
+  isOutOfStock = false,
 }: CartItemProps) {
   const [isModalVisible, setIsModalVisible] = useState(false)
 
   const badgeStyle =
     badge.color === "green"
       ? { bg: "rgba(232, 249, 230, 1)", text: "#6BCF5F" }
-      : { bg: "rgba(254, 245, 231, 1)", text: "#F39C12" }
+      : { bg: "#FFEBEE", text: "#F44336" } // Red for OutOfStock
 
   const handleModalConfirm = (newQuantity: number) => {
     onQuantityChange?.(newQuantity)
@@ -60,23 +62,30 @@ export function CartItem({
 
   return (
     <>
-      <View className="w-full flex-col gap-3 pb-4 mb-4 border-b border-[#F0F0F0]">
+      <View className={`w-full flex-col gap-3 pb-4 mb-4 border-b border-[#F0F0F0] ${isOutOfStock ? 'opacity-70' : ''}`}>
         {/* Top Row: Checkbox, Image, Info, Trash */}
         <View className="flex-row items-start gap-3 w-full">
           {/* Checkbox */}
           <Pressable
             onPress={() => onSelect?.(id)}
-            className="w-5 h-5 rounded items-center justify-center mt-1"
+            className="w-7 h-7 rounded items-center justify-center mt-1"
             style={{
               backgroundColor: isSelected ? "#4CAF50" : "#ffffff",
               borderWidth: 2,
               borderColor: isSelected ? "#4CAF50" : "#D0D0D0",
             }}
+            disabled={isOutOfStock}
           >
-            {isSelected && <Check size={14} color="#ffffff" strokeWidth={3} />}
+            {isSelected && <Check size={18} color="#ffffff" strokeWidth={3} />}
           </Pressable>
 
-          <Image source={{ uri: image }} className="w-20 h-20 rounded-lg" resizeMode="cover" />
+          {image ? (
+            <Image source={{ uri: typeof image === 'string' ? image : (image as any)?.uri || "" }} className="w-20 h-20 rounded-lg" resizeMode="cover" />
+          ) : (
+            <View className="w-20 h-20 rounded-lg bg-[#E8F5E8] items-center justify-center">
+              <Sprout size={32} color="#4CAF50" />
+            </View>
+          )}
 
           {/* Info and Trash */}
           <View className="flex-1 flex-row justify-between items-start">
@@ -108,11 +117,11 @@ export function CartItem({
         <View className="flex-row justify-between items-center w-full mt-1">
           {/* Price Stack */}
           <View className="items-end">
-            <Text className="text-[15px] font-bold text-[#4CAF50]">{total} VNĐ</Text>
+            <Text className="text-[15px] font-bold text-[#4CAF50]">{total} đ</Text>
           </View>
           {/* Quantity Controls */}
           <View className="flex-row items-center gap-2">
-            {!hideQuantityControls ? (
+            {!hideQuantityControls && !isOutOfStock ? (
               <View className="flex-row items-center rounded-lg bg-[#E8F5E8] h-8">
                 <Pressable onPress={() => setIsModalVisible(true)} className="w-8 h-full items-center justify-center border-r border-white/50">
                   <Edit2 size={12} color="#4CAF50" />
@@ -130,6 +139,8 @@ export function CartItem({
                   <Plus size={14} color="#4CAF50" />
                 </Pressable>
               </View>
+            ) : isOutOfStock ? (
+              <Text className="text-[14px] font-medium text-red-500">Unavailable</Text>
             ) : (
               <Text className="text-[14px] font-medium text-[#2D2D2D]">x {quantity}</Text>
             )}

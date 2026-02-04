@@ -1,6 +1,7 @@
 import type { CartItem } from "@/types"
 import type React from "react"
 import { View, Text, Image, TouchableOpacity } from "react-native"
+import { Package } from "lucide-react-native"
 
 interface YourCartCardProps {
   items: CartItem[]
@@ -34,10 +35,16 @@ export const YourCartCard: React.FC<YourCartCardProps> = ({ items, total, itemsC
             className={`flex-row items-center justify-between ${index !== items.length - 1 ? "mb-3" : ""}`}
           >
             <View className="flex-row items-center">
-              <Image
-                source={{ uri: item.image || "https://via.placeholder.com/40" }}
-                className="w-10 h-10 rounded-lg mr-3"
-              />
+              {item.image ? (
+                <Image
+                  source={{ uri: item.image }}
+                  className="w-10 h-10 rounded-lg mr-3"
+                />
+              ) : (
+                <View className="w-10 h-10 rounded-lg mr-3 bg-gray-100 items-center justify-center">
+                  <Package size={20} color="#9ca3af" />
+                </View>
+              )}
               <View>
                 <Text className="text-sm font-medium text-[#2F3941]">{item.name}</Text>
                 <Text className="text-xs text-[#6B737A]">{item.quantity}</Text>

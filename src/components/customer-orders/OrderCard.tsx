@@ -1,363 +1,286 @@
 // OrderCard.tsx
-import React from 'react';
-import { View, Text, Pressable, Image } from 'react-native';
-import {
-  PhoneCall,
-  MoreHorizontal,
-  MessageCircle,
-  Star,
-} from 'lucide-react-native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { CustomerStackParamList } from '@/navigation/CustomerNavigator';
-import { useNavigation } from '@react-navigation/native';
+import React from "react"
+import { View, Text, Pressable, Image, TouchableOpacity } from "react-native"
+import { PhoneCall, MoreHorizontal, Star } from "lucide-react-native"
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack"
+import type { CustomerStackParamList } from "@/navigation/CustomerNavigator"
+import { useNavigation } from "@react-navigation/native"
+import theme from "@/utils/theme"
+import { createCardStyle, createTextStyle, getStatusBgColor, getStatusTextColor } from "@/utils/style-helpers"
 
-export type OrderStatus = 'in_transit' | 'delivered' | 'pending' | 'cancelled';
+export type OrderStatus = "in_transit" | "delivered" | "pending" | "cancelled"
 
 export type Order = {
-  id: string;
-  code: string;
-  date: string;
-  farmName: string;
-  subtitle: string;
-  status: OrderStatus;
-  total: string;
-  itemsCount: number;
-  estDelivery?: string;
-  deliveredDate?: string;
-  rating?: string;
-  farmId?: string;
-  batchId?: string;
-  images: string[];
-};
+  id: string
+  code: string
+  date: string
+  farmName: string
+  farmBanner: string
+  subtitle: string
+  status: OrderStatus
+  total: string
+  itemsCount: number
+  estDelivery?: string
+  deliveredDate?: string
+  rating?: string
+  farmId?: string
+  batchId?: string
+  images: string[]
+  orderType?: string
+  statusLabel?: string
+}
 
 type Nav = NativeStackNavigationProp<CustomerStackParamList>
 
-const OrderCard: React.FC<{ order: Order }> = ({ order }) => {
+const OrderCard: React.FC<{ order: Order; isPreOrder?: boolean }> = ({ order, isPreOrder }) => {
   const navigation = useNavigation<Nav>()
-  const isInTransit = order.status === 'in_transit';
-  const isDelivered = order.status === 'delivered';
-  const isPending = order.status === 'pending';
-  const isCancelled = order.status === 'cancelled';
 
-  const statusConfig = (() => {
-    if (isInTransit)
-      return {
-        label: 'In Transit',
-        bg: '#FFE0B2',
-        color: '#F57C00',
-      };
-    if (isDelivered)
-      return {
-        label: 'Delivered',
-        bg: '#C8E6C9',
-        color: '#2E7D32',
-      };
-    if (isPending)
-      return {
-        label: 'Pending',
-        bg: '#BBDEFB',
-        color: '#2C7BE5',
-      };
-    return {
-      label: 'Cancelled',
-      bg: '#FFCDD2',
-      color: '#D32F2F',
-    };
-  })();
+  // If statusLabel provided, use it. Otherwise derive from mapped status.
+  const statusLabel = order.statusLabel || order.status
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ")
 
-  const farmImages: Record<string, string> = {
-    'Sunny Acres Farm': 'https://static.paraflowcontent.com/public/resource/image/024123c5-1f93-477b-87c4-62a76ea18338.jpeg',
-    'Green Valley Farm': 'https://static.paraflowcontent.com/public/resource/image/f2186fd3-92fe-4fb6-a880-b69703dfa528.jpeg',
-    'Fresh Fields Farm': 'https://static.paraflowcontent.com/public/resource/image/8a657d62-2d16-41cd-a3ee-e6ff858b310e.jpeg',
-    'Mountain View Farm': 'https://static.paraflowcontent.com/public/resource/image/7fcc0591-30c8-4560-afda-6cffef4c0010.jpeg',
-  };
+  // Use generic colors for custom labels if not standard, or fallback to status based.
+  const statusBg = order.statusLabel ? "#E3F2FD" : getStatusBgColor(order.status) // Default light blue for custom tags?
+  const statusText = order.statusLabel ? "#1976D2" : getStatusTextColor(order.status)
 
   return (
-    <View
-      className="mb-3 rounded-2xl bg-white p-4"
+    <Pressable
+      onPress={() => navigation.navigate("CustomerOrderDetail", { orderId: order.id, isPreOrder })}
       style={{
-        shadowColor: '#000',
+        ...createCardStyle({
+          marginBottom: theme.spacing.md,
+          padding: theme.spacing.md,
+        }),
+        shadowColor: "#000",
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.08,
         shadowRadius: 8,
         elevation: 3,
-        opacity: isCancelled ? 0.75 : 1
+        opacity: order.status === "cancelled" ? 0.75 : 1,
       }}
     >
-      {/* Header: code + status + menu */}
-      <View className="flex-row items-start justify-between mb-3">
-        <View>
-          <View className="flex-row items-center gap-2 mb-1">
-            <Text className="text-[12px] text-[#6B737A]">
-              Order #{order.code}
-            </Text>
-            <View
-              className="rounded-full px-3 py-1.5"
-              style={{ backgroundColor: statusConfig.bg }}>
+      <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start" }}>
+        {/* Farm Info & Status */}
+        <View style={{ flex: 1 }}>
+          <View style={{ flexDirection: "row", alignItems: "center", marginBottom: theme.spacing.sm }}>
+            {order.farmBanner && (
+              <Image
+                source={{ uri: order.farmBanner }}
+                style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: theme.radius.md,
+                  marginRight: theme.spacing.sm,
+                }}
+              />
+            )}
+            <View style={{ flex: 1 }}>
               <Text
-                className="text-[12px] font-medium leading-4"
-                style={{ color: statusConfig.color }}>
-                {statusConfig.label}
+                style={{
+                  ...createTextStyle("primary"),
+                  fontSize: theme.fontSize.base,
+                  fontWeight: theme.fontWeight.semibold,
+                }}
+              >
+                {order.farmName}
               </Text>
+              <Text style={{ ...createTextStyle("secondary"), fontSize: theme.fontSize.sm }}>{order.code}</Text>
             </View>
           </View>
-          <Text className="text-[12px] text-[#6B737A]">
-            {order.date}
+
+        </View>
+        {/* Status Badge */}
+        <View
+          style={{
+            backgroundColor: statusBg,
+            paddingHorizontal: theme.spacing.sm,
+            paddingVertical: 4,
+            borderRadius: theme.radius.full,
+            alignSelf: "flex-start",
+            marginBottom: theme.spacing.sm,
+          }}
+        >
+          <Text style={{ fontSize: theme.fontSize.xs, fontWeight: theme.fontWeight.medium, color: statusText }}>
+            {statusLabel}
           </Text>
         </View>
+      </View>
 
-        <Pressable className="h-8 w-8 items-center justify-center rounded-lg bg-[#F5F7F5]">
-          <MoreHorizontal size={16} color="#4CAF50" />
-        </Pressable>
-      </View >
+      {/* Subtitle */}
+      {
+        order.subtitle && (
+          <View style={{ marginBottom: theme.spacing.md }}>
+            <Text style={{ ...createTextStyle("secondary"), fontSize: theme.fontSize.sm, color: theme.colors.neutral.text.primary }} numberOfLines={2}>
+              {order.subtitle}
+            </Text>
+          </View>)
+      }
 
-      {/* Farm info */}
-      < View className="flex-row items-center mb-3" >
-        <Image
-          source={{ uri: farmImages[order.farmName] }}
-          className="w-10 h-10 rounded-lg mr-3"
-          resizeMode="cover"
-        />
-        <View className="flex-1">
-          <Text className="text-[14px] font-semibold text-[#1B1F24]">
-            {order.farmName}
-          </Text>
-          <Text className="text-[12px] text-[#6B737A]">
-            {order.subtitle}
-          </Text>
-        </View>
-
-        {
-          (isInTransit || isPending) && (
-            <Pressable className="h-8 w-8 items-center justify-center rounded-lg bg-[#F5F7F5]">
-              <PhoneCall size={14} color="#4CAF50" />
-            </Pressable>
-          )
-        }
-
-        {
-          isDelivered && (
-            <View className="flex-row items-center gap-1">
-              <Star size={12} color="#FFA726" fill="#FFA726" />
-              <Text className="text-[12px] text-[#6B737A]">
-                {order.rating}
-              </Text>
-            </View>
-          )
-        }
-      </View >
-
-      {/* Thumbnails */}
-      < View className="flex-row gap-2 mb-3" >
-        {
-          order.images?.slice(0, 3).map((img, idx) => (
+      {/* Thumbnails and Action Button Row */}
+      <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: theme.spacing.md }}>
+        <View style={{ flexDirection: "row", gap: theme.spacing.sm, flex: 1 }}>
+          {order.images?.slice(0, 3).map((img, idx) => (
             <Image
               key={idx}
-              source={{ uri: img }}
-              className="w-12 h-12 rounded-lg"
+              source={{ uri: typeof img === "string" ? img : (img as any)?.uri || "" }}
+              style={{
+                width: 50,
+                height: 50,
+                borderRadius: theme.radius.md,
+                backgroundColor: theme.colors.neutral.divider,
+              }}
               resizeMode="cover"
             />
-          ))
-        }
-        {
-          order.itemsCount > 3 && (
-            <View className="h-12 w-12 items-center justify-center rounded-lg bg-[#F5F7F5]">
-              <Text className="text-[12px] font-medium text-[#4CAF50]">
+          ))}
+          {order.itemsCount > 3 && (
+            <View
+              style={{
+                width: 50,
+                height: 50,
+                borderRadius: theme.radius.md,
+                backgroundColor: theme.colors.neutral.divider,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: theme.fontSize.xs,
+                  fontWeight: theme.fontWeight.semibold,
+                  color: theme.colors.neutral.text.secondary,
+                }}
+              >
                 +{order.itemsCount - 3}
               </Text>
             </View>
-          )
-        }
-      </View >
-
-      {/* items + total */}
-      < View className="flex-row items-center justify-between mb-3" >
-        <View>
-          <Text className="text-[14px] font-semibold text-[#1B1F24]">
-            {order.itemsCount} items
-          </Text>
-
-          {isInTransit && order.estDelivery && (
-            <Text className="text-[12px] text-[#6B737A]">
-              Est. delivery: {order.estDelivery}
-            </Text>
-          )}
-
-          {isDelivered && order.deliveredDate && (
-            <Text className="text-[12px] text-[#2E7D32]">
-              Delivered on {order.deliveredDate}
-            </Text>
-          )}
-
-          {isPending && (
-            <Text className="text-[12px] text-[#6B737A]">
-              Awaiting confirmation
-            </Text>
-          )}
-
-          {isCancelled && (
-            <Text className="text-[12px] text-[#D32F2F]">
-              Order cancelled
-            </Text>
           )}
         </View>
 
-        <Text className="text-[16px] font-bold text-[#4CAF50]">
-          {order.total}
+        {/* Action Button */}
+        <View style={{ marginLeft: theme.spacing.md }}>
+          {(order.status === "in_transit" || order.status === "pending") && (
+            <Pressable
+              style={{
+                height: 40,
+                width: 40,
+                alignItems: "center",
+                justifyContent: "center",
+                borderRadius: theme.radius.md,
+                backgroundColor: theme.colors.neutral.divider,
+              }}
+            >
+              <PhoneCall size={20} color="#4CAF50" />
+            </Pressable>
+          )}
+
+          {order.status === "delivered" && (
+            <View style={{ flexDirection: "row", alignItems: "center", gap: theme.spacing.xs }}>
+              <Star size={16} color="#FFA726" fill="#FFA726" />
+              <Text style={{ ...createTextStyle("secondary"), fontSize: theme.fontSize.sm }}>{order.rating}</Text>
+            </View>
+          )}
+        </View>
+      </View>
+
+      {/* items + total */}
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-between",
+          paddingTop: theme.spacing.md,
+          borderTopWidth: 1,
+          borderTopColor: theme.colors.neutral.border,
+        }}
+      >
+        <View>
+          <Text style={{ ...createTextStyle("secondary"), fontSize: theme.fontSize.sm }}>
+            {order.itemsCount} items • {order.date}
+          </Text>
+          {order.status === "in_transit" && order.estDelivery && (
+            <Text style={{ ...createTextStyle("secondary"), fontSize: theme.fontSize.xs }}>
+              Est. delivery: {order.estDelivery}
+            </Text>
+          )}
+          {order.status === "delivered" && order.deliveredDate && (
+            <Text style={{ ...createTextStyle("secondary"), fontSize: theme.fontSize.xs, color: theme.colors.status.success }}>
+              Delivered on {order.deliveredDate}
+            </Text>
+          )}
+          {order.status === "pending" && (
+            <Text style={{ ...createTextStyle("secondary"), fontSize: theme.fontSize.xs }}>Awaiting confirmation</Text>
+          )}
+          {order.status === "cancelled" && (
+            <Text style={{ ...createTextStyle("secondary"), fontSize: theme.fontSize.xs, color: theme.colors.status.error }}>Order cancelled</Text>
+          )}
+        </View>
+
+        <Text
+          style={{
+            fontSize: theme.fontSize.base,
+            fontWeight: theme.fontWeight.semibold,
+            color: theme.colors.primary.main,
+          }}
+        >
+          {new Intl.NumberFormat("vi-VN").format(Number(order.total || 0))} đ
         </Text>
-      </View >
-
-      {/* Progress + actions theo trạng thái */}
-      {
-        isInTransit && (
-          <>
-            <StatusBar
-              labels={['Confirmed', 'Processing', 'Shipped', 'Delivered']}
-              activeIndex={2}
-              activeColor="#4CAF50"
-            />
-
-            <View className="flex-row gap-2">
-              <Pressable
-                onPress={() => navigation.navigate('CustomerOrderDetail', { orderId: order.id })}
-                className="flex-1 items-center justify-center rounded-xl py-2 bg-[#F5F7F5]">
-                <Text className="text-[14px] font-semibold text-[#4CAF50]">
-                  View Details
-                </Text>
-              </Pressable>
-
-              <Pressable className="items-center justify-center rounded-xl px-4 py-2 flex-row bg-[#C8E6C9]">
-                <MessageCircle size={14} color="#2E7D32" className="mr-1" />
-                <Text className="text-[14px] font-semibold text-[#2E7D32] ml-1">
-                  Chat
-                </Text>
-              </Pressable>
-            </View>
-          </>
-        )
-      }
-
-      {
-        isDelivered && (
-          <View className="flex-row gap-2">
-            <Pressable
-              className="flex-1 items-center justify-center rounded-xl py-2 bg-[#4CAF50]">
-              <Text className="text-[14px] font-semibold text-white">
-                Reorder
-              </Text>
-            </Pressable>
-
-            <Pressable
-              onPress={() => navigation.navigate('CustomerOrderDetail', { orderId: order.id })}
-              className="flex-1 items-center justify-center rounded-xl py-2 bg-[#F5F7F5]">
-              <Text className="text-[14px] font-semibold text-[#4CAF50]">
-                View Details
-              </Text>
-            </Pressable>
-          </View>
-        )
-      }
-
-      {
-        isPending && (
-          <>
-            <StatusBar
-              labels={['Pending', 'Confirmed', 'Shipped', 'Delivered']}
-              activeIndex={0}
-              activeColor="#2C7BE5"
-            />
-
-            <View className="flex-row gap-2">
-              <Pressable className="flex-1 items-center justify-center rounded-xl py-2 bg-[#F5F7F5]"
-                onPress={() => navigation.navigate('CustomerOrderDetail', { orderId: order.id })}>
-                <Text className="text-[14px] font-semibold text-[#4CAF50]">
-                  View Details
-                </Text>
-              </Pressable>
-
-              <Pressable className="items-center justify-center rounded-xl px-4 py-2 bg-[#FFCDD2]">
-                <Text className="text-[14px] font-semibold text-[#D32F2F]">
-                  Cancel
-                </Text>
-              </Pressable>
-            </View>
-          </>
-        )
-      }
-
-      {
-        isCancelled && (
-          <View>
-            <Pressable className="items-center justify-center rounded-xl py-2 bg-[#4CAF50]">
-              <Text className="text-[14px] font-semibold text-white">
-                Reorder Items
-              </Text>
-            </Pressable>
-
-            <Pressable
-              onPress={() => navigation.navigate('CustomerOrderDetail', { orderId: order.id })}
-              className="mt-2 items-center justify-center rounded-xl py-2 bg-[#F5F7F5]">
-              <Text className="text-[14px] font-semibold text-[#4CAF50]">
-                View Details
-              </Text>
-            </Pressable>
-          </View>
-        )
-      }
-    </View >
-  );
-};
+      </View>
+    </Pressable>
+  )
+}
 
 const StatusBar: React.FC<{
-  labels: string[];
-  activeIndex: number;
-  activeColor: string;
+  labels: string[]
+  activeIndex: number
+  activeColor: string
 }> = ({ labels, activeIndex, activeColor }) => {
   const getActiveColor = (index: number) => {
-    if (index === activeIndex) return activeColor === '#2C7BE5' ? '#2C7BE5' : '#FFA726';
-    if (index < activeIndex) return activeColor;
-    return '#E8E8E8';
-  };
+    if (index === activeIndex) return activeColor === "#2C7BE5" ? "#2C7BE5" : "#FFA726"
+    if (index < activeIndex) return activeColor
+    return "#E8E8E8"
+  }
 
   return (
-    <View className="mb-4">
-      <View className="flex-row items-center mb-2">
+    <View style={{ marginBottom: theme.spacing.md }}>
+      <View style={{ flexDirection: "row", alignItems: "center", marginBottom: theme.spacing.sm }}>
         {labels.map((_, index) => {
-          const isActive = index <= activeIndex;
+          const isActive = index <= activeIndex
 
           return (
             <React.Fragment key={index}>
               <View
-                className="h-3 w-3 rounded-full"
                 style={{
+                  height: theme.spacing.xs,
+                  width: theme.spacing.xs,
+                  borderRadius: theme.radius.full,
                   backgroundColor: getActiveColor(index),
                 }}
               />
               {index < labels.length - 1 && (
                 <View
-                  className="h-1 flex-1"
                   style={{
-                    backgroundColor: index < activeIndex ? activeColor : '#E8E8E8',
+                    height: theme.spacing.xxs,
+                    flex: 1,
+                    backgroundColor: index < activeIndex ? activeColor : "#E8E8E8",
                     width: 32,
                   }}
                 />
               )}
             </React.Fragment>
-          );
+          )
         })}
       </View>
 
-      <View className="flex-row justify-between">
-        {labels.map(label => (
-          <Text
-            key={label}
-            className="text-[10px] text-[#9DA3A8]">
+      <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+        {labels.map((label) => (
+          <Text key={label} style={{ ...createTextStyle("secondary"), fontSize: theme.fontSize.xxs }}>
             {label}
           </Text>
         ))}
       </View>
     </View>
-  );
-};
+  )
+}
 
-export default OrderCard;
+export default OrderCard

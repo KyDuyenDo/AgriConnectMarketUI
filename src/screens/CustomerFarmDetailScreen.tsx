@@ -1,4 +1,4 @@
-import { ScrollView, View, Text, Platform, Image, TouchableOpacity } from 'react-native';
+import { ScrollView, View, Text, Platform, Image, TouchableOpacity, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useEffect, useState, useMemo, useCallback } from 'react';
 import { Header } from '@/components/customer-farm-detail/Header';
@@ -19,10 +19,13 @@ import { FarmReviewSummary } from '@/components/customer-farm-detail/FarmReviewS
 import { Ionicons } from '@expo/vector-icons';
 import { useFavoritesStore } from '@/stores/favorites';
 import { useFavoriteFarms, useToggleFavoriteFarm } from '@/hooks/useFavoriteFarms';
+import { PreOrderSection } from '@/components/customer-batch-detail/PreOrderSection';
 
 import { ProductResponse } from '@/types';
 import { Modal, TextInput, Alert } from 'react-native';
 import { useQueryClient } from '@tanstack/react-query';
+
+import { useProfileById } from '@/hooks/useProfile';
 
 type Props = NativeStackScreenProps<CustomerStackParamList, 'FarmDetail'>;
 
@@ -32,11 +35,27 @@ export function CustomerFarmDetailScreen({ route, navigation }: Props) {
     const isFavorited = useFavoritesStore((state) => state.isFavorited(farmId));
     const [isCertificateVisible, setIsCertificateVisible] = useState(false);
     const { mutate: toggleFavorite } = useToggleFavoriteFarm();
+    const queryClient = useQueryClient();
+    const [refreshing, setRefreshing] = useState(false);
+
     const { data: farm, isLoading: isLoadingFarm, error: farmError } = useFarmById(farmId);
+
+    // Fetch farmer profile separately
+    const { data: farmerProfile, isLoading: isLoadingProfile } = useProfileById(farm?.farmerId || '');
+
     const { data: batches, isLoading: isLoadingBatches } = useBatchesByFarm(farmId);
     const { data: reviews, isLoading: isLoadingReviews } = useFarmReviews(farmId);
 
-
+    const onRefresh = useCallback(async () => {
+        setRefreshing(true);
+        await Promise.all([
+            queryClient.invalidateQueries({ queryKey: ['farm', farmId] }),
+            queryClient.invalidateQueries({ queryKey: ['batches-by-farm', farmId] }),
+            queryClient.invalidateQueries({ queryKey: ['farm-reviews', farmId] }),
+            queryClient.invalidateQueries({ queryKey: ['profile', farm?.farmerId] }),
+        ]);
+        setRefreshing(false);
+    }, [queryClient, farmId, farm?.farmerId]);
 
     // Calculate average rating
     const averageRating = useMemo(() => reviews && reviews.length > 0
@@ -64,9 +83,9 @@ export function CustomerFarmDetailScreen({ route, navigation }: Props) {
         return {
             heroImage: farm.bannerUrl || 'https://via.placeholder.com/400x200',
             badge: farm.isConfirmAsMall ? 'Certified Mall' : 'Local Farm',
-            ownerPhoto: farm.farmer?.profile?.avatarUrl || 'https://via.placeholder.com/60',
+            ownerPhoto: farmerProfile?.avatarUrl || 'https://via.placeholder.com/60',
             farmName: farm.farmName || 'Unknown Farm',
-            ownerName: farm.farmer?.profile?.fullname || 'Farm Owner',
+            ownerName: farmerProfile?.fullname || 'Farm Owner',
             sinceYear: farm.createdAt ? new Date(farm.createdAt).getFullYear().toString() : '2024',
             rating: averageRating > 0 ? Number(averageRating.toFixed(1)) : 0,
             reviewCount: reviews?.length || 0,
@@ -82,10 +101,10 @@ export function CustomerFarmDetailScreen({ route, navigation }: Props) {
             contact: {
                 hours: 'Mon-Sat: 8:00 AM - 6:00 PM',
                 phone: farm.phone || 'Not available',
-                email: farm.farmer?.profile?.email || 'contact@farm.com'
+                email: farmerProfile?.email || 'contact@farm.com'
             }
         };
-    }, [farm, batches, reviews, averageRating]);
+    }, [farm, batches, reviews, averageRating, farmerProfile]);
 
     const farmerData = useMemo(() => {
         if (!farm) return {
@@ -98,14 +117,14 @@ export function CustomerFarmDetailScreen({ route, navigation }: Props) {
         };
 
         return {
-            photo: farm.farmer?.profile?.avatarUrl || 'https://via.placeholder.com/150',
-            name: farm.farmer?.profile?.fullname || 'Farm Owner',
+            photo: farmerProfile?.avatarUrl || 'https://via.placeholder.com/150',
+            name: farmerProfile?.fullname || 'Farm Owner',
             title: 'Farm Owner',
             education: 'Agricultural Expert', // Placeholder
             experience: `${farmData.stats.years} years experience`,
             quote: '"Committed to sustainable farming and providing fresh produce for our community."' // Placeholder
         };
-    }, [farm, farmData.stats.years]);
+    }, [farm, farmData.stats.years, farmerProfile]);
 
     const renderStatCard = useCallback((label: string, value: string | number, icon: keyof typeof Ionicons.glyphMap, color: string) => (
         <View key={label} className="bg-white p-3 rounded-xl shadow-sm border border-gray-100 w-[100px] items-center mr-3">
@@ -118,7 +137,7 @@ export function CustomerFarmDetailScreen({ route, navigation }: Props) {
     ), []);
 
     // Show loading state
-    if (isLoadingFarm || isLoadingBatches) {
+    if ((isLoadingFarm || isLoadingBatches) && !refreshing) {
         return (
             <SafeAreaView className="flex-1 items-center justify-center" style={{ backgroundColor: '#F9FAF9' }}>
                 <Text className="text-base" style={{ color: '#6B737A' }}>Loading farm details...</Text>
@@ -149,6 +168,9 @@ export function CustomerFarmDetailScreen({ route, navigation }: Props) {
                 showsVerticalScrollIndicator={false}
                 className="pt-4"
                 contentContainerStyle={{ paddingBottom: Platform.OS === 'ios' ? 140 : 100 }}
+                refreshControl={
+                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#4CAF50']} tintColor="#4CAF50" />
+                }
             >
                 <FarmHero image={farmData.heroImage} badge={farmData.badge} />
 
@@ -179,7 +201,7 @@ export function CustomerFarmDetailScreen({ route, navigation }: Props) {
                 <View className="mt-6">
                     <View className="px-4 flex-row justify-between items-center mb-1">
                         <Text className="text-lg font-bold text-gray-900">Available Products</Text>
-                        <TouchableOpacity onPress={() => console.log('See all')}>
+                        <TouchableOpacity onPress={() => navigation.navigate('CustomerFarmProducts', { farmId, farmName: farmData.farmName })}>
                             <Text className="text-green-600 font-medium text-sm">See All</Text>
                         </TouchableOpacity>
                     </View>
@@ -190,29 +212,37 @@ export function CustomerFarmDetailScreen({ route, navigation }: Props) {
                             showsHorizontalScrollIndicator={false}
                             contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 8 }}
                         >
-                            {batches.map(batch => (
-                                <View key={batch.id} className="w-[160px] mr-4">
-                                    <FarmProductCard
-                                        image={batch.imagesUrl?.[0] || 'https://via.placeholder.com/150'}
-                                        name={batch.season?.product?.productName || 'Unknown Product'}
-                                        price={`$${batch.price}/${batch.units}`}
-                                        badge={{
-                                            label: batch.availableQuantity > 0 ? 'In Stock' : 'Out of Stock',
-                                            color: batch.availableQuantity > 0 ? 'green' : 'orange'
-                                        }}
-                                        rating={batch.averageRating || 0}
-                                        reviewCount={batch.reviewCount || 0}
-                                        onAdd={() => console.log('Add', batch.id)}
-
-                                    />
-                                </View>
-                            ))}
+                            {batches.slice(0, 4).map(batch => {
+                                const b = batch as any;
+                                return (
+                                    <View key={b.id} className="w-[160px] mr-4">
+                                        <FarmProductCard
+                                            image={b.imageUrls?.[0] || 'https://via.placeholder.com/150'}
+                                            name={b.season?.product?.productName || 'Unknown Product'}
+                                            price={`${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(b.price)}/${b.units}`}
+                                            badge={{
+                                                label: b.availableQuantity > 0 ? 'In Stock' : 'Out of Stock',
+                                                color: b.availableQuantity > 0 ? 'green' : 'orange'
+                                            }}
+                                            rating={b.averageRating || 0}
+                                            reviewCount={b.reviewCount || 0}
+                                            onAdd={() => console.log('Add', b.id)}
+                                            onPress={() => navigation.navigate('BatchDetails', { batchId: b.id })}
+                                        />
+                                    </View>
+                                );
+                            })}
                         </ScrollView>
                     ) : (
                         <View className="px-4">
                             <Text className="text-gray-500 italic">No products available at the moment.</Text>
                         </View>
                     )}
+                </View>
+
+                {/* Pre-Order Section */}
+                <View className="px-4">
+                    <PreOrderSection farmId={farmId} />
                 </View>
 
 
@@ -262,7 +292,7 @@ export function CustomerFarmDetailScreen({ route, navigation }: Props) {
 
                         {farm.certificateUrl ? (
                             <Image
-                                source={{ uri: farm.certificateUrl }}
+                                source={{ uri: typeof farm.certificateUrl === 'string' ? farm.certificateUrl : (farm.certificateUrl as any)?.uri || "" }}
                                 className="w-full h-[80%] rounded-lg"
                                 resizeMode="contain"
                             />

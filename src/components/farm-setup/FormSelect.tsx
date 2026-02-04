@@ -36,7 +36,7 @@ export function FormSelect({ label, value, onChange, options }: FormSelectProps)
                     onValueChange={onChange}
                     style={{
                         color: '#1B1F24',
-                        height: 50
+                        height: 52
                     }}
                 >
                     {options.map((option) => (

@@ -1,14 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import BatchService from "@/services/batches.service";
-import { Batch } from "@/types";
+import { Batch, ProductBatch } from "@/types";
 
-const BATCH_QUERY_KEYS = {
+export const BATCH_QUERY_KEYS = {
     all: ["batches"] as const,
     bySeason: (seasonId: string) => ["batches", "season", seasonId] as const,
 };
 
 export const useBatchesBySeason = (seasonId: string) => {
-    return useQuery<Batch[]>({
+    return useQuery<ProductBatch[]>({
         queryKey: BATCH_QUERY_KEYS.bySeason(seasonId),
         queryFn: ({ signal }) => BatchService.getAllBySeasonId(seasonId, signal),
         enabled: !!seasonId,
@@ -16,9 +16,17 @@ export const useBatchesBySeason = (seasonId: string) => {
 };
 
 export const useBatchesByFarm = (farmId: string) => {
-    return useQuery<Batch[]>({
+    return useQuery<ProductBatch[]>({
         queryKey: ["batches", "farm", farmId],
         queryFn: ({ signal }) => BatchService.getBatchesByFarm(farmId, signal),
+        enabled: !!farmId,
+    });
+};
+
+export const usePreOrderBatchesByFarm = (farmId: string) => {
+    return useQuery<ProductBatch[]>({
+        queryKey: ["batches", "farm", farmId, "pre-order"],
+        queryFn: ({ signal }) => BatchService.getPreOrderBatchesByFarm(farmId, signal),
         enabled: !!farmId,
     });
 };
@@ -32,8 +40,8 @@ export const useBatchById = (batchId: string) => {
 };
 
 export const useAllBatches = (accountId?: string, options?: { enabled?: boolean }) => {
-    return useQuery<Batch[]>({
-        queryKey: accountId ? [...BATCH_QUERY_KEYS.all, accountId] : BATCH_QUERY_KEYS.all,
+    return useQuery<ProductBatch[]>({
+        queryKey: accountId ? [...BATCH_QUERY_KEYS.all, accountId] : (BATCH_QUERY_KEYS.all as unknown as readonly string[]),
         queryFn: ({ signal }) => BatchService.getAll(accountId, signal),
         enabled: options?.enabled ?? true,
     });
@@ -71,6 +79,18 @@ export const useDeleteBatch = () => {
 
     return useMutation({
         mutationFn: (id: string) => BatchService.delete(id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: BATCH_QUERY_KEYS.all });
+        },
+    });
+};
+
+export const useSellBatch = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: ({ id, data }: { id: string; data: { availableQuantity: number; price: number } }) =>
+            BatchService.sell(id, data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: BATCH_QUERY_KEYS.all });
         },

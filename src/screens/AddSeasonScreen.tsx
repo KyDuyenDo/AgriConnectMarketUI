@@ -126,7 +126,7 @@ export default function AddSeasonScreen() {
                                     <Picker
                                         selectedValue={value}
                                         onValueChange={onChange}
-                                        style={{ height: 50 }}
+                                        style={{ height: 52 }}
                                     >
                                         <Picker.Item label="Select Category" value="" color="#9CA3AF" />
                                         {categories?.map((cat: any) => (
@@ -150,7 +150,7 @@ export default function AddSeasonScreen() {
                                     <Picker
                                         selectedValue={value}
                                         onValueChange={onChange}
-                                        style={{ height: 50 }}
+                                        style={{ height: 52 }}
                                         enabled={!!selectedCategory}
                                     >
                                         <Picker.Item label="Select Product" value="" color="#9CA3AF" />

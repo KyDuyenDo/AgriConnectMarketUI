@@ -43,7 +43,7 @@ export default function FarmAddProductScreen() {
 
     const handleSubmit = async () => {
         try {
-            
+
             await createProduct.mutateAsync(form);
             // Reset form sau khi tạo thành công
             setFormValues({
@@ -62,12 +62,12 @@ export default function FarmAddProductScreen() {
 
     return (
         <SafeAreaView className={`flex-1`}>
-            <ProductModal 
-                form={form} 
-                setFormValues={setFormValues} 
-                lot={Lot.map((item) => ({ value: item.id, label: item.name }))} 
-                season={Season.map((item) => ({ value: item.id, label: item.name }))} 
-                handleSubmit={handleSubmit} 
+            <ProductModal
+                form={form}
+                setFormValues={setFormValues}
+                lot={Lot.map((item) => ({ value: item.id, label: item.name }))}
+                season={Season.map((item) => ({ value: item.id, label: item.name }))}
+                handleSubmit={handleSubmit}
                 image={image}
                 setImage={setImage}
             />

@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import QRScanner from '../../components/QRScanner';
+
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { CustomerStackParamList } from '@/navigation/CustomerNavigator';
 import CareEventService from '@/services/care-events.service';
+import QRScanner from '@/components/QRScanner';
 
 type ScanScreenNavigationProp = NativeStackNavigationProp<CustomerStackParamList, 'ScanScreen'>;
 
@@ -24,10 +25,9 @@ const ScanScreen = () => {
 
         try {
             // Extract batchId from URL
-            // Expected format: http://localhost:3000/verify?batchId=111
-            const batchIdMatch = data.match(/[?&]batchId=([^&#]*)/);
-            const batchId = batchIdMatch ? batchIdMatch[1] : null;
-
+            // Expected format: .../product/{batchId}/...
+            const batchId = data?.split('product/')[1]?.split('/')[0];
+            console.log("Batch ID:", batchId);
             if (batchId) {
                 // Verify if batch exists or has events (optional, but good for UX)
                 // For now, we'll just navigate and let the detail screen fetch data
@@ -131,4 +131,3 @@ const styles = StyleSheet.create({
 });
 
 export default ScanScreen;
-

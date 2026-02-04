@@ -3,14 +3,15 @@ import FarmService from "@/services/farm.service";
 import { Farm } from "@/types";
 import { FarmQuery } from "@/types/farm";
 
-const FARM_QUERY_KEYS = {
+export const FARM_QUERY_KEYS = {
+    all: (query?: FarmQuery) => ["farms", query] as const,
     me: ["farms", "me"] as const,
     detail: (farmerId: string) => ["farms", farmerId] as const,
 };
 
 export const useAllFarm = (query: FarmQuery) => {
     return useQuery({
-        queryKey: ["farms", query],
+        queryKey: FARM_QUERY_KEYS.all(query),
         queryFn: () => FarmService.getAllFarm(query),
         retry: false,
     });

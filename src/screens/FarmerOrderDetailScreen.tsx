@@ -1,4 +1,4 @@
-import { ScrollView, Platform, View, Text, ActivityIndicator } from 'react-native';
+import { ScrollView, Platform, View, Text, ActivityIndicator, RefreshControl, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Header } from '@/components/farmer-order-detail/Header';
 import { OrderHeader } from '@/components/farmer-order-detail/OrderHeader';
@@ -8,8 +8,11 @@ import { OrderItems } from '@/components/farmer-order-detail/OrderItems';
 import { SpecialInstructions } from '@/components/farmer-order-detail/SpecialInstructions';
 import { OrderActions } from '@/components/farmer-order-detail/OrderActions';
 import { useRoute, useNavigation } from '@react-navigation/native';
-import { useOrderDetail, useUpdateOrderStatus, useCancelOrder } from '@/hooks/useOrders';
+import { useOrderDetail, useUpdateOrderStatus, useCancelOrder, useProcessOrder, useApprovePreOrder } from '@/hooks/useOrders';
 import { formatDate } from '@/utils/date';
+import { useState, useCallback } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import { Alert } from 'react-native';
 
 import { FarmerOrderDetailScreenSkeleton } from '@/components/skeletons/FarmerOrderDetailScreenSkeleton';
 
@@ -18,21 +21,99 @@ import { FarmerOrderDetailScreenSkeleton } from '@/components/skeletons/FarmerOr
 export function FarmerOrderDetailScreen() {
     const route = useRoute<any>();
     const navigation = useNavigation();
-    const { orderId } = route.params;
-    const { data: order, isLoading } = useOrderDetail(orderId);
+    const { orderId, isPreOrder } = route.params;
+    const { data: order, isLoading, isError, error, refetch } = useOrderDetail(orderId, isPreOrder);
     const { mutate: updateStatus } = useUpdateOrderStatus();
     const { mutate: cancelOrder } = useCancelOrder();
 
+    const handleSuccess = (message: string) => {
+        queryClient.invalidateQueries({ queryKey: ['order', orderId] });
+        queryClient.invalidateQueries({ queryKey: ['orders'] });
+        queryClient.invalidateQueries({ queryKey: ['pre-orders'] });
+        Alert.alert("Success", message);
+    };
+
+    const { mutate: processOrder } = useProcessOrder({
+        onSuccess: () => handleSuccess("Order confirmed successfully")
+    });
+    const { mutate: approvePreOrder } = useApprovePreOrder({
+        onSuccess: () => handleSuccess("Pre-Order approved successfully")
+    });
+    const queryClient = useQueryClient();
+    const [refreshing, setRefreshing] = useState(false);
+
     const handleUpdateStatus = (status: string) => {
-        updateStatus({ orderId, status });
+        if (status === 'Processing') {
+            if (isPreOrder) {
+                approvePreOrder(orderId);
+            } else {
+                processOrder(orderId);
+            }
+        } else {
+            updateStatus({ orderId, status });
+        }
     };
 
     const handleCancel = () => {
         cancelOrder(orderId);
     };
 
-    if (isLoading || !order) {
+    const handleContactCustomer = () => {
+        const phoneNumber = order?.customer?.phone;
+        if (!phoneNumber) {
+            Alert.alert("No Phone Number", "This customer has not provided a phone number.");
+            return;
+        }
+
+        Alert.alert(
+            "Contact Customer",
+            `Choose an action for ${phoneNumber}`,
+            [
+                { text: "Cancel", style: "cancel" },
+                { text: "Call", onPress: () => Linking.openURL(`tel:${phoneNumber}`) },
+                { text: "Message", onPress: () => Linking.openURL(`sms:${phoneNumber}`) }
+            ]
+        );
+    };
+
+    const onRefresh = useCallback(async () => {
+        setRefreshing(true);
+        await Promise.all([
+            queryClient.invalidateQueries({ queryKey: ['order', orderId] }),
+            refetch()
+        ]);
+        setRefreshing(false);
+    }, [queryClient, orderId, refetch]);
+
+    if (isLoading && !refreshing) {
         return <FarmerOrderDetailScreenSkeleton />;
+    }
+
+    if (isError) {
+        return (
+            <SafeAreaView className="flex-1 items-center justify-center bg-[#F9FAF9]">
+                <Text className="text-red-500 mb-4">Failed to load order details.</Text>
+                <Text className="text-gray-500 mb-8 px-4 text-center">{(error as any)?.message || "Unknown error"}</Text>
+                <View className="bg-green-500 px-6 py-3 rounded-lg">
+                    <Text className="text-white font-bold" onPress={() => refetch()}>Retry</Text>
+                </View>
+                <View className="mt-4">
+                    <Text className="text-blue-500" onPress={() => navigation.goBack()}>Go Back</Text>
+                </View>
+            </SafeAreaView>
+        );
+    }
+
+    if (!order) {
+        return (
+            <SafeAreaView className="flex-1 items-center justify-center bg-[#F9FAF9]">
+                <Text className="text-gray-500">Order not found.</Text>
+                <Text className="text-gray-400 text-xs mt-2">ID: {orderId}</Text>
+                <View className="mt-4">
+                    <Text className="text-blue-500" onPress={() => navigation.goBack()}>Go Back</Text>
+                </View>
+            </SafeAreaView>
+        );
     }
 
     const timeline = [
@@ -54,20 +135,15 @@ export function FarmerOrderDetailScreen() {
     const customer = {
         name: order.customer?.fullname || 'Guest',
         photo: order.customer?.avatarUrl || 'https://via.placeholder.com/150',
-        memberSince: 'Member', // Placeholder
+        memberSince: order.customer?.createdAt ? `Member since ${new Date(order.customer.createdAt).getFullYear()}` : 'Member',
         email: order.customer?.email || 'No email',
         phone: order.customer?.phone || 'No phone',
-        address: [order.customer?.address?.detail || '', `${order.customer?.address?.district || ''}, ${order.customer?.address?.province || ''}`].filter(Boolean)
+        // Address is not present in the customer object in the provided API response
+        address: []
     };
 
-    const items = order.orderItems?.map(item => ({
-        image: item.batch?.imagesUrl?.[0] || 'https://via.placeholder.com/150',
-        name: item.batch?.season?.product?.productName || 'Product',
-        quantity: `${item.quantity} ${item.batch?.units || 'units'}`,
-        unitPrice: `${item.unitPrice}/${item.batch?.units || 'unit'}`,
-        total: item.subTotal.toFixed(2),
-        badge: 'Organic' // Placeholder
-    })) || [];
+
+
 
     return (
         <SafeAreaView className="flex-1" style={{ backgroundColor: '#F9FAF9' }}>
@@ -80,6 +156,9 @@ export function FarmerOrderDetailScreen() {
                 showsVerticalScrollIndicator={false}
                 className="pt-4"
                 contentContainerStyle={{ paddingBottom: 30 }}
+                refreshControl={
+                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#4CAF50']} tintColor="#4CAF50" />
+                }
             >
                 <OrderHeader
                     orderNumber={order.orderCode}
@@ -87,12 +166,19 @@ export function FarmerOrderDetailScreen() {
                     status={order.orderStatus}
                 />
 
+                {order.expectedReleaseDate && (
+                    <View className="mx-4 mt-2 bg-white p-4 rounded-xl">
+                        <Text className="text-gray-500 text-xs">Expected Release Date</Text>
+                        <Text className="text-gray-800 font-medium">{formatDate(order.expectedReleaseDate)}</Text>
+                    </View>
+                )}
+
                 <OrderTimeline steps={timeline} />
 
                 <CustomerInfo {...customer} />
 
                 <OrderItems
-                    items={items}
+                    items={order.orderItems || []}
                     subtotal={order.totalPrice.toFixed(2)}
                     serviceFee={order.shippingFee.toFixed(2)}
                     total={(order.totalPrice + order.shippingFee).toFixed(2)}
@@ -102,7 +188,7 @@ export function FarmerOrderDetailScreen() {
             <OrderActions
                 onConfirm={() => handleUpdateStatus('Processing')}
                 onMarkReady={() => handleUpdateStatus('Shipped')}
-                onCall={() => console.log('Call')}
+                onCall={handleContactCustomer}
                 onMessage={() => console.log('Message')}
                 onCancel={() => handleCancel()}
             />

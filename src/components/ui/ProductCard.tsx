@@ -25,7 +25,7 @@ const RatingInfo = ({ rating, numRatings }: { rating?: number; numRatings?: numb
     )
 }
 
-const PriceSection = ({ price, unit, onPress }: { price: string; unit: string; onPress?: () => void }) => {
+const PriceSection = ({ price, unit, onPress, disabled }: { price: string; unit: string; onPress?: () => void; disabled?: boolean }) => {
     return (
         <View className="flex-row items-center justify-between">
             <Text className="text-[14px] font-bold" style={{ color: '#4CAF50' }}>
@@ -33,8 +33,9 @@ const PriceSection = ({ price, unit, onPress }: { price: string; unit: string; o
             </Text>
             <TouchableOpacity
                 className="w-6 h-6 rounded-full items-center justify-center"
-                style={{ backgroundColor: '#4CAF50' }}
-                onPress={onPress}
+                style={{ backgroundColor: disabled ? '#E0E0E0' : '#4CAF50' }}
+                onPress={disabled ? undefined : onPress}
+                disabled={disabled}
             >
                 <Plus size={12} color="white" />
             </TouchableOpacity>
@@ -43,8 +44,6 @@ const PriceSection = ({ price, unit, onPress }: { price: string; unit: string; o
 }
 
 export const ProductCard: React.FC<{ product: any; toggleFavorite: (id: string) => void; onPress?: () => void; onAddToCart?: () => void }> = ({ product, toggleFavorite, onPress, onAddToCart }) => {
-
-    console.log("product", product)
     // Calculate stock status
     const getStockStatus = (): "In Stock" | "Low Stock" | "Out of Stock" => {
         if (!product.totalYield || product.totalYield === 0) return "Out of Stock";
@@ -125,6 +124,7 @@ export const ProductCard: React.FC<{ product: any; toggleFavorite: (id: string) 
                     price={new Intl.NumberFormat('vi-VN').format(Number(product.price) || 0)}
                     unit={product.unit || "unit"}
                     onPress={isOutOfStock ? undefined : onAddToCart}
+                    disabled={isOutOfStock}
                 />
             </View>
         </Pressable>

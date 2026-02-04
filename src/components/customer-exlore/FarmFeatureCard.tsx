@@ -40,10 +40,10 @@ const FarmFeatureCard = ({ farm, style }: FarmFeatureCardProps) => {
         toggleFavorite(farm.id,
             {
                 onSuccess: (response) => {
-                    if (response.value == "added") {
-                        setIsFavorite(true);
-                    } else if (response.value == "removed") {
+                    if (response?.isDeleted) {
                         setIsFavorite(false);
+                    } else {
+                        setIsFavorite(true);
                     }
                 },
             }

@@ -28,7 +28,7 @@ export const RecentOrdersCard: React.FC<RecentOrdersCardProps> = ({ orders, onVi
         orders.length > 0 ? (
           <View className="gap-3">
             {orders.map((order) => (
-              <View key={order.id} className="bg-white rounded-2xl p-4 shadow-sm shadow-gray-100">
+              <View key={order.id} className="bg-white rounded-2xl p-4 shadow-sm shadow-gray-100 border border-gray-200">
                 {/* Status and Date */}
                 <View className="flex-row items-center justify-between mb-2">
                   <View className={`${getStatusColor(order.orderStatus)} rounded-full px-3 py-1.5`}>
@@ -40,9 +40,11 @@ export const RecentOrdersCard: React.FC<RecentOrdersCardProps> = ({ orders, onVi
                 <View className="flex flex-row justify-between items-center">
                   {/* Farm and Items */}
                   <View>
-                    <Text className="text-sm font-medium text-[#2F3941] mb-0.5">Farm</Text>
+                    <Text className="text-sm font-medium text-[#2F3941] mb-0.5" numberOfLines={1}>
+                      {order.orderItems?.[0]?.batch?.season?.farm?.farmName || 'Unknown Farm'}
+                    </Text>
                     <Text className="text-xs text-[#6B737A]">
-                      {order.orderItems?.length || 0} items • {new Intl.NumberFormat('vi-VN').format(order.totalPrice)} VNĐ
+                      {order.orderItems?.length || 0} items • {new Intl.NumberFormat('vi-VN').format(order.totalPrice)} đ
                     </Text>
                   </View>
                   {/* Action Button */}

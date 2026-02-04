@@ -341,8 +341,9 @@ export const AddEditAddressModal: React.FC<AddEditAddressModalProps> = ({
                                                 value={value}
                                                 onChangeText={onChange}
                                                 placeholder="Street address, building number, etc."
-                                                className="border border-gray-200 rounded-xl p-3 bg-white text-gray-800"
+                                                className="border border-gray-200 rounded-xl p-3 bg-white text-gray-800 min-h-[80px]"
                                                 multiline
+                                                textAlignVertical="top"
                                             />
                                         </View>
                                     )}

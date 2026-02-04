@@ -20,7 +20,6 @@ export const ProductCustomerGrid: React.FC<ProductGridProps> = ({ searchQuery, p
   const addToCartMutation = useAddToCart()
 
   const handleAddToCart = (product: UnifiedProduct) => {
-    console.log("cart", cart)
     if (!cart?.cartId) {
       Alert.alert("Error", "Cart not initialized or user not logged in.")
       return

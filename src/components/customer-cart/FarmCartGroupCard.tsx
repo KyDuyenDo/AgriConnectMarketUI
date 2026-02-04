@@ -39,7 +39,7 @@ export const FarmCartGroupCard: React.FC<Props> = ({ farmName, items, selectedIt
       {/* Header */}
       <View className="flex-row justify-between items-center p-4 border-b border-gray-100">
         <Text className="text-base font-semibold text-gray-700">{farmName}</Text>
-        <Text className="text-sm text-gray-500">{farmTotal.toFixed(2)} VNĐ</Text>
+        <Text className="text-sm text-gray-500">{farmTotal.toFixed(2)} đ</Text>
       </View>
 
       {/* Items */}

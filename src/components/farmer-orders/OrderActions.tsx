@@ -1,9 +1,13 @@
-import { View, Pressable, Text, TouchableOpacity } from "react-native"
+import { View, Pressable, Text, TouchableOpacity, Alert } from "react-native"
 import { Phone, Eye, X } from "lucide-react-native"
 
 interface OrderActionsProps {
   status: "delivered" | "shipped" | "processing" | "pending" | "urgent" | "canceled"
+  paymentStatus: string
+  paymentMethod: string
   onUpdateStatus: (newStatus: string) => void
+  onCancel?: () => void
+  onCall?: () => void
 }
 
 const getActionButtonConfig = (status: string) => {
@@ -21,11 +25,18 @@ const getActionButtonConfig = (status: string) => {
   }
 }
 
-export function OrderActions({ status, onUpdateStatus }: OrderActionsProps) {
+export function OrderActions({ status, paymentStatus, paymentMethod, onUpdateStatus, onCancel, onCall }: OrderActionsProps) {
   const { label, bgColor, textColor, isCompleted, nextStatus } = getActionButtonConfig(status)
 
   const handlePress = () => {
     if (nextStatus) {
+      if (nextStatus === "Processing") {
+        const isCOD = paymentMethod === "Cash on Delivery"
+        if (!isCOD && paymentStatus !== "Paid") {
+          Alert.alert("Cannot Confirm Order", "This order has not been paid yet. Please wait for payment confirmation.")
+          return
+        }
+      }
       onUpdateStatus(nextStatus)
     }
   }
@@ -42,7 +53,7 @@ export function OrderActions({ status, onUpdateStatus }: OrderActionsProps) {
 
       <View className="flex-row gap-2">
         {!isCompleted && (
-          <Pressable className="w-10 h-10 bg-[#FFE0B2] rounded-lg items-center justify-center">
+          <Pressable onPress={onCall} className="w-10 h-10 bg-[#FFE0B2] rounded-lg items-center justify-center">
             <View className="w-5 h-5 items-center justify-center">
               <Phone size={16} color="#FFA726" />
             </View>

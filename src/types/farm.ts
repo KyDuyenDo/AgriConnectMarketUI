@@ -32,3 +32,29 @@ export interface UpdateFarmResponse {
   ward: string;
   detail: string;
 }
+
+export interface BriefCustomerInfo {
+  customerId: string;
+  email: string;
+  fullname: string;
+}
+
+export interface TopCustomerStats {
+  customer: BriefCustomerInfo;
+  amount: number;
+}
+
+export interface BriefProduct {
+  productId: string;
+  productName: string;
+}
+
+export interface BestSellingProductStats {
+  product: BriefProduct;
+  amount: number;
+}
+
+export interface RevenueStatistic {
+  month: string;
+  amount: number;
+}

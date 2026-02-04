@@ -1,4 +1,4 @@
-import { ScrollView, View, Alert, TextInput, TouchableOpacity, Text, Modal } from 'react-native';
+import { ScrollView, View, Alert, TextInput, TouchableOpacity, Text, Modal, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Header } from '@/components/farmer-product-detail/Header';
 import { ProductHero } from '@/components/farmer-product-detail/ProductHero';
@@ -12,8 +12,12 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { FarmStackParamList } from '@/navigation/types';
 import { useFarmReviews, useReplyFarmReview } from '@/hooks/useFarmReview';
 import { useBatchById } from '@/hooks/useBatches';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
+import { FarmerProductDetailReviewsScreenSkeleton } from '@/components/skeletons/FarmerProductDetailReviewsScreenSkeleton';
+import { useQueryClient } from '@tanstack/react-query';
 
+
+import { useSeason } from '@/hooks/useSeason';
 
 type Props = NativeStackScreenProps<FarmStackParamList, 'ProductDetailReviews'>;
 
@@ -22,6 +26,11 @@ export function FarmerProductDetailReviewsScreen({ route, navigation }: Props) {
     const { data: reviews, isLoading: isLoadingReviews } = useFarmReviews(farmId);
     const { data: batch, isLoading: isLoadingBatch } = useBatchById(batchId);
     const { mutate: replyToReview } = useReplyFarmReview();
+    const queryClient = useQueryClient();
+    const [refreshing, setRefreshing] = useState(false);
+
+    // Fetch detailed season/product info using the hook
+    const { season, product, category } = useSeason(batch?.seasonId || '');
 
     const [replyModalVisible, setReplyModalVisible] = useState(false);
     const [selectedReviewId, setSelectedReviewId] = useState<string | null>(null);
@@ -63,6 +72,15 @@ export function FarmerProductDetailReviewsScreen({ route, navigation }: Props) {
         });
     };
 
+    const onRefresh = useCallback(async () => {
+        setRefreshing(true);
+        await Promise.all([
+            queryClient.invalidateQueries({ queryKey: ['farm-reviews', farmId] }),
+            queryClient.invalidateQueries({ queryKey: ['batch', batchId] }),
+        ]);
+        setRefreshing(false);
+    }, [queryClient, farmId, batchId]);
+
     // Filter reviews for this batch
     const batchReviews = reviews?.filter(r => r.batchId === batchId) || [];
 
@@ -78,8 +96,8 @@ export function FarmerProductDetailReviewsScreen({ route, navigation }: Props) {
         percentage: totalReviews > 0 ? (batchReviews.filter(r => r.rate === star).length / totalReviews) * 100 : 0
     }));
 
-    if (isLoadingBatch || isLoadingReviews) {
-        return <SafeAreaView className="flex-1 items-center justify-center"><Text>Loading...</Text></SafeAreaView>;
+    if ((isLoadingBatch || isLoadingReviews) && !refreshing) {
+        return <FarmerProductDetailReviewsScreenSkeleton />;
     }
 
     return (
@@ -89,21 +107,33 @@ export function FarmerProductDetailReviewsScreen({ route, navigation }: Props) {
             <ScrollView
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{ paddingBottom: 20 }}
+                refreshControl={
+                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#4CAF50']} tintColor="#4CAF50" />
+                }
             >
                 <ProductHero
-                    image={batch?.imagesUrl?.[0] || 'https://via.placeholder.com/400'}
+                    image={
+                        // Safely extract image URI
+                        (() => {
+                            const rawImage = batch?.imageUrls?.[0];
+                            if (!rawImage) return 'https://via.placeholder.com/400';
+                            if (typeof rawImage === 'string') return rawImage;
+                            // @ts-ignore - Handle case where backend returns object
+                            return rawImage?.imageUrl || rawImage?.uri || 'https://via.placeholder.com/400';
+                        })()
+                    }
                     badges={[]}
                 />
 
                 <ProductInfo
-                    name={batch?.season?.product?.productName || 'Unknown Product'}
+                    name={product?.productName || batch?.season?.product?.productName || 'Unknown Product'}
                     farm={(batch?.season as any)?.farm?.farmName || 'My Farm'}
                     price={batch?.price.toString() || '0'}
                     unit={batch?.units || 'unit'}
-                    description={batch?.season?.product?.productDesc || ''}
+                    description={product?.productDesc || batch?.season?.product?.productDesc || ''}
                     batchCode={(batch?.batchCode as any)?.value || 'N/A'}
-                    category={batch?.season?.product?.category?.categoryName || 'N/A'}
-                    season={batch?.season?.seasonName || 'N/A'}
+                    category={category?.categoryName || batch?.season?.product?.category?.categoryName || 'N/A'}
+                    season={season?.seasonName || batch?.season?.seasonName || 'N/A'}
                     plantingDate={batch?.plantingDate || ''}
                     harvestDate={batch?.harvestDate || ''}
                     availableQuantity={batch?.availableQuantity || 0}
@@ -177,6 +207,6 @@ export function FarmerProductDetailReviewsScreen({ route, navigation }: Props) {
                     </View>
                 </View>
             </Modal>
-        </SafeAreaView>
+        </SafeAreaView >
     );
 }

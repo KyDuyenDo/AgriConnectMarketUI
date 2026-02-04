@@ -45,14 +45,14 @@ export const AddressItem: React.FC<AddressItemProps> = ({
                                 </View>
                             )}
                         </View>
-                        <Text className="text-gray-600 text-sm leading-5">
+                        <Text className="text-gray-600 text-sm leading-5" numberOfLines={2}>
                             {address.detail}, {address.ward}, {address.district}, {address.province}
                         </Text>
                     </View>
                 </View>
             </View>
 
-            <View className="mt-4 flex-row justify-end space-x-3 border-t border-gray-100 pt-3">
+            <View className="mt-4 flex-row justify-end gap-3 border-t border-gray-100 pt-3">
                 {!address.isDefault && (
                     <TouchableOpacity
                         onPress={() => onSetDefault(address)}

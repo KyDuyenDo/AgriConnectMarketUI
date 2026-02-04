@@ -13,7 +13,7 @@ export const ShoppingCartHeader = ({ onClearAll }: ShoppingCartHeaderProps) => {
                 { paddingTop: insets.top, height: 56 + insets.top }
             ]}
         >
-            <Text style={{ fontSize: 20, fontWeight: "600", flex: 1}}>
+            <Text style={{ fontSize: 20, fontWeight: "600", flex: 1 }}>
                 Shopping Cart
             </Text>
             {/* Nút Clear all bên phải */}
