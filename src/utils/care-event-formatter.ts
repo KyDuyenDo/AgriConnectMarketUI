@@ -9,7 +9,7 @@ export interface UIPayloadItem {
   priority?: "primary" | "secondary"
 }
 
-export type UIPayload = UIPayloadItem[]
+export type UIPayload = UIPayloadItem[] | string
 
 /* =========================
  * NORMALIZE PAYLOAD
@@ -18,25 +18,56 @@ export function normalizePayload(payloadStr?: string): Record<string, any> {
   if (!payloadStr) return {}
 
   try {
-    let parsed: any = JSON.parse(payloadStr)
-    const inner = parsed.Value ?? parsed.value
+    let parsed: any = payloadStr
 
-    if (typeof inner === "string") {
-      try {
-        parsed = { ...parsed, ...JSON.parse(inner) }
-      } catch {
-        parsed.text = inner
+    // Parse once
+    try {
+      if (typeof parsed === "string") {
+        parsed = JSON.parse(parsed)
       }
+    } catch {
+      // If first parse fails, it's just a raw string
+      return { text: parsed }
     }
 
-    if (typeof inner === "object" && inner !== null) {
-      parsed = { ...parsed, ...inner }
+    // Parse again (handle double-encoded JSON)
+    try {
+      if (typeof parsed === "string") {
+        parsed = JSON.parse(parsed)
+      }
+    } catch {
+      // If second parse fails, use the result of first parse as text
+      return { text: parsed }
     }
 
-    delete parsed.Value
-    delete parsed.value
+    // Handle nested "Value" or "value" keys (legacy support)
+    if (
+      typeof parsed === "object" &&
+      parsed !== null &&
+      !Array.isArray(parsed)
+    ) {
+      const inner = parsed.Value ?? parsed.value
 
-    return parsed
+      if (typeof inner === "string") {
+        try {
+          parsed = { ...parsed, ...JSON.parse(inner) }
+        } catch {
+          parsed.text = inner
+        }
+      } else if (typeof inner === "object" && inner !== null) {
+        parsed = { ...parsed, ...inner }
+      }
+
+      delete parsed.Value
+      delete parsed.value
+
+      return parsed
+    }
+
+    // Fallback for arrays or primitives resulting from parse
+    return {
+      text: typeof parsed === "string" ? parsed : JSON.stringify(parsed),
+    }
   } catch {
     return { text: payloadStr }
   }
@@ -51,13 +82,13 @@ export function formatPayloadUI(payloadObj: any): UIPayload {
     payloadObj === null ||
     Array.isArray(payloadObj)
   ) {
-    return [
-      {
-        label: "",
-        value: String(payloadObj),
-        priority: "primary",
-      },
-    ]
+    // Return string directly for simple values
+    return String(payloadObj)
+  }
+
+  // Special handling: if object has only one key "text" which was likely created by normalizePayload catch block
+  if (Object.keys(payloadObj).length === 1 && payloadObj.text && typeof payloadObj.text === 'string') {
+    return payloadObj.text
   }
 
   return Object.entries(payloadObj)

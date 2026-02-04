@@ -1,9 +1,10 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { StyleSheet, View, Text, FlatList, ActivityIndicator, Image } from "react-native"
+import { StyleSheet, View, Text, FlatList, ActivityIndicator, Image, TouchableOpacity } from "react-native"
 import { type RouteProp, useNavigation, useRoute } from "@react-navigation/native"
 import { SafeAreaView } from "react-native-safe-area-context"
+import { ChevronLeft } from "lucide-react-native"
 import CareEventService from "@/services/care-events.service"
 import type { CareEvent } from "@/types"
 import type { CustomerStackParamList } from "@/navigation/CustomerNavigator"
@@ -56,27 +57,36 @@ const CareEventDetailScreen = () => {
 
         {/* Structured Payload Rendering */}
         <View style={styles.payloadContainer}>
-          {formattedPayload.map((payloadItem, index) => (
-            <View key={index} style={styles.payloadRow}>
-              {payloadItem.label ? (
-                <Text style={styles.payloadLabel}>{payloadItem.label}</Text>
-              ) : null}
+          <Text style={styles.payloadHeader}>📋 Event Details</Text>
+          {Array.isArray(formattedPayload) ? (
+            formattedPayload.map((payloadItem, index) => (
+              <View key={index} style={styles.payloadRow}>
+                {payloadItem.label ? (
+                  <Text style={styles.payloadLabel}>{payloadItem.label}</Text>
+                ) : null}
 
-              <Text
-                style={[
-                  styles.payloadValue,
-                  !payloadItem.label && styles.payloadValueSingle,
-                ]}
-              >
-                {payloadItem.value}
+                <Text
+                  style={[
+                    styles.payloadValue,
+                    !payloadItem.label && styles.payloadValueSingle,
+                  ]}
+                >
+                  {payloadItem.value}
+                </Text>
+              </View>
+            ))
+          ) : (
+            <View style={styles.payloadRow}>
+              <Text style={[styles.payloadValue, styles.payloadValueSingle]}>
+                {typeof formattedPayload === 'string' ? formattedPayload : JSON.stringify(formattedPayload)}
               </Text>
             </View>
-          ))}
+          )}
         </View>
 
 
         {/* Display image if available */}
-        {item.imageUrl && (
+        {item.imageUrl ? (
           <Image
             source={{
               uri: typeof item.imageUrl === "string" ? item.imageUrl : (item.imageUrl as any)?.uri || "",
@@ -84,7 +94,7 @@ const CareEventDetailScreen = () => {
             style={styles.eventImage}
             resizeMode="cover"
           />
-        )}
+        ) : null}
 
         <Text style={styles.hashText}>Hash: {item.hash?.substring(0, 10)}...</Text>
       </View>
@@ -117,6 +127,9 @@ const CareEventDetailScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <ChevronLeft size={24} color="#333" />
+        </TouchableOpacity>
         <Text style={styles.title}>Care Events</Text>
       </View>
       {events.length === 0 ? (
@@ -150,6 +163,12 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     borderBottomWidth: 1,
     borderBottomColor: "#E0E0E0",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  backButton: {
+    padding: 4,
   },
   title: {
     fontSize: 20,
@@ -193,11 +212,17 @@ const styles = StyleSheet.create({
   payloadContainer: {
     marginBottom: 12,
     marginTop: 4,
-    backgroundColor: "#F9F9F9",
+    backgroundColor: "#EFF6FF", // blue-50
     padding: 12,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "#EEE",
+    borderColor: "#BFDBFE", // blue-200
+  },
+  payloadHeader: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#1F2937", // gray-800
+    marginBottom: 8,
   },
   payloadValueSingle: {
     fontSize: 15,
